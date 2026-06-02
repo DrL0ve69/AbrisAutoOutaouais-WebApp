@@ -1,0 +1,23 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/AbrisAutoOutaouais-WebApp.API/AbrisAutoOutaouais-WebApp.API.csproj" />
+    <Project Path="src/AbrisAutoOutaouais-WebApp.Application/AbrisAutoOutaouais-WebApp.Application.csproj" />
+    <Project Path="src/AbrisAutoOutaouais-WebApp.Client/AbrisAutoOutaouais-WebApp.Client.esproj">
+      <Build />
+      <Deploy />
+    </Project>
+    <Project Path="src/AbrisAutoOutaouais-WebApp.Domain/AbrisAutoOutaouais-WebApp.Domain.csproj" />
+    <Project Path="src/AbrisAutoOutaouais-WebApp.Infrastructure/AbrisAutoOutaouais-WebApp.Infrastructure.csproj" />
+  </Folder>
+
+  <Folder Name="/.ai/">
+    <File Path=".ai/ARBORESCENCE.md" />
+    <File Path=".ai/ARCHITECTURE_DECISIONS.md" />
+    <File Path=".ai/CLAUDE.md" />
+    <File Path=".ai/CODE_EXAMPLES_BACKEND.md" />
+    <File Path=".ai/CODE_EXAMPLES_FRONTEND.md" />
+    <File Path=".ai/PROJECT_CONTEXT.md" />
+    <File Path=".ai/QUICKSTART.md" />
+    <File Path=".ai/IDENTITY.md" />
+  </Folder>
+</Solution>
