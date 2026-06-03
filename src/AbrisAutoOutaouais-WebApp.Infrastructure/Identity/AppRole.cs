@@ -7,6 +7,8 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Identity;
 /// </summary>
 public sealed class AppRole : IdentityRole<Guid>
 {
+    public AppRole() { }
+    public AppRole(string roleName) : base(roleName) { }
+
     public string? Description { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

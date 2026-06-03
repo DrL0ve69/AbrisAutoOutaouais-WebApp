@@ -44,3 +44,4 @@ app.MapControllers();
 await app.Services.InitializeIdentityAsync();
 
 app.Run();
+

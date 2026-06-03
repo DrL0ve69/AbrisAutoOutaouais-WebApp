@@ -25,7 +25,7 @@ src/
 │   │   ├── OrderLine.cs
 │   │   ├── RentalContract.cs         ★ contrat de location
 │   │   ├── BookingSlot.cs            ★ créneau d'installation
-│   │   └── Customer.cs
+│   │   
 │   ├── ValueObjects/
 │   │   ├── Address.cs                ★ valeur objet adresse (owned entity)
 │   │   ├── Money.cs

@@ -95,6 +95,34 @@ ont une FK vers `AppUser.Id` via une navigation EF standard.
 ```
 src/
 ├── Domain/              ← JAMAIS ici — IdentityUser vient d'ASP.NET Core (infra)
+│   ├── Constants/
+│   │   └── Roles.cs
+│   ├── Entities/
+│   │   ├── Product.cs
+│   │   ├── ProductCategory.cs
+│   │   ├── Order.cs
+│   │   ├── OrderLine.cs
+│   │   ├── RentalContract.cs
+│   │   ├── BookingSlot.cs
+│   │   └── Customer.cs
+│   ├── ValueObjects/
+│   │   ├── Address.cs
+│   │   ├── Money.cs
+│   │   └── PhoneNumber.cs
+│   ├── Enums/
+│   │   ├── OrderStatus.cs
+│   │   ├── RentalStatus.cs
+│   │   ├── BookingStatus.cs
+│   │   ├── DeliveryType.cs
+│   │   └── ProductCategory.cs
+│   ├── Exceptions/
+│   │   ├── NotFoundException.cs
+│   │   ├── ForbiddenException.cs
+│   │   ├── ConflictException.cs
+│   │   └── BusinessRuleException.cs
+│   ├── Interfaces/
+│   │   ├── ISoftDeletable.cs
+│   │   └── IAuditableEntity.cs
 ├── Application/         ← JAMAIS ici — couche métier ne dépend pas d'Identity
 ├── Infrastructure/
 │   └── Identity/
