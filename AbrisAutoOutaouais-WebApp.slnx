@@ -19,5 +19,9 @@
     <File Path=".ai/PROJECT_CONTEXT.md" />
     <File Path=".ai/QUICKSTART.md" />
     <File Path=".ai/IDENTITY.md" />
+    <File Path=".ai/LAYER_INFRASTRUCTURE.md" />
+    <File Path=".ai/LAYER_API.md" />
+    <File Path=".ai/LAYER_DOMAIN.md" />
+    <File Path=".ai/LAYER_APPLICATION.md" />
   </Folder>
 </Solution>

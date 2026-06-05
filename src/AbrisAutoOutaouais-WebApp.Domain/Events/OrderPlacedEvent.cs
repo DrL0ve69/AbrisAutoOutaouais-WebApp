@@ -4,6 +4,7 @@ using System.Text;
 
 namespace AbrisAutoOutaouais_WebApp.Domain.Events;
 
-public class OrderPlacedEvent
-{
-}
+public sealed record OrderPlacedEvent(
+    Guid OrderId,
+    Guid CustomerId,
+    decimal TotalAmount) : IDomainEvent;

@@ -6,6 +6,8 @@ namespace AbrisAutoOutaouais_WebApp.Domain.Enums;
 
 public enum DeliveryType
 {
-    Standard = 1,
-    Express = 2,
+    Pickup = 0,   // Ramassage en magasin/entrepôt
+    Delivery = 1,   // Livraison à domicile
+    ExpressPickup = 2,   // Livraison express avec ramassage en magasin/entrepôt
+    ExpressDelivery = 3,   // Livraison express à domicile
 }

@@ -1,3 +1,5 @@
+using AbrisAutoOutaouais_WebApp.Domain.Interfaces;
+
 namespace AbrisAutoOutaouais_WebApp.Domain.Constants;
 
 /// <summary>

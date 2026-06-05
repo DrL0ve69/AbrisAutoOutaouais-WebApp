@@ -45,7 +45,7 @@ public sealed class ApplicationDbContext : IdentityDbContext<AppUser, AppRole, G
         builder.Entity<AppRole>(entity =>
         {
             entity.ToTable("AspNetRoles");
-            entity.Property(r => r.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+            //entity.Property(r => r.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
         });
 
         // Renommer les tables Identity
