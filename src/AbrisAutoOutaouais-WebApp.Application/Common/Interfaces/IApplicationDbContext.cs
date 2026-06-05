@@ -1,3 +1,5 @@
+using AbrisAutoOutaouais_WebApp.Domain.Entities;
+using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace AbrisAutoOutaouais_WebApp.Application.Common.Interfaces;
@@ -5,8 +7,25 @@ namespace AbrisAutoOutaouais_WebApp.Application.Common.Interfaces;
 /// <summary>
 /// Interface du DbContext d'application — injected dans les handlers.
 /// </summary>
+//public interface IApplicationDbContext
+//{
+//    DbSet<TEntity> Set<TEntity>() where TEntity : class;
+//    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+//}
+
+
+/// <summary>
+/// Abstraction du DbContext — injectée directement dans les handlers CQRS.
+/// Pas de Repository Pattern générique.
+/// </summary>
 public interface IApplicationDbContext
 {
-    DbSet<TEntity> Set<TEntity>() where TEntity : class;
-    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+    DbSet<Product> Products { get; }
+    DbSet<ProductCategory> ProductCategories { get; }
+    DbSet<Order> Orders { get; }
+    DbSet<OrderLine> OrderLines { get; }
+    DbSet<RentalContract> RentalContracts { get; }
+    DbSet<BookingSlot> BookingSlots { get; }
+
+    Task<int> SaveChangesAsync(CancellationToken ct = default);
 }

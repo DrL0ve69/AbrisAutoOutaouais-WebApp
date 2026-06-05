@@ -1,5 +1,7 @@
 namespace AbrisAutoOutaouais_WebApp.Application.Common.Interfaces;
 
+// À REVOIR AVEC LE FICHIER IDENTITY.md
+
 /// <summary>
 /// Service d'authentification et d'autorisation.
 /// </summary>

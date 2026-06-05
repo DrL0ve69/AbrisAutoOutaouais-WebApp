@@ -3,46 +3,26 @@ using Microsoft.Extensions.DependencyInjection;
 namespace AbrisAutoOutaouais_WebApp.Application.Common.Mediator;
 
 /// <summary>
-/// Implémentation simple du Dispatcher CQRS.
+/// Dispatcher Mediator maison — résolution via IServiceProvider.
+/// Scrutor enregistre automatiquement tous les handlers dans DependencyInjection.cs.
 /// </summary>
-public sealed class Dispatcher : IDispatcher
+public sealed class Dispatcher(IServiceProvider sp)
 {
-    private readonly IServiceProvider _serviceProvider;
-
-    public Dispatcher(IServiceProvider serviceProvider)
+    public ValueTask<TResult> Send<TResult>(
+        ICommand<TResult> command, CancellationToken ct = default)
     {
-        _serviceProvider = serviceProvider;
+        var handlerType = typeof(ICommandHandler<,>)
+            .MakeGenericType(command.GetType(), typeof(TResult));
+        dynamic handler = sp.GetRequiredService(handlerType);
+        return handler.Handle((dynamic)command, ct);
     }
 
-    public async Task<TResult> DispatchAsync<TResult>(
-        ICommand<TResult> command,
-        CancellationToken cancellationToken = default)
+    public ValueTask<TResult> Query<TResult>(
+        IQuery<TResult> query, CancellationToken ct = default)
     {
-        var commandType = command.GetType();
-        var handlerType = typeof(ICommandHandler<,>).MakeGenericType(commandType, typeof(TResult));
-        var handler = _serviceProvider.GetService(handlerType)
-            ?? throw new InvalidOperationException($"No handler found for command {commandType.Name}");
-
-        var method = handlerType.GetMethod("HandleAsync")
-            ?? throw new InvalidOperationException($"Handler {handlerType.Name} has no HandleAsync method");
-
-        var result = await (Task<TResult>)method.Invoke(handler, [command, cancellationToken])!;
-        return result;
-    }
-
-    public async Task<TResult> DispatchAsync<TResult>(
-        IQuery<TResult> query,
-        CancellationToken cancellationToken = default)
-    {
-        var queryType = query.GetType();
-        var handlerType = typeof(IQueryHandler<,>).MakeGenericType(queryType, typeof(TResult));
-        var handler = _serviceProvider.GetService(handlerType)
-            ?? throw new InvalidOperationException($"No handler found for query {queryType.Name}");
-
-        var method = handlerType.GetMethod("HandleAsync")
-            ?? throw new InvalidOperationException($"Handler {handlerType.Name} has no HandleAsync method");
-
-        var result = await (Task<TResult>)method.Invoke(handler, [query, cancellationToken])!;
-        return result;
+        var handlerType = typeof(IQueryHandler<,>)
+            .MakeGenericType(query.GetType(), typeof(TResult));
+        dynamic handler = sp.GetRequiredService(handlerType);
+        return handler.Handle((dynamic)query, ct);
     }
 }

@@ -1,5 +1,7 @@
 namespace AbrisAutoOutaouais_WebApp.Application.Common.Interfaces;
 
+// À REVOIR AVEC LE FICHIER IDENTITY.md
+
 /// <summary>
 /// Service pour accéder aux infos de l'utilisateur actuel (depuis le JWT).
 /// </summary>

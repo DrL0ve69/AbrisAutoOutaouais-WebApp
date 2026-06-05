@@ -3,32 +3,32 @@ namespace AbrisAutoOutaouais_WebApp.Application.Common.Mediator;
 /// <summary>
 /// Marque une commande CQRS.
 /// </summary>
-public interface ICommand<TResult>
-{
-}
+//public interface ICommand<TResult>
+//{
+//}
 
 /// <summary>
 /// Marque une query CQRS.
 /// </summary>
-public interface IQuery<TResult>
-{
-}
+//public interface IQuery<TResult>
+//{
+//}
 
 /// <summary>
 /// Gestionnaire de commande.
 /// </summary>
-public interface ICommandHandler<in TCommand, TResult> where TCommand : ICommand<TResult>
-{
-    Task<TResult> HandleAsync(TCommand command, CancellationToken cancellationToken = default);
-}
+//public interface ICommandHandler<in TCommand, TResult> where TCommand : ICommand<TResult>
+//{
+//    Task<TResult> HandleAsync(TCommand command, CancellationToken cancellationToken = default);
+//}
 
-/// <summary>
-/// Gestionnaire de query.
-/// </summary>
-public interface IQueryHandler<in TQuery, TResult> where TQuery : IQuery<TResult>
-{
-    Task<TResult> HandleAsync(TQuery query, CancellationToken cancellationToken = default);
-}
+///// <summary>
+///// Gestionnaire de query.
+///// </summary>
+//public interface IQueryHandler<in TQuery, TResult> where TQuery : IQuery<TResult>
+//{
+//    Task<TResult> HandleAsync(TQuery query, CancellationToken cancellationToken = default);
+//}
 
 /// <summary>
 /// Dispatcher CQRS simplifié.
