@@ -41,7 +41,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 // Initialize Identity (create default roles and admin user)
-await app.Services.InitializeIdentityAsync();
+//await app.Services.InitializeIdentityAsync();
 
 app.Run();
 

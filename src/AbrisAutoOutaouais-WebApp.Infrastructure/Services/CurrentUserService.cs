@@ -1,8 +1,11 @@
-using System.Security.Claims;
-using AbrisAutoOutaouais_WebApp.Application.Common.Interfaces;
+﻿using AbrisAutoOutaouais_WebApp.Application.Common.Interfaces;
 using Microsoft.AspNetCore.Http;
+using System;
+using System.Collections.Generic;
+using System.Security.Claims;
+using System.Text;
 
-namespace AbrisAutoOutaouais_WebApp.Infrastructure.Identity;
+namespace AbrisAutoOutaouais_WebApp.Infrastructure.Services;
 
 /// <summary>
 /// Implémentation de ICurrentUserService — extrait les claims du JWT actuel.

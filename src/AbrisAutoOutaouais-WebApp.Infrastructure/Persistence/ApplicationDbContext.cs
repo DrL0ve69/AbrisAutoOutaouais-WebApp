@@ -1,64 +1,49 @@
 using AbrisAutoOutaouais_WebApp.Application.Common.Interfaces;
+using AbrisAutoOutaouais_WebApp.Domain.Entities;
 using AbrisAutoOutaouais_WebApp.Infrastructure.Identity;
+using AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Interceptors;
+using Domain.Entities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence;
 
 /// <summary>
-/// DbContext unique pour l'application — combine ASP.NET Core Identity + entités métier.
-/// Hérite de IdentityDbContext&lt;AppUser, AppRole, Guid&gt; pour avoir toutes les tables Identity.
+/// DbContext UNIQUE — gère Identity ET les entités métier dans la même DB.
+///
+/// Hérite de IdentityDbContext avec les 5 types génériques Guid pour éviter
+/// que EF crée des tables avec PK string au lieu de Guid.
 /// </summary>
-public sealed class ApplicationDbContext : IdentityDbContext<AppUser, AppRole, Guid>, IApplicationDbContext
+public sealed class ApplicationDbContext(
+    DbContextOptions<ApplicationDbContext> options,
+    SoftDeleteInterceptor softDelete,
+    AuditInterceptor audit)
+    : IdentityDbContext<
+        AppUser,
+        AppRole,
+        Guid,
+        IdentityUserClaim<Guid>,
+        IdentityUserRole<Guid>,
+        IdentityUserLogin<Guid>,
+        IdentityRoleClaim<Guid>,
+        IdentityUserToken<Guid>>(options),
+      IApplicationDbContext
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-        : base(options)
-    {
-    }
+    // ── Entités métier ──────────────────────────────────────────────────────
+    public DbSet<Product> Products => Set<Product>();
+    public DbSet<ProductCategory> ProductCategories => Set<ProductCategory>();
+    public DbSet<Order> Orders => Set<Order>();
+    public DbSet<OrderLine> OrderLines => Set<OrderLine>();
+    public DbSet<RentalContract> RentalContracts => Set<RentalContract>();
+    public DbSet<BookingSlot> BookingSlots => Set<BookingSlot>();
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        => optionsBuilder.AddInterceptors(softDelete, audit);
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        base.OnModelCreating(builder);
-
-        // Configuration de AppUser
-        builder.Entity<AppUser>(entity =>
-        {
-            entity.ToTable("AspNetUsers");
-
-            // Owned Entity — DeliveryAddress est stockée dans AspNetUsers avec le préfixe "DefaultDeliveryAddress_"
-            entity.OwnsOne(u => u.DefaultDeliveryAddress, navBuilder =>
-            {
-                navBuilder.Property(a => a.Street).HasColumnName("DefaultDeliveryAddress_Street");
-                navBuilder.Property(a => a.City).HasColumnName("DefaultDeliveryAddress_City");
-                navBuilder.Property(a => a.Province).HasColumnName("DefaultDeliveryAddress_Province");
-                navBuilder.Property(a => a.PostalCode).HasColumnName("DefaultDeliveryAddress_PostalCode");
-                navBuilder.Property(a => a.Country).HasColumnName("DefaultDeliveryAddress_Country");
-            });
-
-            entity.Property(u => u.FirstName).IsRequired();
-            entity.Property(u => u.LastName).IsRequired();
-            entity.Property(u => u.PreferredLanguage).HasDefaultValue("fr");
-            entity.Property(u => u.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
-        });
-
-        // Configuration de AppRole
-        builder.Entity<AppRole>(entity =>
-        {
-            entity.ToTable("AspNetRoles");
-            //entity.Property(r => r.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
-        });
-
-        // Renommer les tables Identity
-        builder.Entity<AppUser>().ToTable("AspNetUsers");
-        builder.Entity<AppRole>().ToTable("AspNetRoles");
-    }
-
-    /// <summary>
-    /// Override SaveChangesAsync pour appliquer les audit trails, soft deletes, etc.
-    /// </summary>
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
-        // TODO: Ajouter les behaviors (audit, soft delete, etc.) ici si nécessaire
-        return await base.SaveChangesAsync(cancellationToken);
+        base.OnModelCreating(builder);  // Configure les 7 tables Identity — OBLIGATOIRE
+        builder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
     }
 }

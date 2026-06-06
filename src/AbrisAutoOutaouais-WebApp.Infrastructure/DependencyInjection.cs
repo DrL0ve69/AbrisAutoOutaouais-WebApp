@@ -1,8 +1,12 @@
 using AbrisAutoOutaouais_WebApp.Application.Common.Interfaces;
 using AbrisAutoOutaouais_WebApp.Application.Common.Mediator;
+using AbrisAutoOutaouais_WebApp.Domain.Constants;
 using AbrisAutoOutaouais_WebApp.Infrastructure.Identity;
 using AbrisAutoOutaouais_WebApp.Infrastructure.Persistence;
+using AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Interceptors;
+using AbrisAutoOutaouais_WebApp.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -17,119 +21,99 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure;
 /// </summary>
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructureServices(
-        this IServiceCollection services,
-        IConfiguration configuration)
+    public static IServiceCollection AddInfrastructure(
+        this IServiceCollection services, IConfiguration config)
     {
-        // DbContext
-        var connectionString = configuration.GetConnectionString("DefaultConnection")
-            ?? throw new InvalidOperationException("DefaultConnection not found");
+        // ── DbContext unique (Identity + domaine) ─────────────────────────────
+        services.AddDbContext<ApplicationDbContext>(opts =>
+            opts.UseSqlServer(config.GetConnectionString("Default")!,
+                sql => sql.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
 
-        services.AddDbContext<ApplicationDbContext>(options =>
-        {
-            options.UseSqlServer(connectionString);
-        });
+        services.AddScoped<IApplicationDbContext>(
+            sp => sp.GetRequiredService<ApplicationDbContext>());
 
-        services.AddScoped<IApplicationDbContext>(provider =>
-            provider.GetRequiredService<ApplicationDbContext>());
+        // ── Interceptors (Singleton car ils n'ont pas d'état mutable) ─────────
+        services.AddSingleton<SoftDeleteInterceptor>();
+        services.AddScoped<AuditInterceptor>();   // Scoped car dépend de ICurrentUserService
 
-        // ASP.NET Core Identity
-        services.AddIdentity<AppUser, AppRole>(options =>
+        // ── ASP.NET Core Identity ─────────────────────────────────────────────
+        services
+            .AddIdentity<AppUser, AppRole>(opts =>
             {
-                options.Password.RequiredLength = 8;
-                options.Password.RequireNonAlphanumeric = true;
-                options.Password.RequireUppercase = true;
-                options.Password.RequireLowercase = true;
-                options.Password.RequireDigit = true;
-                options.User.RequireUniqueEmail = true;
-                options.SignIn.RequireConfirmedEmail = false;
+                opts.Password.RequiredLength = 8;
+                opts.Password.RequireDigit = true;
+                opts.Password.RequireLowercase = true;
+                opts.Password.RequireUppercase = true;
+                opts.Password.RequireNonAlphanumeric = true;
+                opts.User.RequireUniqueEmail = true;
+                opts.Lockout.MaxFailedAccessAttempts = 5;
+                opts.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
             })
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
 
-        // Services Identity
-        services.AddScoped<TokenService>();
-        services.AddScoped<IIdentityService, IdentityService>();
-        services.AddScoped<ICurrentUserService, CurrentUserService>();
+        // ── JWT Bearer ────────────────────────────────────────────────────────
+        var jwtKey = config["Jwt:Key"]
+            ?? throw new InvalidOperationException("Jwt:Key requis.");
 
-        // HTTP Context
-        services.AddHttpContextAccessor();
-
-        // JWT Authentication
-        var jwtKey = configuration["Jwt:Key"]
-            ?? throw new InvalidOperationException("Jwt:Key not configured");
-        var jwtIssuer = configuration["Jwt:Issuer"]
-            ?? throw new InvalidOperationException("Jwt:Issuer not configured");
-        var jwtAudience = configuration["Jwt:Audience"]
-            ?? throw new InvalidOperationException("Jwt:Audience not configured");
-
-        services.AddAuthentication(options =>
+        services
+            .AddAuthentication(opts =>
             {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                opts.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                opts.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-            .AddJwtBearer(options =>
+            .AddJwtBearer(opts =>
             {
-                options.TokenValidationParameters = new TokenValidationParameters
+                opts.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateIssuer = true,
-                    ValidIssuer = jwtIssuer,
-                    ValidateAudience = true,
-                    ValidAudience = jwtAudience,
-                    ValidateLifetime = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
                     ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                                                  Encoding.UTF8.GetBytes(jwtKey)),
+                    ValidateIssuer = true,
+                    ValidIssuer = config["Jwt:Issuer"],
+                    ValidateAudience = true,
+                    ValidAudience = config["Jwt:Audience"],
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero,
+                };
+                opts.Events = new JwtBearerEvents
+                {
+                    OnAuthenticationFailed = ctx =>
+                    {
+                        if (ctx.Exception is SecurityTokenExpiredException)
+                            ctx.Response.Headers.Append("Token-Expired", "true");
+                        return Task.CompletedTask;
+                    },
                 };
             });
 
-        // Mediator
-        services.AddScoped<IDispatcher, Dispatcher>();
+        // ── Authorization policies ────────────────────────────────────────────
+        services.AddAuthorizationBuilder()
+            .AddPolicy("StaffOrAbove", p => p.RequireRole(Roles.Staff, Roles.Admin))
+            .AddPolicy("AdminOnly", p => p.RequireRole(Roles.Admin));
+
+        // ── Services Identity ─────────────────────────────────────────────────
+        services.AddScoped<TokenService>();
+        services.AddScoped<IIdentityService, IdentityService>();
+
+        // ── Services métier ───────────────────────────────────────────────────
+        services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+        services.AddScoped<IFileStorageService, LocalFileStorageService>();
+        services.AddScoped<IEmailService, EmailService>();
+
+        // ── Auto-enregistrement des handlers CQRS via Scrutor ─────────────────
+        services.Scan(scan => scan
+            .FromAssemblies(typeof(Application.AssemblyMarker).Assembly)
+            .AddClasses(c => c.AssignableTo(typeof(ICommandHandler<,>)))
+                .AsImplementedInterfaces().WithScopedLifetime()
+            .AddClasses(c => c.AssignableTo(typeof(IQueryHandler<,>)))
+                .AsImplementedInterfaces().WithScopedLifetime());
+
+        // ── FluentValidation ──────────────────────────────────────────────────
+        services.AddValidatorsFromAssembly(typeof(Application.AssemblyMarker).Assembly);
 
         return services;
-    }
-
-    public static async Task<IServiceProvider> InitializeIdentityAsync(this IServiceProvider serviceProvider)
-    {
-        using var scope = serviceProvider.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
-        // Appliquer les migrations
-        await dbContext.Database.MigrateAsync();
-
-        // Créer les rôles par défaut s'ils n'existent pas
-        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<AppRole>>();
-
-        var roles = new[] { "Admin", "Staff", "Customer" };
-        foreach (var role in roles)
-        {
-            if (!await roleManager.RoleExistsAsync(role))
-            {
-                await roleManager.CreateAsync(new AppRole { Name = role, Description = $"Rôle {role}" });
-            }
-        }
-
-        // Créer un utilisateur admin par défaut s'il n'existe pas
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
-        var adminEmail = "admin@abristempo.local";
-        if (await userManager.FindByEmailAsync(adminEmail) is null)
-        {
-            var adminUser = new AppUser
-            {
-                Email = adminEmail,
-                UserName = adminEmail,
-                FirstName = "Admin",
-                LastName = "User",
-                EmailConfirmed = true,
-                CreatedAt = DateTime.UtcNow,
-            };
-
-            var result = await userManager.CreateAsync(adminUser, "Admin@123456!");
-            if (result.Succeeded)
-            {
-                await userManager.AddToRoleAsync(adminUser, "Admin");
-            }
-        }
-
-        return serviceProvider;
     }
 }

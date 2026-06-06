@@ -1,0 +1,40 @@
+﻿using AbrisAutoOutaouais_WebApp.Infrastructure.Identity;
+using Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Configurations;
+
+internal sealed class BookingSlotConfiguration : IEntityTypeConfiguration<BookingSlot>
+{
+    public void Configure(EntityTypeBuilder<BookingSlot> builder)
+    {
+        builder.HasKey(b => b.Id);
+
+        builder.Property(b => b.Status).HasConversion<string>().HasMaxLength(20);
+        builder.Property(b => b.Type).HasConversion<string>().HasMaxLength(20);
+        builder.Property(b => b.Notes).HasMaxLength(500);
+
+        builder.OwnsOne(b => b.Address, addr =>
+        {
+            addr.Property(a => a.Street).HasColumnName("Address_Street").HasMaxLength(200);
+            addr.Property(a => a.City).HasColumnName("Address_City").HasMaxLength(100);
+            addr.Property(a => a.Province).HasColumnName("Address_Province").HasMaxLength(2);
+            addr.Property(a => a.PostalCode).HasColumnName("Address_PostalCode").HasMaxLength(7);
+            addr.Property(a => a.Country).HasColumnName("Address_Country").HasMaxLength(50);
+        });
+
+        builder.HasOne<AppUser>()
+            .WithMany()
+            .HasForeignKey(b => b.CustomerId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Index pour vérifier les conflits de créneaux efficacement
+        builder.HasIndex(b => new { b.SlotStart, b.Status });
+
+        builder.HasQueryFilter(b => !b.IsDeleted);
+    }
+}
