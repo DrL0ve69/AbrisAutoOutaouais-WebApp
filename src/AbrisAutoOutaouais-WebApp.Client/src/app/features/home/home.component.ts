@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, PLATFORM_ID, computed } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common'; // Ajout de isPlatformBrowser
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 
@@ -251,9 +251,13 @@ import { AuthService } from '../../core/services/auth.service';
   `]
 })
 export class HomeComponent {
-  constructor(public authService: AuthService) {}
+  public authService = inject(AuthService);
+  private platformId = inject(PLATFORM_ID);
 
-  onLogout() {
-    this.authService.logout();
-  }
+  // Créer une propriété sécurisée pour le template
+  // Cela empêche toute logique risquée d'être évaluée par le serveur
+  public readonly isBrowser = isPlatformBrowser(this.platformId);
+
+  // Exemple : Si tu as besoin d'une info spécifique uniquement dans le navigateur
+  // Utilise ceci dans ton HTML : *ngIf="isBrowser && authService.isAuthenticated()"
 }

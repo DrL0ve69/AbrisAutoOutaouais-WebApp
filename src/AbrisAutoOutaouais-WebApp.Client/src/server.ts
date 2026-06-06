@@ -4,6 +4,7 @@ import express from 'express';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import bootstrap from './main.server';
+import { Request, Response, NextFunction } from 'express';
 
 export function app(): express.Express {
   const server = express();
@@ -26,7 +27,7 @@ export function app(): express.Express {
   );
 
   // Toutes les autres routes → SSR Angular
-  server.get('**', (req, res, next) => {
+  server.get('**', (req: Request, res: Response, next: NextFunction) => {
     const { protocol, originalUrl, baseUrl, headers } = req;
 
     commonEngine

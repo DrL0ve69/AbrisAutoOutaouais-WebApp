@@ -5,7 +5,8 @@
   </div>
 </section>
 
-<section class="services" *ngIf="authService.isAuthenticated()">
+@if (isBrowser && authService.isAuthenticated()) {
+<section class="services">
   <h2>Nos Services</h2>
   <div class="service-grid">
     <div class="service-card">
@@ -35,21 +36,22 @@
   </div>
 </section>
 
-<section class="user-info" *ngIf="authService.isAuthenticated()">
+<section class="user-info">
   <h3>Vos informations</h3>
   <div class="info-card">
     <p><strong>Email:</strong> {{ authService.user()?.email }}</p>
     <p><strong>Rôles:</strong> {{ authService.user()?.roles?.join(', ') }}</p>
   </div>
 </section>
-
-<section class="welcome-message" *ngIf="!authService.isAuthenticated()">
+} @else {
+<section class="welcome-message">
   <div class="welcome-card">
-    <h3>Bienvenue sur AbrisTempo</h3>
-    <p>Connectez-vous pour accéder à nos services</p>
+    <h3>Connectez-vous</h3>
+    <p>Pour accéder à nos services et gérer vos réservations.</p>
     <div class="button-group">
       <a routerLink="/login" class="btn-primary">Se connecter</a>
       <a routerLink="/register" class="btn-secondary">S'inscrire</a>
     </div>
   </div>
 </section>
+}

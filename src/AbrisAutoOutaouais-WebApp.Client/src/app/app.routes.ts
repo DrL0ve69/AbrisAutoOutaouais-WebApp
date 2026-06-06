@@ -9,6 +9,16 @@ export const routes: Routes = [
     loadComponent: () => import('./features/home/home.component').then(m => m.HomeComponent),
     title: 'AbrisTempo Local — Accueil',   // title est utilisé par le router pour WCAG 2.4.2
   },
+  {
+    path: 'login',
+    loadComponent: () => import('./features/auth/login/login').then(m => m.LoginComponent),
+    title: 'AbrisTempo Local — Connexion',   // title est utilisé par le router pour WCAG 2.4.2
+  },
+  {
+    path: 'register',
+    loadComponent: () => import('./features/auth/register/register.component').then(m => m.RegisterComponent),
+    title: 'AbrisTempo Local — Inscription',   // title est utilisé par le router pour WCAG 2.4.2
+  },
   // {
   //   path: 'boutique',
   //   loadChildren: () => import('./features/shop/shop.routes').then(m => m.SHOP_ROUTES),
