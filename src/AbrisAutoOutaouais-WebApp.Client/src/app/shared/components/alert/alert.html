@@ -1,0 +1,13 @@
+<!-- Le rôle alert est sur le host — le contenu est directement lisible -->
+<div class="alert" [class]="'alert--' + type()">
+  <!-- Icône décorative seulement -->
+  <span class="alert__icon" aria-hidden="true">
+    @switch (type()) {
+    @case ('success') { ✓ }
+    @case ('error')   { ✗ }
+    @case ('warning') { ⚠ }
+    @default          { ℹ }
+    }
+  </span>
+  <p class="alert__message">{{ message() }}</p>
+</div>

@@ -1,43 +1,41 @@
 import { Routes } from '@angular/router';
-import { AuthGuard } from './core/guards/auth.guard';
+import { authGuard } from './core/guards/auth.guard';
+import { adminGuard } from './core/guards/admin.guard';
+import { publicGuard } from './core/guards/public.guard';
 
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () =>
-      import('./features/home/home.component').then(m => m.HomeComponent),
+    loadComponent: () => import('./features/home/home.component').then(m => m.HomeComponent),
+    title: 'AbrisTempo Local — Accueil',   // title est utilisé par le router pour WCAG 2.4.2
   },
   // {
-  //   path: 'work',
-  //   loadChildren: () =>
-  //     import('./features/work/work.routes').then(m => m.WORK_ROUTES),
+  //   path: 'boutique',
+  //   loadChildren: () => import('./features/shop/shop.routes').then(m => m.SHOP_ROUTES),
   // },
   // {
-  //   path: 'projects',
-  //   loadChildren: () =>
-  //     import('./features/projects/projects.routes').then(m => m.PROJECTS_ROUTES),
+  //   path: 'location',
+  //   loadChildren: () => import('./features/rental/rental.routes').then(m => m.RENTAL_ROUTES),
   // },
   // {
-  //   path: 'about',
-  //   loadComponent: () =>
-  //     import('./features/about/about.component').then(m => m.About),
+  //   path: 'installation',
+  //   canActivate: [authGuard],
+  //   loadChildren: () => import('./features/booking/booking.routes').then(m => m.BOOKING_ROUTES),
   // },
   // {
-  //   path: 'contact',
-  //   loadComponent: () =>
-  //     import('./features/contact/contact.component').then(m => m.Contact),
+  //   path: 'mon-compte',
+  //   canActivate: [authGuard],
+  //   loadChildren: () => import('./features/account/account.routes').then(m => m.ACCOUNT_ROUTES),
   // },
-  {
-    path: 'login',
-    loadComponent: () =>
-      import('./features/auth/login/login.component').then(m => m.LoginComponent),
-  },
   // {
   //   path: 'admin',
-  //   canActivate: [AuthGuard],
-  //   data: { roles: ['Admin'] },
-  //   loadChildren: () =>
-  //     import('./features/admin/admin.routes').then(m => m.ADMIN_ROUTES),
+  //   canActivate: [authGuard, adminGuard],
+  //   loadChildren: () => import('./features/admin/admin.routes').then(m => m.ADMIN_ROUTES),
+  // },
+  // {
+  //   path: 'auth',
+  //   canActivate: [publicGuard],
+  //   loadChildren: () => import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES),
   // },
   { path: '**', redirectTo: '' },
 ];

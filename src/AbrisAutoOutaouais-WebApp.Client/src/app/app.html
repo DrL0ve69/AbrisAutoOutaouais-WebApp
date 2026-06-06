@@ -1,6 +1,18 @@
-<main id="main-content"
-      tabindex="-1"
-      role="main"
-      class="app-main">
+<!-- Skip navigation — doit être le PREMIER élément interactif de la page (WCAG 2.4.1) -->
+<app-skip-nav />
+
+<!-- Région d'en-tête avec rôle banner -->
+<header role="banner">
+  <app-navbar />
+</header>
+
+<!-- Contenu principal — id="main" ciblé par le skip nav -->
+<main id="main" tabindex="-1">
+  <!-- tabindex="-1" permet à skip-nav de mettre le focus ici via JS -->
   <router-outlet />
 </main>
+
+<!-- Pied de page avec rôle contentinfo -->
+<footer role="contentinfo">
+  <app-footer />
+</footer>

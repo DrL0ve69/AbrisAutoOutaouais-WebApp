@@ -23,5 +23,7 @@
     <File Path=".ai/LAYER_API.md" />
     <File Path=".ai/LAYER_DOMAIN.md" />
     <File Path=".ai/LAYER_APPLICATION.md" />
+    <File Path=".ai/LAYER_CLIENT.md" />
+    <File Path=".ai/LAYER_TESTS.md" />
   </Folder>
 </Solution>

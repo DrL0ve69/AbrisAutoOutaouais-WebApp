@@ -1,0 +1,24 @@
+// ── Screen reader only — WCAG technique G1 ───────────────────────────────────
+// Utiliser pour le texte visible seulement par les lecteurs d'écran
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+// ── Annonce dynamique pour aria-live ──────────────────────────────────────────
+// <div class="sr-only" aria-live="polite" aria-atomic="true">{{ message() }}</div>
+
+// ── Focus trap backdrop (modales) ─────────────────────────────────────────────
+.focus-trap-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .5);
+  z-index: 100;
+}

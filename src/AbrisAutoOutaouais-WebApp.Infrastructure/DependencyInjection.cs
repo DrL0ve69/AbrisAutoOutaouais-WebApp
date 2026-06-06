@@ -1,3 +1,4 @@
+using AbrisAutoOutaouais_WebApp.Application;
 using AbrisAutoOutaouais_WebApp.Application.Common.Interfaces;
 using AbrisAutoOutaouais_WebApp.Application.Common.Mediator;
 using AbrisAutoOutaouais_WebApp.Domain.Constants;
@@ -5,6 +6,7 @@ using AbrisAutoOutaouais_WebApp.Infrastructure.Identity;
 using AbrisAutoOutaouais_WebApp.Infrastructure.Persistence;
 using AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Interceptors;
 using AbrisAutoOutaouais_WebApp.Infrastructure.Services;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -26,7 +28,7 @@ public static class DependencyInjection
     {
         // ── DbContext unique (Identity + domaine) ─────────────────────────────
         services.AddDbContext<ApplicationDbContext>(opts =>
-            opts.UseSqlServer(config.GetConnectionString("Default")!,
+            opts.UseSqlServer(config.GetConnectionString("DefaultConnection")!,
                 sql => sql.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
 
         services.AddScoped<IApplicationDbContext>(
@@ -105,14 +107,14 @@ public static class DependencyInjection
 
         // ── Auto-enregistrement des handlers CQRS via Scrutor ─────────────────
         services.Scan(scan => scan
-            .FromAssemblies(typeof(Application.AssemblyMarker).Assembly)
+            .FromAssemblies(typeof(AssemblyMarker).Assembly)
             .AddClasses(c => c.AssignableTo(typeof(ICommandHandler<,>)))
                 .AsImplementedInterfaces().WithScopedLifetime()
             .AddClasses(c => c.AssignableTo(typeof(IQueryHandler<,>)))
                 .AsImplementedInterfaces().WithScopedLifetime());
 
         // ── FluentValidation ──────────────────────────────────────────────────
-        services.AddValidatorsFromAssembly(typeof(Application.AssemblyMarker).Assembly);
+        services.AddValidatorsFromAssembly(typeof(AssemblyMarker).Assembly);
 
         return services;
     }

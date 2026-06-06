@@ -1,15 +1,29 @@
-import { ApplicationConfig } from '@angular/core';
-import { provideRouter, withComponentInputBinding } from '@angular/router';
+import { ApplicationConfig, provideZoneChangeDetection, LOCALE_ID } from '@angular/core';
+import { provideRouter, withComponentInputBinding, withViewTransitions } from '@angular/router';
 import { provideHttpClient, withInterceptors, withFetch } from '@angular/common/http';
+import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
-import { httpErrorInterceptor } from './core/interceptors/http-error.interceptor';
+import { errorInterceptor } from './core/interceptors/error.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideRouter(routes, withComponentInputBinding()),
-    provideHttpClient(withFetch(), withInterceptors([authInterceptor, httpErrorInterceptor])),
+    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideRouter(
+      routes,
+      withComponentInputBinding(),   // Input() bindable depuis les routes
+      withViewTransitions(),          // Transitions natives entre pages
+    ),
+    provideHttpClient(
+      withFetch(),                    // Fetch API — meilleure perf + compatible SSR
+      withInterceptors([authInterceptor, errorInterceptor]),
+    ),
+    provideClientHydration(
+      withEventReplay(),              // Rejoue les events pendant l'hydratation SSR
+    ),
     provideAnimationsAsync(),
+    // LOCALE_ID est injecté automatiquement par Angular lors du build --localize
+    // Pas besoin de le déclarer manuellement
   ],
 };

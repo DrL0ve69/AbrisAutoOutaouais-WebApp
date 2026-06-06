@@ -1,7 +1,7 @@
 using AbrisAutoOutaouais_WebApp.Application.Common.Interfaces;
 using AbrisAutoOutaouais_WebApp.Application.Common.Mediator;
 
-namespace AbrisAutoOutaouais_WebApp.Application.Authentication.Register;
+namespace AbrisAutoOutaouais_WebApp.Application.Auth.Register;
 
 public sealed record RegisterCommand(
     string Email,
@@ -17,6 +17,11 @@ public sealed class RegisterCommandHandler : ICommandHandler<RegisterCommand, Re
     public RegisterCommandHandler(IIdentityService identityService)
     {
         _identityService = identityService;
+    }
+
+    public ValueTask<Result<AuthResponse>> Handle(RegisterCommand command, CancellationToken ct)
+    {
+        throw new NotImplementedException();
     }
 
     public async Task<Result<AuthResponse>> HandleAsync(

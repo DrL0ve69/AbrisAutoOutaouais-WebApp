@@ -1,13 +1,38 @@
-<!doctype html>
-<html lang="en">
+<html lang="fr">
+<!-- lang="fr" est OBLIGATOIRE pour WCAG AA (3.1.1 Language of Page) -->
+<!-- Angular remplace "fr" par la locale courante lors du build i18n -->
 <head>
-  <meta charset="utf-8">
-  <title>AbrisAutoOutaouaisWebAppClient</title>
-  <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <meta charset="utf-8" />
+  <title>AbrisTempo Local — Abris d'auto temporaires</title>
+  <base href="/" />
+
+  <!-- Viewport — obligatoire pour le responsive (WCAG 1.4.4) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Description pour les moteurs de recherche (SSR) -->
+  <meta name="description"
+        content="Vente, location et installation d'abris d'auto temporaires Tempo au Québec." />
+
+  <!-- Open Graph (partage réseaux sociaux) -->
+  <meta property="og:title" content="AbrisTempo Local" />
+  <meta property="og:description" content="Abris d'auto temporaires — vente, location, installation" />
+  <meta property="og:locale" content="fr_CA" />
+
+  <!-- Couleur de thème mobile -->
+  <meta name="theme-color" content="#e52329" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+
+  <!-- Preconnect pour la police (performance) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet" />
 </head>
 <body>
+  <!-- Skip navigation — OBLIGATOIRE WCAG 2.4.1 (Bypass Blocks) -->
+  <!-- Le composant app-skip-nav affiche ce lien et gère le focus -->
   <app-root></app-root>
 </body>
 </html>

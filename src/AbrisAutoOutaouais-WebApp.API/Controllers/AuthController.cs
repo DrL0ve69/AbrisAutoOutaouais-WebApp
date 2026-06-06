@@ -1,5 +1,5 @@
-using AbrisAutoOutaouais_WebApp.Application.Authentication.Login;
-using AbrisAutoOutaouais_WebApp.Application.Authentication.Register;
+using AbrisAutoOutaouais_WebApp.Application.Auth.Login;
+using AbrisAutoOutaouais_WebApp.Application.Auth.Register;
 using AbrisAutoOutaouais_WebApp.Application.Common.Interfaces;
 using AbrisAutoOutaouais_WebApp.Application.Common.Mediator;
 using Microsoft.AspNetCore.Authorization;

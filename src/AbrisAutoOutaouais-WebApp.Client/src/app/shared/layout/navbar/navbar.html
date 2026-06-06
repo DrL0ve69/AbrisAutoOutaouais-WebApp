@@ -1,0 +1,95 @@
+<nav class="navbar"
+     aria-label="Navigation principale"
+     i18n-aria-label="Navbar aria label@@navbar.ariaLabel">
+
+  <div class="container navbar__inner">
+    <!-- Logo -->
+    <a routerLink="/"
+       class="navbar__logo"
+       aria-label="AbrisTempo Local — Accueil"
+       i18n-aria-label="@@navbar.logoAlt">
+      <img ngSrc="/assets/images/logo.png"
+           alt=""
+           width="140"
+           height="40"
+           priority />
+      <!-- alt="" sur le logo car le texte "AbrisTempo Local" est dans aria-label -->
+    </a>
+
+    <!-- Navigation desktop -->
+    <ul class="navbar__links" role="list">
+      <li>
+        <a routerLink="/boutique" routerLinkActive="is-active"
+           i18n="@@navbar.shop">Boutique</a>
+      </li>
+      <li>
+        <a routerLink="/location" routerLinkActive="is-active"
+           i18n="@@navbar.rental">Location</a>
+      </li>
+      <li>
+        <a routerLink="/installation" routerLinkActive="is-active"
+           i18n="@@navbar.booking">Installation</a>
+      </li>
+    </ul>
+
+    <!-- Actions -->
+    <div class="navbar__actions">
+      <!-- Panier -->
+      <a routerLink="/mon-compte/panier"
+         class="navbar__cart"
+         [attr.aria-label]="'Panier, ' + cart.count() + ' articles'">
+        <span aria-hidden="true">🛒</span>
+        @if (cart.count() > 0) {
+        <span class="navbar__badge" aria-hidden="true">{{ cart.count() }}</span>
+        }
+      </a>
+
+      <!-- Authentifié -->
+      @if (auth.isAuthenticated()) {
+      <a routerLink="/mon-compte"
+         i18n="@@navbar.myAccount">Mon compte</a>
+      <button type="button" (click)="logout()"
+              i18n="@@navbar.logout">
+        Déconnexion
+      </button>
+
+      @if (auth.isAdmin()) {
+      <a routerLink="/admin"
+         i18n="@@navbar.admin">Administration</a>
+      }
+      } @else {
+      <a routerLink="/auth/login"
+         i18n="@@navbar.login">Connexion</a>
+      <a routerLink="/auth/register" class="btn-primary"
+         i18n="@@navbar.register">S'inscrire</a>
+      }
+    </div>
+
+    <!-- Bouton menu mobile -->
+    <button type="button"
+            class="navbar__hamburger"
+            (click)="toggleMenu()"
+            [attr.aria-expanded]="menuOpen()"
+            aria-controls="mobile-menu"
+            i18n-aria-label="Ouvrir le menu@@navbar.menuToggle"
+            aria-label="Ouvrir le menu">
+      <!-- Icône hamburger accessible avec aria-hidden -->
+      <span aria-hidden="true">☰</span>
+    </button>
+  </div>
+
+  <!-- Menu mobile -->
+  <div id="mobile-menu"
+       class="navbar__mobile"
+       [class.is-open]="menuOpen()"
+       role="dialog"
+       aria-modal="false"
+       [attr.aria-hidden]="!menuOpen()">
+
+    <ul role="list">
+      <li><a routerLink="/boutique" (click)="closeMenu()" i18n="@@navbar.shop">Boutique</a></li>
+      <li><a routerLink="/location" (click)="closeMenu()" i18n="@@navbar.rental">Location</a></li>
+      <li><a routerLink="/installation" (click)="closeMenu()" i18n="@@navbar.booking">Installation</a></li>
+    </ul>
+  </div>
+</nav>

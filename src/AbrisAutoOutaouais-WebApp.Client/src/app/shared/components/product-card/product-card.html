@@ -1,0 +1,76 @@
+<!-- article = élément sémantique correct pour une carte produit (WCAG 1.3.1) -->
+<article class="product-card"
+         [attr.aria-label]="product().name">
+
+  <!-- Image produit -->
+  <a [routerLink]="['/boutique', product().slug]"
+     class="product-card__image-link"
+     tabindex="-1"
+     aria-hidden="true">
+    <!-- tabindex="-1" : le lien du titre suffit — éviter la navigation dupliquée -->
+    @if (product().thumbnailUrl) {
+    <img ngSrc="{{ product().thumbnailUrl! }}"
+         [alt]="product().name"
+         width="400"
+         height="300"
+         class="product-card__image" />
+    } @else {
+    <div class="product-card__image-placeholder" aria-hidden="true">
+      <span>📦</span>
+    </div>
+    }
+  </a>
+
+  <div class="product-card__body">
+    <!-- Catégorie -->
+    <p class="product-card__category" aria-label="Catégorie : {{ product().categoryName }}">
+      {{ product().categoryName }}
+    </p>
+
+    <!-- Nom avec lien principal (le seul lien de la carte) -->
+    <h2 class="product-card__name">
+      <a [routerLink]="['/boutique', product().slug]">
+        {{ product().name }}
+      </a>
+    </h2>
+
+    <!-- Prix -->
+    <div class="product-card__pricing">
+      <span class="product-card__price"
+            [attr.aria-label]="'Prix : ' + (product().price | currency:'CAD':'symbol':'1.2-2':'fr-CA')">
+        {{ product().price | currency:'CAD':'symbol':'1.2-2':'fr-CA' }}
+      </span>
+
+      @if (hasRental()) {
+      <span class="product-card__rental"
+            [attr.aria-label]="'Location : ' + (product().rentalPrice! | currency:'CAD':'symbol':'1.2-2':'fr-CA') + ' par mois'">
+        Location : {{ product().rentalPrice! | currency:'CAD':'symbol':'1.2-2':'fr-CA' }}/mois
+      </span>
+      }
+    </div>
+
+    <!-- Disponibilité — signal visuel ET texte pour les lecteurs d'écran -->
+    <p class="product-card__availability"
+       [class.is-available]="product().isAvailable"
+       [class.is-unavailable]="!product().isAvailable"
+       role="status">
+      @if (product().isAvailable) {
+      <span aria-hidden="true">✓</span>
+      <span i18n="@@product.available">En stock</span>
+      } @else {
+      <span aria-hidden="true">✗</span>
+      <span i18n="@@product.unavailable">Épuisé</span>
+      }
+    </p>
+
+    <!-- Bouton ajouter au panier -->
+    <button type="button"
+            class="btn-primary product-card__btn"
+            (click)="onAdd()"
+            [disabled]="!product().isAvailable"
+            [attr.aria-disabled]="!product().isAvailable"
+            i18n="Bouton ajouter au panier@@product.addToCart">
+      Ajouter au panier
+    </button>
+  </div>
+</article>

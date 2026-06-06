@@ -1,138 +1,90 @@
-import { Injectable, signal } from '@angular/core';
+import {
+  Injectable, computed, inject, signal, PLATFORM_ID
+} from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { tap, catchError } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { tap } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
-export interface AuthResponse {
-  userId: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  fullName: string;
-  token: string;
-  roles: string[];
+export interface AuthUser {
+  readonly id: string;
+  readonly email: string;
+  readonly firstName: string;
+  readonly lastName: string;
+  readonly roles: readonly string[];
 }
 
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
+export interface LoginRequest { email: string; password: string; }
+export interface RegisterRequest { email: string; firstName: string; lastName: string; password: string; confirmPassword: string; }
+export interface AuthResponse { token: string; expiresAt: string; userId: string; email: string; fullName: string; roles: string[]; }
 
-export interface RegisterRequest {
-  email: string;
-  password: string;
-  confirmPassword: string;
-  firstName: string;
-  lastName: string;
-}
-
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly API_URL = 'http://localhost:5000/api/v1';
-  private readonly TOKEN_KEY = 'auth_token';
-  private readonly USER_KEY = 'current_user';
+  private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
+  private readonly platform = inject(PLATFORM_ID);
 
-  public authUser = signal<AuthResponse | null>(this.getStoredUser());
-  public isAuthenticated = signal(!!this.getStoredToken());
+  private readonly _token = signal<string | null>(this.loadFromStorage('auth_token'));
+  private readonly _user = signal<AuthUser | null>(this.loadUserFromStorage());
 
-  constructor(
-    private http: HttpClient,
-    private router: Router
-  ) {
-    // Restore auth state on service initialization
-    this.restoreAuthState();
-  }
+  readonly isAuthenticated = computed(() => this._token() !== null);
+  readonly user = this._user.asReadonly();
+  readonly isAdmin = computed(() => this._user()?.roles.includes('Admin') ?? false);
+  readonly isStaff = computed(() => this._user()?.roles.some(r => r === 'Staff' || r === 'Admin') ?? false);
+  readonly fullName = computed(() => {
+    const u = this._user();
+    return u ? `${u.firstName} ${u.lastName}` : null;
+  });
 
-  /**
-   * Register a new user
-   */
-  register(request: RegisterRequest) {
-    return this.http.post<AuthResponse>(
-      `${this.API_URL}/auth/register`,
-      request
-    ).pipe(
-      tap(response => this.setAuthState(response)),
-      catchError(error => {
-        console.error('Registration error:', error);
-        throw error;
-      })
+  login(req: LoginRequest) {
+    return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/login`, req).pipe(
+      tap(res => this.setSession(res))
     );
   }
 
-  /**
-   * Login user
-   */
-  login(request: LoginRequest) {
-    return this.http.post<AuthResponse>(
-      `${this.API_URL}/auth/login`,
-      request
-    ).pipe(
-      tap(response => this.setAuthState(response)),
-      catchError(error => {
-        console.error('Login error:', error);
-        throw error;
-      })
+  register(req: RegisterRequest) {
+    return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/register`, req).pipe(
+      tap(res => this.setSession(res))
     );
   }
 
-  /**
-   * Logout user
-   */
-  logout() {
-    this.clearAuthState();
-    this.router.navigate(['/login']);
+  logout(): void {
+    this.clearSession();
+    this.router.navigateByUrl('/auth/login');
   }
 
-  /**
-   * Check if user is in a specific role
-   */
-  isInRole(role: string): boolean {
-    const user = this.authUser();
-    return user ? user.roles.includes(role) : false;
-  }
+  getToken(): string | null { return this._token(); }
 
-  /**
-   * Get stored JWT token
-   */
-  getToken(): string | null {
-    return this.getStoredToken();
-  }
-
-  /**
-   * Private methods
-   */
-  private setAuthState(response: AuthResponse) {
-    localStorage.setItem(this.TOKEN_KEY, response.token);
-    localStorage.setItem(this.USER_KEY, JSON.stringify(response));
-    this.authUser.set(response);
-    this.isAuthenticated.set(true);
-  }
-
-  private clearAuthState() {
-    localStorage.removeItem(this.TOKEN_KEY);
-    localStorage.removeItem(this.USER_KEY);
-    this.authUser.set(null);
-    this.isAuthenticated.set(false);
-  }
-
-  private getStoredToken(): string | null {
-    return localStorage.getItem(this.TOKEN_KEY);
-  }
-
-  private getStoredUser(): AuthResponse | null {
-    const user = localStorage.getItem(this.USER_KEY);
-    return user ? JSON.parse(user) : null;
-  }
-
-  private restoreAuthState() {
-    const token = this.getStoredToken();
-    const user = this.getStoredUser();
-    if (token && user) {
-      this.authUser.set(user);
-      this.isAuthenticated.set(true);
+  private setSession(res: AuthResponse): void {
+    this._token.set(res.token);
+    this._user.set({ id: res.userId, email: res.email, firstName: '', lastName: '', roles: res.roles });
+    if (isPlatformBrowser(this.platform)) {
+      localStorage.setItem('auth_token', res.token);
+      localStorage.setItem('auth_user', JSON.stringify(res));
     }
+  }
+
+  private clearSession(): void {
+    this._token.set(null);
+    this._user.set(null);
+    if (isPlatformBrowser(this.platform)) {
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('auth_user');
+    }
+  }
+
+  private loadFromStorage(key: string): string | null {
+    if (!isPlatformBrowser(this.platform)) return null;
+    return localStorage.getItem(key);
+  }
+
+  private loadUserFromStorage(): AuthUser | null {
+    if (!isPlatformBrowser(this.platform)) return null;
+    try {
+      const raw = localStorage.getItem('auth_user');
+      const res: AuthResponse = raw ? JSON.parse(raw) : null;
+      return res ? { id: res.userId, email: res.email, firstName: '', lastName: '', roles: res.roles } : null;
+    } catch { return null; }
   }
 }

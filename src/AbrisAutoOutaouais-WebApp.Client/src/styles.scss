@@ -1,1 +1,114 @@
-/* You can add global styles to this file, and also import other style files */
+// Import des tokens et helpers partagés
+@use 'app/shared/styles/tokens' as *;
+@use 'app/shared/styles/breakpoints' as *;
+@use 'app/shared/styles/a11y' as *;
+
+// ── Réinitialisation ─────────────────────────────────────────────────────────
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+// ── Base HTML ────────────────────────────────────────────────────────────────
+html {
+  font-size: 100%; // 16px — ne jamais utiliser px ici (WCAG 1.4.4)
+  scroll-behavior: smooth;
+
+  @media (prefers-reduced-motion: reduce) {
+    scroll-behavior: auto; // Respecter les préférences de l'utilisateur
+  }
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  line-height: 1.6;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+// ── Typographie ──────────────────────────────────────────────────────────────
+h1 {
+  font-size: var(--font-size-4xl);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+h2 {
+  font-size: var(--font-size-3xl);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+h3 {
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+}
+
+h4 {
+  font-size: var(--font-size-xl);
+  font-weight: 500;
+}
+
+// ── Focus visible — WCAG 2.4.7 ───────────────────────────────────────────────
+// Styles de focus clairs pour la navigation clavier
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+// Supprimer l'outline pour la souris seulement
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+// ── Liens ────────────────────────────────────────────────────────────────────
+a {
+  color: var(--color-primary);
+  text-decoration: underline;
+
+  &:hover {
+    color: var(--color-primary-dark);
+  }
+  // Assurer le contraste en visitant (WCAG 1.4.3)
+  &:visited {
+    color: var(--color-primary-dark);
+  }
+}
+
+// ── Utilitaires globaux ───────────────────────────────────────────────────────
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin-inline: auto;
+  padding-inline: var(--space-4);
+
+  @include md {
+    padding-inline: var(--space-6);
+  }
+
+  @include lg {
+    padding-inline: var(--space-8);
+  }
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+// ── Animations — respecter prefers-reduced-motion ────────────────────────────
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

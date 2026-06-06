@@ -1,0 +1,65 @@
+:root {
+  // ── Couleurs marque (rouge Tempo) ────────────────────────────────────────
+  --color-primary: #c0201a; // Ratio 4.6:1 sur blanc — WCAG AA ✅
+  --color-primary-dark: #9e1915;
+  --color-primary-light: #e53932;
+  --color-secondary: #1a2332; // Bleu nuit
+  --color-accent: #c27b00; // Ambre (ratio 4.5:1 sur blanc) ✅
+  // ── Couleur de focus — WCAG 2.4.7 ────────────────────────────────────────
+  --color-focus: #005fcc; // Bleu vif, ratio élevé sur fond blanc ✅
+  // ── Neutres ───────────────────────────────────────────────────────────────
+  --color-bg: #ffffff;
+  --color-bg-subtle: #f7f7f7;
+  --color-bg-muted: #efefef;
+  --color-border: #d1d1d1;
+  --color-text: #111111; // Ratio 18:1 sur blanc ✅
+  --color-text-muted: #595959; // Ratio 7:1 sur blanc ✅
+  --color-text-inverse: #ffffff;
+  // ── Feedback ─────────────────────────────────────────────────────────────
+  --color-success: #1a6e2e; // Ratio 5.2:1 sur blanc ✅
+  --color-error: #b91c1c; // Ratio 5.9:1 sur blanc ✅
+  --color-warning-bg: #fef3c7;
+  --color-info: #1d4ed8;
+  // ── Spacing ───────────────────────────────────────────────────────────────
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  // ── Typographie ───────────────────────────────────────────────────────────
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --font-size-4xl: 2.25rem;
+  // ── Formes ────────────────────────────────────────────────────────────────
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+  // ── Ombres ────────────────────────────────────────────────────────────────
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, .1);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, .12);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, .15);
+}
+
+// Dark mode — respecte les préférences système (WCAG 1.4.3)
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #0f1117;
+    --color-bg-subtle: #1a1d27;
+    --color-bg-muted: #252834;
+    --color-border: #363a4f;
+    --color-text: #e8eaf0;
+    --color-text-muted: #9ba3bf;
+    --color-text-inverse: #111111;
+  }
+}

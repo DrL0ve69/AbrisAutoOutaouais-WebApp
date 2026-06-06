@@ -1,47 +1,57 @@
+using AbrisAutoOutaouais_WebApp.Application.Common.Mediator;
 using AbrisAutoOutaouais_WebApp.Infrastructure;
+using AbrisAutoOutaouais_WebApp.Application;
+using Asp.Versioning;
+using AbrisAutoOutaouais_WebApp.API.Middlewares;
+using AbrisAutoOutaouais_WebApp.Infrastructure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// ── Infrastructure (DbContext, Identity, JWT, services) ───────────────────────
+builder.Services.AddInfrastructure(builder.Configuration);
+
+// ── Mediator Dispatcher ───────────────────────────────────────────────────────
+builder.Services.AddScoped<Dispatcher>();
+
+// ── Contrôleurs ───────────────────────────────────────────────────────────────
 builder.Services.AddControllers();
-builder.Services.AddOpenApi();
-
-// Add Infrastructure services (Database, Identity, Auth, etc.)
-builder.Services.AddInfrastructureServices(builder.Configuration);
-
-// Add CORS for frontend (Angular)
-var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? ["http://localhost:4200"];
-builder.Services.AddCors(options =>
+builder.Services.AddApiVersioning(opt =>
 {
-    options.AddPolicy("AllowFrontend", corsBuilder =>
-    {
-        corsBuilder
-            .WithOrigins(allowedOrigins)
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials();
-    });
+    opt.DefaultApiVersion = new ApiVersion(1, 0);
+    opt.AssumeDefaultVersionWhenUnspecified = true;
+    opt.ReportApiVersions = true;
 });
+
+// ── Exception Handler (RFC 9457 ProblemDetails) ───────────────────────────────
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
+// ── CORS ──────────────────────────────────────────────────────────────────────
+builder.Services.AddCors(opts => opts.AddPolicy("Frontend", policy =>
+    policy.WithOrigins(builder.Configuration["AllowedOrigins"]!.Split(','))
+          .AllowAnyHeader()
+          .AllowAnyMethod()));
+
+// ── OpenAPI / Scalar avec support Bearer ──────────────────────────────────────
+builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// ── Seeder (rôles + compte admin) ─────────────────────────────────────────────
+await IdentitySeeder.SeedAsync(app.Services);
+
+// ── Middleware pipeline ────────────────────────────────────────────────────────
+// Ordre CRITIQUE — ne pas modifier
+app.UseExceptionHandler();       // 1. Catch toutes les exceptions
+app.UseHttpsRedirection();       // 2. Force HTTPS
+app.UseStaticFiles();            // 3. wwwroot (uploads)
+app.UseCors("Frontend");         // 4. CORS avant auth
+app.UseAuthentication();         // 5. Valide le JWT Bearer
+app.UseAuthorization();          // 6. Applique [Authorize]
+app.MapControllers();            // 7. Route vers les controllers
+
 if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
+    app.MapOpenApi();            // Scalar UI en dev seulement
 
-app.UseHttpsRedirection();
-
-app.UseCors("AllowFrontend");
-
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.MapControllers();
-
-// Initialize Identity (create default roles and admin user)
-//await app.Services.InitializeIdentityAsync();
-
-app.Run();
+await app.RunAsync();
 

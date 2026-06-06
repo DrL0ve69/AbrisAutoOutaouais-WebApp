@@ -5,81 +5,8 @@ import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-home',
-  standalone: true,
   imports: [CommonModule, RouterModule],
-  template: `
-    <div class="home-container">
-      <nav class="navbar">
-        <div class="navbar-brand">
-          <h2>AbrisTempo</h2>
-        </div>
-        <div class="navbar-nav">
-          <div *ngIf="authService.isAuthenticated()" class="user-menu">
-            <span class="user-name">{{ authService.authUser()?.fullName }}</span>
-            <button (click)="onLogout()" class="logout-btn">Déconnexion</button>
-          </div>
-        </div>
-      </nav>
-
-      <main class="main-content">
-        <section class="hero">
-          <div class="hero-content">
-            <h1>Bienvenue à AbrisTempo</h1>
-            <p>Explorez nos solutions d'abris temporaires pour véhicules</p>
-          </div>
-        </section>
-
-        <section class="services" *ngIf="authService.isAuthenticated()">
-          <h2>Nos Services</h2>
-          <div class="service-grid">
-            <div class="service-card">
-              <div class="service-icon">🛒</div>
-              <h3>Magasinage</h3>
-              <p>Parcourez notre catalogue complet de produits</p>
-              <a href="#" class="btn-primary">Explorer</a>
-            </div>
-            <div class="service-card">
-              <div class="service-icon">🏠</div>
-              <h3>Location</h3>
-              <p>Louez un abri pour la saison</p>
-              <a href="#" class="btn-primary">Découvrir</a>
-            </div>
-            <div class="service-card">
-              <div class="service-icon">🔧</div>
-              <h3>Installation</h3>
-              <p>Réservez une installation à domicile</p>
-              <a href="#" class="btn-primary">Réserver</a>
-            </div>
-            <div class="service-card">
-              <div class="service-icon">🚚</div>
-              <h3>Livraison</h3>
-              <p>Nous livrons à votre domicile</p>
-              <a href="#" class="btn-primary">Options</a>
-            </div>
-          </div>
-        </section>
-
-        <section class="user-info" *ngIf="authService.isAuthenticated()">
-          <h3>Vos informations</h3>
-          <div class="info-card">
-            <p><strong>Email:</strong> {{ authService.authUser()?.email }}</p>
-            <p><strong>Rôles:</strong> {{ authService.authUser()?.roles?.join(', ') }}</p>
-          </div>
-        </section>
-
-        <section class="welcome-message" *ngIf="!authService.isAuthenticated()">
-          <div class="welcome-card">
-            <h3>Bienvenue sur AbrisTempo</h3>
-            <p>Connectez-vous pour accéder à nos services</p>
-            <div class="button-group">
-              <a routerLink="/login" class="btn-primary">Se connecter</a>
-              <a routerLink="/register" class="btn-secondary">S'inscrire</a>
-            </div>
-          </div>
-        </section>
-      </main>
-    </div>
-  `,
+  templateUrl: './home.html',
   styles: [`
     .home-container {
       min-height: 100vh;
