@@ -1,57 +1,226 @@
-<section class="hero">
-  <div class="hero-content">
-    <h1>Bienvenue à AbrisTempo</h1>
-    <p>Explorez nos solutions d'abris temporaires pour véhicules</p>
+<!-- ============================================================
+     Home — AbrisTempo Local
+     Respecte WCAG AA : hiérarchie h1→h2→h3, aria-labels,
+     contrastes vérifiés, focus visible, role="region"
+============================================================ -->
+<!-- ── HERO ────────────────────────────────────────────────── -->
+<section class="hero" aria-labelledby="hero-heading">
+  <!-- Décoration SVG (aria-hidden — purement décoratif) -->
+  <div class="hero__shapes" aria-hidden="true">
+    <div class="hero__shape hero__shape--1"></div>
+    <div class="hero__shape hero__shape--2"></div>
+    <div class="hero__shape hero__shape--3"></div>
+  </div>
+
+  <div class="container hero__content">
+    <div class="hero__badge">
+      <span>🏔️</span>
+      Représentant officiel Tempo — Outaouais
+    </div>
+
+    <h1 id="hero-heading" class="hero__title">
+      Protégez votre véhicule
+      <span class="hero__title-accent">toute l'année</span>
+    </h1>
+
+    <p class="hero__subtitle">
+      Vente, location et installation d'abris d'auto Tempo de qualité.
+      Livraison partout en Outaouais — service local et personnalisé.
+    </p>
+
+    <div class="hero__actions">
+      <a routerLink="/boutique"
+         class="btn btn--primary btn--lg"
+         aria-label="Voir notre catalogue d'abris">
+        Voir le catalogue
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="5" y1="12" x2="19" y2="12" />
+          <polyline points="12 5 19 12 12 19" />
+        </svg>
+      </a>
+      <a routerLink="/installation"
+         class="btn btn--secondary btn--lg"
+         aria-label="Réserver une installation à domicile">
+        Réserver une installation
+      </a>
+    </div>
+
+    <!-- Statistiques rapides -->
+    <div class="hero__stats" role="list" aria-label="Chiffres clés">
+      <div class="hero__stat" role="listitem">
+        <strong class="hero__stat-number">200+</strong>
+        <span class="hero__stat-label">Abris installés</span>
+      </div>
+      <div class="hero__stat-divider" aria-hidden="true"></div>
+      <div class="hero__stat" role="listitem">
+        <strong class="hero__stat-number">15 ans</strong>
+        <span class="hero__stat-label">D'expérience</span>
+      </div>
+      <div class="hero__stat-divider" aria-hidden="true"></div>
+      <div class="hero__stat" role="listitem">
+        <strong class="hero__stat-number">98%</strong>
+        <span class="hero__stat-label">Clients satisfaits</span>
+      </div>
+    </div>
   </div>
 </section>
 
-@if (isBrowser && authService.isAuthenticated()) {
-<section class="services">
-  <h2>Nos Services</h2>
-  <div class="service-grid">
-    <div class="service-card">
-      <div class="service-icon">🛒</div>
-      <h3>Magasinage</h3>
-      <p>Parcourez notre catalogue complet de produits</p>
-      <a href="#" class="btn-primary">Explorer</a>
-    </div>
-    <div class="service-card">
-      <div class="service-icon">🏠</div>
-      <h3>Location</h3>
-      <p>Louez un abri pour la saison</p>
-      <a href="#" class="btn-primary">Découvrir</a>
-    </div>
-    <div class="service-card">
-      <div class="service-icon">🔧</div>
-      <h3>Installation</h3>
-      <p>Réservez une installation à domicile</p>
-      <a href="#" class="btn-primary">Réserver</a>
-    </div>
-    <div class="service-card">
-      <div class="service-icon">🚚</div>
-      <h3>Livraison</h3>
-      <p>Nous livrons à votre domicile</p>
-      <a href="#" class="btn-primary">Options</a>
+<!-- ── SERVICES ─────────────────────────────────────────────── -->
+<section class="services" aria-labelledby="services-heading">
+  <div class="container">
+    <header class="section-header">
+      <p class="section-eyebrow">Ce que nous offrons</p>
+      <h2 id="services-heading">Tous vos besoins en abris</h2>
+      <p class="section-subtitle">
+        De la vente à l'installation, nous vous accompagnons à chaque étape.
+      </p>
+    </header>
+
+    <ul class="services__grid" role="list">
+      @for (service of services; track service.title) {
+      <li class="service-card">
+        <div class="service-card__icon" aria-hidden="true">{{ service.icon }}</div>
+        <h3 class="service-card__title">{{ service.title }}</h3>
+        <p class="service-card__desc">{{ service.description }}</p>
+        <a [routerLink]="service.link"
+           class="service-card__link"
+           [attr.aria-label]="service.linkLabel + ' — ' + service.title">
+          {{ service.linkLabel }}
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="5" y1="12" x2="19" y2="12" />
+            <polyline points="12 5 19 12 12 19" />
+          </svg>
+        </a>
+      </li>
+      }
+    </ul>
+  </div>
+</section>
+
+<!-- ── POURQUOI NOUS ─────────────────────────────────────────── -->
+<section class="why-us" aria-labelledby="why-us-heading">
+  <div class="container">
+    <div class="why-us__inner">
+      <div class="why-us__text">
+        <p class="section-eyebrow section-eyebrow--dark">Notre engagement</p>
+        <h2 id="why-us-heading">
+          Pourquoi choisir<br />
+          <span class="text-accent">AbrisTempo Outaouais ?</span>
+        </h2>
+        <p>
+          Nous sommes votre représentant local de confiance pour les abris Tempo.
+          Qualité, service et expertise au service de votre tranquillité d'esprit.
+        </p>
+        <a routerLink="/boutique" class="btn btn--primary" style="margin-top: var(--space-6)">
+          Découvrir nos produits
+        </a>
+      </div>
+
+      <ul class="why-us__grid" role="list">
+        @for (item of whyUs; track item.title) {
+        <li class="why-card">
+          <div class="why-card__icon" aria-hidden="true">{{ item.icon }}</div>
+          <div class="why-card__body">
+            <h3 class="why-card__title">{{ item.title }}</h3>
+            <p class="why-card__text">{{ item.text }}</p>
+          </div>
+        </li>
+        }
+      </ul>
     </div>
   </div>
 </section>
 
-<section class="user-info">
-  <h3>Vos informations</h3>
-  <div class="info-card">
-    <p><strong>Email:</strong> {{ authService.user()?.email }}</p>
-    <p><strong>Rôles:</strong> {{ authService.user()?.roles?.join(', ') }}</p>
+<!-- ── PRODUITS VEDETTES ─────────────────────────────────────── -->
+<section class="featured" aria-labelledby="featured-heading">
+  <div class="container">
+    <header class="section-header">
+      <p class="section-eyebrow">Nos produits populaires</p>
+      <h2 id="featured-heading">Abris les plus populaires</h2>
+    </header>
+
+    @if (loadingProducts()) {
+    <!-- État de chargement accessible -->
+    <div class="featured__skeleton" aria-busy="true" aria-label="Chargement des produits…">
+      @for (_ of [1,2,3]; track $index) {
+      <div class="skeleton-card" aria-hidden="true">
+        <div class="skeleton-card__img"></div>
+        <div class="skeleton-card__body">
+          <div class="skeleton-line skeleton-line--short"></div>
+          <div class="skeleton-line"></div>
+          <div class="skeleton-line skeleton-line--med"></div>
+        </div>
+      </div>
+      }
+    </div>
+    } @else if (featuredProducts().length > 0) {
+    <ul class="featured__grid" role="list">
+      @for (product of featuredProducts(); track product.id) {
+      <li class="product-card">
+        <div class="product-card__img-wrap" aria-hidden="true">
+          @if (!product.isAvailable) {
+          <div class="product-card__sold-out">Épuisé</div>
+          }
+          <div class="product-card__img-placeholder"></div>
+        </div>
+        <div class="product-card__body">
+          <span class="product-card__cat">{{ product.categoryName }}</span>
+          <h3 class="product-card__name">
+            <a [routerLink]="['/boutique', product.slug]">{{ product.name }}</a>
+          </h3>
+          <div class="product-card__pricing">
+            <span class="product-card__price"
+                  [attr.aria-label]="'Prix : ' + (product.price | currency:'CAD':'symbol':'1.2-2':'fr-CA')">
+              {{ product.price | currency:'CAD':'symbol':'1.2-2':'fr-CA' }}
+            </span>
+            @if (product.rentalPrice) {
+            <span class="product-card__rent">
+              Location : {{ product.rentalPrice | currency:'CAD':'symbol':'1.2-2':'fr-CA' }}/mois
+            </span>
+            }
+          </div>
+          <a [routerLink]="['/boutique', product.slug]"
+             class="btn btn--outline btn--sm btn--full"
+             [attr.aria-label]="'Voir ' + product.name">
+            Voir le produit
+          </a>
+        </div>
+      </li>
+      }
+    </ul>
+
+    <div class="featured__cta">
+      <a routerLink="/boutique" class="btn btn--primary btn--lg">
+        Voir tous nos produits
+      </a>
+    </div>
+    }
   </div>
 </section>
-} @else {
-<section class="welcome-message">
-  <div class="welcome-card">
-    <h3>Connectez-vous</h3>
-    <p>Pour accéder à nos services et gérer vos réservations.</p>
-    <div class="button-group">
-      <a routerLink="/login" class="btn-primary">Se connecter</a>
-      <a routerLink="/register" class="btn-secondary">S'inscrire</a>
+
+<!-- ── BANDEAU CTA ───────────────────────────────────────────── -->
+<section class="cta-banner" aria-labelledby="cta-heading">
+  <div class="container cta-banner__inner">
+    <div class="cta-banner__text">
+      <h2 id="cta-heading">Prêt à protéger votre véhicule ?</h2>
+      <p>
+        Contactez-nous pour obtenir une soumission gratuite ou réservez
+        directement votre installation en ligne.
+      </p>
+    </div>
+    <div class="cta-banner__actions">
+      <a routerLink="/installation"
+         class="btn btn--primary btn--lg"
+         aria-label="Réserver une installation d'abri">
+        Réserver l'installation
+      </a>
+      <a href="tel:+18191234567"
+         class="btn btn--secondary btn--lg"
+         aria-label="Appeler au 819 123-4567">
+        📞 819 123-4567
+      </a>
     </div>
   </div>
 </section>
-}

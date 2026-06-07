@@ -6,6 +6,13 @@ export interface Toast { id: string; message: string; type: 'success' | 'error' 
 export class ToastService {
   private readonly _toasts = signal<Toast[]>([]);
   readonly toasts = this._toasts.asReadonly();
+  protected readonly announcement = signal('');
+
+  protected setAnnouncement(msg: string): void {
+    this.announcement.set('');
+    // Petit délai pour forcer la mise à jour du live region
+    setTimeout(() => this.announcement.set(msg), 100);
+  }
 
   show(message: string, type: Toast['type'] = 'info'): void {
     const id = crypto.randomUUID();

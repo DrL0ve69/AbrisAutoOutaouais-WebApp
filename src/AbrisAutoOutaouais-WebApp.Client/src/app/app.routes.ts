@@ -6,7 +6,7 @@ import { publicGuard } from './core/guards/public.guard';
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('./features/home/home.component').then(m => m.HomeComponent),
+    loadComponent: () => import('./features/home/home').then(m => m.HomeComponent),
     title: 'AbrisTempo Local — Accueil',   // title est utilisé par le router pour WCAG 2.4.2
   },
   {

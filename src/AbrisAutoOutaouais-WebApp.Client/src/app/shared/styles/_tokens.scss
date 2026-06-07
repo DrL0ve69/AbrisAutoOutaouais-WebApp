@@ -1,65 +1,150 @@
+// ============================================================
+// Design Tokens — AbrisTempo Local
+// Fonts : Sora (titres) + DM Sans (corps)
+// Ajouter dans index.html :
+// <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+// ============================================================
+
 :root {
-  // ── Couleurs marque (rouge Tempo) ────────────────────────────────────────
-  --color-primary: #c0201a; // Ratio 4.6:1 sur blanc — WCAG AA ✅
-  --color-primary-dark: #9e1915;
-  --color-primary-light: #e53932;
-  --color-secondary: #1a2332; // Bleu nuit
-  --color-accent: #c27b00; // Ambre (ratio 4.5:1 sur blanc) ✅
-  // ── Couleur de focus — WCAG 2.4.7 ────────────────────────────────────────
-  --color-focus: #005fcc; // Bleu vif, ratio élevé sur fond blanc ✅
-  // ── Neutres ───────────────────────────────────────────────────────────────
+  // ── Typographie ────────────────────────────────────────────
+  --font-display: 'Sora', system-ui, sans-serif; // Titres, headlines
+  --font-sans: 'DM Sans', system-ui, sans-serif; // Corps, UI
+
+  --font-size-xs: 0.75rem; // 12px
+  --font-size-sm: 0.875rem; // 14px
+  --font-size-base: 1rem; // 16px
+  --font-size-lg: 1.125rem; // 18px
+  --font-size-xl: 1.25rem; // 20px
+  --font-size-2xl: 1.5rem; // 24px
+  --font-size-3xl: 1.875rem; // 30px
+  --font-size-4xl: 2.25rem; // 36px
+  --font-size-5xl: 3rem; // 48px
+  --font-size-6xl: 3.75rem; // 60px
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --line-height-tight: 1.2;
+  --line-height-snug: 1.35;
+  --line-height-normal: 1.6;
+  --line-height-relaxed: 1.75;
+  // ── Couleurs marque ────────────────────────────────────────
+  // Vérifiées WCAG AA (ratio ≥ 4.5:1 sur fond blanc)
+  --color-primary: #b91c1c; // Rouge Tempo - ratio 5.9:1 ✅
+  --color-primary-dark: #991b1b; // Hover
+  --color-primary-light: #dc2626; // Active / accents
+  --color-primary-subtle: #fef2f2; // Fond teinte légère
+
+  --color-secondary: #0f1923; // Bleu nuit profond
+  --color-secondary-mid: #1e2d3d; // Variante plus claire
+  --color-secondary-soft: #2d3f52; // Pour les cartes sombres
+
+  --color-accent: #92400e; // Ambre sombre - ratio 7.1:1 ✅
+  --color-accent-bg: #fef3c7; // Fond ambre clair
+  // ── Focus (WCAG 2.4.7) ────────────────────────────────────
+  --color-focus: #1d4ed8; // Bleu vif, ratio 8.6:1 sur blanc ✅
+  --color-focus-ring: 0 0 0 3px rgba(29, 78, 216, 0.45);
+  // ── Neutres ───────────────────────────────────────────────
+  --color-white: #ffffff;
   --color-bg: #ffffff;
-  --color-bg-subtle: #f7f7f7;
-  --color-bg-muted: #efefef;
-  --color-border: #d1d1d1;
-  --color-text: #111111; // Ratio 18:1 sur blanc ✅
-  --color-text-muted: #595959; // Ratio 7:1 sur blanc ✅
+  --color-bg-subtle: #f9fafb;
+  --color-bg-muted: #f3f4f6;
+  --color-bg-warm: #faf9f7; // Fond crème légèrement chaud
+
+  --color-surface: #ffffff;
+  --color-surface-raised: #ffffff;
+  --color-border: #e5e7eb;
+  --color-border-strong: #d1d5db;
+  --color-text: #111827; // ratio 19:1 ✅
+  --color-text-secondary: #374151; // ratio 10.7:1 ✅
+  --color-text-muted: #6b7280; // ratio 4.6:1 ✅
   --color-text-inverse: #ffffff;
-  // ── Feedback ─────────────────────────────────────────────────────────────
-  --color-success: #1a6e2e; // Ratio 5.2:1 sur blanc ✅
-  --color-error: #b91c1c; // Ratio 5.9:1 sur blanc ✅
-  --color-warning-bg: #fef3c7;
-  --color-info: #1d4ed8;
-  // ── Spacing ───────────────────────────────────────────────────────────────
+  // ── Feedback ─────────────────────────────────────────────
+  --color-success: #15803d; // ratio 5.4:1 ✅
+  --color-success-bg: #f0fdf4;
+  --color-success-border: #86efac;
+  --color-error: #b91c1c; // ratio 5.9:1 ✅
+  --color-error-bg: #fef2f2;
+  --color-error-border: #fca5a5;
+  --color-warning: #92400e; // ratio 7.1:1 ✅
+  --color-warning-bg: #fffbeb;
+  --color-info: #1e40af; // ratio 8.3:1 ✅
+  --color-info-bg: #eff6ff;
+  // ── Spacing (base 4px) ────────────────────────────────────
+  --space-px: 1px;
+  --space-0-5: 0.125rem;
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
   --space-4: 1rem;
   --space-5: 1.25rem;
   --space-6: 1.5rem;
+  --space-7: 1.75rem;
   --space-8: 2rem;
   --space-10: 2.5rem;
   --space-12: 3rem;
+  --space-14: 3.5rem;
   --space-16: 4rem;
-  // ── Typographie ───────────────────────────────────────────────────────────
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-size-sm: 0.875rem;
-  --font-size-base: 1rem;
-  --font-size-lg: 1.125rem;
-  --font-size-xl: 1.25rem;
-  --font-size-2xl: 1.5rem;
-  --font-size-3xl: 1.875rem;
-  --font-size-4xl: 2.25rem;
-  // ── Formes ────────────────────────────────────────────────────────────────
+  --space-20: 5rem;
+  --space-24: 6rem;
+  --space-32: 8rem;
+  // ── Border radius ─────────────────────────────────────────
+  --radius-xs: 2px;
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
   --radius-full: 9999px;
-  // ── Ombres ────────────────────────────────────────────────────────────────
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, .1);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, .12);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, .15);
+  // ── Shadows ───────────────────────────────────────────────
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, .05);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, .10), 0 1px 2px rgba(0, 0, 0, .06);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, .07), 0 2px 4px rgba(0, 0, 0, .06);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, .10), 0 4px 6px rgba(0, 0, 0, .05);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, .10), 0 10px 10px rgba(0, 0, 0, .04);
+  --shadow-2xl: 0 25px 50px rgba(0, 0, 0, .25);
+  // ── Transitions ───────────────────────────────────────────
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --duration-slow: 400ms;
+  --transition-fast: var(--duration-fast) var(--ease-in-out);
+  --transition-base: var(--duration-base) var(--ease-in-out);
+  --transition-slow: var(--duration-slow) var(--ease-in-out);
+  // ── Breakpoints reference (utiliser mixins SCSS) ──────────
+  // sm: 640px | md: 768px | lg: 1024px | xl: 1280px
+  // ── z-index ───────────────────────────────────────────────
+  --z-base: 0;
+  --z-raised: 10;
+  --z-dropdown: 200;
+  --z-sticky: 300;
+  --z-overlay: 400;
+  --z-modal: 500;
+  --z-toast: 600;
+  --z-tooltip: 700;
 }
 
-// Dark mode — respecte les préférences système (WCAG 1.4.3)
+// ── Dark mode ────────────────────────────────────────────────
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-bg: #0f1117;
-    --color-bg-subtle: #1a1d27;
-    --color-bg-muted: #252834;
-    --color-border: #363a4f;
-    --color-text: #e8eaf0;
-    --color-text-muted: #9ba3bf;
-    --color-text-inverse: #111111;
+    --color-bg: #0f1923;
+    --color-bg-subtle: #1a2736;
+    --color-bg-muted: #243447;
+    --color-bg-warm: #1a2736;
+    --color-surface: #1a2736;
+    --color-surface-raised: #243447;
+    --color-border: #2d4160;
+    --color-border-strong: #3d5275;
+    --color-text: #f1f5f9;
+    --color-text-secondary: #cbd5e1;
+    --color-text-muted: #94a3b8;
+    --color-text-inverse: #0f1923;
+    --color-primary-subtle: #450a0a;
+    --color-accent-bg: #451a03;
   }
 }
