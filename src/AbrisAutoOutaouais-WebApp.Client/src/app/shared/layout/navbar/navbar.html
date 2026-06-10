@@ -69,7 +69,7 @@
 
       <!-- Non authentifié -->
       @if (!auth.isAuthenticated()) {
-      <a routerLink="/login" class="btn btn--ghost btn--sm">Connexion</a>
+      <a routerLink="/auth" class="btn btn--ghost btn--sm">Connexion</a>
       <a routerLink="/register" class="btn btn--primary btn--sm">S'inscrire</a>
       }
 
@@ -98,7 +98,7 @@
             role="menu"
             [attr.aria-hidden]="!userMenuOpen()">
           <li role="none">
-            <a routerLink="/mon-compte/profil"
+            <a routerLink="/me"
                role="menuitem"
                (click)="closeUserMenu()">Mon profil</a>
           </li>
@@ -162,14 +162,14 @@
 
     <div class="navbar__mobile-footer">
       @if (!auth.isAuthenticated()) {
-      <a routerLink="/login" class="btn btn--outline btn--full" (click)="closeMenu()">
+      <a routerLink="/auth" class="btn btn--outline btn--full" (click)="closeMenu()">
         Connexion
       </a>
       <a routerLink="/register" class="btn btn--primary btn--full" (click)="closeMenu()">
         S'inscrire
       </a>
       } @else {
-      <a routerLink="/mon-compte/profil" class="btn btn--outline btn--full" (click)="closeMenu()">
+      <a routerLink="/me" class="btn btn--outline btn--full" (click)="closeMenu()">
         Mon compte
       </a>
       <button type="button" class="btn btn--ghost btn--full" (click)="logout()">

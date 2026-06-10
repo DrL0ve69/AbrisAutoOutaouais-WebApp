@@ -1,0 +1,322 @@
+<!-- ============================================================
+     /auth — Page combinée connexion / inscription
+     Animation de flip au changement de formulaire.
+     Accessibilité : aria-live, inert sur le formulaire caché,
+     aria-invalid + aria-describedby sur chaque champ.
+============================================================ -->
+
+<div class="auth-page">
+
+  <!-- Décoration fond ─────────────────────────────────────── -->
+  <div class="auth-bg" aria-hidden="true">
+    <div class="auth-bg__shape auth-bg__shape--1"></div>
+    <div class="auth-bg__shape auth-bg__shape--2"></div>
+    <div class="auth-bg__shape auth-bg__shape--3"></div>
+  </div>
+
+  <div class="auth-scene">
+
+    <!-- Logo / En-tête ─────────────────────────────────────── -->
+    <a routerLink="/" class="auth-logo" aria-label="AbrisTempo Local — Retour à l'accueil">
+      <span class="auth-logo__icon" aria-hidden="true">⬡</span>
+      <span class="auth-logo__text">Abris<strong>Tempo</strong></span>
+    </a>
+
+    <!-- Titre annoncé aux lecteurs d'écran lors du flip ──────── -->
+    <div class="sr-only"
+         aria-live="polite"
+         aria-atomic="true">
+      @if (isLogin()) { Formulaire de connexion }
+      @else           { Formulaire d'inscription }
+    </div>
+
+    <!-- ── Carte avec animation flip ─────────────────────────── -->
+    <div class="auth-card"
+         [class.flip-out]="flipState() === 'out'"
+         [class.flip-in]="flipState() === 'in'">
+
+      <!-- ─── FORMULAIRE LOGIN ──────────────────────────────── -->
+      @if (isLogin()) {
+      <div class="auth-form-wrap" role="main" aria-labelledby="login-heading">
+
+        <header class="auth-header">
+          <h1 id="login-heading" class="auth-title">Connexion</h1>
+          <p class="auth-subtitle">
+            Bienvenue ! Accédez à votre compte.
+          </p>
+        </header>
+
+        <!-- Message d'erreur global -->
+        @if (error()) {
+        <div role="alert" class="auth-alert auth-alert--error">
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          {{ error() }}
+        </div>
+        }
+
+        <form [formGroup]="loginForm"
+              (ngSubmit)="submitLogin()"
+              novalidate
+              aria-describedby="login-heading">
+
+          <!-- Email ───────────────────────────────────────── -->
+          <div class="field">
+            <label class="field__label" for="login-email">
+              Adresse courriel
+              <span class="required" aria-hidden="true">*</span>
+            </label>
+            <input id="login-email"
+                   type="email"
+                   class="field__input"
+                   formControlName="email"
+                   autocomplete="email"
+                   inputmode="email"
+                   [attr.aria-invalid]="lEmail.invalid && lEmail.touched"
+                   [attr.aria-required]="true"
+                   aria-describedby="login-email-err"
+                   placeholder="votre@courriel.com" />
+            @if (lEmail.invalid && lEmail.touched) {
+            <span id="login-email-err" class="field__error" role="alert">
+              @if (lEmail.hasError('required')) { L'adresse courriel est requise. }
+              @else if (lEmail.hasError('email')) { Format d'adresse courriel invalide. }
+            </span>
+            }
+          </div>
+
+          <!-- Mot de passe ─────────────────────────────────── -->
+          <div class="field">
+            <div class="field__label-row">
+              <label class="field__label" for="login-password">
+                Mot de passe
+                <span class="required" aria-hidden="true">*</span>
+              </label>
+              <a routerLink="/auth/reset" class="field__forgot" tabindex="0">
+                Mot de passe oublié ?
+              </a>
+            </div>
+            <input id="login-password"
+                   type="password"
+                   class="field__input"
+                   formControlName="password"
+                   autocomplete="current-password"
+                   [attr.aria-invalid]="lPassword.invalid && lPassword.touched"
+                   [attr.aria-required]="true"
+                   aria-describedby="login-pwd-err"
+                   placeholder="••••••••" />
+            @if (lPassword.invalid && lPassword.touched) {
+            <span id="login-pwd-err" class="field__error" role="alert">
+              @if (lPassword.hasError('required'))   { Le mot de passe est requis. }
+              @else if (lPassword.hasError('minlength')) { Minimum 8 caractères requis. }
+            </span>
+            }
+          </div>
+
+          <!-- Bouton ──────────────────────────────────────── -->
+          <button type="submit"
+                  class="btn btn--primary btn--full auth-submit"
+                  [disabled]="loading()"
+                  [attr.aria-busy]="loading()">
+            @if (loading()) {
+            <span class="sr-only">Connexion en cours…</span>
+            <span class="spinner" aria-hidden="true"></span>
+            } @else {
+            Se connecter
+            }
+          </button>
+        </form>
+
+        <!-- Switch vers inscription ─────────────────────────── -->
+        <p class="auth-switch">
+          Pas encore de compte ?
+          <button type="button"
+                  class="auth-switch__btn"
+                  (click)="switchTo('register')"
+                  [disabled]="isFlipping()">
+            S'inscrire
+          </button>
+        </p>
+
+      </div>
+      }
+
+      <!-- ─── FORMULAIRE REGISTER ───────────────────────────── -->
+      @else {
+      <div class="auth-form-wrap" role="main" aria-labelledby="register-heading">
+
+        <header class="auth-header">
+          <h1 id="register-heading" class="auth-title">Créer un compte</h1>
+          <p class="auth-subtitle">
+            Rejoignez AbrisTempo pour commander et réserver.
+          </p>
+        </header>
+
+        @if (error()) {
+        <div role="alert" class="auth-alert auth-alert--error">
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          {{ error() }}
+        </div>
+        }
+
+        <form [formGroup]="registerForm"
+              (ngSubmit)="submitRegister()"
+              novalidate
+              aria-describedby="register-heading">
+
+          <!-- Prénom / Nom ─────────────────────────────────── -->
+          <div class="field-row">
+            <div class="field">
+              <label class="field__label" for="reg-first">
+                Prénom <span class="required" aria-hidden="true">*</span>
+              </label>
+              <input id="reg-first"
+                     type="text"
+                     class="field__input"
+                     formControlName="firstName"
+                     autocomplete="given-name"
+                     [attr.aria-invalid]="rFirst.invalid && rFirst.touched"
+                     aria-describedby="reg-first-err"
+                     placeholder="Jean" />
+              @if (rFirst.invalid && rFirst.touched) {
+              <span id="reg-first-err" class="field__error" role="alert">
+                Le prénom est requis.
+              </span>
+              }
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="reg-last">
+                Nom <span class="required" aria-hidden="true">*</span>
+              </label>
+              <input id="reg-last"
+                     type="text"
+                     class="field__input"
+                     formControlName="lastName"
+                     autocomplete="family-name"
+                     [attr.aria-invalid]="rLast.invalid && rLast.touched"
+                     aria-describedby="reg-last-err"
+                     placeholder="Tremblay" />
+              @if (rLast.invalid && rLast.touched) {
+              <span id="reg-last-err" class="field__error" role="alert">
+                Le nom est requis.
+              </span>
+              }
+            </div>
+          </div>
+
+          <!-- Email ───────────────────────────────────────── -->
+          <div class="field">
+            <label class="field__label" for="reg-email">
+              Adresse courriel <span class="required" aria-hidden="true">*</span>
+            </label>
+            <input id="reg-email"
+                   type="email"
+                   class="field__input"
+                   formControlName="email"
+                   autocomplete="email"
+                   inputmode="email"
+                   [attr.aria-invalid]="rEmail.invalid && rEmail.touched"
+                   aria-describedby="reg-email-err"
+                   placeholder="votre@courriel.com" />
+            @if (rEmail.invalid && rEmail.touched) {
+            <span id="reg-email-err" class="field__error" role="alert">
+              @if (rEmail.hasError('required')) { L'adresse courriel est requise. }
+              @else if (rEmail.hasError('email')) { Format de courriel invalide. }
+            </span>
+            }
+          </div>
+
+          <!-- Mot de passe ─────────────────────────────────── -->
+          <div class="field">
+            <label class="field__label" for="reg-pwd">
+              Mot de passe <span class="required" aria-hidden="true">*</span>
+            </label>
+            <input id="reg-pwd"
+                   type="password"
+                   class="field__input"
+                   formControlName="password"
+                   autocomplete="new-password"
+                   [attr.aria-invalid]="rPwd.invalid && rPwd.touched"
+                   aria-describedby="reg-pwd-hint reg-pwd-err"
+                   placeholder="••••••••" />
+            <span id="reg-pwd-hint" class="field__hint">
+              8 caractères min. — majuscule, chiffre et caractère spécial requis.
+            </span>
+            @if (rPwd.invalid && rPwd.touched) {
+            <span id="reg-pwd-err" class="field__error" role="alert">
+              @if (rPwd.hasError('required'))    { Le mot de passe est requis. }
+              @else if (rPwd.hasError('minlength')) { Minimum 8 caractères requis. }
+              @else { Le mot de passe ne respecte pas les exigences ci-dessus. }
+            </span>
+            }
+          </div>
+
+          <!-- Confirmer mot de passe ───────────────────────── -->
+          <div class="field">
+            <label class="field__label" for="reg-confirm">
+              Confirmer le mot de passe <span class="required" aria-hidden="true">*</span>
+            </label>
+            <input id="reg-confirm"
+                   type="password"
+                   class="field__input"
+                   formControlName="confirmPassword"
+                   autocomplete="new-password"
+                   [attr.aria-invalid]="rConfirm.invalid && rConfirm.touched || rPwdMismatch"
+                   aria-describedby="reg-confirm-err"
+                   placeholder="••••••••" />
+            @if (rConfirm.touched && (rConfirm.hasError('required') || rPwdMismatch)) {
+            <span id="reg-confirm-err" class="field__error" role="alert">
+              @if (rConfirm.hasError('required')) { Ce champ est requis. }
+              @else { Les mots de passe ne correspondent pas. }
+            </span>
+            }
+          </div>
+
+          <!-- Bouton ──────────────────────────────────────── -->
+          <button type="submit"
+                  class="btn btn--primary btn--full auth-submit"
+                  [disabled]="loading()"
+                  [attr.aria-busy]="loading()">
+            @if (loading()) {
+            <span class="sr-only">Inscription en cours…</span>
+            <span class="spinner" aria-hidden="true"></span>
+            } @else {
+            Créer mon compte
+            }
+          </button>
+        </form>
+
+        <!-- Switch vers login ──────────────────────────────── -->
+        <p class="auth-switch">
+          Déjà un compte ?
+          <button type="button"
+                  class="auth-switch__btn"
+                  (click)="switchTo('login')"
+                  [disabled]="isFlipping()">
+            Se connecter
+          </button>
+        </p>
+
+      </div>
+      }
+
+    </div><!-- /.auth-card -->
+    <!-- Pied de page ─────────────────────────────────────────── -->
+    <p class="auth-footer">
+      En continuant, vous acceptez nos
+      <a routerLink="/conditions">conditions d'utilisation</a>
+      et notre
+      <a routerLink="/confidentialite">politique de confidentialité</a>.
+    </p>
+
+  </div><!-- /.auth-scene -->
+</div><!-- /.auth-page -->

@@ -2,7 +2,7 @@ import { ApplicationConfig, provideZoneChangeDetection, LOCALE_ID } from '@angul
 import { provideRouter, withComponentInputBinding, withViewTransitions } from '@angular/router';
 import { provideHttpClient, withInterceptors, withFetch } from '@angular/common/http';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { provideAnimations } from '@angular/platform-browser/animations';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
@@ -22,7 +22,7 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(
       withEventReplay(),              // Rejoue les events pendant l'hydratation SSR
     ),
-    provideAnimationsAsync(),
+    provideAnimations(),
     // LOCALE_ID est injecté automatiquement par Angular lors du build --localize
     // Pas besoin de le déclarer manuellement
   ],
