@@ -28,6 +28,7 @@ export const routes: Routes = [
   {
     path: 'me',
     loadComponent: () => import('./features/auth/me/profile').then(m => m.ProfileComponent),
+    canActivate: [authGuard],
     title: 'AbrisTempo Local — Mon Compte',   // title est utilisé par le router pour WCAG 2.4.2
   },
   // {
