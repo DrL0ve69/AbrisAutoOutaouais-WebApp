@@ -16,9 +16,21 @@ public sealed class LoginCommandHandler : ICommandHandler<LoginCommand, Result<A
         _identityService = identityService;
     }
 
-    public ValueTask<Result<AuthResponse>> Handle(LoginCommand command, CancellationToken ct)
+    public async ValueTask<Result<AuthResponse>> Handle(LoginCommand command, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        // Validation simple
+        if (string.IsNullOrWhiteSpace(command.Email) || string.IsNullOrWhiteSpace(command.Password))
+        {
+            return Result<AuthResponse>.Failure("L'email et le mot de passe sont requis.");
+        }
+
+        // Appeler le service Identity
+        var result = await _identityService.LoginAsync(
+            command.Email,
+            command.Password,
+            ct);
+
+        return result;
     }
 
     public async Task<Result<AuthResponse>> HandleAsync(

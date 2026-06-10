@@ -47,5 +47,12 @@ export const routes: Routes = [
   //   canActivate: [publicGuard],
   //   loadChildren: () => import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES),
   // },
+  // {
+  //   path: 'projects/accessible-components',
+  //   loadComponent: () =>
+  //     import('./shared/components/a11y-components/a11y-components.component')
+  //       .then(m => m.A11yComponentsPageComponent),
+  //   title: 'Composants accessibles — Philippe Charron',
+  // },
   { path: '**', redirectTo: '' },
 ];

@@ -19,9 +19,33 @@ public sealed class RegisterCommandHandler : ICommandHandler<RegisterCommand, Re
         _identityService = identityService;
     }
 
-    public ValueTask<Result<AuthResponse>> Handle(RegisterCommand command, CancellationToken ct)
+    public async ValueTask<Result<AuthResponse>> Handle(RegisterCommand command, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        // Validation simple
+        if (string.IsNullOrWhiteSpace(command.Email))
+        {
+            return Result<AuthResponse>.Failure("L'email est requis.");
+        }
+
+        if (command.Password != command.ConfirmPassword)
+        {
+            return Result<AuthResponse>.Failure("Les mots de passe ne correspondent pas.");
+        }
+
+        if (string.IsNullOrWhiteSpace(command.FirstName) || string.IsNullOrWhiteSpace(command.LastName))
+        {
+            return Result<AuthResponse>.Failure("Le prénom et le nom sont requis.");
+        }
+
+        // Appeler le service Identity
+        var result = await _identityService.RegisterAsync(
+            command.Email,
+            command.Password,
+            command.FirstName,
+            command.LastName,
+            ct);
+
+        return result;
     }
 
     public async Task<Result<AuthResponse>> HandleAsync(

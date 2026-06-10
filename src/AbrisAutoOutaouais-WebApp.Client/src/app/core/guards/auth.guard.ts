@@ -7,3 +7,29 @@ export const authGuard: CanActivateFn = () => {
   const router = inject(Router);
   return auth.isAuthenticated() ? true : router.createUrlTree(['/auth/login']);
 };
+/*
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
+import { AuthService } from './auth.service';
+
+export const authGuard: CanActivateFn = () => {
+  const auth = inject(AuthService);
+  if (auth.isAuthenticated()) return true;
+  return inject(Router).createUrlTree(['/login']);
+};
+
+export const adminGuard: CanActivateFn = () => {
+  const auth = inject(AuthService);
+  if (auth.isAdmin()) return true;
+  return inject(Router).createUrlTree(['/projects']);
+};
+
+export const guestGuard: CanActivateFn = () => {
+  const auth = inject(AuthService);
+  if (!auth.isAuthenticated()) return true;
+  const router = inject(Router);
+  return auth.isAdmin()
+    ? router.createUrlTree(['/admin'])
+    : router.createUrlTree(['/projects']);
+};
+*/
