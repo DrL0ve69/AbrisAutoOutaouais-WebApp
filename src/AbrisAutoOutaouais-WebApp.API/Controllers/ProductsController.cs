@@ -13,7 +13,7 @@ namespace AbrisAutoOutaouais_WebApp.API.Controllers;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
-public sealed class ProductsController(Dispatcher dispatcher) : ControllerBase
+public sealed class ProductsController(IDispatcher dispatcher) : ControllerBase
 {
     /// <summary>Liste paginée + filtres.</summary>
     [HttpGet]
@@ -23,7 +23,7 @@ public sealed class ProductsController(Dispatcher dispatcher) : ControllerBase
         [FromQuery] int page = 1, [FromQuery] int pageSize = 12,
         [FromQuery] string? category = null, [FromQuery] string? search = null,
         CancellationToken ct = default)
-        => Ok(await dispatcher.Query(new GetAllProductsQuery(page, pageSize, category, search), ct));
+        => Ok(await dispatcher.DispatchAsync(new GetAllProductsQuery(page, pageSize, category, search), ct));
 
     /// <summary>Détail par slug (URL SEO-friendly).</summary>
     [HttpGet("{slug}")]
@@ -31,7 +31,7 @@ public sealed class ProductsController(Dispatcher dispatcher) : ControllerBase
     [ProducesResponseType<ProductDto>(200)]
     [ProducesResponseType<ProblemDetails>(404)]
     public async Task<IActionResult> GetBySlug(string slug, CancellationToken ct)
-        => Ok(await dispatcher.Query(new GetProductBySlugQuery(slug), ct));
+        => Ok(await dispatcher.DispatchAsync(new GetProductBySlugQuery(slug), ct));
 
     /// <summary>Créer un produit.</summary>
     //[HttpPost]

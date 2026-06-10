@@ -1,3 +1,5 @@
+using AbrisAutoOutaouais_WebApp.Application.Common.Models;
+
 namespace AbrisAutoOutaouais_WebApp.Application.Common.Interfaces;
 
 // À REVOIR AVEC LE FICHIER IDENTITY.md
@@ -61,31 +63,31 @@ public sealed record AuthResponse(
 /// <summary>
 /// Résultat générique pour les opérations.
 /// </summary>
-public abstract record Result
-{
-    public bool IsSuccess => this is SuccessResult;
-    public bool IsFailure => this is FailureResult;
+//public abstract record Result
+//{
+//    public bool IsSuccess => this is SuccessResult;
+//    public bool IsFailure => this is FailureResult;
 
-    public sealed record SuccessResult : Result;
-    public sealed record FailureResult(string Error) : Result;
+//    public sealed record SuccessResult : Result;
+//    public sealed record FailureResult(string Error) : Result;
 
-    public static Result Success() => new SuccessResult();
-    public static Result Failure(string error) => new FailureResult(error);
-}
+//    public static Result Success() => new SuccessResult();
+//    public static Result Failure(string error) => new FailureResult(error);
+//}
 
 /// <summary>
 /// Résultat générique avec valeur.
 /// </summary>
-public abstract record Result<T> where T : class?
-{
-    public bool IsSuccess => this is SuccessResult;
-    public bool IsFailure => this is FailureResult;
-    public T? Value => (this as SuccessResult)?.Value;
-    public string? Error => (this as FailureResult)?.Error;
+//public abstract record Result<T> where T : class?
+//{
+//    public bool IsSuccess => this is SuccessResult;
+//    public bool IsFailure => this is FailureResult;
+//    public T? Value => (this as SuccessResult)?.Value;
+//    public string? Error => (this as FailureResult)?.Error;
 
-    public sealed record SuccessResult(T? Value) : Result<T>;
-    public sealed record FailureResult(string Error) : Result<T>;
+//    public sealed record SuccessResult(T? Value) : Result<T>;
+//    public sealed record FailureResult(string Error) : Result<T>;
 
-    public static Result<T> Success(T? value) => new SuccessResult(value);
-    public static Result<T> Failure(string error) => new FailureResult(error);
-}
+//    public static Result<T> Success(T? value) => new SuccessResult(value);
+//    public static Result<T> Failure(string error) => new FailureResult(error);
+//}

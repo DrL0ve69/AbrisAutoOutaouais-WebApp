@@ -11,7 +11,7 @@ namespace AbrisAutoOutaouais_WebApp.API.Controllers;
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
 [Authorize]  // Toutes les routes nécessitent une authentification
-public sealed class OrdersController(Dispatcher dispatcher) : ControllerBase
+public sealed class OrdersController(IDispatcher dispatcher) : ControllerBase
 {
     /// <summary>Passer une commande.</summary>
     //[HttpPost]

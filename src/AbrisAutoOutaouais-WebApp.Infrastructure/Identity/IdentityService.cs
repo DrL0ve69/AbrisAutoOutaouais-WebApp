@@ -1,4 +1,5 @@
 using AbrisAutoOutaouais_WebApp.Application.Common.Interfaces;
+using AbrisAutoOutaouais_WebApp.Application.Common.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -174,4 +175,24 @@ public sealed class IdentityService : IIdentityService
         var roles = await _userManager.GetRolesAsync(user);
         return roles.ToList().AsReadOnly();
     }
+
+    //Task<Result<AuthResponse>> IIdentityService.RegisterAsync(string email, string password, string firstName, string lastName, CancellationToken cancellationToken)
+    //{
+    //    throw new NotImplementedException();
+    //}
+
+    //Task<Result<AuthResponse>> IIdentityService.LoginAsync(string email, string password, CancellationToken cancellationToken)
+    //{
+    //    throw new NotImplementedException();
+    //}
+
+    //Task<Result> IIdentityService.AssignRoleAsync(Guid userId, string role, CancellationToken cancellationToken)
+    //{
+    //    throw new NotImplementedException();
+    //}
+
+    //Task<Result> IIdentityService.RemoveRoleAsync(Guid userId, string role, CancellationToken cancellationToken)
+    //{
+    //    throw new NotImplementedException();
+    //}
 }

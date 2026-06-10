@@ -24,7 +24,7 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     [AllowAnonymous]
     public async Task<IActionResult> Register(
-        [FromBody] RegisterRequest request,
+        [FromBody] RegisterCommand request,
         CancellationToken cancellationToken)
     {
         var command = new RegisterCommand(
@@ -36,7 +36,7 @@ public class AuthController : ControllerBase
 
         var result = await _dispatcher.DispatchAsync(command, cancellationToken);
 
-        if (result.IsFailure)
+        if (!result.IsSuccess)
         {
             return BadRequest(new { error = result.Error });
         }
@@ -50,13 +50,13 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     [AllowAnonymous]
     public async Task<IActionResult> Login(
-        [FromBody] LoginRequest request,
+        [FromBody] LoginCommand request,
         CancellationToken cancellationToken)
     {
         var command = new LoginCommand(request.Email, request.Password);
         var result = await _dispatcher.DispatchAsync(command, cancellationToken);
 
-        if (result.IsFailure)
+        if (!result.IsSuccess)
         {
             return Unauthorized(new { error = result.Error });
         }
@@ -80,13 +80,3 @@ public class AuthController : ControllerBase
     }
 }
 
-public sealed record RegisterRequest(
-    string Email,
-    string Password,
-    string ConfirmPassword,
-    string FirstName,
-    string LastName);
-
-public sealed record LoginRequest(
-    string Email,
-    string Password);

@@ -1,5 +1,6 @@
 using AbrisAutoOutaouais_WebApp.Application.Common.Interfaces;
 using AbrisAutoOutaouais_WebApp.Application.Common.Mediator;
+using AbrisAutoOutaouais_WebApp.Application.Common.Models;
 
 namespace AbrisAutoOutaouais_WebApp.Application.Auth.Register;
 

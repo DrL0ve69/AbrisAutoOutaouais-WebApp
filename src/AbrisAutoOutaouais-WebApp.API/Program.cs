@@ -11,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddInfrastructure(builder.Configuration);
 
 // ── Mediator Dispatcher ───────────────────────────────────────────────────────
-builder.Services.AddScoped<Dispatcher>();
+builder.Services.AddScoped<IDispatcher, Dispatcher>();
 
 // ── Contrôleurs ───────────────────────────────────────────────────────────────
 builder.Services.AddControllers();
