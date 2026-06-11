@@ -15,7 +15,11 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddScoped<IDispatcher, Dispatcher>();
 
 // ── Contrôleurs ───────────────────────────────────────────────────────────────
-builder.Services.AddControllers();
+// JsonStringEnumConverter : les enums (DeliveryType, OrderStatus…) circulent en chaînes
+// lisibles ("Pickup", "Pending") plutôt qu'en entiers — plus simple côté Angular.
+builder.Services.AddControllers()
+    .AddJsonOptions(o =>
+        o.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter()));
 builder.Services.AddApiVersioning(opt =>
 {
     opt.DefaultApiVersion = new ApiVersion(1, 0);
@@ -45,7 +49,10 @@ await ProductSeeder.SeedAsync(app.Services);
 // ── Middleware pipeline ────────────────────────────────────────────────────────
 // Ordre CRITIQUE — ne pas modifier
 app.UseExceptionHandler();       // 1. Catch toutes les exceptions
-app.UseHttpsRedirection();       // 2. Force HTTPS
+// 2. HTTPS forcé en PRODUCTION seulement. En Développement on sert en http://localhost:5228 :
+//    le SSR Angular (Node) et le navigateur évitent ainsi le rejet du certificat self-signed.
+if (!app.Environment.IsDevelopment())
+    app.UseHttpsRedirection();
 app.UseStaticFiles();            // 3. wwwroot (uploads)
 app.UseCors("Frontend");         // 4. CORS avant auth
 app.UseAuthentication();         // 5. Valide le JWT Bearer

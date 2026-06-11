@@ -1,0 +1,252 @@
+// ============================================================
+// Administration des produits — AbrisTempo Local
+// WCAG : h1 unique + h2 par panneau, table sémantique (scope),
+// focus visible, contraste, dialogue de confirmation accessible.
+// ============================================================
+.adminp {
+  min-height: 70vh;
+  padding-top: calc(68px + var(--space-10));
+  padding-bottom: var(--space-16);
+  background: var(--color-bg-subtle, #f9fafb);
+}
+
+.adminp__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-8);
+}
+
+.adminp__eyebrow {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.adminp__head h1 {
+  font-family: var(--font-display);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+  line-height: var(--line-height-tight);
+}
+
+.adminp__lead {
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
+  max-width: 60ch;
+}
+
+.adminp__back {
+  align-self: flex-start;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-primary);
+  text-decoration: none;
+
+  &:hover { text-decoration: underline; }
+  &:visited { color: var(--color-primary); }
+}
+
+// ── Disposition : formulaire + liste ──────────────────────────
+.adminp__layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 380px) 1fr;
+  gap: var(--space-6);
+  align-items: start;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.adminp__panel {
+  padding: var(--space-6);
+  background: var(--color-surface, #fff);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+
+  h2 {
+    font-family: var(--font-display);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+    margin-bottom: var(--space-4);
+  }
+}
+
+// ── Formulaire ────────────────────────────────────────────────
+.adminp__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-bottom: var(--space-4);
+
+  label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+  }
+
+  input,
+  textarea,
+  select {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--font-size-base);
+    color: var(--color-text);
+    background: var(--color-surface, #fff);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+
+    &:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 1px;
+    }
+
+    &[aria-invalid='true'] {
+      border-color: var(--color-danger, #b91c1c);
+    }
+  }
+}
+
+.adminp__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.adminp__hint {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.adminp__err {
+  font-size: var(--font-size-sm);
+  color: var(--color-danger, #b91c1c);
+  font-weight: var(--font-weight-medium);
+}
+
+.adminp__alert {
+  margin-bottom: var(--space-4);
+  padding: var(--space-3);
+  font-size: var(--font-size-sm);
+  color: var(--color-danger, #b91c1c);
+  background: var(--color-danger-subtle, #fef2f2);
+  border: 1px solid var(--color-danger, #b91c1c);
+  border-radius: var(--radius-md);
+}
+
+.adminp__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+// ── Table ─────────────────────────────────────────────────────
+.adminp__status {
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
+}
+
+.adminp__tablewrap {
+  overflow-x: auto;
+}
+
+.adminp__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+
+  th,
+  td {
+    padding: var(--space-2) var(--space-3);
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  thead th {
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+    background: var(--color-bg-muted);
+  }
+
+  tbody th[scope='row'] {
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text);
+  }
+}
+
+.adminp__rowactions {
+  display: flex;
+  gap: var(--space-2);
+  white-space: nowrap;
+}
+
+.adminp__badge {
+  display: inline-block;
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  border-radius: var(--radius-full);
+
+  &--ok {
+    color: var(--color-success-strong, #166534);
+    background: var(--color-success-subtle, #dcfce7);
+  }
+
+  &--out {
+    color: var(--color-danger, #b91c1c);
+    background: var(--color-danger-subtle, #fef2f2);
+  }
+}
+
+// ── Variantes de boutons locales (complètent les globales) ────
+.btn--small {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--font-size-sm);
+}
+
+.btn--danger {
+  color: #fff;
+  background: var(--color-danger, #b91c1c);
+  border-color: var(--color-danger, #b91c1c);
+
+  &:hover { background: #991b1b; }
+}
+
+// ── Dialogue de confirmation ──────────────────────────────────
+.adminp__overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.adminp__dialog {
+  width: 100%;
+  max-width: 420px;
+  padding: var(--space-6);
+  background: var(--color-surface, #fff);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+
+  h2 {
+    font-family: var(--font-display);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    margin-bottom: var(--space-3);
+  }
+
+  p {
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-4);
+  }
+}

@@ -23,7 +23,7 @@ public sealed class CreateProductCommandHandlerTests : IDisposable
     }
 
     private CreateProductCommandHandler CreateHandler()
-        => new(_db, new DateTimeProvider());
+        => new(_db);
 
     // ── Tests ─────────────────────────────────────────────────────────────────
 
@@ -50,22 +50,22 @@ public sealed class CreateProductCommandHandlerTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithDuplicateSlug_ThrowsConflictException()
+    public async Task Handle_WithDuplicateName_ThrowsConflictException()
     {
         var categoryId = await SeedCategoryAsync();
 
         // Premier produit
         await CreateHandler().Handle(
-            new CreateProductCommand("Abri 1", "abri-simple", 100m, 5, categoryId),
+            new CreateProductCommand("Abri Simple", "Un abri", 100m, 5, categoryId),
             CancellationToken.None);
 
-        // Deuxième avec le même slug
+        // Deuxième avec le même nom → même slug généré → conflit
         var act = async () => await CreateHandler().Handle(
-            new CreateProductCommand("Abri 2", "abri-simple", 200m, 3, categoryId),
+            new CreateProductCommand("Abri Simple", "Un autre abri", 200m, 3, categoryId),
             CancellationToken.None);
 
         await act.Should().ThrowAsync<ConflictException>()
-            .WithMessage("*slug*");
+            .WithMessage("*Abri Simple*");
     }
 
     // ── Cleanup ───────────────────────────────────────────────────────────────

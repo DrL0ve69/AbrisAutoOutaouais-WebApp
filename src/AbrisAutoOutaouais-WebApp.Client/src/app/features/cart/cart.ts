@@ -6,8 +6,10 @@ import {
   signal,
 } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CartService } from '../../core/services/cart.service';
+import { AuthService } from '../../core/services/auth.service';
+import { ToastService } from '../../core/services/toast.service';
 import {
   ProductSummaryDto,
   resolveProductImage,
@@ -15,9 +17,9 @@ import {
 
 /**
  * Page Panier — AbrisTempo Local.
- * Entièrement pilotée par le CartService (signals items/count/subtotal).
- * WCAG AA : h1 unique, contrôles libellés, changements de quantité annoncés
- * via une live region (aria-live="polite"), état vide explicite.
+ * Pilotée par le CartService (signals items/count/subtotal). « Passer à la caisse »
+ * dirige vers la page de paiement (démo). WCAG AA : h1 unique, contrôles libellés,
+ * changements annoncés via live region.
  */
 @Component({
   selector: 'app-cart',
@@ -28,15 +30,16 @@ import {
 })
 export class CartComponent {
   private readonly cart = inject(CartService);
+  private readonly auth = inject(AuthService);
+  private readonly toast = inject(ToastService);
+  private readonly router = inject(Router);
 
   protected readonly items = this.cart.items;
   protected readonly count = this.cart.count;
   protected readonly subtotal = this.cart.subtotal;
 
-  /** Annonce vocale du dernier changement de panier (live region). */
   protected readonly announcement = signal('');
-
-  /** Affiche le placeholder « paiement bientôt disponible ». */
+  /** Conservé pour compatibilité de gabarit (placeholder paiement non utilisé). */
   protected readonly checkoutOpen = signal(false);
 
   protected readonly isEmpty = computed(() => this.items().length === 0);
@@ -45,7 +48,6 @@ export class CartComponent {
     return resolveProductImage(product);
   }
 
-  /** Incrémente la quantité d'un article d'une unité. */
   protected increase(product: ProductSummaryDto): void {
     this.cart.addItem(product, 1);
     this.announce(
@@ -53,17 +55,11 @@ export class CartComponent {
     );
   }
 
-  /**
-   * Décrémente la quantité d'une unité. Si la quantité atteint zéro,
-   * l'article est retiré du panier.
-   */
   protected decrease(product: ProductSummaryDto, quantity: number): void {
     if (quantity <= 1) {
       this.remove(product);
       return;
     }
-    // Pas de méthode dédiée dans le service : on retire puis on rajoute la
-    // quantité diminuée pour conserver une seule source de vérité.
     this.cart.removeItem(product.id);
     this.cart.addItem(product, quantity - 1);
     this.announce(
@@ -71,7 +67,6 @@ export class CartComponent {
     );
   }
 
-  /** Retire complètement un article du panier. */
   protected remove(product: ProductSummaryDto): void {
     this.cart.removeItem(product.id);
     this.announce(
@@ -79,21 +74,26 @@ export class CartComponent {
     );
   }
 
-  /** Vide entièrement le panier. */
   protected clear(): void {
     this.cart.clear();
-    this.checkoutOpen.set(false);
     this.announce($localize`:@@cart.announce.cleared:Le panier a été vidé.`);
   }
 
-  /** Affiche le message « paiement bientôt disponible » (Stripe à venir). */
+  /** Dirige vers la caisse (paiement démo). Connexion requise pour commander. */
   protected checkout(): void {
-    this.checkoutOpen.set(true);
+    if (this.isEmpty()) return;
+    if (!this.auth.isAuthenticated()) {
+      this.toast.show(
+        $localize`:@@cart.loginRequired:Connectez-vous pour passer une commande.`,
+        'info',
+      );
+      this.router.navigateByUrl('/auth');
+      return;
+    }
+    this.router.navigateByUrl('/panier/caisse');
   }
 
   private announce(message: string): void {
-    // On vide puis on repositionne le message pour forcer la relecture par
-    // les lecteurs d'écran même si le texte est identique.
     this.announcement.set('');
     setTimeout(() => this.announcement.set(message), 60);
   }

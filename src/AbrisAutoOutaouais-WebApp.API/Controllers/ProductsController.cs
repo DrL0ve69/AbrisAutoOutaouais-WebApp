@@ -1,8 +1,8 @@
 ﻿using AbrisAutoOutaouais_WebApp.Application.Common.Mediator;
 using AbrisAutoOutaouais_WebApp.Application.Common.Models;
+using AbrisAutoOutaouais_WebApp.Application.Products.Commands;
 using AbrisAutoOutaouais_WebApp.Application.Products.Queries.GetAllProducts;
 using AbrisAutoOutaouais_WebApp.Application.Products.Queries.GetProductBySlug;
-using AbrisAutoOutaouais_WebApp.Domain.Constants;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -33,37 +33,39 @@ public sealed class ProductsController(IDispatcher dispatcher) : ControllerBase
     public async Task<IActionResult> GetBySlug(string slug, CancellationToken ct)
         => Ok(await dispatcher.DispatchAsync(new GetProductBySlugQuery(slug), ct));
 
-    /// <summary>Créer un produit.</summary>
-    //[HttpPost]
-    //[Authorize(Roles = Roles.Admin)]
-    //[ProducesResponseType<Guid>(201)]
-    //[ProducesResponseType<ProblemDetails>(422)]
-    //public async Task<IActionResult> Create(
-    //    [FromBody] CreateProductCommand cmd, CancellationToken ct)
-    //{
-    //    var id = await dispatcher.Send(cmd, ct);
-    //    return CreatedAtAction(nameof(GetBySlug),
-    //        new { slug = cmd.Slug, version = "1.0" }, id);
-    //}
+    /// <summary>Créer un produit (Admin).</summary>
+    [HttpPost]
+    [Authorize(Policy = "AdminOnly")]
+    [ProducesResponseType(201)]
+    [ProducesResponseType<ProblemDetails>(409)]
+    [ProducesResponseType<ProblemDetails>(422)]
+    public async Task<IActionResult> Create(
+        [FromBody] CreateProductCommand cmd, CancellationToken ct)
+    {
+        var id = await dispatcher.DispatchAsync(cmd, ct);
+        return CreatedAtAction(nameof(GetBySlug), new { slug = id, version = "1.0" }, new { id });
+    }
 
-    ///// <summary>Mettre à jour un produit.</summary>
-    //[HttpPut("{id:guid}")]
-    //[Authorize(Roles = Roles.Admin)]
-    //[ProducesResponseType(204)]
-    //public async Task<IActionResult> Update(
-    //    Guid id, [FromBody] UpdateProductCommand cmd, CancellationToken ct)
-    //{
-    //    await dispatcher.Send(cmd with { Id = id }, ct);
-    //    return NoContent();
-    //}
+    /// <summary>Mettre à jour un produit (Admin).</summary>
+    [HttpPut("{id:guid}")]
+    [Authorize(Policy = "AdminOnly")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType<ProblemDetails>(404)]
+    public async Task<IActionResult> Update(
+        Guid id, [FromBody] UpdateProductCommand cmd, CancellationToken ct)
+    {
+        await dispatcher.DispatchAsync(cmd with { Id = id }, ct);
+        return NoContent();
+    }
 
-    ///// <summary>Supprimer un produit (soft delete).</summary>
-    //[HttpDelete("{id:guid}")]
-    //[Authorize(Roles = Roles.Admin)]
-    //[ProducesResponseType(204)]
-    //public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
-    //{
-    //    await dispatcher.Send(new DeleteProductCommand(id), ct);
-    //    return NoContent();
-    //}
+    /// <summary>Supprimer un produit — soft delete (Admin).</summary>
+    [HttpDelete("{id:guid}")]
+    [Authorize(Policy = "AdminOnly")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType<ProblemDetails>(404)]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
+    {
+        await dispatcher.DispatchAsync(new DeleteProductCommand(id), ct);
+        return NoContent();
+    }
 }

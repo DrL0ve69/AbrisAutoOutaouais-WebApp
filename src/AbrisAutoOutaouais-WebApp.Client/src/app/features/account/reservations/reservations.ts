@@ -5,19 +5,11 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { environment } from '../../../../environments/environment';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state';
-
-/** Correspond à un BookingDto côté backend (endpoint à venir). */
-interface BookingDto {
-  readonly id: string;
-  readonly reference: string;
-  readonly scheduledAt: string;
-  readonly status: string;
-}
+import { BookingService } from '../../../core/services/booking.service';
+import { BookingSummaryDto } from '../../../core/models/booking.model';
 
 /**
  * Page « Mes réservations » (installations d'abris).
@@ -53,9 +45,17 @@ interface BookingDto {
           @for (booking of bookings(); track booking.id) {
           <li class="account-list__row">
             <div class="account-list__main">
-              <p class="account-list__ref">{{ booking.reference }}</p>
+              <p class="account-list__ref">
+                @switch (booking.type) {
+                  @case ('Installation') { <ng-container i18n="@@booking.type.installation">Installation</ng-container> }
+                  @case ('Delivery') { <ng-container i18n="@@booking.type.delivery">Livraison</ng-container> }
+                  @case ('Removal') { <ng-container i18n="@@booking.type.removal">Démontage</ng-container> }
+                  @default { {{ booking.type }} }
+                }
+                — {{ booking.city }}
+              </p>
               <p class="account-list__meta">
-                {{ booking.scheduledAt | date:'medium':'':'fr-CA' }}
+                {{ booking.slotStart | date:'medium':'':'fr-CA' }}
               </p>
             </div>
             <span class="account-list__status">{{ booking.status }}</span>
@@ -76,20 +76,18 @@ interface BookingDto {
   styleUrl: '../account-shared.scss',
 })
 export class ReservationsComponent implements OnInit {
-  private readonly http = inject(HttpClient);
+  private readonly bookingService = inject(BookingService);
 
-  protected readonly bookings = signal<BookingDto[]>([]);
+  protected readonly bookings = signal<BookingSummaryDto[]>([]);
   protected readonly loading = signal(true);
 
   ngOnInit(): void {
-    this.http
-      .get<BookingDto[]>(`${environment.apiUrl}/bookings/mine`)
-      .subscribe({
-        next: bookings => {
-          this.bookings.set(bookings ?? []);
-          this.loading.set(false);
-        },
-        error: () => this.loading.set(false),
-      });
+    this.bookingService.getMyBookings().subscribe({
+      next: bookings => {
+        this.bookings.set(bookings ?? []);
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false),
+    });
   }
 }

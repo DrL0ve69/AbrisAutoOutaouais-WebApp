@@ -1,0 +1,229 @@
+<section class="adminp" aria-labelledby="adminp-heading">
+  <div class="container">
+    <header class="adminp__head">
+      <p class="adminp__eyebrow" i18n="@@admin.products.eyebrow">Catalogue</p>
+      <h1 id="adminp-heading" i18n="@@admin.products.title">Gestion des produits</h1>
+      <p class="adminp__lead" i18n="@@admin.products.lead">
+        Ajoutez, modifiez et retirez les abris du catalogue.
+      </p>
+      <a routerLink="/admin/dashboard" class="adminp__back" i18n="@@admin.products.back">
+        ← Retour au tableau de bord
+      </a>
+    </header>
+
+    <div class="adminp__layout">
+      <!-- ===== Formulaire création / édition ===== -->
+      <section class="adminp__panel" aria-labelledby="adminp-form-heading">
+        <h2 id="adminp-form-heading">
+          @if (isEditing()) {
+            <span i18n="@@admin.products.form.editHeading">Modifier le produit</span>
+          } @else {
+            <span i18n="@@admin.products.form.createHeading">Nouveau produit</span>
+          }
+        </h2>
+
+        @if (formError(); as err) {
+          <p class="adminp__alert" role="alert">{{ err }}</p>
+        }
+
+        <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+          <div class="adminp__field">
+            <label for="p-name" i18n="@@admin.products.form.name">Nom</label>
+            <input
+              id="p-name"
+              type="text"
+              formControlName="name"
+              autocomplete="off"
+              [attr.aria-invalid]="nameCtrl.touched && nameCtrl.invalid ? 'true' : null"
+              aria-describedby="p-name-err"
+            />
+            @if (nameCtrl.touched && nameCtrl.invalid) {
+              <p id="p-name-err" class="adminp__err" role="alert" i18n="@@admin.products.form.nameError">
+                Le nom est requis (2 caractères minimum).
+              </p>
+            }
+          </div>
+
+          <div class="adminp__field">
+            <label for="p-desc" i18n="@@admin.products.form.description">Description</label>
+            <textarea id="p-desc" rows="3" formControlName="description"></textarea>
+          </div>
+
+          <div class="adminp__row">
+            <div class="adminp__field">
+              <label for="p-price" i18n="@@admin.products.form.price">Prix (CAD)</label>
+              <input
+                id="p-price"
+                type="number"
+                step="0.01"
+                min="0"
+                formControlName="price"
+                [attr.aria-invalid]="priceCtrl.touched && priceCtrl.invalid ? 'true' : null"
+                aria-describedby="p-price-err"
+              />
+              @if (priceCtrl.touched && priceCtrl.invalid) {
+                <p id="p-price-err" class="adminp__err" role="alert" i18n="@@admin.products.form.priceError">
+                  Le prix doit être supérieur à 0.
+                </p>
+              }
+            </div>
+
+            <div class="adminp__field">
+              <label for="p-stock" i18n="@@admin.products.form.stock">Stock</label>
+              <input
+                id="p-stock"
+                type="number"
+                step="1"
+                min="0"
+                formControlName="stock"
+                [attr.aria-invalid]="stockCtrl.touched && stockCtrl.invalid ? 'true' : null"
+                aria-describedby="p-stock-err"
+              />
+              @if (stockCtrl.touched && stockCtrl.invalid) {
+                <p id="p-stock-err" class="adminp__err" role="alert" i18n="@@admin.products.form.stockError">
+                  Le stock doit être un nombre positif ou nul.
+                </p>
+              }
+            </div>
+          </div>
+
+          <div class="adminp__field">
+            <label for="p-category" i18n="@@admin.products.form.category">Catégorie</label>
+            <select
+              id="p-category"
+              formControlName="categoryId"
+              [attr.aria-invalid]="categoryCtrl.touched && categoryCtrl.invalid ? 'true' : null"
+              aria-describedby="p-category-err p-category-hint"
+            >
+              <option value="" disabled i18n="@@admin.products.form.categoryPlaceholder">
+                — Choisir une catégorie —
+              </option>
+              @for (cat of categories(); track cat.id) {
+                <option [value]="cat.id">{{ cat.name }}</option>
+              }
+            </select>
+            @if (isEditing()) {
+              <p id="p-category-hint" class="adminp__hint" i18n="@@admin.products.form.categoryLocked">
+                La catégorie d'un produit existant ne peut pas être modifiée.
+              </p>
+            }
+            @if (categoryCtrl.touched && categoryCtrl.invalid) {
+              <p id="p-category-err" class="adminp__err" role="alert" i18n="@@admin.products.form.categoryError">
+                Veuillez choisir une catégorie.
+              </p>
+            }
+          </div>
+
+          <div class="adminp__actions">
+            <button type="submit" class="btn btn--primary" [disabled]="saving()">
+              @if (isEditing()) {
+                <span i18n="@@admin.products.form.save">Enregistrer</span>
+              } @else {
+                <span i18n="@@admin.products.form.create">Créer le produit</span>
+              }
+            </button>
+            @if (isEditing()) {
+              <button type="button" class="btn btn--ghost" (click)="cancelEdit()" i18n="@@admin.products.form.cancel">
+                Annuler
+              </button>
+            }
+          </div>
+        </form>
+      </section>
+
+      <!-- ===== Liste des produits ===== -->
+      <section class="adminp__panel" aria-labelledby="adminp-list-heading">
+        <h2 id="adminp-list-heading" i18n="@@admin.products.list.heading">Produits du catalogue</h2>
+
+        @if (loading()) {
+          <p class="adminp__status" role="status" i18n="@@admin.products.list.loading">Chargement…</p>
+        } @else if (items().length === 0) {
+          <p class="adminp__status" role="status" i18n="@@admin.products.list.empty">
+            Aucun produit dans le catalogue.
+          </p>
+        } @else {
+          <div class="adminp__tablewrap">
+            <table class="adminp__table">
+              <caption class="sr-only" i18n="@@admin.products.table.caption">
+                Liste des produits avec nom, catégorie, prix, stock et disponibilité.
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col" i18n="@@admin.products.table.name">Nom</th>
+                  <th scope="col" i18n="@@admin.products.table.category">Catégorie</th>
+                  <th scope="col" i18n="@@admin.products.table.price">Prix</th>
+                  <th scope="col" i18n="@@admin.products.table.stock">Stock</th>
+                  <th scope="col" i18n="@@admin.products.table.availability">Disponibilité</th>
+                  <th scope="col" i18n="@@admin.products.table.actions">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (p of items(); track p.id) {
+                  <tr>
+                    <th scope="row">{{ p.name }}</th>
+                    <td>{{ p.categoryName }}</td>
+                    <td>{{ p.price | currency: 'CAD' : 'symbol' : '1.2-2' : 'fr-CA' }}</td>
+                    <td>{{ p.stock }}</td>
+                    <td>
+                      @if (p.isAvailable) {
+                        <span class="adminp__badge adminp__badge--ok" i18n="@@admin.products.table.available">Disponible</span>
+                      } @else {
+                        <span class="adminp__badge adminp__badge--out" i18n="@@admin.products.table.unavailable">Indisponible</span>
+                      }
+                    </td>
+                    <td class="adminp__rowactions">
+                      <button
+                        type="button"
+                        class="btn btn--small"
+                        (click)="startEdit(p)"
+                        [attr.aria-label]="'Modifier ' + p.name"
+                      >
+                        <span i18n="@@admin.products.table.edit">Modifier</span>
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn--small btn--danger"
+                        (click)="askDelete(p.id)"
+                        [attr.aria-label]="'Supprimer ' + p.name"
+                      >
+                        <span i18n="@@admin.products.table.delete">Supprimer</span>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </section>
+    </div>
+  </div>
+
+  <!-- ===== Confirmation de suppression (dialogue accessible) ===== -->
+  @if (pendingDeleteId(); as delId) {
+    <div class="adminp__overlay" (click)="cancelDelete()">
+      <div
+        class="adminp__dialog"
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="del-title"
+        aria-describedby="del-desc"
+        (click)="$event.stopPropagation()"
+      >
+        <h2 id="del-title" i18n="@@admin.products.delete.title">Confirmer la suppression</h2>
+        <p id="del-desc">
+          <ng-container i18n="@@admin.products.delete.message">Voulez-vous vraiment supprimer ce produit&nbsp;?</ng-container>
+          <strong>{{ productName(delId) }}</strong>
+        </p>
+        <div class="adminp__actions">
+          <button type="button" class="btn btn--danger" (click)="confirmDelete()" i18n="@@admin.products.delete.confirm">
+            Supprimer
+          </button>
+          <button type="button" class="btn btn--ghost" (click)="cancelDelete()" i18n="@@admin.products.delete.cancel">
+            Annuler
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</section>

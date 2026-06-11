@@ -6,6 +6,8 @@ interface AdminSection {
   readonly label: string;
   readonly description: string;
   readonly icon: string;
+  /** Route active si la section est disponible ; sinon « en construction ». */
+  readonly route?: string;
 }
 
 /**
@@ -38,7 +40,15 @@ interface AdminSection {
               <p class="admin-card__icon" aria-hidden="true">{{ section.icon }}</p>
               <h2 [id]="'card-' + section.id" class="admin-card__title">{{ section.label }}</h2>
               <p class="admin-card__desc">{{ section.description }}</p>
+              @if (section.route) {
+              <a class="admin-card__link" [routerLink]="section.route"
+                 [attr.aria-label]="section.label">
+                <span i18n="@@admin.card.manage">Gérer</span>
+                <span aria-hidden="true"> →</span>
+              </a>
+              } @else {
               <p class="admin-card__badge" i18n="@@admin.card.soon">Section en construction</p>
+              }
             </article>
           </li>
           }
@@ -59,6 +69,7 @@ export class AdminDashboardComponent {
       label: $localize`:@@admin.section.products:Produits`,
       description: $localize`:@@admin.section.productsDesc:Ajouter, modifier et retirer des abris du catalogue.`,
       icon: '📦',
+      route: '/admin/produits',
     },
     {
       id: 'orders',
