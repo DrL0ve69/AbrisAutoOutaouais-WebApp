@@ -1,6 +1,8 @@
 using AbrisAutoOutaouais_WebApp.Application.Common.Mediator;
 using AbrisAutoOutaouais_WebApp.Application.Orders.Commands.CancelOrder;
 using AbrisAutoOutaouais_WebApp.Application.Orders.Commands.PlaceOrder;
+using AbrisAutoOutaouais_WebApp.Application.Orders.Commands.UpdateOrderStatus;
+using AbrisAutoOutaouais_WebApp.Application.Orders.Queries.GetAllOrders;
 using AbrisAutoOutaouais_WebApp.Application.Orders.Queries.GetMyOrders;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
@@ -37,6 +39,27 @@ public sealed class OrdersController(IDispatcher dispatcher) : ControllerBase
     public async Task<IActionResult> Cancel(Guid id, CancellationToken ct)
     {
         await dispatcher.DispatchAsync(new CancelOrderCommand(id), ct);
+        return NoContent();
+    }
+
+    // ── Administration ─────────────────────────────────────────────────────────
+
+    /// <summary>Toutes les commandes (Admin).</summary>
+    [HttpGet("all")]
+    [Authorize(Policy = "AdminOnly")]
+    [ProducesResponseType<IReadOnlyList<AdminOrderDto>>(200)]
+    public async Task<IActionResult> GetAll(CancellationToken ct)
+        => Ok(await dispatcher.DispatchAsync(new GetAllOrdersQuery(), ct));
+
+    /// <summary>Faire avancer le statut d'une commande (Admin) : confirm / ship / deliver / cancel.</summary>
+    [HttpPost("{id:guid}/status")]
+    [Authorize(Policy = "AdminOnly")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType<ProblemDetails>(404)]
+    public async Task<IActionResult> UpdateStatus(
+        Guid id, [FromBody] UpdateOrderStatusRequest body, CancellationToken ct)
+    {
+        await dispatcher.DispatchAsync(new UpdateOrderStatusCommand(id, body.Action), ct);
         return NoContent();
     }
 }

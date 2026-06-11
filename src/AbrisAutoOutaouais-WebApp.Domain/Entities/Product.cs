@@ -75,6 +75,14 @@ public sealed class Product : ISoftDeletable, IAuditableEntity
         Stock = next; IsAvailable = next > 0;
     }
 
+    /// <summary>Déplace le produit dans une autre catégorie (validée dans le handler).</summary>
+    public void ChangeCategory(Guid categoryId)
+    {
+        if (categoryId == Guid.Empty)
+            throw new ArgumentException("La catégorie est requise.");
+        CategoryId = categoryId;
+    }
+
     public void AddImage(string url, string? altText = null)
         => _images.Add(ProductImage.Create(Id, url, altText));
 }

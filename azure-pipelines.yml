@@ -1,0 +1,136 @@
+# ============================================================
+# Pipeline CI/CD Azure DevOps — AbrisTempo Local
+# Build + tests, puis déploiement progressif Dev → Staging → Prod.
+#
+# À CONFIGURER avant utilisation (voir docs/deployment.md) :
+#   - une Service Connection ARM (Azure Resource Manager) : variable `azureSubscription`
+#   - les noms d'App Service par environnement (variables `*AppName`)
+#   - des Environments Azure DevOps « staging » et « production » avec approbations
+#   - des Variable Groups pour les secrets (chaîne de connexion, Jwt:Key) — via Key Vault
+#
+# NOTE : la CI (build + tests) est déjà couverte par GitHub Actions (.github/workflows/ci.yml).
+# Ce pipeline ajoute surtout le CD (déploiement). Garde l'un, l'autre, ou les deux.
+# ============================================================
+
+trigger:
+  branches:
+    include: [master]
+
+variables:
+  buildConfiguration: 'Release'
+  azureSubscription: 'REMPLACER-par-votre-service-connection-ARM'
+  apiAppNameDev: 'abristempo-api-dev'
+  apiAppNameStaging: 'abristempo-api-staging'
+  apiAppNameProd: 'abristempo-api-prod'
+  clientDir: 'src/AbrisAutoOutaouais-WebApp.Client'
+
+stages:
+  # ── 1. BUILD & TESTS ────────────────────────────────────────────────────────
+  - stage: Build
+    displayName: 'Build & tests'
+    jobs:
+      - job: Backend
+        displayName: 'Backend (.NET 10)'
+        pool: { vmImage: 'ubuntu-latest' }
+        steps:
+          - task: UseDotNet@2
+            inputs: { packageType: 'sdk', version: '10.0.x' }
+          - script: dotnet build src/AbrisAutoOutaouais-WebApp.API/AbrisAutoOutaouais-WebApp.API.csproj -c $(buildConfiguration)
+            displayName: 'Build API'
+          - script: dotnet test AbrisAutoOutaouais-WebApp.UnitTest/AbrisAutoOutaouais-WebApp.UnitTest.csproj -c $(buildConfiguration)
+            displayName: 'Tests unitaires'
+          - script: dotnet publish src/AbrisAutoOutaouais-WebApp.API/AbrisAutoOutaouais-WebApp.API.csproj -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/api
+            displayName: 'Publish API'
+          - publish: '$(Build.ArtifactStagingDirectory)/api'
+            artifact: api
+
+      - job: Frontend
+        displayName: 'Frontend (Angular 21)'
+        pool: { vmImage: 'ubuntu-latest' }
+        steps:
+          - task: NodeTool@0
+            inputs: { versionSpec: '22.x' }
+          - script: npm ci
+            workingDirectory: '$(clientDir)'
+            displayName: 'npm ci'
+          - script: npx playwright install --with-deps chromium
+            workingDirectory: '$(clientDir)'
+            displayName: 'Chromium (Playwright)'
+          - script: npm test
+            workingDirectory: '$(clientDir)'
+            displayName: 'Tests + accessibilité (Vitest + axe)'
+          - script: npm run build:prod
+            workingDirectory: '$(clientDir)'
+            displayName: 'Build production (SSR, fr + en)'
+          - publish: '$(clientDir)/dist/abristempo-client'
+            artifact: client
+
+  # ── 2. DEPLOY DEV (automatique) ─────────────────────────────────────────────
+  - stage: Deploy_Dev
+    displayName: 'Déploiement — Dev'
+    dependsOn: Build
+    condition: succeeded()
+    jobs:
+      - deployment: DeployDev
+        environment: 'dev'
+        pool: { vmImage: 'ubuntu-latest' }
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: current
+                  artifact: api
+                - task: AzureWebApp@1
+                  displayName: 'Déployer API → Dev'
+                  inputs:
+                    azureSubscription: '$(azureSubscription)'
+                    appName: '$(apiAppNameDev)'
+                    package: '$(Pipeline.Workspace)/api'
+                # Frontend : déployer l'artifact `client` (Azure Static Web Apps ou App Service Node SSR).
+                # Voir docs/deployment.md pour les options d'hébergement du SSR.
+
+  # ── 3. DEPLOY STAGING (avec approbation sur l'Environment) ──────────────────
+  - stage: Deploy_Staging
+    displayName: 'Déploiement — Staging'
+    dependsOn: Deploy_Dev
+    condition: succeeded()
+    jobs:
+      - deployment: DeployStaging
+        environment: 'staging' # configurez une approbation manuelle sur cet Environment
+        pool: { vmImage: 'ubuntu-latest' }
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: current
+                  artifact: api
+                - task: AzureWebApp@1
+                  displayName: 'Déployer API → Staging'
+                  inputs:
+                    azureSubscription: '$(azureSubscription)'
+                    appName: '$(apiAppNameStaging)'
+                    appSettings: '-ASPNETCORE_ENVIRONMENT Staging'
+                    package: '$(Pipeline.Workspace)/api'
+
+  # ── 4. DEPLOY PROD (avec approbation sur l'Environment) ─────────────────────
+  - stage: Deploy_Prod
+    displayName: 'Déploiement — Production'
+    dependsOn: Deploy_Staging
+    condition: succeeded()
+    jobs:
+      - deployment: DeployProd
+        environment: 'production' # configurez une approbation manuelle sur cet Environment
+        pool: { vmImage: 'ubuntu-latest' }
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: current
+                  artifact: api
+                - task: AzureWebApp@1
+                  displayName: 'Déployer API → Production'
+                  inputs:
+                    azureSubscription: '$(azureSubscription)'
+                    appName: '$(apiAppNameProd)'
+                    appSettings: '-ASPNETCORE_ENVIRONMENT Production'
+                    package: '$(Pipeline.Workspace)/api'

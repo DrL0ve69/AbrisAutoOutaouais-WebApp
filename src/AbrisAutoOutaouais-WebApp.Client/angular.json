@@ -71,7 +71,13 @@
                 }
               ],
               "outputHashing": "all",
-              "localize": true
+              "localize": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ]
             },
             "development": {
               "optimization": false,
@@ -81,6 +87,16 @@
             },
             "en": {
               "localize": [ "en" ]
+            },
+            "staging": {
+              "optimization": true,
+              "outputHashing": "all",
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.staging.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
@@ -96,6 +112,9 @@
             },
             "en": {
               "buildTarget": "AbrisAutoOutaouais-WebApp.Client:build:en"
+            },
+            "staging": {
+              "buildTarget": "AbrisAutoOutaouais-WebApp.Client:build:staging"
             }
           },
           "defaultConfiguration": "development"

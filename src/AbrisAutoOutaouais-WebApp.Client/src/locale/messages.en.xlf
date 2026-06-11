@@ -1076,6 +1076,118 @@
         <source>La suppression a échoué.</source>
         <target>Deletion failed.</target>
       </trans-unit>
+      <trans-unit id="admin.orders.eyebrow" datatype="html">
+        <source>Commandes</source>
+        <target>Orders</target>
+      </trans-unit>
+      <trans-unit id="admin.orders.title" datatype="html">
+        <source>Gestion des commandes</source>
+        <target>Order management</target>
+      </trans-unit>
+      <trans-unit id="admin.orders.lead" datatype="html">
+        <source> Suivez et faites évoluer le statut des commandes des clients. </source>
+        <target> Track and update the status of customer orders. </target>
+      </trans-unit>
+      <trans-unit id="admin.orders.back" datatype="html">
+        <source> ← Retour au tableau de bord </source>
+        <target> ← Back to dashboard </target>
+      </trans-unit>
+      <trans-unit id="admin.orders.list.heading" datatype="html">
+        <source>Toutes les commandes</source>
+        <target>All orders</target>
+      </trans-unit>
+      <trans-unit id="admin.orders.list.loading" datatype="html">
+        <source>Chargement…</source>
+        <target>Loading…</target>
+      </trans-unit>
+      <trans-unit id="admin.orders.list.error" datatype="html">
+        <source> Impossible de charger les commandes. </source>
+        <target> Unable to load the orders. </target>
+      </trans-unit>
+      <trans-unit id="admin.orders.list.empty" datatype="html">
+        <source> Aucune commande pour le moment. </source>
+        <target> No orders yet. </target>
+      </trans-unit>
+      <trans-unit id="admin.orders.table.caption" datatype="html">
+        <source> Liste des commandes avec référence, courriel du client, date, statut, total et nombre d'articles. </source>
+        <target> List of orders with reference, customer email, date, status, total and item count. </target>
+      </trans-unit>
+      <trans-unit id="admin.orders.table.reference" datatype="html">
+        <source>Référence</source>
+        <target>Reference</target>
+      </trans-unit>
+      <trans-unit id="admin.orders.table.customer" datatype="html">
+        <source>Courriel client</source>
+        <target>Customer email</target>
+      </trans-unit>
+      <trans-unit id="admin.orders.table.date" datatype="html">
+        <source>Date</source>
+        <target>Date</target>
+      </trans-unit>
+      <trans-unit id="admin.orders.table.status" datatype="html">
+        <source>Statut</source>
+        <target>Status</target>
+      </trans-unit>
+      <trans-unit id="admin.orders.table.total" datatype="html">
+        <source>Total</source>
+        <target>Total</target>
+      </trans-unit>
+      <trans-unit id="admin.orders.table.items" datatype="html">
+        <source>Articles</source>
+        <target>Items</target>
+      </trans-unit>
+      <trans-unit id="admin.orders.table.actions" datatype="html">
+        <source>Actions</source>
+        <target>Actions</target>
+      </trans-unit>
+      <trans-unit id="admin.orders.status.pending" datatype="html">
+        <source>En attente</source>
+        <target>Pending</target>
+      </trans-unit>
+      <trans-unit id="admin.orders.status.confirmed" datatype="html">
+        <source>Confirmée</source>
+        <target>Confirmed</target>
+      </trans-unit>
+      <trans-unit id="admin.orders.status.shipped" datatype="html">
+        <source>Expédiée</source>
+        <target>Shipped</target>
+      </trans-unit>
+      <trans-unit id="admin.orders.status.delivered" datatype="html">
+        <source>Livrée</source>
+        <target>Delivered</target>
+      </trans-unit>
+      <trans-unit id="admin.orders.status.cancelled" datatype="html">
+        <source>Annulée</source>
+        <target>Cancelled</target>
+      </trans-unit>
+      <trans-unit id="admin.orders.action.confirm" datatype="html">
+        <source>Confirmer</source>
+        <target>Confirm</target>
+      </trans-unit>
+      <trans-unit id="admin.orders.action.ship" datatype="html">
+        <source>Expédier</source>
+        <target>Ship</target>
+      </trans-unit>
+      <trans-unit id="admin.orders.action.deliver" datatype="html">
+        <source>Marquer livrée</source>
+        <target>Mark as delivered</target>
+      </trans-unit>
+      <trans-unit id="admin.orders.action.cancel" datatype="html">
+        <source>Annuler</source>
+        <target>Cancel</target>
+      </trans-unit>
+      <trans-unit id="admin.orders.toast.loadError" datatype="html">
+        <source>Échec du chargement des commandes.</source>
+        <target>Failed to load orders.</target>
+      </trans-unit>
+      <trans-unit id="admin.orders.toast.updated" datatype="html">
+        <source>Statut de la commande mis à jour.</source>
+        <target>Order status updated.</target>
+      </trans-unit>
+      <trans-unit id="admin.orders.toast.updateError" datatype="html">
+        <source>La mise à jour du statut a échoué.</source>
+        <target>Status update failed.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -22,8 +22,16 @@ public sealed class UpdateProductCommandHandler(IApplicationDbContext db)
 
         product.UpdateDetails(command.Name, command.Description, command.Price);
         product.AdjustStock(command.Stock - product.Stock);
-        // Note : le changement de catégorie n'est pas appliqué — l'agrégat Product n'expose
-        // pas de moyen de modifier CategoryId sans toucher au Domain.
+
+        // Changement de catégorie (validé) — possible via Product.ChangeCategory().
+        if (command.CategoryId != Guid.Empty && command.CategoryId != product.CategoryId)
+        {
+            var categoryExists = await db.ProductCategories
+                .AnyAsync(c => c.Id == command.CategoryId, ct);
+            if (!categoryExists)
+                throw new NotFoundException(nameof(Domain.Entities.ProductCategory), command.CategoryId);
+            product.ChangeCategory(command.CategoryId);
+        }
 
         await db.SaveChangesAsync(ct);
         return true;
