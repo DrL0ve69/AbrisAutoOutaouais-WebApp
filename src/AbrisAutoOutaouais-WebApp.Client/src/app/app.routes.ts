@@ -29,6 +29,12 @@ export const routes: Routes = [
     loadComponent: () => import('./features/cart/cart').then(m => m.CartComponent),
     title: 'AbrisTempo Local — Mon panier',
   },
+  {
+    path: 'panier/caisse',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/checkout/checkout').then(m => m.CheckoutComponent),
+    title: 'AbrisTempo Local — Caisse',
+  },
   // Pages provisoires « en construction » — les fonctionnalités complètes
   // (location saisonnière, réservation d'installation) arrivent plus tard.
   {

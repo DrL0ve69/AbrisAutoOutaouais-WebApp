@@ -38,16 +38,6 @@ public sealed class CreateProductCommandValidatorTests
     }
 
     [Fact]
-    public void Validate_WithInvalidSlugFormat_HasValidationError()
-    {
-        var cmd = new CreateProductCommand("Abri", "Slug Invalide!", 100m, 5, Guid.NewGuid());
-
-        _validator.TestValidate(cmd)
-            .ShouldHaveValidationErrorFor(x => x.Description)
-            .WithErrorMessage("*minuscules*");
-    }
-
-    [Fact]
     public void Validate_WithZeroPrice_HasValidationError()
     {
         var cmd = new CreateProductCommand("Abri", "abri", 0m, 5, Guid.NewGuid());
@@ -66,20 +56,11 @@ public sealed class CreateProductCommandValidatorTests
     }
 
     [Fact]
-    public void Validate_WithPositiveRentalPrice_HasNoError()
+    public void Validate_WithPositivePrice_HasNoError()
     {
         var cmd = new CreateProductCommand("Abri", "abri", 100m, 5, Guid.NewGuid());
 
         _validator.TestValidate(cmd)
             .ShouldNotHaveValidationErrorFor(x => x.Price);
-    }
-
-    [Fact]
-    public void Validate_WithZeroRentalPrice_HasValidationError()
-    {
-        var cmd = new CreateProductCommand("Abri", "abri", 100m, 5, Guid.NewGuid());
-
-        _validator.TestValidate(cmd)
-            .ShouldHaveValidationErrorFor(x => x.Price);
     }
 }

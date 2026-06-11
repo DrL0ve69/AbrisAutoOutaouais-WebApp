@@ -5,21 +5,11 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { environment } from '../../../../environments/environment';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state';
-
-/** Correspond à un RentalDto côté backend (endpoint à venir). */
-interface RentalDto {
-  readonly id: string;
-  readonly reference: string;
-  readonly startDate: string;
-  readonly endDate: string;
-  readonly status: string;
-  readonly total: number;
-}
+import { RentalService } from '../../../core/services/rental.service';
+import { RentalSummaryDto } from '../../../core/models/rental.model';
 
 /**
  * Page « Mes locations » (locations saisonnières d'abris).
@@ -53,7 +43,7 @@ interface RentalDto {
           @for (rental of rentals(); track rental.id) {
           <li class="account-list__row">
             <div class="account-list__main">
-              <p class="account-list__ref">{{ rental.reference }}</p>
+              <p class="account-list__ref">{{ rental.productName }}</p>
               <p class="account-list__meta">
                 {{ rental.startDate | date:'longDate':'':'fr-CA' }}
                 –
@@ -62,7 +52,7 @@ interface RentalDto {
             </div>
             <span class="account-list__status">{{ rental.status }}</span>
             <span class="account-list__amount">
-              {{ rental.total | currency:'CAD':'symbol-narrow':'1.2-2':'fr-CA' }}
+              {{ rental.monthlyRate | currency:'CAD':'symbol-narrow':'1.2-2':'fr-CA' }}<span i18n="@@account.rentals.perMonth">/mois</span>
             </span>
           </li>
           }
@@ -81,20 +71,18 @@ interface RentalDto {
   styleUrl: '../account-shared.scss',
 })
 export class RentalsComponent implements OnInit {
-  private readonly http = inject(HttpClient);
+  private readonly rentalService = inject(RentalService);
 
-  protected readonly rentals = signal<RentalDto[]>([]);
+  protected readonly rentals = signal<RentalSummaryDto[]>([]);
   protected readonly loading = signal(true);
 
   ngOnInit(): void {
-    this.http
-      .get<RentalDto[]>(`${environment.apiUrl}/rentals/mine`)
-      .subscribe({
-        next: rentals => {
-          this.rentals.set(rentals ?? []);
-          this.loading.set(false);
-        },
-        error: () => this.loading.set(false),
-      });
+    this.rentalService.getMyRentals().subscribe({
+      next: rentals => {
+        this.rentals.set(rentals ?? []);
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false),
+    });
   }
 }

@@ -16,7 +16,7 @@ internal sealed class GetAvailableSlotsQueryHandler(
     private static readonly TimeSpan WorkEnd = TimeSpan.FromHours(17);
     private static readonly TimeSpan SlotDuration = TimeSpan.FromHours(2);
 
-    public async ValueTask<IReadOnlyList<AvailableSlotDto>> Handle(
+    public async Task<IReadOnlyList<AvailableSlotDto>> HandleAsync(
         GetAvailableSlotsQuery query, CancellationToken ct)
     {
         var fromUtc = query.From.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
@@ -55,4 +55,8 @@ internal sealed class GetAvailableSlotsQueryHandler(
 
         return slots.AsReadOnly();
     }
+
+    public ValueTask<IReadOnlyList<AvailableSlotDto>> Handle(
+        GetAvailableSlotsQuery query, CancellationToken ct)
+        => new(HandleAsync(query, ct));
 }

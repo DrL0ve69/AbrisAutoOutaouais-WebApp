@@ -39,6 +39,24 @@ export interface ProductQuery {
   readonly search?: string;
 }
 
+/** Charge utile pour créer un produit (POST /products). */
+export interface CreateProductRequest {
+  readonly name: string;
+  readonly description: string;
+  readonly price: number;
+  readonly stockQuantity: number;
+  readonly categoryId: string;
+}
+
+/** Charge utile pour mettre à jour un produit (PUT /products/{id}). */
+export interface UpdateProductRequest {
+  readonly name: string;
+  readonly description: string;
+  readonly price: number;
+  readonly stock: number;
+  readonly categoryId: string;
+}
+
 /**
  * Résout l'URL de l'image d'un produit pour l'affichage.
  *

@@ -1,0 +1,145 @@
+<!-- ============================================================
+     Caisse — AbrisTempo Local
+     Paiement SIMULÉ (mode démo). WCAG AA : h1 unique, fieldsets/légendes,
+     labels associés, erreurs role="alert", focus visible.
+============================================================ -->
+<section class="checkout" aria-labelledby="checkout-heading">
+  <div class="container">
+
+    <header class="section-header">
+      <p class="section-eyebrow" i18n="@@checkout.eyebrow">Paiement</p>
+      <h1 id="checkout-heading" i18n="@@checkout.title">Finaliser ma commande</h1>
+    </header>
+
+    @if (isEmpty()) {
+    <div class="cart-empty" role="status">
+      <p class="cart-empty__text" i18n="@@checkout.empty">Votre panier est vide.</p>
+      <a routerLink="/boutique" class="btn btn--primary" i18n="@@checkout.empty.shop">
+        Aller à la boutique
+      </a>
+    </div>
+    } @else {
+
+    <p class="checkout__demo" role="note" i18n="@@checkout.demoBanner">
+      🔒 Mode démonstration — aucune vraie transaction n'est effectuée. Saisissez une carte fictive
+      (p. ex. 4242 4242 4242 4242, expiration future, CVC 123).
+    </p>
+
+    <div class="checkout__layout">
+      <form class="checkout__form" [formGroup]="form" (ngSubmit)="pay()" novalidate>
+
+        <!-- Mode de réception -->
+        <fieldset class="checkout__group">
+          <legend i18n="@@checkout.delivery.legend">Mode de réception</legend>
+          <label class="checkout__radio">
+            <input type="radio" formControlName="deliveryType" value="Pickup" />
+            <span i18n="@@checkout.delivery.pickup">Ramassage en entrepôt (gratuit)</span>
+          </label>
+          <label class="checkout__radio">
+            <input type="radio" formControlName="deliveryType" value="Delivery" />
+            <span i18n="@@checkout.delivery.delivery">Livraison à domicile (Outaouais)</span>
+          </label>
+        </fieldset>
+
+        <!-- Adresse de livraison (si livraison) -->
+        @if (f.deliveryType.value === 'Delivery') {
+        <fieldset class="checkout__group">
+          <legend i18n="@@checkout.address.legend">Adresse de livraison</legend>
+          <div class="field">
+            <label class="field__label" for="co-street" i18n="@@checkout.address.street">Rue</label>
+            <input id="co-street" class="field__input" type="text" formControlName="street"
+                   autocomplete="address-line1" />
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label class="field__label" for="co-city" i18n="@@checkout.address.city">Ville</label>
+              <input id="co-city" class="field__input" type="text" formControlName="city"
+                     autocomplete="address-level2" />
+            </div>
+            <div class="field">
+              <label class="field__label" for="co-postal" i18n="@@checkout.address.postal">Code postal</label>
+              <input id="co-postal" class="field__input" type="text" formControlName="postalCode"
+                     autocomplete="postal-code" />
+            </div>
+          </div>
+          @if (form.hasError('addressRequired') && form.touched) {
+          <p class="field__error" role="alert" i18n="@@checkout.address.required">
+            Veuillez remplir la rue, la ville et le code postal pour la livraison.
+          </p>
+          }
+        </fieldset>
+        }
+
+        <!-- Paiement (démo) -->
+        <fieldset class="checkout__group">
+          <legend i18n="@@checkout.payment.legend">Carte de paiement (démo)</legend>
+
+          <div class="field">
+            <label class="field__label" for="co-card-name" i18n="@@checkout.card.name">Nom sur la carte</label>
+            <input id="co-card-name" class="field__input" type="text" formControlName="cardName"
+                   autocomplete="cc-name"
+                   [attr.aria-invalid]="f.cardName.invalid && f.cardName.touched" />
+          </div>
+
+          <div class="field">
+            <label class="field__label" for="co-card-number" i18n="@@checkout.card.number">Numéro de carte</label>
+            <input id="co-card-number" class="field__input" type="text" inputmode="numeric"
+                   formControlName="cardNumber" autocomplete="cc-number" placeholder="4242424242424242"
+                   [attr.aria-invalid]="f.cardNumber.invalid && f.cardNumber.touched" />
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label class="field__label" for="co-expiry" i18n="@@checkout.card.expiry">Expiration (MM/AA)</label>
+              <input id="co-expiry" class="field__input" type="text" formControlName="expiry"
+                     autocomplete="cc-exp" placeholder="12/29"
+                     [attr.aria-invalid]="f.expiry.invalid && f.expiry.touched" />
+            </div>
+            <div class="field">
+              <label class="field__label" for="co-cvc" i18n="@@checkout.card.cvc">CVC</label>
+              <input id="co-cvc" class="field__input" type="text" inputmode="numeric"
+                     formControlName="cvc" autocomplete="cc-csc" placeholder="123"
+                     [attr.aria-invalid]="f.cvc.invalid && f.cvc.touched" />
+            </div>
+          </div>
+
+          @if (form.invalid && form.touched && !form.hasError('addressRequired')) {
+          <p class="field__error" role="alert" i18n="@@checkout.card.invalid">
+            Vérifiez les informations de carte (numéro, expiration MM/AA, CVC).
+          </p>
+          }
+        </fieldset>
+
+        <button type="submit" class="btn btn--primary btn--full btn--lg"
+                [disabled]="processing()" [attr.aria-busy]="processing()">
+          @if (processing()) {
+          <span i18n="@@checkout.processing">Traitement du paiement…</span>
+          } @else {
+          <span i18n="@@checkout.pay">Payer</span>
+          {{ subtotal() | currency:'CAD':'symbol-narrow':'1.2-2':'fr-CA' }}
+          }
+        </button>
+
+        <a routerLink="/panier" class="checkout__back" i18n="@@checkout.back">← Retour au panier</a>
+      </form>
+
+      <!-- Récapitulatif -->
+      <aside class="checkout__summary" aria-labelledby="co-summary-heading">
+        <h2 id="co-summary-heading" i18n="@@checkout.summary.title">Récapitulatif</h2>
+        <ul class="checkout__items" role="list">
+          @for (item of items(); track item.product.id) {
+          <li class="checkout__item">
+            <span>{{ item.quantity }} × {{ item.product.name }}</span>
+            <span>{{ item.product.price * item.quantity | currency:'CAD':'symbol-narrow':'1.2-2':'fr-CA' }}</span>
+          </li>
+          }
+        </ul>
+        <p class="checkout__total">
+          <span i18n="@@checkout.summary.total">Total</span>
+          <strong>{{ subtotal() | currency:'CAD':'symbol-narrow':'1.2-2':'fr-CA' }}</strong>
+        </p>
+      </aside>
+    </div>
+    }
+  </div>
+</section>

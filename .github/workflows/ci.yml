@@ -22,13 +22,14 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
-      - name: Restore
-        run: dotnet restore
-      - name: Build (Release)
-        run: dotnet build --no-restore -c Release
-      # Les tests d'intégration nécessitent SQL Server LocalDB (Windows) — exécutés localement.
+      # On ne compile QUE les projets backend (.NET). Le projet Client (.esproj/Angular)
+      # appartient à la solution mais est validé par le job « frontend » : compiler la
+      # solution entière déclencherait npm/ng dans le job backend, ce qu'on évite.
+      - name: Build backend (API + dépendances)
+        run: dotnet build src/AbrisAutoOutaouais-WebApp.API/AbrisAutoOutaouais-WebApp.API.csproj -c Release
+      # Les tests d'intégration nécessitent SQL Server LocalDB — exécutés localement.
       - name: Tests unitaires
-        run: dotnet test AbrisAutoOutaouais-WebApp.UnitTest/AbrisAutoOutaouais-WebApp.UnitTest.csproj --no-build -c Release
+        run: dotnet test AbrisAutoOutaouais-WebApp.UnitTest/AbrisAutoOutaouais-WebApp.UnitTest.csproj -c Release
 
   frontend:
     name: Frontend — build, i18n & tests d'accessibilité (Angular 21)

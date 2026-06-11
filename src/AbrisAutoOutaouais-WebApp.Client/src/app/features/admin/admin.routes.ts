@@ -7,6 +7,12 @@ export const ADMIN_ROUTES: Routes = [
       import('./dashboard/dashboard').then(m => m.AdminDashboardComponent),
     title: 'AbrisTempo Local — Tableau de bord administrateur',
   },
+  {
+    path: 'produits',
+    loadComponent: () =>
+      import('./products/products').then(m => m.AdminProductsComponent),
+    title: 'AbrisTempo Local — Gestion des produits',
+  },
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   { path: '**', redirectTo: 'dashboard' },
 ];

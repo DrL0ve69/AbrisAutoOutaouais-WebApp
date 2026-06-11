@@ -1,4 +1,4 @@
-export type BookingType = 'Installation' | 'Livraison' | 'Removal';
+export type BookingType = 'Installation' | 'Delivery' | 'Removal';
 export type BookingStatus = 'Pending' | 'Confirmed' | 'Completed' | 'Cancelled';
 
 export interface AddressDto {
@@ -10,18 +10,24 @@ export interface AddressDto {
 }
 
 export interface AvailableSlotDto {
-  readonly start: string;   // ISO 8601
+  readonly start: string; // ISO 8601 (UTC)
   readonly end: string;
 }
 
+/** Charge utile pour POST /bookings — correspond au CreateBookingCommand C#. */
 export interface CreateBookingRequest {
-  slotStart: string;
-  durationMin: number;
-  type: BookingType;
-  street: string;
-  city: string;
-  province: string;
-  postalCode: string;
-  orderId?: string;
-  notes?: string;
+  readonly slotStart: string; // ISO 8601 (UTC)
+  readonly type: BookingType;
+  readonly address: AddressDto;
+  readonly notes?: string | null;
+}
+
+/** Correspond au BookingSummaryDto C# (GET /bookings/mine). */
+export interface BookingSummaryDto {
+  readonly id: string;
+  readonly slotStart: string;
+  readonly durationMin: number;
+  readonly type: string;
+  readonly status: string;
+  readonly city: string;
 }
