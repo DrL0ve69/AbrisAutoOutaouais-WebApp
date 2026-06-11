@@ -1,0 +1,169 @@
+// ============================================================
+// Administration des commandes — AbrisTempo Local
+// WCAG : h1 unique + h2 de panneau, table sémantique (caption, scope),
+// badges décoratifs contrastés, focus visible, messages via <output>.
+// ============================================================
+.admino {
+  min-height: 70vh;
+  padding-top: calc(68px + var(--space-10));
+  padding-bottom: var(--space-16);
+  background: var(--color-bg-subtle, #f9fafb);
+}
+
+.admino__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-8);
+}
+
+.admino__eyebrow {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.admino__head h1 {
+  font-family: var(--font-display);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+  line-height: var(--line-height-tight);
+}
+
+.admino__lead {
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
+  max-width: 60ch;
+}
+
+.admino__back {
+  align-self: flex-start;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-primary);
+  text-decoration: none;
+
+  &:hover { text-decoration: underline; }
+  &:visited { color: var(--color-primary); }
+}
+
+// ── Panneau ───────────────────────────────────────────────────
+.admino__panel {
+  padding: var(--space-6);
+  background: var(--color-surface, #fff);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+
+  h2 {
+    font-family: var(--font-display);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+    margin-bottom: var(--space-4);
+  }
+}
+
+// ── États ─────────────────────────────────────────────────────
+.admino__status {
+  display: block; // <output> est inline par défaut
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
+
+  &--error {
+    color: var(--color-danger, #b91c1c);
+    font-weight: var(--font-weight-medium);
+  }
+}
+
+// ── Table ─────────────────────────────────────────────────────
+.admino__tablewrap {
+  overflow-x: auto;
+}
+
+.admino__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+
+  th,
+  td {
+    padding: var(--space-2) var(--space-3);
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  thead th {
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+    background: var(--color-bg-muted);
+  }
+
+  tbody th[scope='row'] {
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text);
+    white-space: nowrap;
+  }
+}
+
+.admino__rowactions {
+  display: flex;
+  gap: var(--space-2);
+  white-space: nowrap;
+}
+
+.admino__noaction {
+  color: var(--color-text-muted);
+}
+
+// ── Badges de statut (spans décoratifs, contraste AA) ─────────
+.admino__badge {
+  display: inline-block;
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  white-space: nowrap;
+  border-radius: var(--radius-full);
+
+  &--pending {
+    color: #92400e;
+    background: #fef3c7;
+  }
+
+  &--confirmed {
+    color: #1e40af;
+    background: #dbeafe;
+  }
+
+  &--shipped {
+    color: #5b21b6;
+    background: #ede9fe;
+  }
+
+  &--delivered {
+    color: var(--color-success-strong, #166534);
+    background: var(--color-success-subtle, #dcfce7);
+  }
+
+  &--cancelled {
+    color: var(--color-danger, #b91c1c);
+    background: var(--color-danger-subtle, #fef2f2);
+  }
+}
+
+// ── Variantes de boutons locales (complètent les globales) ────
+.btn--small {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--font-size-sm);
+}
+
+.btn--danger {
+  color: #fff;
+  background: var(--color-danger, #b91c1c);
+  border-color: var(--color-danger, #b91c1c);
+
+  &:hover { background: #991b1b; }
+}

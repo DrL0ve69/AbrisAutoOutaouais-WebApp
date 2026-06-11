@@ -12,9 +12,9 @@ type FormMode = 'create' | 'edit';
 /**
  * Administration du catalogue — liste, création, édition et suppression de produits.
  * Accès protégé par authGuard + adminGuard (cf. app.routes.ts → /admin).
- * Note : l'API ne permet pas (encore) de changer la catégorie d'un produit existant ;
- * le champ catégorie n'est donc envoyé qu'à la création. WCAG AA : table sémantique,
- * libellés associés, messages d'erreur role="alert", confirmation accessible.
+ * La catégorie est modifiable en création comme en édition (PUT /products l'applique).
+ * WCAG AA : table sémantique, libellés associés, messages d'erreur role="alert",
+ * confirmation accessible.
  */
 @Component({
   selector: 'app-admin-products',
@@ -106,8 +106,8 @@ export class AdminProductsComponent {
       stock: product.stock,
       categoryId: this.categoryIdForName(product.categoryName),
     });
-    // L'API ne permet pas de modifier la catégorie d'un produit existant.
-    this.categoryCtrl.disable();
+    // La catégorie est modifiable : PUT /products applique le changement.
+    this.categoryCtrl.enable();
   }
 
   protected cancelEdit(): void {

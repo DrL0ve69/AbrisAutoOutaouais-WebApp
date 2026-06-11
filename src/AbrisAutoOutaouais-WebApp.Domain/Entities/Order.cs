@@ -83,4 +83,18 @@ public sealed class Order : ISoftDeletable, IAuditableEntity
             throw new BusinessRuleException("Impossible d'annuler une commande déjà expédiée.");
         Status = OrderStatus.Cancelled;
     }
+
+    public void Ship()
+    {
+        if (Status != OrderStatus.Confirmed)
+            throw new BusinessRuleException("Seule une commande confirmée peut être expédiée.");
+        Status = OrderStatus.Shipped;
+    }
+
+    public void Deliver()
+    {
+        if (Status != OrderStatus.Shipped)
+            throw new BusinessRuleException("Seule une commande expédiée peut être marquée livrée.");
+        Status = OrderStatus.Delivered;
+    }
 }

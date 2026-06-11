@@ -93,7 +93,7 @@
               id="p-category"
               formControlName="categoryId"
               [attr.aria-invalid]="categoryCtrl.touched && categoryCtrl.invalid ? 'true' : null"
-              aria-describedby="p-category-err p-category-hint"
+              aria-describedby="p-category-err"
             >
               <option value="" disabled i18n="@@admin.products.form.categoryPlaceholder">
                 — Choisir une catégorie —
@@ -102,11 +102,6 @@
                 <option [value]="cat.id">{{ cat.name }}</option>
               }
             </select>
-            @if (isEditing()) {
-              <p id="p-category-hint" class="adminp__hint" i18n="@@admin.products.form.categoryLocked">
-                La catégorie d'un produit existant ne peut pas être modifiée.
-              </p>
-            }
             @if (categoryCtrl.touched && categoryCtrl.invalid) {
               <p id="p-category-err" class="adminp__err" role="alert" i18n="@@admin.products.form.categoryError">
                 Veuillez choisir une catégorie.

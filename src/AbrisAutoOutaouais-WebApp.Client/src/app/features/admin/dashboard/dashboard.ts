@@ -76,6 +76,7 @@ export class AdminDashboardComponent {
       label: $localize`:@@admin.section.orders:Commandes`,
       description: $localize`:@@admin.section.ordersDesc:Suivre et traiter les commandes des clients.`,
       icon: '🧾',
+      route: '/admin/commandes',
     },
     {
       id: 'users',

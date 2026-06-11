@@ -13,6 +13,12 @@ export const ADMIN_ROUTES: Routes = [
       import('./products/products').then(m => m.AdminProductsComponent),
     title: 'AbrisTempo Local — Gestion des produits',
   },
+  {
+    path: 'commandes',
+    loadComponent: () =>
+      import('./orders/orders').then(m => m.AdminOrdersComponent),
+    title: 'AbrisTempo Local — Gestion des commandes',
+  },
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   { path: '**', redirectTo: 'dashboard' },
 ];

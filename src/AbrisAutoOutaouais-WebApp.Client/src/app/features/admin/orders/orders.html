@@ -1,0 +1,81 @@
+<section class="admino" aria-labelledby="admino-heading">
+  <div class="container">
+    <header class="admino__head">
+      <p class="admino__eyebrow" i18n="@@admin.orders.eyebrow">Commandes</p>
+      <h1 id="admino-heading" i18n="@@admin.orders.title">Gestion des commandes</h1>
+      <p class="admino__lead" i18n="@@admin.orders.lead">
+        Suivez et faites évoluer le statut des commandes des clients.
+      </p>
+      <a routerLink="/admin/dashboard" class="admino__back" i18n="@@admin.orders.back">
+        ← Retour au tableau de bord
+      </a>
+    </header>
+
+    <section class="admino__panel" aria-labelledby="admino-list-heading">
+      <h2 id="admino-list-heading" i18n="@@admin.orders.list.heading">Toutes les commandes</h2>
+
+      @if (loading()) {
+        <output class="admino__status" i18n="@@admin.orders.list.loading">Chargement…</output>
+      } @else if (error()) {
+        <output class="admino__status admino__status--error" i18n="@@admin.orders.list.error">
+          Impossible de charger les commandes.
+        </output>
+      } @else if (items().length === 0) {
+        <output class="admino__status" i18n="@@admin.orders.list.empty">
+          Aucune commande pour le moment.
+        </output>
+      } @else {
+        <div class="admino__tablewrap">
+          <table class="admino__table">
+            <caption class="sr-only" i18n="@@admin.orders.table.caption">
+              Liste des commandes avec référence, courriel du client, date, statut, total et nombre d'articles.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col" i18n="@@admin.orders.table.reference">Référence</th>
+                <th scope="col" i18n="@@admin.orders.table.customer">Courriel client</th>
+                <th scope="col" i18n="@@admin.orders.table.date">Date</th>
+                <th scope="col" i18n="@@admin.orders.table.status">Statut</th>
+                <th scope="col" i18n="@@admin.orders.table.total">Total</th>
+                <th scope="col" i18n="@@admin.orders.table.items">Articles</th>
+                <th scope="col" i18n="@@admin.orders.table.actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (o of items(); track o.id) {
+                <tr>
+                  <th scope="row">{{ o.reference }}</th>
+                  <td>{{ o.customerEmail }}</td>
+                  <td>{{ o.createdAt | date: 'short' : '' : 'fr-CA' }}</td>
+                  <td>
+                    <span class="admino__badge" [class]="'admino__badge--' + statusModifier(o.status)">
+                      {{ statusLabel(o.status) }}
+                    </span>
+                  </td>
+                  <td>{{ o.total | currency: 'CAD' : 'symbol' : '1.2-2' : 'fr-CA' }}</td>
+                  <td>{{ o.itemCount }}</td>
+                  <td class="admino__rowactions">
+                    @for (act of actionsFor(o.status); track act.action) {
+                      <button
+                        type="button"
+                        class="btn btn--small"
+                        [class.btn--danger]="act.danger"
+                        [disabled]="pendingId() === o.id"
+                        [attr.aria-label]="act.label + ' — ' + o.reference"
+                        (click)="updateStatus(o, act.action)"
+                      >
+                        {{ act.label }}
+                      </button>
+                    } @empty {
+                      <span class="admino__noaction" aria-hidden="true">—</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  </div>
+</section>
