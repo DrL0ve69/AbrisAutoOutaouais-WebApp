@@ -136,11 +136,11 @@
         <h2 id="adminp-list-heading" i18n="@@admin.products.list.heading">Produits du catalogue</h2>
 
         @if (loading()) {
-          <p class="adminp__status" role="status" i18n="@@admin.products.list.loading">Chargement…</p>
+          <output class="adminp__status" i18n="@@admin.products.list.loading">Chargement…</output>
         } @else if (items().length === 0) {
-          <p class="adminp__status" role="status" i18n="@@admin.products.list.empty">
+          <output class="adminp__status" i18n="@@admin.products.list.empty">
             Aucun produit dans le catalogue.
-          </p>
+          </output>
         } @else {
           <div class="adminp__tablewrap">
             <table class="adminp__table">
@@ -201,14 +201,16 @@
 
   <!-- ===== Confirmation de suppression (dialogue accessible) ===== -->
   @if (pendingDeleteId(); as delId) {
-    <div class="adminp__overlay" (click)="cancelDelete()">
+    <div class="adminp__overlay" (click)="cancelDelete()" (keydown.escape)="cancelDelete()">
       <div
         class="adminp__dialog"
         role="alertdialog"
         aria-modal="true"
+        tabindex="-1"
         aria-labelledby="del-title"
         aria-describedby="del-desc"
         (click)="$event.stopPropagation()"
+        (keydown.escape)="cancelDelete()"
       >
         <h2 id="del-title" i18n="@@admin.products.delete.title">Confirmer la suppression</h2>
         <p id="del-desc">

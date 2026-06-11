@@ -148,6 +148,7 @@
 
 // ── Table ─────────────────────────────────────────────────────
 .adminp__status {
+  display: block; // <output> est inline par défaut
   font-size: var(--font-size-base);
   color: var(--color-text-muted);
 }

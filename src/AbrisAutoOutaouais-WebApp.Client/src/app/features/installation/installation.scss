@@ -25,6 +25,7 @@
 
 .booking__loading,
 .booking__empty {
+  display: block; // <output> est inline par défaut
   color: var(--color-text-secondary);
   text-align: center;
   padding: var(--space-8) 0;
@@ -66,6 +67,8 @@
 }
 
 .booking__slot {
+  display: inline-flex; // contient l'input radio visuellement masqué (.sr-only)
+  align-items: center;
   padding: var(--space-2) var(--space-4);
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-md);
@@ -78,7 +81,8 @@
     border-color: var(--color-primary);
   }
 
-  &:focus-visible {
+  // Anneau de focus quand l'input radio (masqué) reçoit le focus clavier
+  &:has(input:focus-visible) {
     outline: 2px solid var(--color-primary);
     outline-offset: 2px;
   }
