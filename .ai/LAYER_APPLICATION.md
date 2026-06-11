@@ -15,144 +15,77 @@ les emails sont envoyés — elle déclare des interfaces (`IApplicationDbContex
 
 ## Arborescence complète
 
+> **État actuel** : seule une partie des features est implémentée. L'arborescence
+> ci-dessous reflète le code réel. Les features non encore présentes (UpdateProduct,
+> DeleteProduct, CancelOrder, tout le dossier `Rentals/`, les commandes Booking,
+> `UpdateProfile`, `ChangePassword`, `GetMyProfile`…) sont **aspirationnelles** et
+> seront ajoutées au fur et à mesure. Noter que les features réelles utilisent un
+> dossier **plat** (`Products/Commands/CreateProductCommand.cs`), pas un sous-dossier
+> par feature.
+
 ```
-src/Application/
-├── Application.csproj
+src/AbrisAutoOutaouais-WebApp.Application/
+├── AbrisAutoOutaouais-WebApp.Application.csproj
 ├── AssemblyMarker.cs               ← classe vide pour typeof(AssemblyMarker).Assembly
 │
 ├── Common/
 │   ├── Mediator/
-│   │   ├── ICommand.cs             ← marqueur ICommand<TResult>
+│   │   ├── ICommand.cs             ← marqueurs ICommand<TResult> + ICommand
 │   │   ├── IQuery.cs               ← marqueur IQuery<TResult>
 │   │   ├── ICommandHandler.cs      ← interface handler de commande
 │   │   ├── IQueryHandler.cs        ← interface handler de query
+│   │   ├── IDispatcher.cs          ← interface du dispatcher (DispatchAsync)
 │   │   ├── Unit.cs                 ← type "void" pour ICommand sans résultat
-│   │   └── Dispatcher.cs           ← résolution via IServiceProvider
+│   │   └── Dispatcher.cs           ← implémentation, résolution via IServiceProvider
 │   │
 │   ├── Interfaces/
 │   │   ├── IApplicationDbContext.cs   ← accès aux DbSets (sans AppUser)
-│   │   ├── IIdentityService.cs        ← opérations auth (login, register, profil)
+│   │   ├── IIdentityService.cs        ← opérations auth (login, register, rôles) + AuthResponse
 │   │   ├── ICurrentUserService.cs     ← userId, email, rôles depuis HTTP context
 │   │   ├── IEmailService.cs           ← envoi d'emails
 │   │   ├── IFileStorageService.cs     ← upload / delete de fichiers
 │   │   └── IDateTimeProvider.cs       ← abstraction de DateTime.UtcNow (testabilité)
 │   │
 │   ├── Behaviors/
-│   │   ├── ValidationBehavior.cs   ← pipeline FluentValidation avant chaque handler
-│   │   └── LoggingBehavior.cs      ← log durée + résultat de chaque commande/query
+│   │   └── ValidationBehavior.cs   ← pipeline FluentValidation avant chaque handler
 │   │
 │   └── Models/
-│       ├── Result.cs               ← Result<T> pattern (succès / erreur sans exception)
+│       ├── Result.cs               ← Result / Result<T> (succès / erreur sans exception)
 │       └── PaginatedList.cs        ← liste paginée générique
 │
 ├── Products/
-│   ├── Commands/
-│   │   ├── CreateProduct/
-│   │   │   ├── CreateProductCommand.cs
-│   │   │   ├── CreateProductCommandHandler.cs
-│   │   │   └── CreateProductCommandValidator.cs
-│   │   ├── UpdateProduct/
-│   │   │   ├── UpdateProductCommand.cs
-│   │   │   ├── UpdateProductCommandHandler.cs
-│   │   │   └── UpdateProductCommandValidator.cs
-│   │   └── DeleteProduct/
-│   │       ├── DeleteProductCommand.cs
-│   │       └── DeleteProductCommandHandler.cs
+│   ├── Commands/                   ← dossier PLAT (pas de sous-dossier par feature)
+│   │   ├── CreateProductCommand.cs
+│   │   ├── CreateProductCommandHandler.cs
+│   │   └── CreateProductCommandValidator.cs
 │   └── Queries/
-│       ├── GetProductBySlug/
-│       │   ├── GetProductBySlugQuery.cs
-│       │   ├── GetProductBySlugQueryHandler.cs
-│       │   └── ProductDto.cs
-│       └── GetProducts/
-│           ├── GetProductsQuery.cs
-│           ├── GetProductsQueryHandler.cs
-│           └── ProductSummaryDto.cs
+│       ├── GetAllProducts/
+│       │   ├── GetAllProductsQuery.cs
+│       │   └── GetAllProductsQueryHandler.cs
+│       └── GetProductBySlug/
+│           ├── GetProductBySlugQuery.cs
+│           ├── GetProductBySlugQueryHandler.cs
+│           └── ProductDto.cs       ← réutilisé par GetAllProducts
 │
 ├── Orders/
-│   ├── Commands/
-│   │   ├── PlaceOrder/
-│   │   │   ├── PlaceOrderCommand.cs
-│   │   │   ├── PlaceOrderCommandHandler.cs
-│   │   │   └── PlaceOrderCommandValidator.cs
-│   │   └── CancelOrder/
-│   │       ├── CancelOrderCommand.cs
-│   │       └── CancelOrderCommandHandler.cs
-│   └── Queries/
-│       ├── GetMyOrders/
-│       │   ├── GetMyOrdersQuery.cs
-│       │   ├── GetMyOrdersQueryHandler.cs
-│       │   └── OrderSummaryDto.cs
-│       └── GetOrderById/
-│           ├── GetOrderByIdQuery.cs
-│           ├── GetOrderByIdQueryHandler.cs
-│           └── OrderDetailDto.cs
-│
-├── Rentals/
-│   ├── Commands/
-│   │   ├── CreateRental/
-│   │   │   ├── CreateRentalCommand.cs
-│   │   │   ├── CreateRentalCommandHandler.cs
-│   │   │   └── CreateRentalCommandValidator.cs
-│   │   └── CancelRental/
-│   │       ├── CancelRentalCommand.cs
-│   │       └── CancelRentalCommandHandler.cs
-│   └── Queries/
-│       ├── GetMyRentals/
-│       │   ├── GetMyRentalsQuery.cs
-│       │   ├── GetMyRentalsQueryHandler.cs
-│       │   └── RentalSummaryDto.cs
-│       └── GetRentalById/
-│           ├── GetRentalByIdQuery.cs
-│           ├── GetRentalByIdQueryHandler.cs
-│           └── RentalDetailDto.cs
+│   └── Commands/
+│       └── PlaceOrder/
+│           ├── PlaceOrderCommand.cs
+│           ├── PlaceOrderCommandHandler.cs
+│           └── PlaceOrderCommandValidator.cs
 │
 ├── Bookings/
-│   ├── Commands/
-│   │   ├── CreateBooking/
-│   │   │   ├── CreateBookingCommand.cs
-│   │   │   ├── CreateBookingCommandHandler.cs
-│   │   │   └── CreateBookingCommandValidator.cs
-│   │   ├── ConfirmBooking/
-│   │   │   ├── ConfirmBookingCommand.cs
-│   │   │   └── ConfirmBookingCommandHandler.cs
-│   │   └── CancelBooking/
-│   │       ├── CancelBookingCommand.cs
-│   │       └── CancelBookingCommandHandler.cs
 │   └── Queries/
-│       ├── GetAvailableSlots/
-│       │   ├── GetAvailableSlotsQuery.cs
-│       │   ├── GetAvailableSlotsQueryHandler.cs
-│       │   └── AvailableSlotDto.cs
-│       └── GetMyBookings/
-│           ├── GetMyBookingsQuery.cs
-│           ├── GetMyBookingsQueryHandler.cs
-│           └── BookingSummaryDto.cs
+│       └── GetAvailableSlots/
+│           ├── GetAvailableSlotsQuery.cs        ← contient aussi AvailableSlotDto
+│           └── GetAvailableSlotsQueryHandler.cs
 │
 └── Auth/
-    ├── Commands/
-    │   ├── Login/
-    │   │   ├── LoginCommand.cs
-    │   │   ├── LoginCommandHandler.cs
-    │   │   └── LoginCommandValidator.cs
-    │   ├── Register/
-    │   │   ├── RegisterCommand.cs
-    │   │   ├── RegisterCommandHandler.cs
-    │   │   └── RegisterCommandValidator.cs
-    │   ├── UpdateProfile/
-    │   │   ├── UpdateProfileCommand.cs
-    │   │   ├── UpdateProfileCommandHandler.cs
-    │   │   └── UpdateProfileCommandValidator.cs
-    │   └── ChangePassword/
-    │       ├── ChangePasswordCommand.cs
-    │       ├── ChangePasswordCommandHandler.cs
-    │       └── ChangePasswordCommandValidator.cs
-    ├── Queries/
-    │   └── GetMyProfile/
-    │       ├── GetMyProfileQuery.cs
-    │       └── GetMyProfileQueryHandler.cs
+    ├── Login/
+    │   └── LoginCommand.cs          ← Command + Handler dans le même fichier
+    ├── Register/
+    │   └── RegisterCommand.cs       ← Command + Handler dans le même fichier
     └── DTOs/
-        ├── AuthResponse.cs
-        ├── UserProfileDto.cs
         └── AddressDto.cs
 ```
 
@@ -161,6 +94,7 @@ src/Application/
 ## Application.csproj
 
 ```xml
+<!-- src/AbrisAutoOutaouais-WebApp.Application/AbrisAutoOutaouais-WebApp.Application.csproj -->
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -168,7 +102,7 @@ src/Application/
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Domain\Domain.csproj" />
+    <ProjectReference Include="..\AbrisAutoOutaouais-WebApp.Domain\AbrisAutoOutaouais-WebApp.Domain.csproj" />
     <PackageReference Include="FluentValidation" Version="12.*" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.*" />
   </ItemGroup>
@@ -182,7 +116,7 @@ src/Application/
 ### `Unit.cs`
 
 ```csharp
-namespace Application.Common.Mediator;
+namespace AbrisAutoOutaouais_WebApp.Application.Common.Mediator;
 
 /// <summary>Type "void" typé — permet ICommand sans résultat significatif.</summary>
 public readonly struct Unit
@@ -195,13 +129,13 @@ public readonly struct Unit
 
 ```csharp
 // ICommand.cs
-namespace Application.Common.Mediator;
+namespace AbrisAutoOutaouais_WebApp.Application.Common.Mediator;
 
 public interface ICommand<TResult> { }
 public interface ICommand : ICommand<Unit> { }  // commande sans retour
 
 // IQuery.cs
-namespace Application.Common.Mediator;
+namespace AbrisAutoOutaouais_WebApp.Application.Common.Mediator;
 
 public interface IQuery<TResult> { }  // query = lecture pure, jamais de mutation
 ```
@@ -210,7 +144,7 @@ public interface IQuery<TResult> { }  // query = lecture pure, jamais de mutatio
 
 ```csharp
 // ICommandHandler.cs
-namespace Application.Common.Mediator;
+namespace AbrisAutoOutaouais_WebApp.Application.Common.Mediator;
 
 public interface ICommandHandler<TCommand, TResult>
     where TCommand : ICommand<TResult>
@@ -222,7 +156,7 @@ public interface ICommandHandler<TCommand> : ICommandHandler<TCommand, Unit>
     where TCommand : ICommand { }
 
 // IQueryHandler.cs
-namespace Application.Common.Mediator;
+namespace AbrisAutoOutaouais_WebApp.Application.Common.Mediator;
 
 public interface IQueryHandler<TQuery, TResult>
     where TQuery : IQuery<TResult>
@@ -231,33 +165,51 @@ public interface IQueryHandler<TQuery, TResult>
 }
 ```
 
+### `IDispatcher.cs`
+
+C'est l'abstraction injectée dans les controllers. Une seule méthode publique,
+`DispatchAsync`, surchargée pour les commandes ET les queries.
+
+```csharp
+namespace AbrisAutoOutaouais_WebApp.Application.Common.Mediator;
+
+/// <summary>Dispatcher CQRS simplifié.</summary>
+public interface IDispatcher
+{
+    Task<TResult> DispatchAsync<TResult>(ICommand<TResult> command, CancellationToken cancellationToken = default);
+    Task<TResult> DispatchAsync<TResult>(IQuery<TResult> query, CancellationToken cancellationToken = default);
+}
+```
+
 ### `Dispatcher.cs`
 
 ```csharp
-namespace Application.Common.Mediator;
+namespace AbrisAutoOutaouais_WebApp.Application.Common.Mediator;
 
 /// <summary>
-/// Dispatcher Mediator maison — résolution via IServiceProvider.
-/// Scrutor enregistre automatiquement tous les handlers dans DependencyInjection.cs.
+/// Dispatcher Mediator maison — résolution du handler via IServiceProvider.
+/// Scrutor enregistre automatiquement tous les handlers (voir Infrastructure/DependencyInjection.cs).
 /// </summary>
-public sealed class Dispatcher(IServiceProvider sp)
+public sealed class Dispatcher(IServiceProvider sp) : IDispatcher
 {
-    public ValueTask<TResult> Send<TResult>(
-        ICommand<TResult> command, CancellationToken ct = default)
+    // ── Commandes ─────────────────────────────────────────────────────────────
+    public Task<TResult> DispatchAsync<TResult>(
+        ICommand<TResult> command, CancellationToken cancellationToken = default)
     {
         var handlerType = typeof(ICommandHandler<,>)
             .MakeGenericType(command.GetType(), typeof(TResult));
         dynamic handler = sp.GetRequiredService(handlerType);
-        return handler.Handle((dynamic)command, ct);
+        return handler.HandleAsync((dynamic)command, cancellationToken);
     }
 
-    public ValueTask<TResult> Query<TResult>(
-        IQuery<TResult> query, CancellationToken ct = default)
+    // ── Queries ───────────────────────────────────────────────────────────────
+    public Task<TResult> DispatchAsync<TResult>(
+        IQuery<TResult> query, CancellationToken cancellationToken = default)
     {
         var handlerType = typeof(IQueryHandler<,>)
             .MakeGenericType(query.GetType(), typeof(TResult));
         dynamic handler = sp.GetRequiredService(handlerType);
-        return handler.Handle((dynamic)query, ct);
+        return handler.HandleAsync((dynamic)query, cancellationToken);
     }
 }
 ```
@@ -272,7 +224,7 @@ public sealed class Dispatcher(IServiceProvider sp)
 Les handlers qui ont besoin de données utilisateur passent par `IIdentityService`.
 
 ```csharp
-namespace Application.Common.Interfaces;
+namespace AbrisAutoOutaouais_WebApp.Application.Common.Interfaces;
 
 /// <summary>
 /// Abstraction du DbContext — injectée directement dans les handlers CQRS.
@@ -299,7 +251,7 @@ et documentées en détail.
 ### `IEmailService.cs`
 
 ```csharp
-namespace Application.Common.Interfaces;
+namespace AbrisAutoOutaouais_WebApp.Application.Common.Interfaces;
 
 public interface IEmailService
 {
@@ -313,7 +265,7 @@ public interface IEmailService
 ### `IDateTimeProvider.cs`
 
 ```csharp
-namespace Application.Common.Interfaces;
+namespace AbrisAutoOutaouais_WebApp.Application.Common.Interfaces;
 
 /// <summary>
 /// Abstraction de DateTime.UtcNow pour les tests unitaires.
@@ -328,7 +280,7 @@ public interface IDateTimeProvider
 ### `IFileStorageService.cs`
 
 ```csharp
-namespace Application.Common.Interfaces;
+namespace AbrisAutoOutaouais_WebApp.Application.Common.Interfaces;
 
 public interface IFileStorageService
 {
@@ -346,7 +298,7 @@ public interface IFileStorageService
 ### `Result.cs`
 
 ```csharp
-namespace Application.Common.Models;
+namespace AbrisAutoOutaouais_WebApp.Application.Common.Models;
 
 /// <summary>
 /// Représente le succès ou l'échec d'une opération SANS lancer d'exception.
@@ -381,7 +333,7 @@ public sealed class Result<T>
 ### `PaginatedList.cs`
 
 ```csharp
-namespace Application.Common.Models;
+namespace AbrisAutoOutaouais_WebApp.Application.Common.Models;
 
 public sealed class PaginatedList<T>
 {
@@ -419,7 +371,7 @@ S'insère dans le pipeline du Dispatcher avant chaque handler.
 Lance `ValidationException` si la validation échoue — interceptée par `GlobalExceptionHandler`.
 
 ```csharp
-namespace Application.Common.Behaviors;
+namespace AbrisAutoOutaouais_WebApp.Application.Common.Behaviors;
 
 /// <summary>
 /// Pipeline behavior — valide la commande/query avant de la passer au handler.
@@ -456,7 +408,7 @@ public sealed class ValidationBehavior<TRequest, TResponse>(
 
 ```csharp
 // Products/Queries/GetProductBySlug/GetProductBySlugQuery.cs
-namespace Application.Products.Queries.GetProductBySlug;
+namespace AbrisAutoOutaouais_WebApp.Application.Products.Queries.GetProductBySlug;
 
 public sealed record GetProductBySlugQuery(string Slug) : IQuery<ProductDto>;
 
@@ -474,7 +426,7 @@ public sealed record ProductDto(
     IReadOnlyList<string> ImageUrls);
 
 // Products/Queries/GetProductBySlug/GetProductBySlugQueryHandler.cs
-internal sealed class GetProductBySlugQueryHandler(IApplicationDbContext db)
+public sealed class GetProductBySlugQueryHandler(IApplicationDbContext db)
     : IQueryHandler<GetProductBySlugQuery, ProductDto>
 {
     public async ValueTask<ProductDto> Handle(
@@ -500,7 +452,7 @@ internal sealed class GetProductBySlugQueryHandler(IApplicationDbContext db)
 
 ```csharp
 // Orders/Commands/PlaceOrder/PlaceOrderCommand.cs
-namespace Application.Orders.Commands.PlaceOrder;
+namespace AbrisAutoOutaouais_WebApp.Application.Orders.Commands.PlaceOrder;
 
 public sealed record OrderLineRequest(Guid ProductId, int Quantity);
 
@@ -537,7 +489,7 @@ internal sealed class PlaceOrderCommandHandler(
             : null;
 
         // 4. Créer l'agrégat — les règles métier sont dans Order.Create()
-        var order = Order.Create(currentUser.UserId, cmd.DeliveryType, items, address);
+        var order = Order.Create((Guid)currentUser.UserId!, cmd.DeliveryType, items, address);
 
         // 5. Décrémenter le stock
         foreach (var (product, qty) in items)
@@ -547,7 +499,7 @@ internal sealed class PlaceOrderCommandHandler(
         await db.SaveChangesAsync(ct);
 
         // 6. Email de confirmation (fire and forget acceptable)
-        await email.SendOrderConfirmationAsync(order.Id, currentUser.Email, ct);
+        await email.SendOrderConfirmationAsync(order.Id, currentUser.Email!, ct);
 
         return order.Id;
     }
@@ -585,7 +537,7 @@ public sealed class PlaceOrderCommandValidator : AbstractValidator<PlaceOrderCom
 
 ```csharp
 // Bookings/Queries/GetAvailableSlots/GetAvailableSlotsQuery.cs
-namespace Application.Bookings.Queries.GetAvailableSlots;
+namespace AbrisAutoOutaouais_WebApp.Application.Bookings.Queries.GetAvailableSlots;
 
 public sealed record GetAvailableSlotsQuery(
     DateOnly From,
@@ -594,7 +546,7 @@ public sealed record GetAvailableSlotsQuery(
 public sealed record AvailableSlotDto(DateTime Start, DateTime End);
 
 // Bookings/Queries/GetAvailableSlots/GetAvailableSlotsQueryHandler.cs
-internal sealed class GetAvailableSlotsQueryHandler(
+public sealed class GetAvailableSlotsQueryHandler(
     IApplicationDbContext db,
     IDateTimeProvider     clock) : IQueryHandler<GetAvailableSlotsQuery, IReadOnlyList<AvailableSlotDto>>
 {
@@ -650,7 +602,7 @@ internal sealed class GetAvailableSlotsQueryHandler(
 
 ```csharp
 // Auth/DTOs/AddressDto.cs
-namespace Application.Auth.DTOs;
+namespace AbrisAutoOutaouais_WebApp.Application.Auth.DTOs;
 
 /// <summary>DTO partagé — utilisé dans les commandes et les réponses de profil.</summary>
 public sealed record AddressDto(
@@ -675,5 +627,5 @@ public sealed record AddressDto(
 | DTOs (sealed records) | Middleware HTTP |
 | Validateurs FluentValidation | Controllers |
 | Result\<T\>, PaginatedList\<T\> | Envoi d'emails (impl) |
-| Dispatcher maison | Stockage de fichiers (impl) |
-| Behaviors (validation, logging) | JWT token generation |
+| Dispatcher maison (`IDispatcher`/`Dispatcher`) | Stockage de fichiers (impl) |
+| `ValidationBehavior` (FluentValidation) | JWT token generation |

@@ -20,95 +20,104 @@ l'architecture peut être simplifiée. Les entités Domain sont testables en iso
 
 ## Arborescence complète
 
+Les deux projets de test vivent à la **racine du dépôt** (PAS sous un dossier `tests/`).
+
 ```
-tests/
-├── Unit/
-│   ├── Unit.csproj
-│   ├── GlobalUsings.cs                     ← using globaux (xUnit, FluentAssertions)
-│   ├── Domain/
-│   │   ├── ProductTests.cs                 ← tests entité Product
-│   │   ├── OrderTests.cs                   ← tests agrégat Order
-│   │   ├── BookingSlotTests.cs             ← tests BookingSlot
-│   │   ├── RentalContractTests.cs
-│   │   └── AddressTests.cs                 ← tests Value Object
-│   └── Application/
-│       ├── Handlers/
-│       │   ├── Products/
-│       │   │   ├── CreateProductCommandHandlerTests.cs
-│       │   │   └── GetProductBySlugQueryHandlerTests.cs
-│       │   ├── Orders/
-│       │   │   └── PlaceOrderCommandHandlerTests.cs
-│       │   └── Bookings/
-│       │       └── CreateBookingCommandHandlerTests.cs
-│       └── Validators/
-│           ├── CreateProductCommandValidatorTests.cs
-│           ├── PlaceOrderCommandValidatorTests.cs
-│           └── RegisterCommandValidatorTests.cs
-│
-└── Integration/
-    ├── Integration.csproj
-    ├── GlobalUsings.cs
+AbrisAutoOutaouais-WebApp.UnitTest/
+├── AbrisAutoOutaouais-WebApp.UnitTest.csproj
+├── GlobalUsings.cs                         ← using globaux (xUnit, FluentAssertions, NSubstitute)
+├── Domain/
+│   ├── ProductTests.cs                     ← tests entité Product
+│   ├── OrderTests.cs                       ← tests agrégat Order
+│   └── AddressTests.cs                     ← tests Value Object
+└── Application/
     ├── Helpers/
-    │   ├── WebAppFactory.cs                ← WebApplicationFactory<Program>
-    │   ├── AuthHelper.cs                   ← génère des tokens JWT pour les tests
-    │   └── DbHelper.cs                     ← seed et reset de la DB de test
-    ├── Products/
-    │   └── ProductsEndpointTests.cs
-    ├── Orders/
-    │   └── OrdersEndpointTests.cs
-    └── Auth/
-        └── AuthEndpointTests.cs
+    │   └── InMemoryDbContext.cs            ← TestDbContextFactory (EF InMemory)
+    ├── Handlers/
+    │   └── Products/
+    │       ├── CreateProductCommandHandlerTests.cs
+    │       └── GetProductBySlugQueryHandlerTests.cs
+    └── Validators/
+        └── CreateProductCommandValidatorTests.cs
+
+AbrisAutoOutaouais-WebApp.IntegrationTest/
+├── AbrisAutoOutaouais-WebApp.IntegrationTest.csproj
+├── GlobalUsings.cs
+├── Helpers/                                ← namespace .IntegrationTest.helpers (minuscule)
+│   ├── WebAppFactory.cs                    ← WebApplicationFactory<Program>
+│   ├── AuthHelper.cs                       ← génère des tokens JWT pour les tests
+│   └── DbHelper.cs                         ← seed et reset de la DB de test
+├── Products/
+│   └── ProductsEndpointTests.cs
+└── Auth/
+    └── AuthEndpointTests.cs
 ```
 
 ---
 
 ## Fichiers de projet
 
-### `tests/Unit/Unit.csproj`
+### `AbrisAutoOutaouais-WebApp.UnitTest.csproj`
+
+xUnit v3 (paquet `xunit.v3`), avec accès à Domain, Application **et** Infrastructure
+(le `TestDbContextFactory` instancie le vrai `ApplicationDbContext` en InMemory).
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
-    <Nullable>enable</Nullable>
+    <RootNamespace>AbrisAutoOutaouais_WebApp.UnitTest</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
-    <!-- Parallélisme désactivé si les tests partagent un contexte In-Memory -->
-    <ParallelizeTestCollections>true</ParallelizeTestCollections>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Domain\Domain.csproj" />
-    <ProjectReference Include="..\..\src\Application\Application.csproj" />
-    <ProjectReference Include="..\..\src\Infrastructure\Infrastructure.csproj" />
-    <PackageReference Include="xunit"                               Version="2.*" />
-    <PackageReference Include="xunit.runner.visualstudio"          Version="3.*" />
-    <PackageReference Include="FluentAssertions"                    Version="7.*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.*" />
-    <PackageReference Include="NSubstitute"                         Version="5.*" />
-    <PackageReference Include="FluentValidation.TestHelper"         Version="12.*" />
-    <PackageReference Include="coverlet.collector"                  Version="6.*" />
+    <PackageReference Include="coverlet.collector"            Version="6.0.4" />
+    <PackageReference Include="FluentAssertions"              Version="8.10.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk"        Version="17.14.1" />
+    <PackageReference Include="NSubstitute"                   Version="5.3.0" />
+    <PackageReference Include="xunit.runner.visualstudio"     Version="3.1.4" />
+    <PackageReference Include="xunit.v3"                      Version="3.2.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\src\AbrisAutoOutaouais-WebApp.Application\AbrisAutoOutaouais-WebApp.Application.csproj" />
+    <ProjectReference Include="..\src\AbrisAutoOutaouais-WebApp.Domain\AbrisAutoOutaouais-WebApp.Domain.csproj" />
+    <ProjectReference Include="..\src\AbrisAutoOutaouais-WebApp.Infrastructure\AbrisAutoOutaouais-WebApp.Infrastructure.csproj" />
   </ItemGroup>
 </Project>
 ```
 
-### `tests/Integration/Integration.csproj`
+### `AbrisAutoOutaouais-WebApp.IntegrationTest.csproj`
+
+Référence uniquement le projet API. xUnit v2 ici (paquet `xunit`).
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
-    <Nullable>enable</Nullable>
+    <RootNamespace>AbrisAutoOutaouais_WebApp.IntegrationTest</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Api\Api.csproj" />
-    <PackageReference Include="xunit"                               Version="2.*" />
-    <PackageReference Include="xunit.runner.visualstudio"          Version="3.*" />
-    <PackageReference Include="FluentAssertions"                    Version="7.*" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing"    Version="10.*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.*" />
-    <PackageReference Include="coverlet.collector"                  Version="6.*" />
+    <PackageReference Include="coverlet.collector"                  Version="6.0.4" />
+    <PackageReference Include="FluentAssertions"                    Version="8.10.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing"    Version="10.0.9" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.9" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk"              Version="17.14.1" />
+    <PackageReference Include="NSubstitute"                         Version="5.3.0" />
+    <PackageReference Include="xunit"                               Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio"          Version="3.1.4" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\src\AbrisAutoOutaouais-WebApp.API\AbrisAutoOutaouais-WebApp.API.csproj" />
   </ItemGroup>
 </Project>
 ```
@@ -118,26 +127,26 @@ tests/
 ## `GlobalUsings.cs` (les deux projets)
 
 ```csharp
-// tests/Unit/GlobalUsings.cs
+// AbrisAutoOutaouais-WebApp.UnitTest/GlobalUsings.cs
 global using Xunit;
 global using FluentAssertions;
 global using NSubstitute;
-global using Domain.Entities;
-global using Domain.Exceptions;
-global using Domain.ValueObjects;
-global using Domain.Enums;
-global using Application.Common.Mediator;
-global using Application.Common.Interfaces;
+global using AbrisAutoOutaouais_WebApp.Domain.Entities;
+global using AbrisAutoOutaouais_WebApp.Domain.Exceptions;
+global using AbrisAutoOutaouais_WebApp.Domain.ValueObjects;
+global using AbrisAutoOutaouais_WebApp.Domain.Enums;
+global using AbrisAutoOutaouais_WebApp.Application.Common.Mediator;
+global using AbrisAutoOutaouais_WebApp.Application.Common.Interfaces;
 global using Microsoft.EntityFrameworkCore;
 
-// tests/Integration/GlobalUsings.cs
+// AbrisAutoOutaouais-WebApp.IntegrationTest/GlobalUsings.cs
 global using Xunit;
 global using FluentAssertions;
 global using System.Net;
 global using System.Net.Http.Json;
-global using Application.Auth.DTOs;
-global using Application.Products.Queries.GetProductBySlug;
-global using Integration.Helpers;
+global using AbrisAutoOutaouais_WebApp.Application.Auth.DTOs;
+global using AbrisAutoOutaouais_WebApp.Application.Products.Queries.GetProductBySlug;
+global using AbrisAutoOutaouais_WebApp.IntegrationTest.helpers;
 ```
 
 ---
@@ -147,7 +156,7 @@ global using Integration.Helpers;
 ### `Unit/Domain/ProductTests.cs`
 
 ```csharp
-namespace Unit.Domain;
+namespace AbrisAutoOutaouais_WebApp.UnitTest.Domain;
 
 /// <summary>
 /// Tests unitaires de l'entité Product.
@@ -286,7 +295,7 @@ public sealed class ProductTests
 ### `Unit/Domain/OrderTests.cs`
 
 ```csharp
-namespace Unit.Domain;
+namespace AbrisAutoOutaouais_WebApp.UnitTest.Domain;
 
 public sealed class OrderTests
 {
@@ -425,7 +434,7 @@ public sealed class OrderTests
 ### `Unit/Domain/AddressTests.cs`
 
 ```csharp
-namespace Unit.Domain;
+namespace AbrisAutoOutaouais_WebApp.UnitTest.Domain;
 
 public sealed class AddressTests
 {
@@ -468,7 +477,7 @@ public sealed class AddressTests
 ### `Unit/Application/Helpers/InMemoryDbContext.cs`
 
 ```csharp
-namespace Unit.Application.Helpers;
+namespace AbrisAutoOutaouais_WebApp.UnitTest.Application.Helpers;
 
 /// <summary>
 /// Factory pour créer un ApplicationDbContext en mémoire pour les tests.
@@ -498,7 +507,7 @@ public static class TestDbContextFactory
 ### `Unit/Application/Handlers/Products/CreateProductCommandHandlerTests.cs`
 
 ```csharp
-namespace Unit.Application.Handlers.Products;
+namespace AbrisAutoOutaouais_WebApp.UnitTest.Application.Handlers.Products;
 
 public sealed class CreateProductCommandHandlerTests : IDisposable
 {
@@ -570,7 +579,7 @@ public sealed class CreateProductCommandHandlerTests : IDisposable
 ### `Unit/Application/Handlers/Products/GetProductBySlugQueryHandlerTests.cs`
 
 ```csharp
-namespace Unit.Application.Handlers.Products;
+namespace AbrisAutoOutaouais_WebApp.UnitTest.Application.Handlers.Products;
 
 public sealed class GetProductBySlugQueryHandlerTests : IDisposable
 {
@@ -633,81 +642,10 @@ public sealed class GetProductBySlugQueryHandlerTests : IDisposable
 
 ---
 
-### `Unit/Application/Handlers/Bookings/CreateBookingCommandHandlerTests.cs`
-
-```csharp
-namespace Unit.Application.Handlers.Bookings;
-
-public sealed class CreateBookingCommandHandlerTests : IDisposable
-{
-    private readonly ApplicationDbContext _db        = TestDbContextFactory.Create();
-    private readonly ICurrentUserService  _user      = Substitute.For<ICurrentUserService>();
-    private readonly IEmailService        _email     = Substitute.For<IEmailService>();
-    private readonly Guid                 _userId    = Guid.NewGuid();
-
-    public CreateBookingCommandHandlerTests()
-    {
-        _user.UserId.Returns(_userId);
-        _user.Email.Returns("client@test.com");
-        _user.IsAuthenticated.Returns(true);
-    }
-
-    private CreateBookingCommandHandler CreateHandler()
-        => new(_db, _user, _email);
-
-    private static CreateBookingCommand MakeCmd(DateTime? slotStart = null) =>
-        new(
-            SlotStart:   slotStart ?? DateTime.UtcNow.AddDays(3),
-            DurationMin: 120,
-            Type:        BookingType.Installation,
-            Street:      "123 rue des Pins",
-            City:        "Mirabel",
-            Province:    "QC",
-            PostalCode:  "J7J1A1");
-
-    [Fact]
-    public async Task Handle_WithFutureSlot_CreatesBooking()
-    {
-        var id = await CreateHandler().Handle(MakeCmd(), CancellationToken.None);
-
-        id.Should().NotBeEmpty();
-        var booking = await _db.BookingSlots.FindAsync(id);
-        booking.Should().NotBeNull();
-        booking!.CustomerId.Should().Be(_userId);
-        booking.Status.Should().Be(BookingStatus.Pending);
-    }
-
-    [Fact]
-    public async Task Handle_WithConflictingSlot_ThrowsConflictException()
-    {
-        var slotStart = DateTime.UtcNow.AddDays(5);
-
-        // Premier créneau
-        await CreateHandler().Handle(MakeCmd(slotStart), CancellationToken.None);
-
-        // Même créneau — conflit
-        var act = async () =>
-            await CreateHandler().Handle(MakeCmd(slotStart), CancellationToken.None);
-
-        await act.Should().ThrowAsync<ConflictException>()
-            .WithMessage("*créneau*");
-    }
-
-    [Fact]
-    public async Task Handle_Succeeds_SendsConfirmationEmail()
-    {
-        await CreateHandler().Handle(MakeCmd(), CancellationToken.None);
-
-        await _email.Received(1)
-            .SendBookingConfirmationAsync(
-                Arg.Any<Guid>(),
-                "client@test.com",
-                Arg.Any<CancellationToken>());
-    }
-
-    public void Dispose() => _db.Dispose();
-}
-```
+> Note : les handlers dépendant de services (`ICurrentUserService`, `IEmailService`)
+> se testent de la même façon — on injecte des doublures NSubstitute dans le primary
+> constructor du handler, en plus du `ApplicationDbContext` InMemory. (Aucun test de
+> ce type n'existe encore dans le dépôt : à ajouter au fur et à mesure des handlers.)
 
 ---
 
@@ -716,7 +654,7 @@ public sealed class CreateBookingCommandHandlerTests : IDisposable
 ### `Unit/Application/Validators/CreateProductCommandValidatorTests.cs`
 
 ```csharp
-namespace Unit.Application.Validators;
+namespace AbrisAutoOutaouais_WebApp.UnitTest.Application.Validators;
 
 /// <summary>FluentValidation.TestHelper rend les tests de validateurs très lisibles.</summary>
 public sealed class CreateProductCommandValidatorTests
@@ -806,7 +744,7 @@ public sealed class CreateProductCommandValidatorTests
 ### `Integration/Helpers/WebAppFactory.cs`
 
 ```csharp
-namespace Integration.Helpers;
+namespace AbrisAutoOutaouais_WebApp.IntegrationTest.helpers;
 
 /// <summary>
 /// WebApplicationFactory remplace le vrai serveur et la vraie DB par des versions contrôlées.
@@ -859,13 +797,13 @@ public sealed class WebAppFactory : WebApplicationFactory<Program>, IAsyncLifeti
 ### `Integration/Helpers/AuthHelper.cs`
 
 ```csharp
-namespace Integration.Helpers;
+namespace AbrisAutoOutaouais_WebApp.IntegrationTest.helpers;
 
 /// <summary>Génère des tokens JWT pour les tests d'intégration authentifiés.</summary>
 public static class AuthHelper
 {
     public static async Task<string> LoginAsAdminAsync(HttpClient client)
-        => await LoginAsync(client, "admin@abristempo.local", "Admin@123!");
+        => await LoginAsync(client, "admin@abrisauto.com", "Admin123!");
 
     public static async Task<string> LoginAsync(
         HttpClient client, string email, string password)
@@ -890,7 +828,7 @@ public static class AuthHelper
 ### `Integration/Helpers/DbHelper.cs`
 
 ```csharp
-namespace Integration.Helpers;
+namespace AbrisAutoOutaouais_WebApp.IntegrationTest.helpers;
 
 public static class DbHelper
 {
@@ -922,7 +860,7 @@ public static class DbHelper
 ### `Integration/Products/ProductsEndpointTests.cs`
 
 ```csharp
-namespace Integration.Products;
+namespace AbrisAutoOutaouais_WebApp.IntegrationTest.Products;
 
 /// <summary>
 /// Tests de bout en bout pour les endpoints /api/v1/products.
@@ -1055,7 +993,7 @@ public sealed class ProductsEndpointTests(WebAppFactory factory)
 ### `Integration/Auth/AuthEndpointTests.cs`
 
 ```csharp
-namespace Integration.Auth;
+namespace AbrisAutoOutaouais_WebApp.IntegrationTest.Auth;
 
 [Collection("Integration")]
 public sealed class AuthEndpointTests(WebAppFactory factory)
@@ -1068,8 +1006,8 @@ public sealed class AuthEndpointTests(WebAppFactory factory)
     {
         var response = await _client.PostAsJsonAsync("/api/v1/auth/login", new
         {
-            email    = "admin@abristempo.local",
-            password = "Admin@123!",
+            email    = "admin@abrisauto.com",
+            password = "Admin123!",
         });
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -1084,7 +1022,7 @@ public sealed class AuthEndpointTests(WebAppFactory factory)
     {
         var response = await _client.PostAsJsonAsync("/api/v1/auth/login", new
         {
-            email    = "admin@abristempo.local",
+            email    = "admin@abrisauto.com",
             password = "MauvaisMotDePasse",
         });
 
@@ -1134,7 +1072,7 @@ public sealed class AuthEndpointTests(WebAppFactory factory)
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var profile = await response.Content.ReadFromJsonAsync<UserProfileDto>();
-        profile!.Email.Should().Be("admin@abristempo.local");
+        profile!.Email.Should().Be("admin@abrisauto.com");
 
         _client.DefaultRequestHeaders.Authorization = null;
     }
@@ -1155,23 +1093,21 @@ public sealed class AuthEndpointTests(WebAppFactory factory)
 ### Exécuter les tests
 
 ```bash
-# Tous les tests
+# Tous les tests (depuis la racine de la solution)
 dotnet test
 
-# Seulement les tests unitaires
-dotnet test tests/Unit/
-
-# Seulement les tests d'intégration
-dotnet test tests/Integration/
+# Un seul projet
+dotnet test AbrisAutoOutaouais-WebApp.UnitTest
+dotnet test AbrisAutoOutaouais-WebApp.IntegrationTest
 
 # Avec couverture de code
 dotnet test --collect:"XPlat Code Coverage"
 dotnet tool install -g dotnet-reportgenerator-globaltool
 reportgenerator -reports:"**/coverage.cobertura.xml" -targetdir:"coverage-report" -reporttypes:Html
 
-# Filtrer par trait ou nom
+# Filtrer par nom complet (ex. un seul test)
+dotnet test --filter "FullyQualifiedName~CreateProductCommandHandlerTests"
 dotnet test --filter "FullyQualifiedName~ProductTests"
-dotnet test --filter "Category=Domain"
 ```
 
 ### Conventions de nommage

@@ -1,7 +1,16 @@
-# LAYER_CLIENT.md — Couche Client (Angular 20+)
+# LAYER_CLIENT.md — Couche Client (Angular 21)
 
 Guide complet du frontend : chaque fichier de configuration, i18n, accessibilité WCAG AA,
-patterns Angular 20+. Tous les composants ont des fichiers `.ts / .html / .scss` séparés.
+patterns Angular 21. Tous les composants ont des fichiers `.ts / .html / .scss` séparés.
+
+Le client Angular vit dans `src/AbrisAutoOutaouais-WebApp.Client/` (projet
+`AbrisAutoOutaouais-WebApp.Client.esproj`). Stack : Angular `^21.2`, SSR (`@angular/ssr`),
+i18n (`@angular/localize`), tests Vitest 4 + `@testing-library/angular`, ESLint + Prettier.
+
+> Convention de nommage : les composants utilisent le nouveau style Angular sans suffixe
+> `.component` (ex. `home.ts` / `home.html` / `home.scss`). Quelques composants conservent
+> le suffixe `.component.ts` (ex. `register.component.ts`, les composants a11y) — se référer
+> à l'arborescence réelle.
 
 ---
 
@@ -23,7 +32,7 @@ patterns Angular 20+. Tous les composants ont des fichiers `.ts / .html / .scss`
 ## 1. Philosophie
 
 - **Signals partout** — `signal()`, `computed()`, `effect()` pour l'état UI. RxJS seulement pour HTTP.
-- **Standalone components** — pas de NgModules. Ne jamais écrire `standalone: true` (valeur par défaut en v20+).
+- **Standalone components** — pas de NgModules. Ne jamais écrire `standalone: true` (valeur par défaut en Angular 21).
 - **Fichiers séparés** — toujours `.ts` + `.html` + `.scss` relatifs. Pas d'inline template sauf < 5 lignes.
 - **OnPush partout** — `ChangeDetectionStrategy.OnPush` sur chaque composant.
 - **WCAG AA** — zéro violation AXE, contraste, focus visible, ARIA.
@@ -33,25 +42,28 @@ patterns Angular 20+. Tous les composants ont des fichiers `.ts / .html / .scss`
 
 ## 2. Arborescence
 
+Arborescence réelle (relative à `src/AbrisAutoOutaouais-WebApp.Client/`) :
+
 ```
-client/
+AbrisAutoOutaouais-WebApp.Client/
+├── AbrisAutoOutaouais-WebApp.Client.esproj   ← projet Visual Studio (JS/TS)
 ├── angular.json                    ← config Angular CLI (build, i18n, SSR)
 ├── tsconfig.json                   ← TypeScript base
 ├── tsconfig.app.json               ← TypeScript pour l'app
 ├── tsconfig.spec.json              ← TypeScript pour les tests
+├── vitest.config.ts                ← config Vitest
 ├── package.json
-├── .eslintrc.json
-├── vitest.config.ts
+├── .eslintrc.json                  ← config ESLint
+├── .prettierrc                     ← config Prettier
+├── .editorconfig
 │
 └── src/
     ├── index.html                  ← point d'entrée HTML (lang, meta, skip-nav)
     ├── main.ts                     ← bootstrap client
     ├── main.server.ts              ← bootstrap SSR
+    ├── server.ts                   ← serveur Express SSR
     ├── styles.scss                 ← styles globaux + import tokens
-    │
-    ├── locale/                     ← fichiers de traduction XLF
-    │   ├── messages.xlf            ← source FR (généré par ng extract-i18n)
-    │   └── messages.en.xlf         ← traduction EN
+    ├── test-setup.ts               ← setup Vitest
     │
     ├── environments/
     │   ├── environment.ts
@@ -61,6 +73,7 @@ client/
         ├── app.ts                  ← composant racine (shell)
         ├── app.html
         ├── app.scss
+        ├── app.spec.ts
         ├── app.routes.ts           ← routes lazy-loaded
         ├── app.config.ts           ← providers client (HTTP, router, i18n)
         ├── app.config.server.ts    ← providers SSR
@@ -69,46 +82,54 @@ client/
         │   ├── services/
         │   │   ├── auth.service.ts
         │   │   ├── cart.service.ts
+        │   │   ├── theme.service.ts
         │   │   └── toast.service.ts
         │   ├── interceptors/
         │   │   ├── auth.interceptor.ts
-        │   │   └── error.interceptor.ts
+        │   │   ├── error.interceptor.ts
+        │   │   ├── http-error.interceptor.ts
+        │   │   └── jwt.interceptor.ts
         │   ├── guards/
         │   │   ├── auth.guard.ts
         │   │   ├── admin.guard.ts
         │   │   └── public.guard.ts
         │   └── models/
-        │       ├── auth.model.ts
         │       ├── product.model.ts
-        │       ├── order.model.ts
-        │       ├── rental.model.ts
         │       └── booking.model.ts
         │
         ├── shared/
         │   ├── styles/
         │   │   ├── _tokens.scss        ← design tokens (couleurs, spacing, typo)
         │   │   ├── _breakpoints.scss   ← mixins responsive
-        │   │   ├── _mixins.scss        ← utilitaires SCSS
         │   │   └── _a11y.scss          ← helpers accessibilité (.sr-only, focus)
         │   ├── components/
-        │   │   ├── button/
-        │   │   │   ├── button.ts
-        │   │   │   ├── button.html
-        │   │   │   └── button.scss
+        │   │   ├── a11y-components/     ← jeu de composants accessibles (WCAG AA)
+        │   │   │   ├── a11y-components.component.ts
+        │   │   │   ├── accordion/
+        │   │   │   │   ├── a11y-accordion.component.ts
+        │   │   │   │   └── a11y-accordion.component.spec.ts
+        │   │   │   ├── data-table/
+        │   │   │   │   ├── data-table.component.ts
+        │   │   │   │   └── a11y-data-table.component.spec.ts
+        │   │   │   ├── form/
+        │   │   │   │   ├── a11y-form.component.ts
+        │   │   │   │   └── a11y-form.component.spec.ts
+        │   │   │   ├── inspection/
+        │   │   │   │   ├── inspection-panel.component.ts
+        │   │   │   │   ├── inspection.model.ts
+        │   │   │   │   ├── inspection.data.ts
+        │   │   │   │   └── accordion.data.ts
+        │   │   │   └── modal/
+        │   │   │       ├── a11y-modal.component.ts
+        │   │   │       └── a11y-modal.component.spec.ts
         │   │   ├── product-card/
         │   │   │   ├── product-card.ts
         │   │   │   ├── product-card.html
         │   │   │   └── product-card.scss
-        │   │   ├── alert/
-        │   │   │   ├── alert.ts
-        │   │   │   ├── alert.html
-        │   │   │   └── alert.scss
-        │   │   └── spinner/
-        │   │       ├── spinner.ts
-        │   │       └── spinner.html    ← inline OK (< 5 lignes)
-        │   ├── pipes/
-        │   │   ├── currency-cad.pipe.ts
-        │   │   └── booking-status.pipe.ts
+        │   │   └── alert/
+        │   │       ├── alert.ts
+        │   │       ├── alert.html
+        │   │       └── alert.scss
         │   └── layout/
         │       ├── navbar/
         │       │   ├── navbar.ts
@@ -124,82 +145,38 @@ client/
         │
         └── features/
             ├── home/
-            │   ├── home.routes.ts
-            │   └── home/
-            │       ├── home.ts
-            │       ├── home.html
-            │       └── home.scss
-            ├── shop/
-            │   ├── shop.routes.ts
-            │   ├── catalog/
-            │   │   ├── catalog.ts
-            │   │   ├── catalog.html
-            │   │   └── catalog.scss
-            │   └── product-detail/
-            │       ├── product-detail.ts
-            │       ├── product-detail.html
-            │       └── product-detail.scss
-            ├── checkout/
-            │   ├── checkout.routes.ts
-            │   ├── checkout/
-            │   │   ├── checkout.ts
-            │   │   ├── checkout.html
-            │   │   └── checkout.scss
-            │   └── order-confirmation/
-            │       ├── order-confirmation.ts
-            │       ├── order-confirmation.html
-            │       └── order-confirmation.scss
-            ├── rental/
-            │   ├── rental.routes.ts
-            │   ├── rental-catalog/
-            │   │   ├── rental-catalog.ts
-            │   │   ├── rental-catalog.html
-            │   │   └── rental-catalog.scss
-            │   └── rental-form/
-            │       ├── rental-form.ts
-            │       ├── rental-form.html
-            │       └── rental-form.scss
-            ├── booking/
-            │   ├── booking.routes.ts
-            │   ├── booking-form/
-            │   │   ├── booking-form.ts
-            │   │   ├── booking-form.html
-            │   │   └── booking-form.scss
-            │   └── my-bookings/
-            │       ├── my-bookings.ts
-            │       ├── my-bookings.html
-            │       └── my-bookings.scss
+            │   ├── home.ts
+            │   ├── home.html
+            │   └── home.scss
             ├── auth/
             │   ├── auth.routes.ts
+            │   ├── auth.ts             ← flip card connexion + inscription
+            │   ├── auth.html
+            │   ├── auth.scss
             │   ├── login/
             │   │   ├── login.ts
             │   │   ├── login.html
             │   │   └── login.scss
-            │   └── register/
-            │       ├── register.ts
-            │       ├── register.html
-            │       └── register.scss
-            ├── account/
-            │   ├── account.routes.ts
-            │   ├── my-orders/
-            │   │   ├── my-orders.ts
-            │   │   ├── my-orders.html
-            │   │   └── my-orders.scss
-            │   ├── my-rentals/
-            │   │   └── ...
-            │   └── profile/
+            │   ├── register/
+            │   │   └── register.component.ts
+            │   └── me/
             │       ├── profile.ts
             │       ├── profile.html
             │       └── profile.scss
-            └── admin/
-                ├── admin.routes.ts
-                ├── dashboard/
-                │   └── ...
-                ├── products-manage/
-                │   └── ...
-                └── bookings-manage/
-                    └── ...
+            └── account/
+                ├── account.routes.ts
+                └── profile/
+                    ├── profile.ts
+                    ├── profile.html
+                    └── profile.scss
 ```
+
+> **Cible / à venir (non implémenté)** — les features e-commerce ne sont pas encore créées.
+> Prévues : `features/shop/` (catalog, product-detail), `features/checkout/`,
+> `features/rental/`, `features/booking/`, `features/admin/`, ainsi que les dossiers
+> `core/models/` supplémentaires (order, rental) et le dossier `shared/pipes/`
+> (ex. `booking-status.pipe`). Le dossier `src/locale/` n'existe pas encore : il sera créé
+> par `npm run i18n:extract` (sortie configurée sur `src/locale`).
 
 ---
 
@@ -209,46 +186,56 @@ client/
 
 ```json
 {
-  "name": "abristempo-client",
-  "version": "1.0.0",
+  "name": "abris-auto-outaouais-web-app.client",
+  "version": "0.0.0",
   "scripts": {
-    "start":       "ng serve",
-    "build":       "ng build --configuration production",
+    "ng":          "ng",
+    "start":       "ng serve --host=127.0.0.1",
+    "build":       "ng build --configuration development",
+    "build:prod":  "ng build --configuration production",
     "build:fr":    "ng build --configuration production --localize",
+    "watch":       "ng build --watch --configuration development",
     "test":        "vitest run",
     "test:watch":  "vitest",
-    "lint":        "ng lint",
     "i18n:extract":"ng extract-i18n --output-path src/locale --format xlf",
     "i18n:serve":  "ng serve --configuration=en"
   },
+  "private": true,
+  "packageManager": "npm@11.11.1",
   "dependencies": {
-    "@angular/animations":    "^20.0.0",
-    "@angular/common":        "^20.0.0",
-    "@angular/compiler":      "^20.0.0",
-    "@angular/core":          "^20.0.0",
-    "@angular/forms":         "^20.0.0",
-    "@angular/localize":      "^20.0.0",
-    "@angular/platform-browser": "^20.0.0",
-    "@angular/platform-server":  "^20.0.0",
-    "@angular/router":        "^20.0.0",
-    "@angular/ssr":           "^20.0.0",
-    "rxjs":                   "~7.8.0",
-    "tslib":                  "^2.8.0",
-    "zone.js":                "~0.15.0"
+    "@angular/animations":       "^21.2.0",
+    "@angular/common":           "^21.2.0",
+    "@angular/compiler":         "^21.2.0",
+    "@angular/core":             "^21.2.0",
+    "@angular/forms":            "^21.2.0",
+    "@angular/localize":         "^21.2.0",
+    "@angular/platform-browser": "^21.2.0",
+    "@angular/platform-server":  "^21.2.0",
+    "@angular/router":           "^21.2.0",
+    "@angular/ssr":              "^21.2.14",
+    "rxjs":                      "~7.8.0",
+    "tslib":                     "^2.3.0",
+    "zone.js":                   "0.15.0"
   },
   "devDependencies": {
-    "@angular-eslint/eslint-plugin":           "^20.0.0",
-    "@angular-eslint/eslint-plugin-template":  "^20.0.0",
-    "@angular/build":                         "^20.0.0",
-    "@angular/cli":                           "^20.0.0",
-    "@angular/compiler-cli":                  "^20.0.0",
-    "@testing-library/angular":               "^17.0.0",
-    "@vitest/coverage-v8":                    "^3.0.0",
-    "typescript":                             "~5.8.0",
-    "vitest":                                 "^3.0.0"
+    "@analogjs/vite-plugin-angular":          "^2.6.0",
+    "@angular/build":                         "^21.2.0",
+    "@angular/cli":                           "^21.2.0",
+    "@angular/compiler-cli":                  "^21.2.0",
+    "@testing-library/angular":               "^18.0.0",
+    "@testing-library/user-event":            "^14.6.1",
+    "@vitest/coverage-v8":                    "^4.1.0",
+    "eslint":                                 "^10.4.1",
+    "jsdom":                                  "^28.0.0",
+    "prettier":                               "^3.8.1",
+    "typescript":                             "~5.9.2",
+    "vitest":                                 "^4.0.8"
   }
 }
 ```
+
+> Le lint passe par **ESLint** (`.eslintrc.json` + Prettier), pas par `ng lint` (aucun script
+> `lint` n'est défini dans `package.json`). Le formatage est géré par Prettier (`.prettierrc`).
 
 ---
 
@@ -262,7 +249,7 @@ Fichier de configuration Angular CLI. Chaque clé est commentée.
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "abristempo-client": {
+    "AbrisAutoOutaouais-WebApp.Client": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -334,7 +321,8 @@ Fichier de configuration Angular CLI. Chaque clé est commentée.
             "development": {
               "optimization": false,
               "extractLicenses": false,
-              "sourceMap": true
+              "sourceMap": true,
+              "localize": false
             },
             "en": {
               "localize": ["en"]          // ng serve --configuration=en pour tester l'anglais
@@ -345,16 +333,16 @@ Fichier de configuration Angular CLI. Chaque clé est commentée.
         "serve": {
           "builder": "@angular/build:dev-server",
           "configurations": {
-            "production": { "buildTarget": "abristempo-client:build:production" },
-            "development": { "buildTarget": "abristempo-client:build:development" },
-            "en":          { "buildTarget": "abristempo-client:build:en" }
+            "production": { "buildTarget": "AbrisAutoOutaouais-WebApp.Client:build:production" },
+            "development": { "buildTarget": "AbrisAutoOutaouais-WebApp.Client:build:development" },
+            "en":          { "buildTarget": "AbrisAutoOutaouais-WebApp.Client:build:en" }
           },
           "defaultConfiguration": "development"
         },
         "extract-i18n": {
           "builder": "@angular/build:extract-i18n",
           "options": {
-            "buildTarget": "abristempo-client:build",
+            "buildTarget": "AbrisAutoOutaouais-WebApp.Client:build",
             "outputPath": "src/locale",
             "outFile": "messages.xlf",
             "format": "xlf"
@@ -362,13 +350,8 @@ Fichier de configuration Angular CLI. Chaque clé est commentée.
         },
         "test": {
           "builder": "@angular/build:karma"
-        },
-        "lint": {
-          "builder": "@angular-eslint/builder:lint",
-          "options": {
-            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
-          }
         }
+        // Pas de target "lint" dans angular.json — le lint passe par ESLint en CLI
       }
     }
   }
@@ -696,7 +679,7 @@ import { ApplicationConfig, provideZoneChangeDetection, LOCALE_ID } from '@angul
 import { provideRouter, withComponentInputBinding, withViewTransitions } from '@angular/router';
 import { provideHttpClient, withInterceptors, withFetch } from '@angular/common/http';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { provideAnimations } from '@angular/platform-browser/animations';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
@@ -716,7 +699,7 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(
       withEventReplay(),              // Rejoue les events pendant l'hydratation SSR
     ),
-    provideAnimationsAsync(),
+    provideAnimations(),
     // LOCALE_ID est injecté automatiquement par Angular lors du build --localize
     // Pas besoin de le déclarer manuellement
   ],
@@ -728,14 +711,14 @@ export const appConfig: ApplicationConfig = {
 ```typescript
 import { mergeApplicationConfig, ApplicationConfig } from '@angular/core';
 import { provideServerRendering } from '@angular/platform-server';
-import { provideServerRoutesConfig } from '@angular/ssr';
+// import { provideServerRoutesConfig } from '@angular/ssr';
 import { appConfig } from './app.config';
-import { serverRoutes } from './app.routes.server';
+import { routes } from './app.routes';
 
 const serverConfig: ApplicationConfig = {
   providers: [
     provideServerRendering(),
-    provideServerRoutesConfig(serverRoutes),
+    // provideServerRoutesConfig(routes),  // activable pour une config SSR par route
   ],
 };
 
@@ -744,46 +727,60 @@ export const appServerConfig = mergeApplicationConfig(appConfig, serverConfig);
 
 ### `app/app.routes.ts`
 
+État réel : seules les routes `''` (home), `me`, `auth` et `mon-compte` (account) sont actives.
+Les routes `boutique` / `location` / `installation` / `admin` sont prévues mais non implémentées
+(voir « Cible / à venir » dans l'arborescence).
+
 ```typescript
 import { Routes } from '@angular/router';
 import { authGuard }   from './core/guards/auth.guard';
-import { adminGuard }  from './core/guards/admin.guard';
 import { publicGuard } from './core/guards/public.guard';
 
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('./features/home/home/home').then(m => m.HomeComponent),
+    loadComponent: () => import('./features/home/home').then(m => m.HomeComponent),
     title: 'AbrisTempo Local — Accueil',   // title est utilisé par le router pour WCAG 2.4.2
   },
+  // Redirections des anciens chemins
+  { path: 'login', redirectTo: '/auth', pathMatch: 'full' },
+  { path: 'register', redirectTo: '/auth', pathMatch: 'full' },
   {
-    path: 'boutique',
-    loadChildren: () => import('./features/shop/shop.routes').then(m => m.SHOP_ROUTES),
-  },
-  {
-    path: 'location',
-    loadChildren: () => import('./features/rental/rental.routes').then(m => m.RENTAL_ROUTES),
-  },
-  {
-    path: 'installation',
+    path: 'me',
+    loadComponent: () => import('./features/auth/me/profile').then(m => m.ProfileComponent),
     canActivate: [authGuard],
-    loadChildren: () => import('./features/booking/booking.routes').then(m => m.BOOKING_ROUTES),
+    title: 'AbrisTempo Local — Mon Compte',
+  },
+  {
+    path: 'auth',
+    canActivate: [publicGuard],   // Redirige vers '/' si déjà connecté
+    loadChildren: () => import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES),
   },
   {
     path: 'mon-compte',
     canActivate: [authGuard],
     loadChildren: () => import('./features/account/account.routes').then(m => m.ACCOUNT_ROUTES),
   },
+  { path: '**', redirectTo: '' },
+];
+```
+
+`features/auth/auth.routes.ts` — le module auth utilise une « flip card » regroupant connexion
+et inscription sous une seule page :
+
+```typescript
+import { Routes } from '@angular/router';
+
+export const AUTH_ROUTES: Routes = [
   {
-    path: 'admin',
-    canActivate: [authGuard, adminGuard],
-    loadChildren: () => import('./features/admin/admin.routes').then(m => m.ADMIN_ROUTES),
+    path: '',
+    loadComponent: () => import('./auth').then(m => m.AuthComponent),
+    title: 'AbrisTempo — Connexion / Inscription',
   },
-  {
-    path: 'auth',
-    canActivate: [publicGuard],
-    loadChildren: () => import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES),
-  },
+  // /auth/login et /auth/register redirigent vers /auth (le flip est géré dans le composant)
+  { path: 'login', redirectTo: '', pathMatch: 'full' },
+  { path: 'register', redirectTo: '', pathMatch: 'full' },
+  { path: 'me', loadComponent: () => import('./me/profile').then(m => m.ProfileComponent) },
   { path: '**', redirectTo: '' },
 ];
 ```
@@ -907,7 +904,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { environment } from '../../../environments/environment';
 
 export interface AuthUser {
   readonly id:        string;
@@ -1290,6 +1287,10 @@ export class SkipNavComponent {
 ---
 
 ### `shared/layout/navbar/navbar.ts`
+
+> Exemple aligné sur les conventions. La navbar réelle existe (`shared/layout/navbar/`), mais
+> certains liens ci-dessous (`/boutique`, `/location`, `/installation`, panier) pointent vers des
+> routes **Cible / à venir** non encore implémentées (voir l'arborescence).
 
 ```typescript
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
@@ -1758,7 +1759,8 @@ export class LoginComponent {
 ## 9. i18n — Internationalisation
 
 Angular utilise `@angular/localize` (compile-time). Chaque locale produit un build séparé.
-Le user linked au paquet npm `i18n` (Node.js), mais pour Angular le bon outil est `@angular/localize`.
+Source FR, EN secondaire. Le dossier `src/locale/` n'existe pas encore : il est créé par
+`npm run i18n:extract` (sortie configurée sur `src/locale` dans `package.json` et `angular.json`).
 
 ### Principe de fonctionnement
 
@@ -1836,7 +1838,7 @@ npm run i18n:extract
       <trans-unit id="home.title" datatype="html">
         <source>Bienvenue chez AbrisTempo Local</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/home/home/home.html</context>
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
           <context context-type="linenumber">3</context>
         </context-group>
         <note priority="1" from="description">Titre de la page d'accueil</note>

@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="fr" target-language="en" datatype="plaintext" original="ng2.template">
+    <body>
+      <trans-unit id="home.catalog.eyebrow" datatype="html">
+        <source>Notre catalogue</source>
+        <target>Our catalogue</target>
+      </trans-unit>
+      <trans-unit id="home.catalog.title" datatype="html">
+        <source>Parcourez nos abris</source>
+        <target>Browse our shelters</target>
+      </trans-unit>
+      <trans-unit id="home.catalog.subtitle" datatype="html">
+        <source>Filtrez par catégorie pour trouver rapidement l'abri qu'il vous faut.</source>
+        <target>Filter by category to quickly find the shelter you need.</target>
+      </trans-unit>
+      <trans-unit id="home.catalog.filterGroup" datatype="html">
+        <source>Filtrer les produits par catégorie</source>
+        <target>Filter products by category</target>
+      </trans-unit>
+      <trans-unit id="home.catalog.filterAll" datatype="html">
+        <source>Tous</source>
+        <target>All</target>
+      </trans-unit>
+      <trans-unit id="home.catalog.loading" datatype="html">
+        <source>Chargement des produits…</source>
+        <target>Loading products…</target>
+      </trans-unit>
+      <trans-unit id="home.catalog.empty" datatype="html">
+        <source>Aucun produit dans cette catégorie pour le moment.</source>
+        <target>No products in this category yet.</target>
+      </trans-unit>
+      <trans-unit id="home.product.soldOut" datatype="html">
+        <source>Épuisé</source>
+        <target>Sold out</target>
+      </trans-unit>
+      <trans-unit id="home.product.rentLabel" datatype="html">
+        <source>Location</source>
+        <target>Rental</target>
+      </trans-unit>
+      <trans-unit id="home.product.month" datatype="html">
+        <source>mois</source>
+        <target>month</target>
+      </trans-unit>
+
+      <!-- ===== HOME — HERO ===== -->
+      <trans-unit id="home.hero.badge" datatype="html">
+        <source>Représentant officiel Tempo — Outaouais</source>
+        <target>Official Tempo Representative — Outaouais</target>
+      </trans-unit>
+      <trans-unit id="home.hero.title" datatype="html">
+        <source>Protégez votre véhicule</source>
+        <target>Protect your vehicle</target>
+      </trans-unit>
+      <trans-unit id="home.hero.titleAccent" datatype="html">
+        <source>toute l'année</source>
+        <target>all year long</target>
+      </trans-unit>
+      <trans-unit id="home.hero.subtitle" datatype="html">
+        <source>Vente, location et installation d'abris d'auto Tempo de qualité.
+      Livraison partout en Outaouais — service local et personnalisé.</source>
+        <target>Sale, rental and installation of quality Tempo car shelters.
+      Delivery throughout the Outaouais — local, personalized service.</target>
+      </trans-unit>
+      <trans-unit id="home.hero.catalogCta" datatype="html">
+        <source>Voir le catalogue</source>
+        <target>View the catalogue</target>
+      </trans-unit>
+      <trans-unit id="home.hero.catalogAria" datatype="html">
+        <source>Voir notre catalogue d'abris</source>
+        <target>View our shelter catalogue</target>
+      </trans-unit>
+      <trans-unit id="home.hero.installCta" datatype="html">
+        <source>Réserver une installation</source>
+        <target>Book an installation</target>
+      </trans-unit>
+      <trans-unit id="home.hero.installAria" datatype="html">
+        <source>Réserver une installation à domicile</source>
+        <target>Book an at-home installation</target>
+      </trans-unit>
+      <trans-unit id="home.hero.statsAria" datatype="html">
+        <source>Chiffres clés</source>
+        <target>Key figures</target>
+      </trans-unit>
+      <trans-unit id="home.hero.stat1" datatype="html">
+        <source>Abris installés</source>
+        <target>Shelters installed</target>
+      </trans-unit>
+      <trans-unit id="home.hero.stat2Number" datatype="html">
+        <source>15 ans</source>
+        <target>15 years</target>
+      </trans-unit>
+      <trans-unit id="home.hero.stat2" datatype="html">
+        <source>D'expérience</source>
+        <target>Of experience</target>
+      </trans-unit>
+      <trans-unit id="home.hero.stat3" datatype="html">
+        <source>Clients satisfaits</source>
+        <target>Satisfied clients</target>
+      </trans-unit>
+
+      <!-- ===== HOME — SERVICES ===== -->
+      <trans-unit id="home.services.eyebrow" datatype="html">
+        <source>Ce que nous offrons</source>
+        <target>What we offer</target>
+      </trans-unit>
+      <trans-unit id="home.services.title" datatype="html">
+        <source>Tous vos besoins en abris</source>
+        <target>All your shelter needs</target>
+      </trans-unit>
+      <trans-unit id="home.services.subtitle" datatype="html">
+        <source>De la vente à l'installation, nous vous accompagnons à chaque étape.</source>
+        <target>From sale to installation, we support you every step of the way.</target>
+      </trans-unit>
+      <trans-unit id="home.services.shop.title" datatype="html">
+        <source>Boutique en ligne</source>
+        <target>Online store</target>
+      </trans-unit>
+      <trans-unit id="home.services.shop.desc" datatype="html">
+        <source>Parcourez notre catalogue complet d'abris d'auto Tempo. Livraison disponible partout en Outaouais.</source>
+        <target>Browse our full catalogue of Tempo car shelters. Delivery available throughout the Outaouais.</target>
+      </trans-unit>
+      <trans-unit id="home.services.shop.link" datatype="html">
+        <source>Voir le catalogue</source>
+        <target>View the catalogue</target>
+      </trans-unit>
+      <trans-unit id="home.services.rental.title" datatype="html">
+        <source>Location saisonnière</source>
+        <target>Seasonal rental</target>
+      </trans-unit>
+      <trans-unit id="home.services.rental.desc" datatype="html">
+        <source>Louez un abri pour la saison. Solution flexible et économique sans engagement à long terme.</source>
+        <target>Rent a shelter for the season. A flexible, affordable solution with no long-term commitment.</target>
+      </trans-unit>
+      <trans-unit id="home.services.rental.link" datatype="html">
+        <source>Explorer la location</source>
+        <target>Explore rentals</target>
+      </trans-unit>
+      <trans-unit id="home.services.install.title" datatype="html">
+        <source>Installation professionnelle</source>
+        <target>Professional installation</target>
+      </trans-unit>
+      <trans-unit id="home.services.install.desc" datatype="html">
+        <source>Service d'installation et de démontage à domicile. Réservez votre créneau en ligne.</source>
+        <target>At-home installation and takedown service. Book your time slot online.</target>
+      </trans-unit>
+      <trans-unit id="home.services.install.link" datatype="html">
+        <source>Réserver maintenant</source>
+        <target>Book now</target>
+      </trans-unit>
+
+      <!-- ===== HOME — POURQUOI NOUS ===== -->
+      <trans-unit id="home.whyUs.eyebrow" datatype="html">
+        <source>Notre engagement</source>
+        <target>Our commitment</target>
+      </trans-unit>
+      <trans-unit id="home.whyUs.titleLead" datatype="html">
+        <source>Pourquoi choisir</source>
+        <target>Why choose</target>
+      </trans-unit>
+      <trans-unit id="home.whyUs.titleAccent" datatype="html">
+        <source>AbrisTempo Outaouais ?</source>
+        <target>AbrisTempo Outaouais?</target>
+      </trans-unit>
+      <trans-unit id="home.whyUs.body" datatype="html">
+        <source>Nous sommes votre représentant local de confiance pour les abris Tempo.
+          Qualité, service et expertise au service de votre tranquillité d'esprit.</source>
+        <target>We are your trusted local representative for Tempo shelters.
+          Quality, service and expertise dedicated to your peace of mind.</target>
+      </trans-unit>
+      <trans-unit id="home.whyUs.cta" datatype="html">
+        <source>Découvrir nos produits</source>
+        <target>Discover our products</target>
+      </trans-unit>
+      <trans-unit id="home.whyUs.official.title" datatype="html">
+        <source>Représentant officiel</source>
+        <target>Official representative</target>
+      </trans-unit>
+      <trans-unit id="home.whyUs.official.text" datatype="html">
+        <source>Distributeur agréé Tempo pour la région de l'Outaouais. Produits garantis et authentiques.</source>
+        <target>Authorized Tempo distributor for the Outaouais region. Guaranteed, authentic products.</target>
+      </trans-unit>
+      <trans-unit id="home.whyUs.delivery.title" datatype="html">
+        <source>Livraison régionale</source>
+        <target>Regional delivery</target>
+      </trans-unit>
+      <trans-unit id="home.whyUs.delivery.text" datatype="html">
+        <source>Livraison directement chez vous dans toute la région. Disponible 7 jours sur 7.</source>
+        <target>Delivery straight to your door across the region. Available 7 days a week.</target>
+      </trans-unit>
+      <trans-unit id="home.whyUs.service.title" datatype="html">
+        <source>Service personnalisé</source>
+        <target>Personalized service</target>
+      </trans-unit>
+      <trans-unit id="home.whyUs.service.text" datatype="html">
+        <source>Parlez à un vrai représentant. Conseils sur mesure pour choisir le bon abri.</source>
+        <target>Talk to a real representative. Tailored advice to choose the right shelter.</target>
+      </trans-unit>
+      <trans-unit id="home.whyUs.quality.title" datatype="html">
+        <source>Qualité garantie</source>
+        <target>Guaranteed quality</target>
+      </trans-unit>
+      <trans-unit id="home.whyUs.quality.text" datatype="html">
+        <source>Abris Tempo reconnus pour leur robustesse face aux conditions hivernales du Québec.</source>
+        <target>Tempo shelters renowned for their durability against Quebec winter conditions.</target>
+      </trans-unit>
+
+      <!-- ===== HOME — PRODUITS VEDETTES ===== -->
+      <trans-unit id="home.featured.eyebrow" datatype="html">
+        <source>Nos produits populaires</source>
+        <target>Our popular products</target>
+      </trans-unit>
+      <trans-unit id="home.featured.title" datatype="html">
+        <source>Abris les plus populaires</source>
+        <target>Most popular shelters</target>
+      </trans-unit>
+      <trans-unit id="home.featured.loading" datatype="html">
+        <source>Chargement des produits…</source>
+        <target>Loading products…</target>
+      </trans-unit>
+      <trans-unit id="home.featured.soldOut" datatype="html">
+        <source>Épuisé</source>
+        <target>Sold out</target>
+      </trans-unit>
+      <trans-unit id="home.featured.rentLabel" datatype="html">
+        <source>Location</source>
+        <target>Rental</target>
+      </trans-unit>
+      <trans-unit id="home.featured.month" datatype="html">
+        <source>mois</source>
+        <target>month</target>
+      </trans-unit>
+      <trans-unit id="home.featured.viewProduct" datatype="html">
+        <source>Voir le produit</source>
+        <target>View product</target>
+      </trans-unit>
+      <trans-unit id="home.featured.viewAll" datatype="html">
+        <source>Voir tous nos produits</source>
+        <target>View all our products</target>
+      </trans-unit>
+
+      <!-- ===== HOME — BANDEAU CTA ===== -->
+      <trans-unit id="home.cta.title" datatype="html">
+        <source>Prêt à protéger votre véhicule ?</source>
+        <target>Ready to protect your vehicle?</target>
+      </trans-unit>
+      <trans-unit id="home.cta.body" datatype="html">
+        <source>Contactez-nous pour obtenir une soumission gratuite ou réservez
+        directement votre installation en ligne.</source>
+        <target>Contact us for a free quote or book your installation directly online.</target>
+      </trans-unit>
+      <trans-unit id="home.cta.installCta" datatype="html">
+        <source>Réserver l'installation</source>
+        <target>Book the installation</target>
+      </trans-unit>
+      <trans-unit id="home.cta.installAria" datatype="html">
+        <source>Réserver une installation d'abri</source>
+        <target>Book a shelter installation</target>
+      </trans-unit>
+      <trans-unit id="home.cta.phoneAria" datatype="html">
+        <source>Appeler au 819 123-4567</source>
+        <target>Call 819 123-4567</target>
+      </trans-unit>
+
+      <!-- ===== BOUTIQUE — CATALOGUE ===== -->
+      <trans-unit id="shop.catalog.eyebrow" datatype="html">
+        <source>Notre boutique</source>
+        <target>Our store</target>
+      </trans-unit>
+      <trans-unit id="shop.catalog.title" datatype="html">
+        <source>Tous nos abris d'auto</source>
+        <target>All our car shelters</target>
+      </trans-unit>
+      <trans-unit id="shop.catalog.subtitle" datatype="html">
+        <source>Filtrez par catégorie et ajoutez vos abris au panier en quelques clics.</source>
+        <target>Filter by category and add your shelters to the cart in a few clicks.</target>
+      </trans-unit>
+      <trans-unit id="shop.catalog.filterGroup" datatype="html">
+        <source>Filtrer les produits par catégorie</source>
+        <target>Filter products by category</target>
+      </trans-unit>
+      <trans-unit id="shop.catalog.filterAll" datatype="html">
+        <source>Tous</source>
+        <target>All</target>
+      </trans-unit>
+      <trans-unit id="shop.catalog.loading" datatype="html">
+        <source>Chargement des produits…</source>
+        <target>Loading products…</target>
+      </trans-unit>
+      <trans-unit id="shop.catalog.empty" datatype="html">
+        <source>Aucun produit dans cette catégorie pour le moment.</source>
+        <target>No products in this category yet.</target>
+      </trans-unit>
+      <trans-unit id="shop.catalog.addedToast" datatype="html">
+        <source><x id="name" equiv-text="product.name"/> a été ajouté au panier.</source>
+        <target><x id="name" equiv-text="product.name"/> was added to the cart.</target>
+      </trans-unit>
+
+      <!-- ===== BOUTIQUE — DÉTAIL PRODUIT ===== -->
+      <trans-unit id="shop.detail.back" datatype="html">
+        <source>← Retour à la boutique</source>
+        <target>← Back to the store</target>
+      </trans-unit>
+      <trans-unit id="shop.detail.loading" datatype="html">
+        <source>Chargement du produit…</source>
+        <target>Loading product…</target>
+      </trans-unit>
+      <trans-unit id="shop.detail.notFoundTitle" datatype="html">
+        <source>Produit introuvable</source>
+        <target>Product not found</target>
+      </trans-unit>
+      <trans-unit id="shop.detail.notFoundBody" datatype="html">
+        <source>Le produit que vous cherchez n'existe pas ou n'est plus disponible.</source>
+        <target>The product you are looking for does not exist or is no longer available.</target>
+      </trans-unit>
+      <trans-unit id="shop.detail.notFoundCta" datatype="html">
+        <source>Retour au catalogue</source>
+        <target>Back to the catalogue</target>
+      </trans-unit>
+      <trans-unit id="shop.detail.rentLabel" datatype="html">
+        <source>Location</source>
+        <target>Rental</target>
+      </trans-unit>
+      <trans-unit id="shop.detail.month" datatype="html">
+        <source>mois</source>
+        <target>month</target>
+      </trans-unit>
+      <trans-unit id="shop.detail.available" datatype="html">
+        <source>En stock</source>
+        <target>In stock</target>
+      </trans-unit>
+      <trans-unit id="shop.detail.unavailable" datatype="html">
+        <source>Épuisé</source>
+        <target>Sold out</target>
+      </trans-unit>
+      <trans-unit id="shop.detail.descriptionTitle" datatype="html">
+        <source>Description</source>
+        <target>Description</target>
+      </trans-unit>
+      <trans-unit id="shop.detail.addToCart" datatype="html">
+        <source>Ajouter au panier</source>
+        <target>Add to cart</target>
+      </trans-unit>
+      <trans-unit id="shop.detail.addedToast" datatype="html">
+        <source><x id="name" equiv-text="product.name"/> a été ajouté au panier.</source>
+        <target><x id="name" equiv-text="product.name"/> was added to the cart.</target>
+      </trans-unit>
+
+      <!-- ===== PARTAGÉS (product-card, skip-nav) ===== -->
+      <trans-unit id="product.available" datatype="html">
+        <source>En stock</source>
+        <target>In stock</target>
+      </trans-unit>
+      <trans-unit id="product.unavailable" datatype="html">
+        <source>Épuisé</source>
+        <target>Sold out</target>
+      </trans-unit>
+      <trans-unit id="product.addToCart" datatype="html">
+        <source>Ajouter au panier</source>
+        <target>Add to cart</target>
+      </trans-unit>
+      <trans-unit id="skipNav.link" datatype="html">
+        <source>Aller au contenu principal</source>
+        <target>Skip to main content</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

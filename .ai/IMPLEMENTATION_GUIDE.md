@@ -20,7 +20,7 @@
    - ✅ `Interfaces/IApplicationDbContext.cs` - DbContext abstraction
    - ✅ `Interfaces/IIdentityService.cs` - Auth service interface
    - ✅ `Interfaces/ICurrentUserService.cs` - Current user interface
-   - ✅ `Mediator/Interfaces.cs` - CQRS interfaces
+   - ✅ `Mediator/ICommand.cs`, `IQuery.cs`, `ICommandHandler.cs`, `IQueryHandler.cs`, `IDispatcher.cs`, `Unit.cs` - CQRS interfaces
    - ✅ `Mediator/Dispatcher.cs` - Mediator implementation
    - ✅ `Authentication/Register/RegisterCommand.cs` - Register command + handler
    - ✅ `Authentication/Login/LoginCommand.cs` - Login command + handler
@@ -72,32 +72,37 @@
 2. **Set up user secrets** (Development only - in production use Azure Key Vault)
    ```bash
    cd src/AbrisAutoOutaouais-WebApp.API
-   
+
    # JWT
    dotnet user-secrets set "Jwt:Key" "AbrisTempoLocal_SuperSecret_Key_min32chars!"
    dotnet user-secrets set "Jwt:Issuer" "AbrisTempoLocal.Api"
    dotnet user-secrets set "Jwt:Audience" "AbrisTempoLocal.Client"
-   
-   # Database connection
-   dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=(localdb)\mssqllocaldb;Database=AbrisTempoDb_Dev;Trusted_Connection=true;"
+
+   # Database connection (clé : DefaultConnection, base : AbrisTempoDb)
+   dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=(localdb)\mssqllocaldb;Database=AbrisTempoDb;Trusted_Connection=true;"
    ```
 
-3. **Create initial migration**
+3. **Create initial migration** (un seul DbContext — depuis la racine de la solution)
    ```bash
-   cd src/AbrisAutoOutaouais-WebApp.API
-   dotnet ef migrations add InitialCreate --project ../AbrisAutoOutaouais-WebApp.Infrastructure --context ApplicationDbContext --output-dir Persistence/Migrations
+   dotnet ef migrations add InitialCreate \
+     --project src/AbrisAutoOutaouais-WebApp.Infrastructure \
+     --startup-project src/AbrisAutoOutaouais-WebApp.API \
+     --output-dir Persistence/Migrations
+
+   dotnet ef database update \
+     --project src/AbrisAutoOutaouais-WebApp.Infrastructure \
+     --startup-project src/AbrisAutoOutaouais-WebApp.API
    ```
 
 4. **Start the API**
    ```bash
-   cd src/AbrisAutoOutaouais-WebApp.API
-   dotnet run
+   dotnet run --project src/AbrisAutoOutaouais-WebApp.API
    ```
    - API will be available at: `https://localhost:5001` or `http://localhost:5000`
    - Scalar UI (OpenAPI docs): `https://localhost:5001/scalar`
-   - Default admin user:
-     - Email: `admin@abristempo.local`
-     - Password: `Admin@123456!`
+   - Default admin user (seedé par `IdentitySeeder.SeedAsync`):
+     - Email: `admin@abrisauto.com`
+     - Password: `Admin123!`
 
 ### Frontend Setup
 
@@ -146,8 +151,8 @@
 ### 3. Test with Admin Account
 1. Navigate to `http://localhost:4200/login`
 2. Use:
-   - Email: `admin@abristempo.local`
-   - Password: `Admin@123456!`
+   - Email: `admin@abrisauto.com`
+   - Password: `Admin123!`
 3. You should see "Admin" role in your user info
 
 ### 4. Test Protected Routes
@@ -184,7 +189,12 @@ src/AbrisAutoOutaouais-WebApp.Application/
 │   │   ├── IIdentityService.cs
 │   │   ├── ICurrentUserService.cs
 │   └── Mediator/
-│       ├── Interfaces.cs
+│       ├── ICommand.cs
+│       ├── IQuery.cs
+│       ├── ICommandHandler.cs
+│       ├── IQueryHandler.cs
+│       ├── IDispatcher.cs
+│       ├── Unit.cs
 │       └── Dispatcher.cs
 └── Authentication/
     ├── Login/
@@ -257,11 +267,17 @@ src/AbrisAutoOutaouais-WebApp.Client/src/app/
 
 ### Migration Issues
 ```bash
+# Un seul DbContext (ApplicationDbContext) — --context inutile.
 # If migration failed, remove it
-dotnet ef migrations remove --project src/AbrisAutoOutaouais-WebApp.Infrastructure --context ApplicationDbContext
+dotnet ef migrations remove \
+  --project src/AbrisAutoOutaouais-WebApp.Infrastructure \
+  --startup-project src/AbrisAutoOutaouais-WebApp.API
 
 # Recreate
-dotnet ef migrations add InitialCreate --project src/AbrisAutoOutaouais-WebApp.Infrastructure --context ApplicationDbContext --output-dir Persistence/Migrations
+dotnet ef migrations add InitialCreate \
+  --project src/AbrisAutoOutaouais-WebApp.Infrastructure \
+  --startup-project src/AbrisAutoOutaouais-WebApp.API \
+  --output-dir Persistence/Migrations
 ```
 
 ### Database Connection Issues

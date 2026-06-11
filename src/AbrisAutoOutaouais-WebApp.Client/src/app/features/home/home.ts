@@ -6,10 +6,9 @@ import {
   OnInit,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
 import { CurrencyPipe } from '@angular/common';
-import { environment } from '../../../environments/environment';
-import { ProductSummaryDto, PaginatedList } from '../../core/models/product.model';
+import { ProductService } from '../../core/services/product.service';
+import { CategoryDto, ProductDto } from '../../core/models/product.model';
 
 interface ServiceCard {
   icon: string;
@@ -33,50 +32,102 @@ interface WhyUsItem {
   imports: [RouterLink, CurrencyPipe],
 })
 export class HomeComponent implements OnInit {
-  private readonly http = inject(HttpClient);
+  private readonly productService = inject(ProductService);
 
-  protected readonly featuredProducts = signal<ProductSummaryDto[]>([]);
+  // ── Produits vedettes ───────────────────────────────────────
+  protected readonly featuredProducts = signal<ProductDto[]>([]);
   protected readonly loadingProducts = signal(true);
+
+  // ── Catalogue (catégories + produits filtrables) ────────────
+  protected readonly categories = signal<CategoryDto[]>([]);
+  protected readonly catalogProducts = signal<ProductDto[]>([]);
+  protected readonly loadingCatalog = signal(true);
+  protected readonly selectedSlug = signal<string | null>(null);
 
   protected readonly services: ServiceCard[] = [
     {
       icon: '🏪',
-      title: 'Boutique en ligne',
-      description: 'Parcourez notre catalogue complet d\'abris d\'auto Tempo. Livraison disponible partout en Outaouais.',
+      title: $localize`:@@home.services.shop.title:Boutique en ligne`,
+      description: $localize`:@@home.services.shop.desc:Parcourez notre catalogue complet d'abris d'auto Tempo. Livraison disponible partout en Outaouais.`,
       link: '/boutique',
-      linkLabel: 'Voir le catalogue',
+      linkLabel: $localize`:@@home.services.shop.link:Voir le catalogue`,
     },
     {
       icon: '📅',
-      title: 'Location saisonnière',
-      description: 'Louez un abri pour la saison. Solution flexible et économique sans engagement à long terme.',
+      title: $localize`:@@home.services.rental.title:Location saisonnière`,
+      description: $localize`:@@home.services.rental.desc:Louez un abri pour la saison. Solution flexible et économique sans engagement à long terme.`,
       link: '/location',
-      linkLabel: 'Explorer la location',
+      linkLabel: $localize`:@@home.services.rental.link:Explorer la location`,
     },
     {
       icon: '🔧',
-      title: 'Installation professionnelle',
-      description: 'Service d\'installation et de démontage à domicile. Réservez votre créneau en ligne.',
+      title: $localize`:@@home.services.install.title:Installation professionnelle`,
+      description: $localize`:@@home.services.install.desc:Service d'installation et de démontage à domicile. Réservez votre créneau en ligne.`,
       link: '/installation',
-      linkLabel: 'Réserver maintenant',
+      linkLabel: $localize`:@@home.services.install.link:Réserver maintenant`,
     },
   ];
 
   protected readonly whyUs: WhyUsItem[] = [
-    { icon: '✅', title: 'Représentant officiel', text: 'Distributeur agréé Tempo pour la région de l\'Outaouais. Produits garantis et authentiques.' },
-    { icon: '🚛', title: 'Livraison régionale', text: 'Livraison directement chez vous dans toute la région. Disponible 7 jours sur 7.' },
-    { icon: '📞', title: 'Service personnalisé', text: 'Parlez à un vrai représentant. Conseils sur mesure pour choisir le bon abri.' },
-    { icon: '🛡️', title: 'Qualité garantie', text: 'Abris Tempo reconnus pour leur robustesse face aux conditions hivernales du Québec.' },
+    {
+      icon: '✅',
+      title: $localize`:@@home.whyUs.official.title:Représentant officiel`,
+      text: $localize`:@@home.whyUs.official.text:Distributeur agréé Tempo pour la région de l'Outaouais. Produits garantis et authentiques.`,
+    },
+    {
+      icon: '🚛',
+      title: $localize`:@@home.whyUs.delivery.title:Livraison régionale`,
+      text: $localize`:@@home.whyUs.delivery.text:Livraison directement chez vous dans toute la région. Disponible 7 jours sur 7.`,
+    },
+    {
+      icon: '📞',
+      title: $localize`:@@home.whyUs.service.title:Service personnalisé`,
+      text: $localize`:@@home.whyUs.service.text:Parlez à un vrai représentant. Conseils sur mesure pour choisir le bon abri.`,
+    },
+    {
+      icon: '🛡️',
+      title: $localize`:@@home.whyUs.quality.title:Qualité garantie`,
+      text: $localize`:@@home.whyUs.quality.text:Abris Tempo reconnus pour leur robustesse face aux conditions hivernales du Québec.`,
+    },
   ];
 
   ngOnInit(): void {
-    this.http
-      .get<PaginatedList<ProductSummaryDto>>(
-        `${environment.apiUrl}/products?page=1&pageSize=3`
-      )
+    // Produits vedettes (3 premiers)
+    this.productService.getProducts({ page: 1, pageSize: 3 }).subscribe({
+      next: res => {
+        this.featuredProducts.set([...res.items]);
+        this.loadingProducts.set(false);
+      },
+      error: () => this.loadingProducts.set(false),
+    });
+
+    // Catégories pour les filtres
+    this.productService.getCategories().subscribe({
+      next: cats => this.categories.set(cats),
+    });
+
+    // Tous les produits au départ
+    this.loadCatalog(null);
+  }
+
+  protected selectCategory(slug: string | null): void {
+    if (this.selectedSlug() === slug) {
+      return;
+    }
+    this.selectedSlug.set(slug);
+    this.loadCatalog(slug);
+  }
+
+  private loadCatalog(slug: string | null): void {
+    this.loadingCatalog.set(true);
+    this.productService
+      .getProducts({ page: 1, pageSize: 50, category: slug ?? undefined })
       .subscribe({
-        next: res => { this.featuredProducts.set([...res.items]); this.loadingProducts.set(false); },
-        error: () => { this.loadingProducts.set(false); },
+        next: res => {
+          this.catalogProducts.set([...res.items]);
+          this.loadingCatalog.set(false);
+        },
+        error: () => this.loadingCatalog.set(false),
       });
   }
 }

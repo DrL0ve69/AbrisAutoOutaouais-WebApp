@@ -49,7 +49,6 @@ Order            — lignes, client, livraison, statut, paiement
 OrderLine        — produit, qté, prix snapshot
 RentalContract   — client, produit loué, période, tarif/mois, statut
 BookingSlot      — date/heure, type (installation/livraison), durée, adresse
-Customer         — profil étendu d'ApplicationUser
 Address          — valeur objet partagée (VO)
 ```
 
@@ -103,7 +102,7 @@ Address          — valeur objet partagée (VO)
 4. **Soft Delete** via `SaveChangesInterceptor` + `ISoftDeletable` + named query filter.
 5. **Constantes de rôles** dans `Domain/Constants/Roles.cs` (pas dans Api).
 6. **Zéro logique** dans les controllers — ils dispatchent vers le Mediator et retournent le résultat.
-7. **`Result<T>`** (ErrorOr) pour les chemins d'erreur attendus en Application.
+7. **`Result<T>`** (type maison — `Application/Common/Models/Result.cs`) pour les chemins d'erreur attendus en Application.
 
 ---
 
@@ -120,12 +119,14 @@ Source : levelup.gitconnected.com (2026) + codewithmukesh.com.
 MediatR est devenu payant pour usage commercial.
 Un Mediator source-generated (`Mediator` NuGet de martinothamar) ou une implémentation maison simple est suffisant et performant.
 
-### Pourquoi deux DbContext ?
+### Pourquoi un seul DbContext ?
 
-- `AppIdentityDbContext` : tables ASP.NET Core Identity (Users, Roles, Claims).
-- `ApplicationDbContext` : entités métier (Products, Orders, Bookings…).
+`ApplicationDbContext : IdentityDbContext<AppUser, AppRole, Guid, ...>` héberge **à la fois** les tables ASP.NET Core Identity (Users, Roles, Claims) et les entités métier (Products, Orders, Bookings…), dans une seule base.
 
-Séparation claire = migrations indépendantes, contextes testables séparément.
+- **Vraies FK EF** entre entités métier et `AspNetUsers` (ex: `Order.CustomerId → AppUser.Id`).
+- Un seul jeu de migrations + un seul pipeline de tests d'intégration.
+- `AppUser` **est** le client (pas d'entité `Customer` séparée).
+- Simplicité pour un projet solo / portfolio.
 
 ---
 
@@ -163,10 +164,9 @@ Client → Page Installation → Voir créneaux disponibles
 ```bash
 # Backend (user-secrets en dev, Key Vault en prod)
 Jwt__Key=<min-32-chars>
-Jwt__Issuer=AbrisTempoLocal.Api
-Jwt__Audience=AbrisTempoLocal.Client
-ConnectionStrings__Identity=<conn-string>
-ConnectionStrings__Application=<conn-string>
+Jwt__Issuer=AbrisAutoOutaouais.API
+Jwt__Audience=AbrisAutoOutaouais.CLIENT
+ConnectionStrings__DefaultConnection=<conn-string>   # SQL Server LocalDB — base AbrisTempoDb
 AllowedOrigins=http://localhost:4200,https://abristempo.vercel.app
 Stripe__SecretKey=<stripe-key>
 
@@ -186,3 +186,5 @@ STRIPE_PUBLIC_KEY=<stripe-pk>
 | `Admin` | Gestion complète (produits, utilisateurs, rapports) |
 
 Définis dans `Domain/Constants/Roles.cs`.
+
+Policies d'autorisation : `StaffOrAbove`, `AdminOnly`. Il n'y a **pas** de policy globale « authentifié par défaut » — chaque endpoint déclare son exigence explicitement.

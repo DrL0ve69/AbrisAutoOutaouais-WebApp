@@ -26,46 +26,41 @@ Le but est double :
 ### Backend
 
 ```bash
+# Solution : AbrisAutoOutaouais-WebApp.slnx (format XML .slnx)
 dotnet build
-dotnet run --project src/Api
+dotnet run --project src/AbrisAutoOutaouais-WebApp.API
 
-# Tests
+# Tests (projets à la racine du dépôt)
 dotnet test --no-build
 dotnet test --collect:"XPlat Code Coverage"
+dotnet test AbrisAutoOutaouais-WebApp.UnitTest         # projet unique
 
-# EF Core — deux contextes (toujours depuis la racine de la solution)
+# EF Core — un seul DbContext (toujours depuis la racine de la solution)
+# --context est optionnel puisqu'il n'y a qu'un contexte
 dotnet ef migrations add <Name> \
-  --project src/Infrastructure \
-  --startup-project src/Api \
-  --context AppIdentityDbContext \
-  --output-dir Identity/Migrations
-
-dotnet ef migrations add <Name> \
-  --project src/Infrastructure \
-  --startup-project src/Api \
-  --context ApplicationDbContext \
+  --project src/AbrisAutoOutaouais-WebApp.Infrastructure \
+  --startup-project src/AbrisAutoOutaouais-WebApp.API \
   --output-dir Persistence/Migrations
 
-dotnet ef database update --context AppIdentityDbContext \
-  --project src/Infrastructure --startup-project src/Api
-
-dotnet ef database update --context ApplicationDbContext \
-  --project src/Infrastructure --startup-project src/Api
+dotnet ef database update \
+  --project src/AbrisAutoOutaouais-WebApp.Infrastructure \
+  --startup-project src/AbrisAutoOutaouais-WebApp.API
 
 # User secrets (dev seulement)
-dotnet user-secrets set "Jwt:Key" "<32+chars>" --project src/Api
-dotnet user-secrets set "ConnectionStrings:Default" "<conn>" --project src/Api
+dotnet user-secrets set "Jwt:Key" "<32+chars>" --project src/AbrisAutoOutaouais-WebApp.API
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "<conn>" --project src/AbrisAutoOutaouais-WebApp.API
 ```
 
 ### Frontend
 
 ```bash
+# Depuis src/AbrisAutoOutaouais-WebApp.Client
 npm install
-ng serve                            # dev — http://localhost:4200
-ng build --configuration production # prod (SSR activé)
-npx vitest run                      # tests unitaires
-ng lint
-ng extract-i18n                     # i18n — extraire les strings
+npm start            # dev — ng serve --host=127.0.0.1
+npm test             # tests unitaires (vitest run)
+npm run build:prod   # build production
+npm run build:fr     # build localisé (--localize)
+npm run i18n:extract # extraire les strings i18n (sortie : src/locale)
 ```
 
 ---
@@ -76,27 +71,27 @@ ng extract-i18n                     # i18n — extraire les strings
 
 ```
 src/
-├── Domain/               # Entités, VO, enums, exceptions, interfaces domain
-├── Application/          # CQRS handlers, DTOs (records sealed), validateurs, behaviors
-├── Infrastructure/       # EF Core, Identity, services externes, DI registration
-└── Api/                  # Controllers, middleware, Program.cs (composition root)
+├── AbrisAutoOutaouais-WebApp.Domain/         # Entités, VO, enums, exceptions, interfaces domain
+├── AbrisAutoOutaouais-WebApp.Application/     # CQRS handlers, DTOs (records sealed), validateurs, behaviors
+├── AbrisAutoOutaouais-WebApp.Infrastructure/ # EF Core, Identity, services externes, DI registration
+└── AbrisAutoOutaouais-WebApp.API/            # Controllers, middleware, Program.cs (composition root)
 
-tests/
-├── Unit/                 # Tests domain + application (pas de DB)
-└── Integration/          # Tests avec WebApplicationFactory + DB en mémoire
+# Projets de test à la racine du dépôt (pas sous un dossier tests/)
+AbrisAutoOutaouais-WebApp.UnitTest/         # xUnit v3 + FluentAssertions + NSubstitute (pas de DB)
+AbrisAutoOutaouais-WebApp.IntegrationTest/  # WebApplicationFactory + DB en mémoire
 ```
 
-### Frontend (`client/`)
+### Frontend (`src/AbrisAutoOutaouais-WebApp.Client/`)
 
 ```
-client/src/app/
+src/AbrisAutoOutaouais-WebApp.Client/src/app/
 ├── core/          # Singleton services, guards, interceptors, providers
 ├── shared/        # Composants réutilisables, pipes, directives
 ├── features/      # Dossiers lazy-loaded par domaine métier
 └── app.routes.ts  # Route root
 
-client/src/
-├── i18n/          # messages.fr.xlf, messages.en.xlf
+src/AbrisAutoOutaouais-WebApp.Client/src/
+├── locale/        # strings i18n extraites
 ├── environments/
 └── assets/
 ```
@@ -110,30 +105,50 @@ client/src/
 - **Domain** : zéro dépendance externe. Entités, VO, exceptions, règles métier pures.
 - **Application** : orchestration des use cases via Mediator maison. Dépend seulement de Domain.
 - **Infrastructure** : implémente les interfaces d'Application. Jamais référencé par Application directement.
-- **Api** : couche mince — mappe HTTP → Mediator, aucune logique métier.
+- **API** : REST Controller — mappe HTTP → Mediator, aucune logique métier.
 
 Règle d'or : les dépendances ne pointent **jamais** vers l'extérieur.
 
 ```
 Domain ← Application ← Infrastructure
-                     ← Api
+                     ← API
 ```
 
 ### Mediator maison (pas MediatR)
 
-On utilise le **Mediator Pattern source-generated** (`Mediator` NuGet, ou implémentation custom).
-Aucune référence à MediatR dans le projet.
+On utilise un **Mediator maison** (implémentation custom). Aucune référence à MediatR dans le projet.
+
+Les interfaces sont définies dans `Application/Common/Mediator/` :
+`ICommand<T>`, `IQuery<T>`, `ICommandHandler<,>`, `IQueryHandler<,>`, `IDispatcher`, `Dispatcher`, `Unit`.
+
+Les controllers injectent `IDispatcher` et appellent `await dispatcher.DispatchAsync(command, ct)`.
+Les handlers implémentent `HandleAsync(...)` retournant `Task<T>`.
 
 ```csharp
-// IQuery / ICommand / IQueryHandler / ICommandHandler définis dans Application/Common
+// Interfaces dans Application/Common/Mediator/
 public interface IQueryHandler<TQuery, TResult>
     where TQuery : IQuery<TResult>
 {
-    ValueTask<TResult> Handle(TQuery query, CancellationToken ct);
+    Task<TResult> HandleAsync(TQuery query, CancellationToken ct);
 }
 ```
 
+**Enregistrement DI** :
+- `Program.cs` ne fait que `builder.Services.AddScoped<IDispatcher, Dispatcher>();`.
+- L'auto-enregistrement des handlers (Scrutor) ET `AddValidatorsFromAssembly` se font dans
+  `AddInfrastructure(...)` (`Infrastructure/DependencyInjection.cs`) — pas dans `Program.cs`.
+- Le type marqueur d'assembly est `AssemblyMarker` (dans Application).
+
 ### EF Core — pas de Repository Pattern inutile
+
+**Un seul DbContext** : `ApplicationDbContext` (`Infrastructure/Persistence/`) hérite de
+`IdentityDbContext<AppUser, AppRole, Guid, ...>` ET implémente `IApplicationDbContext`. Il contient
+À LA FOIS les tables Identity ET les entités métier, dans la même base. Il n'y a PAS de
+`AppIdentityDbContext` ni de seconde chaîne de connexion.
+
+- Chaîne de connexion : clé `DefaultConnection`
+  (`Server=(localdb)\mssqllocaldb;Database=AbrisTempoDb;Trusted_Connection=true;MultipleActiveResultSets=true;TrustServerCertificate=True`).
+- Migrations dans `Infrastructure/Persistence/Migrations` (existantes : `InitialMigration`, `Fix_01_LaunchAPI`).
 
 Suivant la recommandation 2025-2026 (LevelUp, codewithmukesh) :
 - `IApplicationDbContext` est injecté **directement** dans les handlers.
@@ -174,7 +189,7 @@ public sealed record GetProductBySlugQuery(string Slug) : IQuery<ProductDto>;
 internal sealed class GetProductBySlugQueryHandler(IApplicationDbContext db)
     : IQueryHandler<GetProductBySlugQuery, ProductDto>
 {
-    public async ValueTask<ProductDto> Handle(
+    public async Task<ProductDto> HandleAsync(
         GetProductBySlugQuery query, CancellationToken ct)
     {
         var product = await db.Products
@@ -193,7 +208,7 @@ internal sealed class GetProductBySlugQueryHandler(IApplicationDbContext db)
 
 ## Validation
 
-- **FluentValidation** uniquement, dans Application. Jamais dans Domain ni Api.
+- **FluentValidation** uniquement, dans Application. Jamais dans Domain ni API.
 - `ValidationBehavior` (pipeline Mediator) lève `ValidationException` avant le handler.
 - Jamais de `ModelState.IsValid` manuel.
 - Validateurs dans le même dossier que leur Command/Query.
@@ -202,9 +217,18 @@ internal sealed class GetProductBySlugQueryHandler(IApplicationDbContext db)
 
 ## Sécurité
 
-- Tous les endpoints nécessitent `RequireAuthorization()` par défaut.
-- Endpoints publics : `.AllowAnonymous()` explicite (décision consciente).
-- Constantes de rôles dans `Domain/Constants/Roles.cs` (couche la plus intérieure).
+- **Pas de politique d'autorisation globale par défaut** : les endpoints ne sont PAS sécurisés
+  automatiquement. Ils requièrent un `[Authorize]` explicite ; les endpoints publics portent `[AllowAnonymous]`.
+- Identité : `AppUser : IdentityUser<Guid>` et `AppRole : IdentityRole<Guid>` dans
+  `Infrastructure/Identity/`. `AppUser` EST le client (pas d'entité `Customer` séparée) ; il possède
+  un `DefaultDeliveryAddress` de type `Address` (value object du Domain).
+- Constantes de rôles dans `Domain/Constants/Roles.cs` : `Customer`, `Staff`, `Admin`.
+- Politiques d'autorisation enregistrées : `StaffOrAbove` (Staff + Admin) et `AdminOnly`.
+- Compte admin par défaut seedé au démarrage par `IdentitySeeder.SeedAsync(app.Services)` :
+  email `admin@abrisauto.com`, mot de passe `Admin123!`, rôle `Admin`.
+- JWT (appsettings.json) : `Jwt:Issuer` = `AbrisAutoOutaouais.API`, `Jwt:Audience` = `AbrisAutoOutaouais.CLIENT`,
+  `Jwt:Key` présent en dev.
+- Routes API versionnées : `/api/v1/...` (ex. `/api/v1/products`).
 - JWT:Key, connection strings → `dotnet user-secrets` (dev) + Azure Key Vault / env vars (prod).
 
 ---
@@ -212,7 +236,7 @@ internal sealed class GetProductBySlugQueryHandler(IApplicationDbContext db)
 ## Gestion des erreurs
 
 - Exceptions domain (`NotFoundException`, `ConflictException`, `ForbiddenException`) depuis handlers.
-- `GlobalExceptionHandler` (IExceptionHandler) mappe vers RFC 9457 ProblemDetails.
+- `GlobalExceptionHandler` (`API/Middlewares/`) mappe vers RFC 9457 ProblemDetails.
 - Zéro try/catch dans les controllers.
 - `Result<T>` pour les chemins d'erreur attendus (pas d'exception pour flux normal).
 

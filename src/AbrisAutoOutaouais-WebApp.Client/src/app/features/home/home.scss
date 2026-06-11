@@ -2,6 +2,73 @@
 // Home — AbrisTempo Local
 // ============================================================
 
+// ── Catalogue (filtres par catégorie) ────────────────────────
+.catalog {
+  padding: var(--space-20) 0;
+  background: var(--color-bg-subtle);
+}
+
+.catalog__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: center;
+  margin-bottom: var(--space-10);
+}
+
+.catalog__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: var(--transition-fast);
+
+  &:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--color-focus-ring);
+  }
+
+  &--active {
+    color: var(--color-text-inverse);
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+  }
+}
+
+.catalog__chip-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.5rem;
+  padding: 0 var(--space-1);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  border-radius: var(--radius-full);
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.catalog__chip--active .catalog__chip-count {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.catalog__empty {
+  text-align: center;
+  color: var(--color-text-muted);
+  padding: var(--space-12) 0;
+}
+
 // ── Utilitaires locaux ────────────────────────────────────────
 .section-header {
   text-align: center;

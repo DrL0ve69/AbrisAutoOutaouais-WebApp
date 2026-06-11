@@ -13,13 +13,13 @@ describe('A11yModalComponent', () => {
       await render(A11yModalComponent);
 
       const btn = screen.getByRole('button', { name: /ouvrir/i });
-      expect(btn).not.null;
+      expect(btn).toBeInTheDocument();
     });
 
     it('la modale est absente du DOM à l\'état initial', async () => {
       await render(A11yModalComponent);
 
-      expect(screen.queryByRole('dialog')).not.null;
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
   });
 
@@ -32,7 +32,7 @@ describe('A11yModalComponent', () => {
 
       await user.click(screen.getByRole('button', { name: /ouvrir/i }));
 
-      expect(screen.getByRole('dialog')).not.null;
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
 
     //   it('la modale a aria-modal="true"', async () => {

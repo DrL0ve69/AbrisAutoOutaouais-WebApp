@@ -15,3 +15,4 @@ public sealed record ProductDto(
     bool IsAvailable,
     string CategoryName,
     IReadOnlyList<string> ImageUrls);
+

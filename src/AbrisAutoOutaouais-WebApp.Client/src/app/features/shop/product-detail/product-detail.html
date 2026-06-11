@@ -1,0 +1,107 @@
+<!-- ============================================================
+     Boutique — Détail produit
+     WCAG AA : h1 = nom du produit, image alt, disponibilité
+     annoncée (role=status), 404 géré, focus visible.
+============================================================ -->
+<section class="detail-page" aria-labelledby="detail-heading">
+  <div class="container">
+    <a routerLink="/boutique"
+       class="detail__back"
+       i18n="@@shop.detail.back">
+      ← Retour à la boutique
+    </a>
+
+    @if (loading()) {
+    <div class="detail__loading"
+         role="status"
+         aria-busy="true"
+         i18n="@@shop.detail.loading">
+      Chargement du produit…
+    </div>
+    } @else if (notFound() || !product()) {
+    <div class="detail__not-found" role="alert">
+      <h1 id="detail-heading" i18n="@@shop.detail.notFoundTitle">Produit introuvable</h1>
+      <p i18n="@@shop.detail.notFoundBody">
+        Le produit que vous cherchez n'existe pas ou n'est plus disponible.
+      </p>
+      <a routerLink="/boutique"
+         class="btn btn--primary"
+         i18n="@@shop.detail.notFoundCta">
+        Retour au catalogue
+      </a>
+    </div>
+    } @else {
+    <article class="detail" [attr.aria-label]="product()!.name">
+      <!-- Image -->
+      <div class="detail__media">
+        @if (product()!.thumbnailUrl) {
+        <img ngSrc="{{ product()!.thumbnailUrl! }}"
+             [alt]="product()!.name"
+             width="640"
+             height="480"
+             class="detail__image" />
+        } @else {
+        <div class="detail__image-placeholder" aria-hidden="true">
+          <span>📦</span>
+        </div>
+        }
+      </div>
+
+      <!-- Informations -->
+      <div class="detail__info">
+        <p class="detail__category"
+           [attr.aria-label]="'Catégorie : ' + product()!.categoryName">
+          {{ product()!.categoryName }}
+        </p>
+
+        <h1 id="detail-heading" class="detail__name">{{ product()!.name }}</h1>
+
+        <div class="detail__pricing">
+          <span class="detail__price"
+                [attr.aria-label]="'Prix : ' + (product()!.price | currency:'CAD':'symbol':'1.2-2':'fr-CA')">
+            {{ product()!.price | currency:'CAD':'symbol':'1.2-2':'fr-CA' }}
+          </span>
+          @if (product()!.rentalPrice) {
+          <span class="detail__rental"
+                [attr.aria-label]="'Location : ' + (product()!.rentalPrice! | currency:'CAD':'symbol':'1.2-2':'fr-CA') + ' par mois'">
+            <span i18n="@@shop.detail.rentLabel">Location</span> :
+            {{ product()!.rentalPrice! | currency:'CAD':'symbol':'1.2-2':'fr-CA' }}/<span
+              i18n="@@shop.detail.month">mois</span>
+          </span>
+          }
+        </div>
+
+        <!-- Disponibilité -->
+        <p class="detail__availability"
+           [class.is-available]="product()!.isAvailable"
+           [class.is-unavailable]="!product()!.isAvailable"
+           role="status">
+          @if (product()!.isAvailable) {
+          <span aria-hidden="true">✓</span>
+          <span i18n="@@shop.detail.available">En stock</span>
+          } @else {
+          <span aria-hidden="true">✗</span>
+          <span i18n="@@shop.detail.unavailable">Épuisé</span>
+          }
+        </p>
+
+        @if (product()!.description) {
+        <div class="detail__description">
+          <h2 i18n="@@shop.detail.descriptionTitle">Description</h2>
+          <p>{{ product()!.description }}</p>
+        </div>
+        }
+
+        <button type="button"
+                class="btn btn--primary btn--lg detail__add"
+                (click)="onAddToCart()"
+                [disabled]="!product()!.isAvailable"
+                [attr.aria-disabled]="!product()!.isAvailable"
+                i18n="@@shop.detail.addToCart">
+          Ajouter au panier
+        </button>
+      </div>
+    </article>
+    }
+  </div>
+</section>

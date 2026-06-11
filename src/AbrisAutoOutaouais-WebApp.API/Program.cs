@@ -4,6 +4,7 @@ using AbrisAutoOutaouais_WebApp.Application;
 using Asp.Versioning;
 using AbrisAutoOutaouais_WebApp.API.Middlewares;
 using AbrisAutoOutaouais_WebApp.Infrastructure.Identity;
+using AbrisAutoOutaouais_WebApp.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,8 +38,9 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// ── Seeder (rôles + compte admin) ─────────────────────────────────────────────
+// ── Seeders (rôles + compte admin, puis catalogue) ───────────────────────────
 await IdentitySeeder.SeedAsync(app.Services);
+await ProductSeeder.SeedAsync(app.Services);
 
 // ── Middleware pipeline ────────────────────────────────────────────────────────
 // Ordre CRITIQUE — ne pas modifier

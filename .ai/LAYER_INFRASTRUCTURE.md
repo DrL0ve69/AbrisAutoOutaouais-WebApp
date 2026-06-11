@@ -16,8 +16,8 @@ Domain et Application ne dépendent JAMAIS d'Infrastructure.
 ## Arborescence complète
 
 ```
-src/Infrastructure/
-├── Infrastructure.csproj
+src/AbrisAutoOutaouais-WebApp.Infrastructure/
+├── AbrisAutoOutaouais-WebApp.Infrastructure.csproj
 ├── DependencyInjection.cs          ← registration complète de tous les services
 │
 ├── Identity/                       ← AppUser ET AppRole vivent ICI
@@ -30,7 +30,7 @@ src/Infrastructure/
 │       └── AppUserConfiguration.cs ← IEntityTypeConfiguration<AppUser>
 │
 ├── Persistence/
-│   ├── ApplicationDbContext.cs     ← UNIQUE DbContext : IdentityDbContext<AppUser,AppRole,Guid>
+│   ├── ApplicationDbContext.cs     ← UNIQUE DbContext : IdentityDbContext<AppUser,AppRole,Guid,…>
 │   ├── DesignTimeDbContextFactory.cs ← pour dotnet ef migrations en CLI
 │   ├── Interceptors/
 │   │   ├── SoftDeleteInterceptor.cs   ← convertit Delete → IsDeleted=true
@@ -38,12 +38,11 @@ src/Infrastructure/
 │   ├── Configurations/             ← IEntityTypeConfiguration<T> par entité
 │   │   ├── ProductConfiguration.cs
 │   │   ├── ProductCategoryConfiguration.cs
-│   │   ├── ProductImageConfiguration.cs
 │   │   ├── OrderConfiguration.cs
 │   │   ├── OrderLineConfiguration.cs
 │   │   ├── RentalContractConfiguration.cs
 │   │   └── BookingSlotConfiguration.cs
-│   └── Migrations/                 ← générés par EF Core (ne pas modifier manuellement)
+│   └── Migrations/                 ← générés par EF Core (InitialMigration, Fix_01_LaunchAPI)
 │
 └── Services/
     ├── CurrentUserService.cs       ← implémente ICurrentUserService (claims HTTP)
@@ -54,25 +53,30 @@ src/Infrastructure/
 
 ---
 
-## Infrastructure.csproj
+## AbrisAutoOutaouais-WebApp.Infrastructure.csproj
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
-    <Nullable>enable</Nullable>
+    <RootNamespace>AbrisAutoOutaouais_WebApp.Infrastructure</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Domain\Domain.csproj" />
-    <ProjectReference Include="..\Application\Application.csproj" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer"           Version="10.*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools"               Version="10.*" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer"     Version="10.*" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt"                   Version="8.*" />
-    <PackageReference Include="Scrutor"                                            Version="5.*" />
-    <PackageReference Include="FluentValidation"                                   Version="12.*" />
+    <!-- Infrastructure ne référence QUE Application — Domain vient transitivement -->
+    <ProjectReference Include="..\AbrisAutoOutaouais-WebApp.Application\AbrisAutoOutaouais-WebApp.Application.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FluentValidation"                                  Version="12.1.1" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions"    Version="12.*" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer"           Version="10.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools"               Version="10.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design"              Version="10.0.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer"     Version="10.0.8" />
+    <PackageReference Include="Scrutor.AspNetCore"                                Version="3.3.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt"                   Version="8.0.1" />
   </ItemGroup>
 </Project>
 ```
@@ -84,7 +88,10 @@ src/Infrastructure/
 ### `Identity/AppUser.cs`
 
 ```csharp
-namespace Infrastructure.Identity;
+using Domain.ValueObjects;
+using Microsoft.AspNetCore.Identity;
+
+namespace AbrisAutoOutaouais_WebApp.Infrastructure.Identity;
 
 /// <summary>
 /// Utilisateur de l'application.
@@ -123,7 +130,7 @@ public sealed class AppUser : IdentityUser<Guid>
 ### `Identity/AppRole.cs`
 
 ```csharp
-namespace Infrastructure.Identity;
+namespace AbrisAutoOutaouais_WebApp.Infrastructure.Identity;
 
 /// <summary>Rôle étendu avec Guid comme PK (cohérence avec AppUser).</summary>
 public sealed class AppRole : IdentityRole<Guid>
@@ -138,7 +145,7 @@ public sealed class AppRole : IdentityRole<Guid>
 ### `Identity/Configurations/AppUserConfiguration.cs`
 
 ```csharp
-namespace Infrastructure.Identity.Configurations;
+namespace AbrisAutoOutaouais_WebApp.Infrastructure.Identity.Configurations;
 
 /// <summary>
 /// Configure les colonnes supplémentaires de AppUser dans AspNetUsers.
@@ -190,7 +197,7 @@ internal sealed class AppUserConfiguration : IEntityTypeConfiguration<AppUser>
 ### `Persistence/ApplicationDbContext.cs`
 
 ```csharp
-namespace Infrastructure.Persistence;
+namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence;
 
 /// <summary>
 /// DbContext UNIQUE — gère Identity ET les entités métier dans la même DB.
@@ -235,7 +242,7 @@ public sealed class ApplicationDbContext(
 ### `Persistence/DesignTimeDbContextFactory.cs`
 
 ```csharp
-namespace Infrastructure.Persistence;
+namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence;
 
 /// <summary>
 /// Permet d'exécuter "dotnet ef migrations add" depuis le CLI
@@ -264,7 +271,7 @@ public sealed class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<App
 ### `SoftDeleteInterceptor.cs`
 
 ```csharp
-namespace Infrastructure.Persistence.Interceptors;
+namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Interceptors;
 
 /// <summary>
 /// Intercepte les suppressions EF Core sur les entités ISoftDeletable.
@@ -302,7 +309,7 @@ public sealed class SoftDeleteInterceptor : SaveChangesInterceptor
 ### `AuditInterceptor.cs`
 
 ```csharp
-namespace Infrastructure.Persistence.Interceptors;
+namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Interceptors;
 
 public sealed class AuditInterceptor(ICurrentUserService? currentUser)
     : SaveChangesInterceptor
@@ -347,7 +354,7 @@ Toutes les configurations EF Core des entités métier. Pattern identique.
 ### `OrderConfiguration.cs`
 
 ```csharp
-namespace Infrastructure.Persistence.Configurations;
+namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Configurations;
 
 internal sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
 {
@@ -407,7 +414,7 @@ internal sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
 ### `ProductConfiguration.cs`
 
 ```csharp
-namespace Infrastructure.Persistence.Configurations;
+namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Configurations;
 
 internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
 {
@@ -447,7 +454,7 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
 ### `BookingSlotConfiguration.cs`
 
 ```csharp
-namespace Infrastructure.Persistence.Configurations;
+namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Configurations;
 
 internal sealed class BookingSlotConfiguration : IEntityTypeConfiguration<BookingSlot>
 {
@@ -492,7 +499,7 @@ Voir **IDENTITY.md** section 10 pour le code complet.
 ### `Services/DateTimeProvider.cs`
 
 ```csharp
-namespace Infrastructure.Services;
+namespace AbrisAutoOutaouais_WebApp.Infrastructure.Services;
 
 internal sealed class DateTimeProvider : IDateTimeProvider
 {
@@ -503,7 +510,7 @@ internal sealed class DateTimeProvider : IDateTimeProvider
 ### `Services/LocalFileStorageService.cs`
 
 ```csharp
-namespace Infrastructure.Services;
+namespace AbrisAutoOutaouais_WebApp.Infrastructure.Services;
 
 internal sealed class LocalFileStorageService(
     IWebHostEnvironment env,
@@ -550,7 +557,7 @@ internal sealed class LocalFileStorageService(
 ## DependencyInjection.cs
 
 ```csharp
-namespace Infrastructure;
+namespace AbrisAutoOutaouais_WebApp.Infrastructure;
 
 public static class DependencyInjection
 {
@@ -559,14 +566,14 @@ public static class DependencyInjection
     {
         // ── DbContext unique (Identity + domaine) ─────────────────────────────
         services.AddDbContext<ApplicationDbContext>(opts =>
-            opts.UseSqlServer(config.GetConnectionString("Default")!,
+            opts.UseSqlServer(config.GetConnectionString("DefaultConnection")!,
                 sql => sql.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
 
         services.AddScoped<IApplicationDbContext>(
             sp => sp.GetRequiredService<ApplicationDbContext>());
 
-        // ── Interceptors (Singleton car ils n'ont pas d'état mutable) ─────────
-        services.AddSingleton<SoftDeleteInterceptor>();
+        // ── Interceptors ──────────────────────────────────────────────────────
+        services.AddSingleton<SoftDeleteInterceptor>();  // sans état mutable
         services.AddScoped<AuditInterceptor>();   // Scoped car dépend de ICurrentUserService
 
         // ── ASP.NET Core Identity ─────────────────────────────────────────────
@@ -636,14 +643,14 @@ public static class DependencyInjection
 
         // ── Auto-enregistrement des handlers CQRS via Scrutor ─────────────────
         services.Scan(scan => scan
-            .FromAssemblies(typeof(Application.AssemblyMarker).Assembly)
+            .FromAssemblies(typeof(AssemblyMarker).Assembly)
             .AddClasses(c => c.AssignableTo(typeof(ICommandHandler<,>)))
                 .AsImplementedInterfaces().WithScopedLifetime()
             .AddClasses(c => c.AssignableTo(typeof(IQueryHandler<,>)))
                 .AsImplementedInterfaces().WithScopedLifetime());
 
         // ── FluentValidation ──────────────────────────────────────────────────
-        services.AddValidatorsFromAssembly(typeof(Application.AssemblyMarker).Assembly);
+        services.AddValidatorsFromAssembly(typeof(AssemblyMarker).Assembly);
 
         return services;
     }

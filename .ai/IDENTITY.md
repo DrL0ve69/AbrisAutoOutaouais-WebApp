@@ -94,7 +94,7 @@ ont une FK vers `AppUser.Id` via une navigation EF standard.
 
 ```
 src/
-├── Domain/              ← JAMAIS ici — IdentityUser vient d'ASP.NET Core (infra)
+├── AbrisAutoOutaouais-WebApp.Domain/   ← JAMAIS ici — IdentityUser vient d'ASP.NET Core (infra)
 │   ├── Constants/
 │   │   └── Roles.cs
 │   ├── Entities/
@@ -103,8 +103,7 @@ src/
 │   │   ├── Order.cs
 │   │   ├── OrderLine.cs
 │   │   ├── RentalContract.cs
-│   │   ├── BookingSlot.cs
-│   │   └── Customer.cs
+│   │   └── BookingSlot.cs
 │   ├── ValueObjects/
 │   │   ├── Address.cs
 │   │   ├── Money.cs
@@ -123,15 +122,16 @@ src/
 │   ├── Interfaces/
 │   │   ├── ISoftDeletable.cs
 │   │   └── IAuditableEntity.cs
-├── Application/         ← JAMAIS ici — couche métier ne dépend pas d'Identity
-├── Infrastructure/
-│   └── Identity/
-│       ├── AppUser.cs          ✅ ICI
-│       ├── AppRole.cs          ✅ ICI
-│       ├── TokenService.cs     ✅ ICI
-│       ├── IdentityService.cs  ✅ ICI
+├── AbrisAutoOutaouais-WebApp.Application/   ← JAMAIS ici — couche métier ne dépend pas d'Identity
+├── AbrisAutoOutaouais-WebApp.Infrastructure/
+│   ├── Identity/
+│   │   ├── AppUser.cs          ✅ ICI
+│   │   ├── AppRole.cs          ✅ ICI
+│   │   ├── TokenService.cs     ✅ ICI
+│   │   └── IdentityService.cs  ✅ ICI
+│   └── Persistence/
 │       └── Migrations/         ✅ ICI (une seule migration pour tout)
-└── Api/
+└── AbrisAutoOutaouais-WebApp.API/
 ```
 
 **Pourquoi Infrastructure ?**
@@ -148,7 +148,7 @@ Application communique avec Identity uniquement via :
 ## 3. Packages NuGet requis
 
 ```xml
-<!-- src/Infrastructure/Infrastructure.csproj -->
+<!-- src/AbrisAutoOutaouais-WebApp.Infrastructure/AbrisAutoOutaouais-WebApp.Infrastructure.csproj -->
 <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.*" />
 <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer"           Version="10.*" />
 <PackageReference Include="Microsoft.EntityFrameworkCore.Tools"               Version="10.*" />
@@ -156,7 +156,7 @@ Application communique avec Identity uniquement via :
 <PackageReference Include="System.IdentityModel.Tokens.Jwt"                   Version="8.*"  />
 <PackageReference Include="Scrutor"                                            Version="5.*"  />
 
-<!-- src/Api/Api.csproj -->
+<!-- src/AbrisAutoOutaouais-WebApp.API/AbrisAutoOutaouais-WebApp.API.csproj -->
 <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.*" />
 ```
 
@@ -167,7 +167,10 @@ Application communique avec Identity uniquement via :
 ### `Infrastructure/Identity/AppUser.cs`
 
 ```csharp
-namespace Infrastructure.Identity;
+using AbrisAutoOutaouais_WebApp.Domain.ValueObjects;
+using Microsoft.AspNetCore.Identity;
+
+namespace AbrisAutoOutaouais_WebApp.Infrastructure.Identity;
 
 /// <summary>
 /// Utilisateur de l'application — étend IdentityUser&lt;Guid&gt; directement.
@@ -189,9 +192,10 @@ public sealed class AppUser : IdentityUser<Guid>
     public string  PreferredLanguage { get; set; } = "fr";      // "fr" | "en"
 
     // ── Adresse de livraison par défaut (Owned Entity) ────────────────────
-    // Stockée dans AspNetUsers avec le préfixe "DeliveryAddress_"
-    // Null si l'utilisateur n'a pas encore fourni d'adresse
-    public DeliveryAddress? DefaultDeliveryAddress { get; set; }
+    // Type = Address, le Value Object de Domain.ValueObjects (Infrastructure
+    // peut référencer Domain). Stockée dans AspNetUsers avec colonnes préfixées.
+    // Null si l'utilisateur n'a pas encore fourni d'adresse.
+    public Address? DefaultDeliveryAddress { get; set; }
 
     // ── Audit ────────────────────────────────────────────────────────────────
     public DateTime  CreatedAt { get; set; } = DateTime.UtcNow;
@@ -209,31 +213,23 @@ public sealed class AppUser : IdentityUser<Guid>
 
 ---
 
-### `Infrastructure/Identity/DeliveryAddress.cs`
+### Le type de l'adresse — `Domain.ValueObjects.Address`
 
-```csharp
-namespace Infrastructure.Identity;
-
-/// <summary>
-/// Owned Entity — stockée dans AspNetUsers, pas dans une table séparée.
-/// Configurée via AppUserConfiguration.
-/// </summary>
-public sealed class DeliveryAddress
-{
-    public string  Street     { get; set; } = string.Empty;
-    public string  City       { get; set; } = string.Empty;
-    public string  Province   { get; set; } = "QC";
-    public string  PostalCode { get; set; } = string.Empty;
-    public string  Country    { get; set; } = "Canada";
-}
-```
+> ⚠️ **Pas de classe `DeliveryAddress` définie dans Infrastructure.**
+> `AppUser.DefaultDeliveryAddress` est de type `Address`, le **Value Object** qui vit
+> déjà dans `AbrisAutoOutaouais_WebApp.Domain.ValueObjects`. Infrastructure peut
+> référencer Domain (la dépendance pointe vers l'intérieur), donc on réutilise ce VO
+> au lieu d'en redéfinir un copié-collé.
+>
+> Ce `Address` est mappé comme **Owned Entity** sur `AppUser` via `AppUserConfiguration`
+> (colonnes préfixées dans `AspNetUsers`, voir section 6) — aucune table séparée.
 
 ---
 
 ### `Infrastructure/Identity/AppRole.cs`
 
 ```csharp
-namespace Infrastructure.Identity;
+namespace AbrisAutoOutaouais_WebApp.Infrastructure.Identity;
 
 /// <summary>
 /// Rôle étendu — Guid comme PK (cohérence avec AppUser).
@@ -255,7 +251,7 @@ public sealed class AppRole : IdentityRole<Guid>
 ### `Infrastructure/Persistence/ApplicationDbContext.cs`
 
 ```csharp
-namespace Infrastructure.Persistence;
+namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence;
 
 /// <summary>
 /// DbContext unique qui gère à la fois les tables Identity ET les entités métier.
@@ -311,7 +307,7 @@ public sealed class ApplicationDbContext(
 ### `Infrastructure/Identity/Configurations/AppUserConfiguration.cs`
 
 ```csharp
-namespace Infrastructure.Identity.Configurations;
+namespace AbrisAutoOutaouais_WebApp.Infrastructure.Identity.Configurations;
 
 internal sealed class AppUserConfiguration : IEntityTypeConfiguration<AppUser>
 {
@@ -402,7 +398,7 @@ Ces interfaces permettent aux handlers CQRS d'interagir avec Identity
 ### `Application/Common/Interfaces/IIdentityService.cs`
 
 ```csharp
-namespace Application.Common.Interfaces;
+namespace AbrisAutoOutaouais_WebApp.Application.Common.Interfaces;
 
 /// <summary>
 /// Abstraction des opérations Identity — implémentée dans Infrastructure.
@@ -453,7 +449,7 @@ public interface IIdentityService
 ### `Application/Common/Interfaces/ICurrentUserService.cs`
 
 ```csharp
-namespace Application.Common.Interfaces;
+namespace AbrisAutoOutaouais_WebApp.Application.Common.Interfaces;
 
 /// <summary>
 /// Fournit l'identité de l'utilisateur courant depuis le contexte HTTP.
@@ -486,7 +482,7 @@ public interface ICurrentUserService
 ### `Application/Auth/DTOs/AuthDtos.cs`
 
 ```csharp
-namespace Application.Auth.DTOs;
+namespace AbrisAutoOutaouais_WebApp.Application.Auth.DTOs;
 
 /// <summary>Réponse retournée après login ou register réussi.</summary>
 public sealed record AuthResponse(
@@ -533,7 +529,7 @@ public sealed record UpdateProfileRequest(
 ### `Infrastructure/Identity/TokenService.cs`
 
 ```csharp
-namespace Infrastructure.Identity;
+namespace AbrisAutoOutaouais_WebApp.Infrastructure.Identity;
 
 /// <summary>
 /// Génère les JWT tokens avec les claims de l'utilisateur.
@@ -607,7 +603,7 @@ public sealed class TokenService(IConfiguration config)
 ### `Infrastructure/Identity/IdentityService.cs`
 
 ```csharp
-namespace Infrastructure.Identity;
+namespace AbrisAutoOutaouais_WebApp.Infrastructure.Identity;
 
 /// <summary>
 /// Implémente IIdentityService — façade vers UserManager + SignInManager + TokenService.
@@ -705,14 +701,9 @@ internal sealed class IdentityService(
 
         if (request.DefaultDeliveryAddress is { } addr)
         {
-            user.DefaultDeliveryAddress = new DeliveryAddress
-            {
-                Street     = addr.Street,
-                City       = addr.City,
-                Province   = addr.Province,
-                PostalCode = addr.PostalCode,
-                Country    = addr.Country,
-            };
+            // Address est le Value Object de Domain.ValueObjects (factory immuable).
+            user.DefaultDeliveryAddress = Address.Create(
+                addr.Street, addr.City, addr.Province, addr.PostalCode, addr.Country);
         }
 
         var result = await userManager.UpdateAsync(user);
@@ -795,7 +786,7 @@ internal sealed class IdentityService(
 ### `Infrastructure/Services/CurrentUserService.cs`
 
 ```csharp
-namespace Infrastructure.Services;
+namespace AbrisAutoOutaouais_WebApp.Infrastructure.Services;
 
 /// <summary>
 /// Lit les claims du JWT depuis IHttpContextAccessor.
@@ -847,14 +838,14 @@ internal sealed class CurrentUserService(IHttpContextAccessor accessor)
 ### `Application/Auth/Commands/Register/RegisterCommand.cs`
 
 ```csharp
-namespace Application.Auth.Commands.Register;
+namespace AbrisAutoOutaouais_WebApp.Application.Auth.Commands.Register;
 
 public sealed record RegisterCommand(
     string Email,
-    string FirstName,
-    string LastName,
     string Password,
-    string ConfirmPassword) : ICommand<AuthResponse>;
+    string ConfirmPassword,
+    string FirstName,
+    string LastName) : ICommand<AuthResponse>;
 ```
 
 ---
@@ -862,7 +853,7 @@ public sealed record RegisterCommand(
 ### `Application/Auth/Commands/Register/RegisterCommandValidator.cs`
 
 ```csharp
-namespace Application.Auth.Commands.Register;
+namespace AbrisAutoOutaouais_WebApp.Application.Auth.Commands.Register;
 
 public sealed class RegisterCommandValidator : AbstractValidator<RegisterCommand>
 {
@@ -900,12 +891,12 @@ public sealed class RegisterCommandValidator : AbstractValidator<RegisterCommand
 ### `Application/Auth/Commands/Register/RegisterCommandHandler.cs`
 
 ```csharp
-namespace Application.Auth.Commands.Register;
+namespace AbrisAutoOutaouais_WebApp.Application.Auth.Commands.Register;
 
 internal sealed class RegisterCommandHandler(IIdentityService identity)
     : ICommandHandler<RegisterCommand, AuthResponse>
 {
-    public async ValueTask<AuthResponse> Handle(
+    public async Task<AuthResponse> HandleAsync(
         RegisterCommand cmd, CancellationToken ct)
     {
         var (result, _) = await identity.CreateUserAsync(
@@ -928,7 +919,7 @@ internal sealed class RegisterCommandHandler(IIdentityService identity)
 ### `Application/Auth/Commands/Login/LoginCommand.cs`
 
 ```csharp
-namespace Application.Auth.Commands.Login;
+namespace AbrisAutoOutaouais_WebApp.Application.Auth.Commands.Login;
 
 public sealed record LoginCommand(string Email, string Password) : ICommand<AuthResponse>;
 ```
@@ -938,7 +929,7 @@ public sealed record LoginCommand(string Email, string Password) : ICommand<Auth
 ### `Application/Auth/Commands/Login/LoginCommandValidator.cs`
 
 ```csharp
-namespace Application.Auth.Commands.Login;
+namespace AbrisAutoOutaouais_WebApp.Application.Auth.Commands.Login;
 
 public sealed class LoginCommandValidator : AbstractValidator<LoginCommand>
 {
@@ -959,12 +950,12 @@ public sealed class LoginCommandValidator : AbstractValidator<LoginCommand>
 ### `Application/Auth/Commands/Login/LoginCommandHandler.cs`
 
 ```csharp
-namespace Application.Auth.Commands.Login;
+namespace AbrisAutoOutaouais_WebApp.Application.Auth.Commands.Login;
 
 internal sealed class LoginCommandHandler(IIdentityService identity)
     : ICommandHandler<LoginCommand, AuthResponse>
 {
-    public async ValueTask<AuthResponse> Handle(
+    public async Task<AuthResponse> HandleAsync(
         LoginCommand cmd, CancellationToken ct)
     {
         var auth = await identity.LoginAsync(cmd.Email, cmd.Password, ct);
@@ -981,7 +972,7 @@ internal sealed class LoginCommandHandler(IIdentityService identity)
 ### `Application/Auth/Queries/GetMyProfile/GetMyProfileQuery.cs`
 
 ```csharp
-namespace Application.Auth.Queries.GetMyProfile;
+namespace AbrisAutoOutaouais_WebApp.Application.Auth.Queries.GetMyProfile;
 
 public sealed record GetMyProfileQuery : IQuery<UserProfileDto>;
 ```
@@ -991,14 +982,14 @@ public sealed record GetMyProfileQuery : IQuery<UserProfileDto>;
 ### `Application/Auth/Queries/GetMyProfile/GetMyProfileQueryHandler.cs`
 
 ```csharp
-namespace Application.Auth.Queries.GetMyProfile;
+namespace AbrisAutoOutaouais_WebApp.Application.Auth.Queries.GetMyProfile;
 
 internal sealed class GetMyProfileQueryHandler(
     IIdentityService    identity,
     ICurrentUserService currentUser)
     : IQueryHandler<GetMyProfileQuery, UserProfileDto>
 {
-    public async ValueTask<UserProfileDto> Handle(
+    public async Task<UserProfileDto> HandleAsync(
         GetMyProfileQuery query, CancellationToken ct)
     {
         var profile = await identity.GetUserProfileAsync(currentUser.UserId, ct);
@@ -1014,13 +1005,13 @@ internal sealed class GetMyProfileQueryHandler(
 ## 12. AuthController
 
 ```csharp
-namespace Api.Controllers;
+namespace AbrisAutoOutaouais_WebApp.API.Controllers;
 
 /// <summary>Endpoints d'authentification — mince, délègue tout au Dispatcher.</summary>
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/auth")]
-public sealed class AuthController(Dispatcher dispatcher) : ControllerBase
+public sealed class AuthController(IDispatcher dispatcher) : ControllerBase
 {
     /// <summary>Créer un compte.</summary>
     [HttpPost("register")]
@@ -1030,7 +1021,7 @@ public sealed class AuthController(Dispatcher dispatcher) : ControllerBase
     public async Task<IActionResult> Register(
         [FromBody] RegisterCommand cmd, CancellationToken ct)
     {
-        var result = await dispatcher.Send(cmd, ct);
+        var result = await dispatcher.DispatchAsync(cmd, ct);
         return Ok(result);
     }
 
@@ -1042,7 +1033,7 @@ public sealed class AuthController(Dispatcher dispatcher) : ControllerBase
     public async Task<IActionResult> Login(
         [FromBody] LoginCommand cmd, CancellationToken ct)
     {
-        var result = await dispatcher.Send(cmd, ct);
+        var result = await dispatcher.DispatchAsync(cmd, ct);
         return Ok(result);
     }
 
@@ -1053,7 +1044,7 @@ public sealed class AuthController(Dispatcher dispatcher) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Me(CancellationToken ct)
     {
-        var result = await dispatcher.Query(new GetMyProfileQuery(), ct);
+        var result = await dispatcher.DispatchAsync(new GetMyProfileQuery(), ct);
         return Ok(result);
     }
 
@@ -1064,7 +1055,7 @@ public sealed class AuthController(Dispatcher dispatcher) : ControllerBase
     public async Task<IActionResult> UpdateProfile(
         [FromBody] UpdateProfileCommand cmd, CancellationToken ct)
     {
-        var result = await dispatcher.Send(cmd, ct);
+        var result = await dispatcher.DispatchAsync(cmd, ct);
         return Ok(result);
     }
 
@@ -1075,7 +1066,7 @@ public sealed class AuthController(Dispatcher dispatcher) : ControllerBase
     public async Task<IActionResult> ChangePassword(
         [FromBody] ChangePasswordCommand cmd, CancellationToken ct)
     {
-        await dispatcher.Send(cmd, ct);
+        await dispatcher.DispatchAsync(cmd, ct);
         return NoContent();
     }
 
@@ -1086,7 +1077,7 @@ public sealed class AuthController(Dispatcher dispatcher) : ControllerBase
     public async Task<IActionResult> AssignRole(
         Guid userId, [FromBody] AssignRoleCommand cmd, CancellationToken ct)
     {
-        await dispatcher.Send(cmd with { UserId = userId }, ct);
+        await dispatcher.DispatchAsync(cmd with { UserId = userId }, ct);
         return NoContent();
     }
 }
@@ -1099,7 +1090,7 @@ public sealed class AuthController(Dispatcher dispatcher) : ControllerBase
 ### `Infrastructure/Identity/IdentitySeeder.cs`
 
 ```csharp
-namespace Infrastructure.Identity;
+namespace AbrisAutoOutaouais_WebApp.Infrastructure.Identity;
 
 /// <summary>
 /// Crée les rôles et le compte admin au premier démarrage.
@@ -1126,8 +1117,8 @@ public static class IdentitySeeder
         }
 
         // ── Compte Admin ───────────────────────────────────────────────────
-        const string adminEmail    = "admin@abristempo.local";
-        const string adminPassword = "Admin@123!";   // À changer via user-secrets en prod
+        const string adminEmail    = "admin@abrisauto.com";
+        const string adminPassword = "Admin123!";   // À changer via user-secrets en prod
 
         if (await userManager.FindByEmailAsync(adminEmail) is null)
         {
@@ -1165,7 +1156,7 @@ public static class IdentitySeeder
 ### `Infrastructure/DependencyInjection.cs` (section Identity)
 
 ```csharp
-namespace Infrastructure;
+namespace AbrisAutoOutaouais_WebApp.Infrastructure;
 
 public static class DependencyInjection
 {
@@ -1175,7 +1166,7 @@ public static class DependencyInjection
         // ── DbContext unique (Identity + domaine métier) ───────────────────
         services.AddDbContext<ApplicationDbContext>(opts =>
             opts.UseSqlServer(
-                config.GetConnectionString("Default"),
+                config.GetConnectionString("DefaultConnection")!,
                 sql => sql.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)
             ));
 
@@ -1251,10 +1242,10 @@ public static class DependencyInjection
             });
 
         // ── Authorization ─────────────────────────────────────────────────────
+        // On enregistre uniquement les policies nommées. Aucune default policy
+        // RequireAuthenticatedUser() n'est configurée actuellement — chaque endpoint
+        // décide via [Authorize] / [Authorize(Policy = "...")] / [AllowAnonymous].
         services.AddAuthorizationBuilder()
-            .SetDefaultPolicy(new AuthorizationPolicyBuilder()
-                .RequireAuthenticatedUser()
-                .Build())
             .AddPolicy("StaffOrAbove", policy =>
                 policy.RequireRole(Roles.Staff, Roles.Admin))
             .AddPolicy("AdminOnly", policy =>
@@ -1281,22 +1272,19 @@ public static class DependencyInjection
 ## 15. Program.cs
 
 ```csharp
-// src/Api/Program.cs
+// src/AbrisAutoOutaouais-WebApp.API/Program.cs
 
 var builder = WebApplication.CreateBuilder(args);
 
 // ── Infrastructure (DbContext + Identity + JWT + services) ────────────────────
+// NOTE : l'auto-enregistrement des handlers CQRS (Scrutor) ET
+// AddValidatorsFromAssembly(typeof(AssemblyMarker).Assembly) vivent dans
+// AddInfrastructure (Infrastructure/DependencyInjection.cs), pas ici.
 builder.Services.AddInfrastructure(builder.Configuration);
 
-// ── Mediator maison + FluentValidation ───────────────────────────────────────
-builder.Services.AddScoped<Dispatcher>();
-builder.Services.Scan(scan => scan
-    .FromAssemblies(typeof(Application.AssemblyMarker).Assembly)
-    .AddClasses(c => c.AssignableTo(typeof(ICommandHandler<,>)))
-        .AsImplementedInterfaces().WithScopedLifetime()
-    .AddClasses(c => c.AssignableTo(typeof(IQueryHandler<,>)))
-        .AsImplementedInterfaces().WithScopedLifetime());
-builder.Services.AddValidatorsFromAssembly(typeof(Application.AssemblyMarker).Assembly);
+// ── Mediator maison ───────────────────────────────────────────────────────────
+// Program.cs n'enregistre que le Dispatcher.
+builder.Services.AddScoped<IDispatcher, Dispatcher>();
 
 // ── Contrôleurs ───────────────────────────────────────────────────────────────
 builder.Services.AddControllers();
@@ -1328,15 +1316,17 @@ var app = builder.Build();
 await IdentitySeeder.SeedAsync(app.Services);
 
 // ── Middleware Pipeline ───────────────────────────────────────────────────────
-app.UseExceptionHandler();
-app.UseCors("Frontend");
-app.UseHttpsRedirection();
-app.UseAuthentication();    // ← Valide le JWT Bearer
-app.UseAuthorization();     // ← Applique les policies
-app.MapControllers();
+// Ordre CRITIQUE — ne pas modifier
+app.UseExceptionHandler();   // 1. Catch toutes les exceptions
+app.UseHttpsRedirection();   // 2. Force HTTPS
+app.UseStaticFiles();        // 3. wwwroot (uploads)
+app.UseCors("Frontend");     // 4. CORS avant auth
+app.UseAuthentication();     // 5. Valide le JWT Bearer
+app.UseAuthorization();      // 6. Applique les policies
+app.MapControllers();        // 7. Route vers les controllers
 
 if (app.Environment.IsDevelopment())
-    app.MapOpenApi();
+    app.MapOpenApi();        // Scalar UI en dev seulement
 
 await app.RunAsync();
 ```
@@ -1351,13 +1341,13 @@ await app.RunAsync();
   "AllowedOrigins": "http://localhost:4200",
 
   "ConnectionStrings": {
-    "Default": "Server=(localdb)\\mssqllocaldb;Database=AbrisTempoDb;Trusted_Connection=true;MultipleActiveResultSets=true;"
+    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=AbrisTempoDb;Trusted_Connection=true;MultipleActiveResultSets=true;"
   },
 
   "Jwt": {
     "Key": "REMPLACER_PAR_USER_SECRETS_EN_DEV",
-    "Issuer": "AbrisTempoLocal.Api",
-    "Audience": "AbrisTempoLocal.Client"
+    "Issuer": "AbrisAutoOutaouais.API",
+    "Audience": "AbrisAutoOutaouais.CLIENT"
   },
 
   "Logging": {
@@ -1384,22 +1374,19 @@ Une seule migration pour tout (Identity + domaine métier) :
 
 # 1. Créer la migration initiale
 dotnet ef migrations add InitialCreate \
-  --project src/Infrastructure \
-  --startup-project src/Api \
-  --context ApplicationDbContext \
+  --project src/AbrisAutoOutaouais-WebApp.Infrastructure \
+  --startup-project src/AbrisAutoOutaouais-WebApp.API \
   --output-dir Persistence/Migrations
 
 # 2. Appliquer
 dotnet ef database update \
-  --project src/Infrastructure \
-  --startup-project src/Api \
-  --context ApplicationDbContext
+  --project src/AbrisAutoOutaouais-WebApp.Infrastructure \
+  --startup-project src/AbrisAutoOutaouais-WebApp.API
 
 # Ajouter un champ à AppUser plus tard
 dotnet ef migrations add AddUserPreferences \
-  --project src/Infrastructure \
-  --startup-project src/Api \
-  --context ApplicationDbContext \
+  --project src/AbrisAutoOutaouais-WebApp.Infrastructure \
+  --startup-project src/AbrisAutoOutaouais-WebApp.API \
   --output-dir Persistence/Migrations
 ```
 

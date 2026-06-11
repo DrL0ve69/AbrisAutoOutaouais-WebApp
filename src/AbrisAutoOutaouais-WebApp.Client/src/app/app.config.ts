@@ -1,5 +1,11 @@
 import { ApplicationConfig, provideZoneChangeDetection, LOCALE_ID } from '@angular/core';
+import { registerLocaleData } from '@angular/common';
+import localeFrCa from '@angular/common/locales/fr-CA';
 import { provideRouter, withComponentInputBinding, withViewTransitions } from '@angular/router';
+
+// Enregistre les données de locale fr-CA — requises par les pipes utilisant 'fr-CA'
+// (CurrencyPipe), sinon NG0701 « Missing locale data » au rendu des prix.
+registerLocaleData(localeFrCa);
 import { provideHttpClient, withInterceptors, withFetch } from '@angular/common/http';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';

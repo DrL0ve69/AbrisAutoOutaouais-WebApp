@@ -9,40 +9,51 @@ Couche HTTP mince. Mappe les requêtes HTTP vers le Dispatcher et retourne le r�
 
 Un controller ne fait que trois choses :
 1. Recevoir la requête HTTP (binding automatique).
-2. Dispatcher vers Application (`await dispatcher.Send(cmd, ct)`).
+2. Dispatcher vers Application (`await dispatcher.DispatchAsync(cmd, ct)`).
 3. Retourner le résultat HTTP (`Ok(result)`, `Created(...)`, `NoContent()`).
 
+Le controller injecte `IDispatcher` (l'interface, pas la classe `Dispatcher`).
 Zéro `try/catch` — le `GlobalExceptionHandler` gère tout.
 
 ---
 
 ## Arborescence complète
 
+> **Namespaces** : tous les types Api vivent sous `AbrisAutoOutaouais_WebApp.API.*`
+> (API en MAJUSCULES, underscore). Le `GlobalExceptionHandler` est dans le
+> sous-dossier `Middlewares/`.
+
 ```
-src/Api/
-├── Api.csproj
+src/AbrisAutoOutaouais-WebApp.API/
+├── AbrisAutoOutaouais-WebApp.API.csproj
 ├── Program.cs                      ← composition root
 ├── appsettings.json
 ├── appsettings.Development.json    ← overrides dev (pas de secrets ici)
-├── GlobalExceptionHandler.cs       ← mappe exceptions → RFC 9457 ProblemDetails
+├── WeatherForecast.cs              ← résidu de scaffolding (à supprimer)
 │
-├── Controllers/
-│   ├── ProductsController.cs       ← GET /products, GET /products/{slug}, POST, PUT, DELETE
-│   ├── OrdersController.cs         ← POST /orders, GET /orders/my, GET /orders/{id}
-│   ├── RentalsController.cs        ← POST /rentals, GET /rentals/my, DELETE /rentals/{id}
-│   ├── BookingsController.cs       ← GET /bookings/available-slots, POST, GET /bookings/my
-│   └── AuthController.cs           ← POST /auth/login, POST /auth/register, GET /auth/me, PUT /auth/me
+├── Middlewares/
+│   └── GlobalExceptionHandler.cs   ← mappe exceptions → RFC 9457 ProblemDetails
 │
-└── wwwroot/
-    └── uploads/
-        └── products/               ← créer manuellement (mkdir -p wwwroot/uploads/products)
+└── Controllers/
+    ├── ProductsController.cs       ← GET /products, GET /products/{slug} (POST/PUT/DELETE à venir)
+    ├── OrdersController.cs         ← [Authorize] — endpoints à venir (squelette commenté)
+    ├── BookingsController.cs       ← GET /bookings/available-slots (POST/GET my à venir)
+    ├── AuthController.cs           ← POST /auth/register, POST /auth/login, GET /auth/me
+    └── WeatherForecastController.cs ← résidu de scaffolding (à supprimer)
 ```
+
+> **État actuel** : seuls quelques endpoints sont actifs. Les actions d'écriture
+> (POST/PUT/DELETE produits, commandes, réservations) existent souvent en commentaire
+> dans les controllers et seront décommentées au fur et à mesure. Il n'y a PAS encore
+> de `RentalsController`. Le dossier `wwwroot/uploads/products/` n'est pas créé par
+> défaut — à créer manuellement quand l'upload d'images sera branché.
 
 ---
 
 ## Api.csproj
 
 ```xml
+<!-- src/AbrisAutoOutaouais-WebApp.API/AbrisAutoOutaouais-WebApp.API.csproj -->
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -51,8 +62,8 @@ src/Api/
     <UserSecretsId>abristempo-api</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Application\Application.csproj" />
-    <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+    <ProjectReference Include="..\AbrisAutoOutaouais-WebApp.Application\AbrisAutoOutaouais-WebApp.Application.csproj" />
+    <ProjectReference Include="..\AbrisAutoOutaouais-WebApp.Infrastructure\AbrisAutoOutaouais-WebApp.Infrastructure.csproj" />
     <PackageReference Include="Asp.Versioning.Mvc"            Version="8.*" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi"   Version="10.*" />
   </ItemGroup>
@@ -64,14 +75,16 @@ src/Api/
 ## Program.cs
 
 ```csharp
-// src/Api/Program.cs
+// src/AbrisAutoOutaouais-WebApp.API/Program.cs
 var builder = WebApplication.CreateBuilder(args);
 
-// ── Infrastructure (DbContext, Identity, JWT, services) ───────────────────────
+// ── Infrastructure (DbContext, Identity, JWT, services, handlers Scrutor) ─────
+// AddInfrastructure enregistre AUSSI les handlers CQRS (Scrutor) et les validateurs
+// FluentValidation (AddValidatorsFromAssembly) — pas Program.cs.
 builder.Services.AddInfrastructure(builder.Configuration);
 
 // ── Mediator Dispatcher ───────────────────────────────────────────────────────
-builder.Services.AddScoped<Dispatcher>();
+builder.Services.AddScoped<IDispatcher, Dispatcher>();
 
 // ── Contrôleurs ───────────────────────────────────────────────────────────────
 builder.Services.AddControllers();
@@ -116,12 +129,31 @@ if (app.Environment.IsDevelopment())
 await app.RunAsync();
 ```
 
+> **Autorisation** : il n'y a **AUCUNE** politique globale « authentifié par défaut »
+> (pas de fallback policy). Les endpoints s'inscrivent explicitement à l'auth via
+> `[Authorize]`, et les endpoints publics portent `[AllowAnonymous]`. Les seules
+> politiques nommées enregistrées (dans `AddInfrastructure`) sont `StaffOrAbove`
+> et `AdminOnly`.
+
 ---
 
-## GlobalExceptionHandler.cs
+## Migrations EF Core (un seul DbContext)
+
+Depuis la racine de la solution :
+
+```bash
+dotnet ef migrations add <Name> \
+  --project src/AbrisAutoOutaouais-WebApp.Infrastructure \
+  --startup-project src/AbrisAutoOutaouais-WebApp.API \
+  --output-dir Persistence/Migrations
+```
+
+---
+
+## Middlewares/GlobalExceptionHandler.cs
 
 ```csharp
-namespace Api;
+namespace AbrisAutoOutaouais_WebApp.API.Middlewares;
 
 /// <summary>
 /// Mappe les exceptions Domain vers RFC 9457 ProblemDetails.
@@ -175,23 +207,26 @@ internal sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> log
 
 ### `Controllers/ProductsController.cs`
 
+Variante de référence : route versionnée + primary constructor + `sealed`.
+
 ```csharp
-namespace Api.Controllers;
+namespace AbrisAutoOutaouais_WebApp.API.Controllers;
 
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
-public sealed class ProductsController(Dispatcher dispatcher) : ControllerBase
+public sealed class ProductsController(IDispatcher dispatcher) : ControllerBase
 {
     /// <summary>Liste paginée + filtres.</summary>
     [HttpGet]
     [AllowAnonymous]
-    [ProducesResponseType<PaginatedList<ProductSummaryDto>>(200)]
+    [ProducesResponseType<PaginatedList<ProductDto>>(200)]
     public async Task<IActionResult> GetAll(
         [FromQuery] int page = 1, [FromQuery] int pageSize = 12,
         [FromQuery] string? category = null, [FromQuery] string? search = null,
         CancellationToken ct = default)
-        => Ok(await dispatcher.Query(new GetProductsQuery(page, pageSize, category, search), ct));
+        => Ok(await dispatcher.DispatchAsync(
+            new GetAllProductsQuery(page, pageSize, category, search), ct));
 
     /// <summary>Détail par slug (URL SEO-friendly).</summary>
     [HttpGet("{slug}")]
@@ -199,99 +234,62 @@ public sealed class ProductsController(Dispatcher dispatcher) : ControllerBase
     [ProducesResponseType<ProductDto>(200)]
     [ProducesResponseType<ProblemDetails>(404)]
     public async Task<IActionResult> GetBySlug(string slug, CancellationToken ct)
-        => Ok(await dispatcher.Query(new GetProductBySlugQuery(slug), ct));
+        => Ok(await dispatcher.DispatchAsync(new GetProductBySlugQuery(slug), ct));
 
-    /// <summary>Créer un produit.</summary>
-    [HttpPost]
-    [Authorize(Roles = Roles.Admin)]
-    [ProducesResponseType<Guid>(201)]
-    [ProducesResponseType<ProblemDetails>(422)]
-    public async Task<IActionResult> Create(
-        [FromBody] CreateProductCommand cmd, CancellationToken ct)
-    {
-        var id = await dispatcher.Send(cmd, ct);
-        return CreatedAtAction(nameof(GetBySlug),
-            new { slug = cmd.Slug, version = "1.0" }, id);
-    }
-
-    /// <summary>Mettre à jour un produit.</summary>
-    [HttpPut("{id:guid}")]
-    [Authorize(Roles = Roles.Admin)]
-    [ProducesResponseType(204)]
-    public async Task<IActionResult> Update(
-        Guid id, [FromBody] UpdateProductCommand cmd, CancellationToken ct)
-    {
-        await dispatcher.Send(cmd with { Id = id }, ct);
-        return NoContent();
-    }
-
-    /// <summary>Supprimer un produit (soft delete).</summary>
-    [HttpDelete("{id:guid}")]
-    [Authorize(Roles = Roles.Admin)]
-    [ProducesResponseType(204)]
-    public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
-    {
-        await dispatcher.Send(new DeleteProductCommand(id), ct);
-        return NoContent();
-    }
+    // ── Endpoints d'écriture à venir (actuellement commentés dans le code) ──────
+    // POST   (Authorize Roles = Roles.Admin)  → CreateProductCommand
+    // PUT    {id:guid} (Authorize Roles = Admin) → UpdateProductCommand
+    // DELETE {id:guid} (Authorize Roles = Admin) → DeleteProductCommand (soft delete)
+    // Modèle d'écriture :
+    //   var id = await dispatcher.DispatchAsync(cmd, ct);
+    //   return CreatedAtAction(nameof(GetBySlug), new { slug = cmd.Slug, version = "1.0" }, id);
 }
 ```
 
 ### `Controllers/OrdersController.cs`
 
+Le controller est sécurisé au niveau classe (`[Authorize]`). Les actions sont encore
+en squelette commenté dans le code — modèle cible ci-dessous.
+
 ```csharp
-namespace Api.Controllers;
+namespace AbrisAutoOutaouais_WebApp.API.Controllers;
 
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
 [Authorize]  // Toutes les routes nécessitent une authentification
-public sealed class OrdersController(Dispatcher dispatcher) : ControllerBase
+public sealed class OrdersController(IDispatcher dispatcher) : ControllerBase
 {
+    // ── À venir (actuellement commentés dans le code) ───────────────────────────
+
     /// <summary>Passer une commande.</summary>
-    [HttpPost]
-    [ProducesResponseType<Guid>(201)]
-    [ProducesResponseType<ProblemDetails>(422)]
-    public async Task<IActionResult> PlaceOrder(
-        [FromBody] PlaceOrderCommand cmd, CancellationToken ct)
-    {
-        var id = await dispatcher.Send(cmd, ct);
-        return CreatedAtAction(nameof(GetById), new { id, version = "1.0" }, id);
-    }
+    // [HttpPost] → PlaceOrderCommand
+    //   var id = await dispatcher.DispatchAsync(cmd, ct);
+    //   return CreatedAtAction(nameof(GetById), new { id, version = "1.0" }, id);
 
     /// <summary>Mes commandes.</summary>
-    [HttpGet("my")]
-    [ProducesResponseType<IReadOnlyList<OrderSummaryDto>>(200)]
-    public async Task<IActionResult> GetMy(CancellationToken ct)
-        => Ok(await dispatcher.Query(new GetMyOrdersQuery(), ct));
+    // [HttpGet("my")] → GetMyOrdersQuery
 
     /// <summary>Détail d'une commande.</summary>
-    [HttpGet("{id:guid}")]
-    [ProducesResponseType<OrderDetailDto>(200)]
-    [ProducesResponseType<ProblemDetails>(404)]
-    public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
-        => Ok(await dispatcher.Query(new GetOrderByIdQuery(id), ct));
+    // [HttpGet("{id:guid}")] → GetOrderByIdQuery
 
     /// <summary>Annuler une commande.</summary>
-    [HttpPost("{id:guid}/cancel")]
-    [ProducesResponseType(204)]
-    public async Task<IActionResult> Cancel(Guid id, CancellationToken ct)
-    {
-        await dispatcher.Send(new CancelOrderCommand(id), ct);
-        return NoContent();
-    }
+    // [HttpPost("{id:guid}/cancel")] → CancelOrderCommand
 }
 ```
 
 ### `Controllers/BookingsController.cs`
 
+Seul `available-slots` (public) est actif aujourd'hui ; les autres actions sont
+commentées. La confirmation d'un créneau utilise la politique nommée `StaffOrAbove`.
+
 ```csharp
-namespace Api.Controllers;
+namespace AbrisAutoOutaouais_WebApp.API.Controllers;
 
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
-public sealed class BookingsController(Dispatcher dispatcher) : ControllerBase
+public sealed class BookingsController(IDispatcher dispatcher) : ControllerBase
 {
     /// <summary>Créneaux disponibles (public — pour afficher le calendrier).</summary>
     [HttpGet("available-slots")]
@@ -299,52 +297,70 @@ public sealed class BookingsController(Dispatcher dispatcher) : ControllerBase
     [ProducesResponseType<IReadOnlyList<AvailableSlotDto>>(200)]
     public async Task<IActionResult> GetAvailableSlots(
         [FromQuery] DateOnly from, [FromQuery] DateOnly to, CancellationToken ct)
-        => Ok(await dispatcher.Query(new GetAvailableSlotsQuery(from, to), ct));
+        => Ok(await dispatcher.DispatchAsync(new GetAvailableSlotsQuery(from, to), ct));
 
-    /// <summary>Réserver un créneau.</summary>
-    [HttpPost]
-    [Authorize]
-    [ProducesResponseType<Guid>(201)]
-    [ProducesResponseType<ProblemDetails>(409)]
-    public async Task<IActionResult> Create(
-        [FromBody] CreateBookingCommand cmd, CancellationToken ct)
-    {
-        var id = await dispatcher.Send(cmd, ct);
-        return CreatedAtAction(nameof(GetMy), new { version = "1.0" }, id);
-    }
-
-    /// <summary>Mes réservations.</summary>
-    [HttpGet("my")]
-    [Authorize]
-    [ProducesResponseType<IReadOnlyList<BookingSummaryDto>>(200)]
-    public async Task<IActionResult> GetMy(CancellationToken ct)
-        => Ok(await dispatcher.Query(new GetMyBookingsQuery(), ct));
-
-    /// <summary>Confirmer un créneau (Staff/Admin).</summary>
-    [HttpPost("{id:guid}/confirm")]
-    [Authorize(Policy = "StaffOrAbove")]
-    [ProducesResponseType(204)]
-    public async Task<IActionResult> Confirm(Guid id, CancellationToken ct)
-    {
-        await dispatcher.Send(new ConfirmBookingCommand(id), ct);
-        return NoContent();
-    }
-
-    /// <summary>Annuler un créneau.</summary>
-    [HttpPost("{id:guid}/cancel")]
-    [Authorize]
-    [ProducesResponseType(204)]
-    public async Task<IActionResult> Cancel(Guid id, CancellationToken ct)
-    {
-        await dispatcher.Send(new CancelBookingCommand(id), ct);
-        return NoContent();
-    }
+    // ── À venir (actuellement commentés dans le code) ───────────────────────────
+    // [HttpPost] [Authorize]                          → CreateBookingCommand
+    // [HttpGet("my")] [Authorize]                     → GetMyBookingsQuery
+    // [HttpPost("{id:guid}/confirm")] [Authorize(Policy = "StaffOrAbove")] → ConfirmBookingCommand
+    // [HttpPost("{id:guid}/cancel")] [Authorize]      → CancelBookingCommand
 }
 ```
 
 ### `Controllers/AuthController.cs`
 
-Voir **IDENTITY.md** section 12 pour le code complet.
+Variante plus simple : route en dur `api/v1/[controller]` (pas le template versionné),
+classe non-`sealed`, constructeur classique. Renvoie le `Result<AuthResponse>` du handler
+en HTTP (`Ok`/`BadRequest`/`Unauthorized`). Voir **IDENTITY.md** pour les détails Identity.
+
+```csharp
+namespace AbrisAutoOutaouais_WebApp.API.Controllers;
+
+[ApiController]
+[Route("api/v1/[controller]")]
+public class AuthController : ControllerBase
+{
+    private readonly IDispatcher _dispatcher;
+
+    public AuthController(IDispatcher dispatcher) => _dispatcher = dispatcher;
+
+    /// <summary>Enregistre un nouvel utilisateur.</summary>
+    [HttpPost("register")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Register(
+        [FromBody] RegisterCommand request, CancellationToken cancellationToken)
+    {
+        var result = await _dispatcher.DispatchAsync(request, cancellationToken);
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : BadRequest(new { error = result.Error });
+    }
+
+    /// <summary>Connecte un utilisateur.</summary>
+    [HttpPost("login")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Login(
+        [FromBody] LoginCommand request, CancellationToken cancellationToken)
+    {
+        var result = await _dispatcher.DispatchAsync(request, cancellationToken);
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : Unauthorized(new { error = result.Error });
+    }
+
+    /// <summary>Récupère l'utilisateur actuel.</summary>
+    [HttpGet("me")]
+    [Authorize]
+    public IActionResult GetCurrentUser(
+        [FromServices] ICurrentUserService currentUserService)
+        => Ok(new
+        {
+            userId = currentUserService.UserId,
+            email  = currentUserService.Email,
+            roles  = currentUserService.Roles,
+        });
+}
+```
 
 ---
 
@@ -353,16 +369,16 @@ Voir **IDENTITY.md** section 12 pour le code complet.
 ```json
 {
   "AllowedHosts": "*",
-  "AllowedOrigins": "http://localhost:4200",
+  "AllowedOrigins": "http://localhost:4200,https://localhost:4200,http://127.0.0.1:4200",
 
   "ConnectionStrings": {
-    "Default": "REMPLACER_PAR_USER_SECRETS"
+    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=AbrisTempoDb;Trusted_Connection=true;MultipleActiveResultSets=true;TrustServerCertificate=True"
   },
 
   "Jwt": {
     "Key":      "REMPLACER_PAR_USER_SECRETS",
-    "Issuer":   "AbrisTempoLocal.Api",
-    "Audience": "AbrisTempoLocal.Client"
+    "Issuer":   "AbrisAutoOutaouais.API",
+    "Audience": "AbrisAutoOutaouais.CLIENT"
   },
 
   "Logging": {
@@ -396,7 +412,7 @@ Voir **IDENTITY.md** section 12 pour le code complet.
 |--------------------|--------------------------|
 | Controllers (minces) | Logique métier |
 | Program.cs | Requêtes LINQ |
-| GlobalExceptionHandler | Validateurs FluentValidation |
+| GlobalExceptionHandler (`Middlewares/`) | Validateurs FluentValidation |
 | appsettings.json | Accès DbContext direct |
-| wwwroot | AppUser / Identity |
-| Middleware pipeline | DTOs Application |
+| Pipeline middleware + versioning API | AppUser / Identity |
+| Politiques d'auth (`[Authorize]` / `[AllowAnonymous]`) | DTOs Application |

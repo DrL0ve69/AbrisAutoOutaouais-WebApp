@@ -15,8 +15,8 @@ Seuls les namespaces `System.*` sont acceptables.
 ## Arborescence complète
 
 ```
-src/Domain/
-├── Domain.csproj
+src/AbrisAutoOutaouais-WebApp.Domain/
+├── AbrisAutoOutaouais-WebApp.Domain.csproj
 │
 ├── Constants/
 │   └── Roles.cs                    ← rôles métier (string constants)
@@ -32,7 +32,8 @@ src/Domain/
 │
 ├── ValueObjects/
 │   ├── Address.cs                  ← adresse (Order, BookingSlot, AppUser)
-│   └── Money.cs                    ← montant avec devise
+│   ├── Money.cs                    ← montant avec devise
+│   └── PhoneNumber.cs              ← numéro de téléphone (ébauche)
 │
 ├── Enums/
 │   ├── OrderStatus.cs
@@ -48,15 +49,18 @@ src/Domain/
 │   └── RentalCreatedEvent.cs
 │
 ├── Exceptions/
-│   ├── NotFoundException.cs
-│   ├── ConflictException.cs
-│   ├── ForbiddenException.cs
-│   └── BusinessRuleException.cs
+│   └── DomainExceptions.cs         ← TOUTES les exceptions dans UN seul fichier
+│                                     (NotFoundException, ConflictException,
+│                                      ForbiddenException, BusinessRuleException)
 │
 └── Interfaces/
     ├── ISoftDeletable.cs
     └── IAuditableEntity.cs
 ```
+
+> **Namespaces** : tous les types Domain vivent sous le préfixe complet
+> `AbrisAutoOutaouais_WebApp.Domain.*` (underscore, pas de tiret). Ex :
+> `AbrisAutoOutaouais_WebApp.Domain.Entities`, `…Domain.Exceptions`, etc.
 
 > **`AppUser` n'est PAS ici.** Il vit dans `Infrastructure/Identity/` car il hérite
 > de `IdentityUser<Guid>` (ASP.NET Core Identity = dépendance d'infrastructure).
@@ -67,6 +71,7 @@ src/Domain/
 ## Domain.csproj
 
 ```xml
+<!-- src/AbrisAutoOutaouais-WebApp.Domain/AbrisAutoOutaouais-WebApp.Domain.csproj -->
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -88,7 +93,7 @@ Défini dans Domain (couche la plus intérieure) pour être accessible depuis
 Application, Infrastructure ET Api sans violer les règles de dépendance.
 
 ```csharp
-namespace Domain.Constants;
+namespace AbrisAutoOutaouais_WebApp.Domain.Constants;
 
 public static class Roles
 {
@@ -98,6 +103,7 @@ public static class Roles
 
     // Combinaisons pour [Authorize(Roles = Roles.StaffOrAbove)]
     public const string StaffOrAbove = $"{Staff},{Admin}";
+    public const string All          = $"{Customer},{Staff},{Admin}";
 }
 ```
 
@@ -111,7 +117,7 @@ Marqueur que le `SoftDeleteInterceptor` (Infrastructure) surveille.
 Toute entité qui implémente cette interface sera soft-deletée automatiquement.
 
 ```csharp
-namespace Domain.Interfaces;
+namespace AbrisAutoOutaouais_WebApp.Domain.Interfaces;
 
 public interface ISoftDeletable
 {
@@ -125,7 +131,7 @@ public interface ISoftDeletable
 Rempli automatiquement par `AuditInterceptor` (Infrastructure).
 
 ```csharp
-namespace Domain.Interfaces;
+namespace AbrisAutoOutaouais_WebApp.Domain.Interfaces;
 
 public interface IAuditableEntity
 {
@@ -143,38 +149,28 @@ public interface IAuditableEntity
 Convention : les handlers lancent ces exceptions, le `GlobalExceptionHandler` (Api)
 les mappe vers les codes HTTP appropriés.
 
-### `Exceptions/NotFoundException.cs`
+> Les quatre exceptions sont regroupées dans **UN SEUL fichier**
+> `Exceptions/DomainExceptions.cs` (pas un fichier par exception).
+
+### `Exceptions/DomainExceptions.cs`
 ```csharp
-namespace Domain.Exceptions;
+namespace AbrisAutoOutaouais_WebApp.Domain.Exceptions;
 
 /// <summary>→ HTTP 404</summary>
 public sealed class NotFoundException(string name, object key)
-    : Exception($"« {name} » (clé : {key}) introuvable.");
-```
-
-### `Exceptions/ConflictException.cs`
-```csharp
-namespace Domain.Exceptions;
+    : Exception($"Ressource « {name} » avec la clé « {key} » introuvable.");
 
 /// <summary>→ HTTP 409 (ex: slug déjà utilisé)</summary>
-public sealed class ConflictException(string message) : Exception(message);
-```
-
-### `Exceptions/ForbiddenException.cs`
-```csharp
-namespace Domain.Exceptions;
+public sealed class ConflictException(string message)
+    : Exception(message);
 
 /// <summary>→ HTTP 403 (authentifié mais pas autorisé)</summary>
 public sealed class ForbiddenException(string message)
     : Exception(message);
-```
-
-### `Exceptions/BusinessRuleException.cs`
-```csharp
-namespace Domain.Exceptions;
 
 /// <summary>→ HTTP 422 (règle métier violée)</summary>
-public sealed class BusinessRuleException(string message) : Exception(message);
+public sealed class BusinessRuleException(string message)
+    : Exception(message);
 ```
 
 ---
@@ -183,7 +179,7 @@ public sealed class BusinessRuleException(string message) : Exception(message);
 
 ```csharp
 // Enums/OrderStatus.cs
-namespace Domain.Enums;
+namespace AbrisAutoOutaouais_WebApp.Domain.Enums;
 
 public enum OrderStatus
 {
@@ -195,7 +191,7 @@ public enum OrderStatus
 }
 
 // Enums/DeliveryType.cs
-namespace Domain.Enums;
+namespace AbrisAutoOutaouais_WebApp.Domain.Enums;
 
 public enum DeliveryType
 {
@@ -204,7 +200,7 @@ public enum DeliveryType
 }
 
 // Enums/RentalStatus.cs
-namespace Domain.Enums;
+namespace AbrisAutoOutaouais_WebApp.Domain.Enums;
 
 public enum RentalStatus
 {
@@ -214,7 +210,7 @@ public enum RentalStatus
 }
 
 // Enums/BookingStatus.cs
-namespace Domain.Enums;
+namespace AbrisAutoOutaouais_WebApp.Domain.Enums;
 
 public enum BookingStatus
 {
@@ -225,7 +221,7 @@ public enum BookingStatus
 }
 
 // Enums/BookingType.cs
-namespace Domain.Enums;
+namespace AbrisAutoOutaouais_WebApp.Domain.Enums;
 
 public enum BookingType
 {
@@ -250,7 +246,7 @@ Défini UNE SEULE FOIS dans Domain. Utilisé par :
 - `AppUser.DefaultDeliveryAddress` (Infrastructure peut référencer Domain ✅)
 
 ```csharp
-namespace Domain.ValueObjects;
+namespace AbrisAutoOutaouais_WebApp.Domain.ValueObjects;
 
 /// <summary>
 /// Adresse immuable — Owned Entity dans EF Core.
@@ -292,7 +288,7 @@ public sealed class Address
 ### `ValueObjects/Money.cs`
 
 ```csharp
-namespace Domain.ValueObjects;
+namespace AbrisAutoOutaouais_WebApp.Domain.ValueObjects;
 
 public sealed class Money
 {
@@ -321,6 +317,19 @@ public sealed class Money
 }
 ```
 
+### `ValueObjects/PhoneNumber.cs`
+
+Présent dans le projet mais encore à l'état d'**ébauche** (classe vide). À compléter
+sur le même modèle immuable qu'`Address`/`Money` (factory `Create`, validation du format).
+
+```csharp
+namespace AbrisAutoOutaouais_WebApp.Domain.ValueObjects;
+
+public class PhoneNumber
+{
+}
+```
+
 ---
 
 ## Entities/
@@ -331,7 +340,7 @@ seule la méthode factory statique `Create()` peut créer un état valide.
 ### `Entities/ProductCategory.cs`
 
 ```csharp
-namespace Domain.Entities;
+namespace AbrisAutoOutaouais_WebApp.Domain.Entities;
 
 public sealed class ProductCategory : IAuditableEntity
 {
@@ -355,7 +364,7 @@ public sealed class ProductCategory : IAuditableEntity
 ### `Entities/Product.cs`
 
 ```csharp
-namespace Domain.Entities;
+namespace AbrisAutoOutaouais_WebApp.Domain.Entities;
 
 /// <summary>
 /// Produit du catalogue (abri simple, double, toile de remplacement, accessoire).
@@ -435,7 +444,7 @@ public sealed class Product : ISoftDeletable, IAuditableEntity
 ### `Entities/ProductImage.cs`
 
 ```csharp
-namespace Domain.Entities;
+namespace AbrisAutoOutaouais_WebApp.Domain.Entities;
 
 public sealed class ProductImage
 {
@@ -455,7 +464,7 @@ public sealed class ProductImage
 ### `Entities/Order.cs`
 
 ```csharp
-namespace Domain.Entities;
+namespace AbrisAutoOutaouais_WebApp.Domain.Entities;
 
 /// <summary>
 /// Agrégat commande.
@@ -537,7 +546,7 @@ public sealed class Order : ISoftDeletable, IAuditableEntity
 ### `Entities/OrderLine.cs`
 
 ```csharp
-namespace Domain.Entities;
+namespace AbrisAutoOutaouais_WebApp.Domain.Entities;
 
 /// <summary>
 /// Snapshot d'un produit au moment de la commande.
@@ -575,7 +584,7 @@ public sealed class OrderLine
 ### `Entities/RentalContract.cs`
 
 ```csharp
-namespace Domain.Entities;
+namespace AbrisAutoOutaouais_WebApp.Domain.Entities;
 
 /// <summary>
 /// Contrat de location d'un abri temporaire.
@@ -637,7 +646,7 @@ public sealed class RentalContract : ISoftDeletable, IAuditableEntity
 ### `Entities/BookingSlot.cs`
 
 ```csharp
-namespace Domain.Entities;
+namespace AbrisAutoOutaouais_WebApp.Domain.Entities;
 
 /// <summary>
 /// Créneau d'installation, livraison ou démontage.
@@ -713,12 +722,12 @@ Ils peuvent déclencher des effets secondaires (email, mise à jour d'un agréga
 
 ```csharp
 // Events/IDomainEvent.cs
-namespace Domain.Events;
+namespace AbrisAutoOutaouais_WebApp.Domain.Events;
 
 public interface IDomainEvent { }
 
 // Events/OrderPlacedEvent.cs
-namespace Domain.Events;
+namespace AbrisAutoOutaouais_WebApp.Domain.Events;
 
 public sealed record OrderPlacedEvent(
     Guid   OrderId,
@@ -726,13 +735,23 @@ public sealed record OrderPlacedEvent(
     decimal TotalAmount) : IDomainEvent;
 
 // Events/BookingConfirmedEvent.cs
-namespace Domain.Events;
+namespace AbrisAutoOutaouais_WebApp.Domain.Events;
 
 public sealed record BookingConfirmedEvent(
     Guid     BookingId,
     Guid     CustomerId,
     DateTime SlotStart,
     Address  Address) : IDomainEvent;
+
+// Events/RentalCreatedEvent.cs
+namespace AbrisAutoOutaouais_WebApp.Domain.Events;
+
+public sealed record RentalCreatedEvent(
+    Guid     RentalId,
+    Guid     CustomerId,
+    Guid     ProductId,
+    DateOnly StartDate,
+    DateOnly EndDate) : IDomainEvent;
 ```
 
 ---

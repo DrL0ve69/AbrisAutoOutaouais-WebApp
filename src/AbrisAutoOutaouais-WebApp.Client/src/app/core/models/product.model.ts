@@ -24,3 +24,17 @@ export interface PaginatedList<T> {
   readonly hasNext: boolean;
   readonly hasPrev: boolean;
 }
+
+export interface CategoryDto {
+  readonly id: string;
+  readonly name: string;
+  readonly slug: string;
+  readonly productCount: number;
+}
+
+export interface ProductQuery {
+  readonly page?: number;
+  readonly pageSize?: number;
+  readonly category?: string;
+  readonly search?: string;
+}

@@ -20,7 +20,8 @@ Guide de démarrage rapide pour lancer le projet depuis zéro.
 
 ```bash
 git clone <repo-url>
-cd AbrisTempoLocal
+cd AbrisAutoOutaouais-WebApp
+# Solution : AbrisAutoOutaouais-WebApp.slnx (format XML .slnx)
 ```
 
 ---
@@ -28,18 +29,16 @@ cd AbrisTempoLocal
 ## 2. Secrets de développement (Backend)
 
 ```bash
-cd src/Api
+cd src/AbrisAutoOutaouais-WebApp.API
 
 # JWT
 dotnet user-secrets set "Jwt:Key" "AbrisTempoLocal_SuperSecret_Key_min32chars!"
-dotnet user-secrets set "Jwt:Issuer" "AbrisTempoLocal.Api"
-dotnet user-secrets set "Jwt:Audience" "AbrisTempoLocal.Client"
+dotnet user-secrets set "Jwt:Issuer" "AbrisAutoOutaouais.API"
+dotnet user-secrets set "Jwt:Audience" "AbrisAutoOutaouais.CLIENT"
 
-# Base de données
-dotnet user-secrets set "ConnectionStrings:Identity" \
-  "Server=(localdb)\mssqllocaldb;Database=AbrisTempoIdentityDb;Trusted_Connection=true;"
-dotnet user-secrets set "ConnectionStrings:Application" \
-  "Server=(localdb)\mssqllocaldb;Database=AbrisTempoDb;Trusted_Connection=true;"
+# Base de données — un seul DbContext, une seule chaîne de connexion
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" \
+  "Server=(localdb)\mssqllocaldb;Database=AbrisTempoDb;Trusted_Connection=true;MultipleActiveResultSets=true;TrustServerCertificate=True"
 
 dotnet user-secrets set "AllowedOrigins" "http://localhost:4200"
 ```
@@ -50,27 +49,19 @@ dotnet user-secrets set "AllowedOrigins" "http://localhost:4200"
 
 ```bash
 # Depuis la racine de la solution
+# Un seul DbContext (ApplicationDbContext) : Identity + entités métier dans la même base.
+# Migrations existantes : InitialMigration, Fix_01_LaunchAPI.
 
-# Context Identity (ASP.NET Core Identity)
-dotnet ef migrations add InitIdentity \
-  --project src/Infrastructure \
-  --startup-project src/Api \
-  --context AppIdentityDbContext \
-  --output-dir Identity/Migrations
-
-# Context Application (entités métier)
-dotnet ef migrations add InitApplication \
-  --project src/Infrastructure \
-  --startup-project src/Api \
-  --context ApplicationDbContext \
+# Ajouter une migration (--context optionnel puisqu'il n'y a qu'un contexte)
+dotnet ef migrations add <Name> \
+  --project src/AbrisAutoOutaouais-WebApp.Infrastructure \
+  --startup-project src/AbrisAutoOutaouais-WebApp.API \
   --output-dir Persistence/Migrations
 
-# Appliquer les deux
-dotnet ef database update --context AppIdentityDbContext \
-  --project src/Infrastructure --startup-project src/Api
-
-dotnet ef database update --context ApplicationDbContext \
-  --project src/Infrastructure --startup-project src/Api
+# Appliquer
+dotnet ef database update \
+  --project src/AbrisAutoOutaouais-WebApp.Infrastructure \
+  --startup-project src/AbrisAutoOutaouais-WebApp.API
 ```
 
 ---
@@ -78,7 +69,7 @@ dotnet ef database update --context ApplicationDbContext \
 ## 4. Démarrer le Backend
 
 ```bash
-dotnet run --project src/Api
+dotnet run --project src/AbrisAutoOutaouais-WebApp.API
 # API disponible sur https://localhost:5001 ou http://localhost:5000
 # Scalar UI : https://localhost:5001/scalar
 ```
@@ -88,9 +79,9 @@ dotnet run --project src/Api
 ## 5. Démarrer le Frontend
 
 ```bash
-cd client
+cd src/AbrisAutoOutaouais-WebApp.Client
 npm install
-ng serve
+npm start   # ng serve --host=127.0.0.1
 # Frontend disponible sur http://localhost:4200
 ```
 
@@ -102,8 +93,8 @@ Le seeder crée automatiquement au premier démarrage :
 
 | Champ | Valeur |
 |-------|--------|
-| Email | `admin@abristempo.local` |
-| Mot de passe | `Admin@123!` |
+| Email | `admin@abrisauto.com` |
+| Mot de passe | `Admin123!` |
 | Rôle | `Admin` |
 
 ---
@@ -117,7 +108,7 @@ curl http://localhost:5000/api/v1/products
 # Test 2 — Login
 curl -X POST http://localhost:5000/api/v1/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@abristempo.local","password":"Admin@123!"}'
+  -d '{"email":"admin@abrisauto.com","password":"Admin123!"}'
 
 # Test 3 — Créneaux disponibles
 curl http://localhost:5000/api/v1/bookings/available-slots
@@ -158,23 +149,19 @@ git checkout -b a11y/focus-trap-modal   # Accessibilité
 ```bash
 # Tests backend
 dotnet test --no-build
+dotnet test AbrisAutoOutaouais-WebApp.UnitTest   # projet unique
 
-# Tests frontend
-npx vitest run
-
-# Lint frontend
-ng lint
+# Tests frontend (depuis src/AbrisAutoOutaouais-WebApp.Client)
+npm test
 
 # Ajouter une migration backend
 dotnet ef migrations add <NomDeMigration> \
-  --project src/Infrastructure \
-  --startup-project src/Api \
-  --context ApplicationDbContext \
+  --project src/AbrisAutoOutaouais-WebApp.Infrastructure \
+  --startup-project src/AbrisAutoOutaouais-WebApp.API \
   --output-dir Persistence/Migrations
 
 # Annuler la dernière migration
 dotnet ef migrations remove \
-  --project src/Infrastructure \
-  --startup-project src/Api \
-  --context ApplicationDbContext
+  --project src/AbrisAutoOutaouais-WebApp.Infrastructure \
+  --startup-project src/AbrisAutoOutaouais-WebApp.API
 ```

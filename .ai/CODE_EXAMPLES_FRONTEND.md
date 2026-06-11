@@ -1,7 +1,15 @@
 # CODE_EXAMPLES_FRONTEND.md — AbrisTempo Local
 
-Exemples de code Angular 20+ copiables-collables.
+Exemples de code Angular 21 copiables-collables.
 Tous suivent les conventions du CLAUDE.md : signals, standalone, OnPush, inject(), reactive forms.
+
+> Le client Angular vit dans `src/AbrisAutoOutaouais-WebApp.Client/` (projet `AbrisAutoOutaouais-WebApp.Client.esproj`).
+> Tous les chemins ci-dessous sont relatifs à `src/AbrisAutoOutaouais-WebApp.Client/src/app/`.
+>
+> Les composants suivent la nouvelle convention de nommage Angular sans suffixe `.component`
+> (ex. `home.ts` / `home.html` / `home.scss`). Quelques composants conservent encore le
+> suffixe `.component.ts` (ex. `register.component.ts`, les composants a11y) — se référer à
+> l'arborescence réelle.
 
 ---
 
@@ -104,7 +112,7 @@ import { Router } from '@angular/router';
 import { tap } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
-import { environment } from '../../environments/environment';
+import { environment } from '../../../environments/environment';
 
 export interface AuthUser {
   readonly id: string;
@@ -352,54 +360,58 @@ export const appConfig: ApplicationConfig = {
 
 ## Routes (`app.routes.ts`)
 
+État réel : seules les routes `''` (home), `auth`, `mon-compte` (account) et `me` sont actives.
+Les routes `shop` / `rental` / `installation` / `admin` ne sont pas encore implémentées (voir
+section « Cible / à venir » plus bas).
+
 ```typescript
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
-import { adminGuard } from './core/guards/admin.guard';
 import { publicGuard } from './core/guards/public.guard';
 
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('./features/home/home/home').then(m => m.HomeComponent),
+    loadComponent: () => import('./features/home/home').then(m => m.HomeComponent),
+    title: 'AbrisTempo Local — Accueil',
   },
+  // Redirections des anciens chemins
+  { path: 'login', redirectTo: '/auth', pathMatch: 'full' },
+  { path: 'register', redirectTo: '/auth', pathMatch: 'full' },
   {
-    path: 'shop',
-    loadChildren: () => import('./features/shop/shop.routes').then(m => m.SHOP_ROUTES),
-  },
-  {
-    path: 'rental',
-    loadChildren: () => import('./features/rental/rental.routes').then(m => m.RENTAL_ROUTES),
-  },
-  {
-    path: 'booking',
+    path: 'me',
+    loadComponent: () => import('./features/auth/me/profile').then(m => m.ProfileComponent),
     canActivate: [authGuard],
-    loadChildren: () => import('./features/booking/booking.routes').then(m => m.BOOKING_ROUTES),
-  },
-  {
-    path: 'account',
-    canActivate: [authGuard],
-    loadChildren: () => import('./features/account/account.routes').then(m => m.ACCOUNT_ROUTES),
-  },
-  {
-    path: 'admin',
-    canActivate: [authGuard, adminGuard],
-    loadChildren: () => import('./features/admin/admin.routes').then(m => m.ADMIN_ROUTES),
+    title: 'AbrisTempo Local — Mon Compte',
   },
   {
     path: 'auth',
     canActivate: [publicGuard],          // Bloque si déjà connecté
     loadChildren: () => import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES),
   },
+  {
+    path: 'mon-compte',
+    canActivate: [authGuard],
+    loadChildren: () => import('./features/account/account.routes').then(m => m.ACCOUNT_ROUTES),
+  },
   { path: '**', redirectTo: '' },
 ];
 ```
+
+> **Cible / à venir (non implémenté)** — `shop`, `rental`, `installation` (booking) et `admin`
+> sont prévus mais leurs dossiers `features/` n'existent pas encore. Lorsqu'ils seront ajoutés,
+> ils suivront le même schéma `loadChildren` lazy + guards (`adminGuard` pour `admin`).
 
 ---
 
 ## Composants
 
-### `features/shop/product-detail/product-detail.ts`
+> Les exemples `product-detail` et `booking-form` ci-dessous concernent des features
+> **Cible / à venir (non implémenté)** — ils illustrent les conventions attendues mais les
+> dossiers `features/shop/` et `features/booking/` n'existent pas encore. Le composant `login`
+> et `product-card` plus bas, eux, existent réellement.
+
+### `features/shop/product-detail/product-detail.ts` _(à venir)_
 
 ```typescript
 import {
@@ -421,7 +433,7 @@ import { ProductDto } from '../../../core/models/product.model';
   imports: [CurrencyPipe, NgOptimizedImage],
 })
 export class ProductDetailComponent implements OnInit {
-  // input() signal — Angular 20+ (pas de @Input)
+  // input() signal — Angular 21 (pas de @Input)
   readonly slug = input.required<string>();
 
   private readonly http   = inject(HttpClient);
@@ -470,7 +482,7 @@ export class ProductDetailComponent implements OnInit {
 
 ---
 
-### `features/booking/booking-form/booking-form.ts`
+### `features/booking/booking-form/booking-form.ts` _(à venir)_
 
 ```typescript
 import {
@@ -613,11 +625,11 @@ import { ProductSummaryDto } from '../../../core/models/product.model';
   imports: [CurrencyPipe, NgOptimizedImage, RouterLink],
 })
 export class ProductCardComponent {
-  // input() — Angular 20+ (pas de @Input())
+  // input() — Angular 21 (pas de @Input())
   readonly product   = input.required<ProductSummaryDto>();
   readonly showRent  = input(false);
 
-  // output() — Angular 20+ (pas de @Output())
+  // output() — Angular 21 (pas de @Output())
   readonly addToCart = output<ProductSummaryDto>();
 
   protected readonly hasRental = computed(() =>

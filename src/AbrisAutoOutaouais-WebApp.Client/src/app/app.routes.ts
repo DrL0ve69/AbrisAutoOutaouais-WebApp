@@ -26,10 +26,10 @@ export const routes: Routes = [
   },
   // ── Ancienne route /me → redirection ─────────────────────────
   // { path: 'me', redirectTo: '/mon-compte/profil', pathMatch: 'full' },
-  // {
-  //   path: 'boutique',
-  //   loadChildren: () => import('./features/shop/shop.routes').then(m => m.SHOP_ROUTES),
-  // },
+  {
+    path: 'boutique',
+    loadChildren: () => import('./features/shop/shop.routes').then(m => m.SHOP_ROUTES),
+  },
   // {
   //   path: 'location',
   //   loadChildren: () => import('./features/rental/rental.routes').then(m => m.RENTAL_ROUTES),

@@ -41,7 +41,8 @@ public interface IProductRepository
 ## 2. Mediator maison (pas MediatR)
 
 ### Décision
-Pattern CQRS via interfaces `ICommandHandler<T,R>` / `IQueryHandler<T,R>` + `Dispatcher` maison.
+Pattern CQRS via interfaces `ICommandHandler<T,R>` / `IQueryHandler<T,R>` (handlers implémentant `HandleAsync`) + `IDispatcher` / `Dispatcher` maison.
+Les controllers injectent `IDispatcher` et appellent `await dispatcher.DispatchAsync(cmd, ct)`.
 
 ### Justification
 - MediatR est devenu commercial pour les usages en production.
@@ -49,25 +50,30 @@ Pattern CQRS via interfaces `ICommandHandler<T,R>` / `IQueryHandler<T,R>` + `Dis
 - Moins de dépendances NuGet = moins de surface d'attaque + build plus rapide.
 - Performance légèrement meilleure (pas de reflection MediatR).
 
+### Enregistrement DI
+- `AddInfrastructure` (`Infrastructure/DependencyInjection.cs`) auto-enregistre les handlers via **Scrutor** et enregistre les validateurs **FluentValidation**.
+- `Program.cs` enregistre `AddScoped<IDispatcher, Dispatcher>()`.
+
 ### Alternative NuGet acceptée
 `Mediator` de martinothamar (source-generated, gratuit, open-source) est acceptable si tu veux les pipeline behaviors automatiques.
 
 ---
 
-## 3. Deux DbContext séparés
+## 3. Un seul DbContext (Identity + métier)
 
 ### Décision
-- `AppIdentityDbContext` : ASP.NET Core Identity (Users, Roles, Claims, Tokens).
-- `ApplicationDbContext` : Entités métier (Products, Orders, Bookings, Rentals).
+- `ApplicationDbContext : IdentityDbContext<AppUser, AppRole, Guid, ...>` héberge **à la fois** les tables ASP.NET Core Identity (Users, Roles, Claims, Tokens) **et** les entités métier (Products, Orders, Bookings, Rentals).
+- Une seule base de données, un seul jeu de migrations.
+- `AppUser` **est** le client (pas d'entité `Customer` séparée).
 
 ### Justification
-- Migrations indépendantes (Identity évolue rarement, le domaine souvent).
-- Testabilité : les tests domain n'ont pas besoin du contexte Identity.
-- Séparation claire entre infrastructure d'auth et logique métier.
-- Pas de FK cross-context — `OwnerId` (Guid) dans les entités métier référence `ApplicationUser.Id` sans contrainte EF.
+- **Vraies FK EF** entre les entités métier et `AspNetUsers` (ex: `Order.CustomerId → AppUser.Id`) — intégrité référentielle garantie par la base.
+- Un seul jeu de migrations à maintenir (pas de synchronisation entre deux historiques).
+- Un seul pipeline de tests d'intégration (un seul contexte à provisionner / seeder).
+- Simplicité pour un projet solo / portfolio : pas de complexité multi-contexte sans bénéfice réel à cette échelle.
 
 ### Comment gérer la jointure ?
-En Application, via `ICurrentUserService` qui expose `UserId`. Les handlers récupèrent l'entité Customer via ce Guid.
+Directement par navigation EF (`Order.Customer`) ou via `ICurrentUserService` qui expose `UserId`. Les handlers chargent l'`AppUser` via ce Guid quand nécessaire.
 
 ---
 

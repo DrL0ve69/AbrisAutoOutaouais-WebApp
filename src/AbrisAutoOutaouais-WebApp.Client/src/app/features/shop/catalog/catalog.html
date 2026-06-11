@@ -1,0 +1,74 @@
+<!-- ============================================================
+     Boutique — Catalogue
+     WCAG AA : h1 unique, filtres accessibles (aria-pressed),
+     états de chargement et vide annoncés, focus visible.
+============================================================ -->
+<section class="catalog-page" aria-labelledby="catalog-page-heading">
+  <div class="container">
+    <header class="section-header">
+      <p class="section-eyebrow" i18n="@@shop.catalog.eyebrow">Notre boutique</p>
+      <h1 id="catalog-page-heading" i18n="@@shop.catalog.title">Tous nos abris d'auto</h1>
+      <p class="section-subtitle" i18n="@@shop.catalog.subtitle">
+        Filtrez par catégorie et ajoutez vos abris au panier en quelques clics.
+      </p>
+    </header>
+
+    <!-- Filtres par catégorie -->
+    <div class="catalog__filters"
+         role="group"
+         aria-label="Filtrer les produits par catégorie"
+         i18n-aria-label="@@shop.catalog.filterGroup">
+      <button type="button"
+              class="catalog__chip"
+              [class.catalog__chip--active]="selectedSlug() === null"
+              [attr.aria-pressed]="selectedSlug() === null"
+              (click)="selectCategory(null)">
+        <span i18n="@@shop.catalog.filterAll">Tous</span>
+      </button>
+      @for (cat of categories(); track cat.id) {
+      <button type="button"
+              class="catalog__chip"
+              [class.catalog__chip--active]="selectedSlug() === cat.slug"
+              [attr.aria-pressed]="selectedSlug() === cat.slug"
+              (click)="selectCategory(cat.slug)">
+        {{ cat.name }}
+        <span class="catalog__chip-count" aria-hidden="true">{{ cat.productCount }}</span>
+      </button>
+      }
+    </div>
+
+    <!-- Résultats -->
+    @if (loading()) {
+    <div class="catalog__grid"
+         aria-busy="true"
+         aria-label="Chargement des produits…"
+         i18n-aria-label="@@shop.catalog.loading">
+      @for (_ of [1,2,3,4,5,6]; track $index) {
+      <div class="skeleton-card" aria-hidden="true">
+        <div class="skeleton-card__img"></div>
+        <div class="skeleton-card__body">
+          <div class="skeleton-line skeleton-line--short"></div>
+          <div class="skeleton-line"></div>
+          <div class="skeleton-line skeleton-line--med"></div>
+        </div>
+      </div>
+      }
+    </div>
+    } @else if (products().length > 0) {
+    <ul class="catalog__grid" role="list">
+      @for (product of products(); track product.id) {
+      <li>
+        <app-product-card
+          [product]="product"
+          [showRent]="true"
+          (addToCart)="onAddToCart($event)" />
+      </li>
+      }
+    </ul>
+    } @else {
+    <p class="catalog__empty" role="status" i18n="@@shop.catalog.empty">
+      Aucun produit dans cette catégorie pour le moment.
+    </p>
+    }
+  </div>
+</section>
