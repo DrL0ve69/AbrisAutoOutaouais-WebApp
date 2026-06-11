@@ -1,0 +1,72 @@
+// ============================================================
+// app.scss — Shell global AbrisTempo Local
+//
+// Ce fichier gère la mise en page du shell (header/main/footer).
+// Les styles composants et utilitaires sont dans styles.scss.
+// ============================================================
+
+// ── app-root est invisible dans le layout ─────────────────────
+// display: contents fait de app-root un "fantôme" — ses enfants
+// directs (header, main, footer) participent au flux normalement.
+:host {
+  display: contents;
+}
+
+// ── Header (contient la navbar position:fixed) ────────────────
+// La navbar est position: fixed → le header n'a pas de hauteur
+// dans le flux. Chaque page gère son propre padding-top.
+header[role="banner"] {
+  display: contents; // rend la balise transparente au layout
+}
+
+// ── Contenu principal ─────────────────────────────────────────
+main#main {
+  display: block;
+  min-height: 100vh;
+  // Le focus programmatique (via skip-nav) ne doit pas afficher
+  // d'outline — le :focus-visible de styles.scss ne s'applique
+  // pas aux éléments avec tabindex="-1" reçus de JS.
+  &:focus {
+    outline: none;
+  }
+}
+
+// ── Footer ───────────────────────────────────────────────────
+footer[role="contentinfo"] {
+  background: var(--color-secondary, #0f1923);
+  color: rgba(255, 255, 255, 0.65);
+  // Styles de base du pied de page
+  padding: var(--space-10) 0;
+
+  .footer-inner {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .footer-copy {
+    font-size: var(--font-size-sm);
+  }
+
+  .footer-links {
+    display: flex;
+    gap: var(--space-4);
+    list-style: none;
+
+    a {
+      font-size: var(--font-size-sm);
+      color: rgba(255, 255, 255, 0.55);
+      text-decoration: none;
+
+      &:hover {
+        color: white;
+      }
+
+      &:visited {
+        color: rgba(255, 255, 255, 0.55);
+      }
+    }
+  }
+}

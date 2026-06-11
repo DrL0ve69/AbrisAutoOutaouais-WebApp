@@ -1,0 +1,272 @@
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
+import {
+  FormBuilder,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { RouterLink } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
+import { environment } from '../../../../environments/environment';
+
+/** Correspond à UserProfileDto côté backend */
+interface UserProfileDto {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string | null;
+  avatar: string | null;
+  preferredLanguage: string;
+  defaultDeliveryAddress: AddressDto | null;
+  createdAt: string;
+  roles: string[];
+}
+
+interface AddressDto {
+  street: string;
+  city: string;
+  province: string;
+  postalCode: string;
+  country: string;
+}
+
+/** Correspond au UpdateProfileRequest côté backend */
+interface UpdateProfileRequest {
+  firstName: string;
+  lastName: string;
+  phoneNumber: string | null;
+  preferredLanguage: string;
+  defaultDeliveryAddress: {
+    street: string;
+    city: string;
+    province: string;
+    postalCode: string;
+    country: string;
+  } | null;
+}
+
+type ActiveTab = 'info' | 'address' | 'security';
+
+@Component({
+  selector: 'app-profile',
+  templateUrl: './profile.html',
+  styleUrl: './profile.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [ReactiveFormsModule, RouterLink],
+})
+export class ProfileComponent implements OnInit {
+  private readonly http = inject(HttpClient);
+  private readonly fb = inject(FormBuilder);
+  protected readonly auth = inject(AuthService);
+
+  // ── État ────────────────────────────────────────────────────
+  protected readonly profile = signal<UserProfileDto | null>(null);
+  protected readonly loading = signal(true);
+  protected readonly saving = signal(false);
+  protected readonly activeTab = signal<ActiveTab>('info');
+  protected readonly saveSuccess = signal(false);
+  protected readonly saveError = signal<string | null>(null);
+
+  protected readonly initials = computed(() => {
+    const p = this.profile();
+    if (!p) return '?';
+    return ((p.firstName ?? '') + (p.lastName ?? '')).toUpperCase()
+      || p.email[0].toUpperCase();
+  });
+
+  protected readonly fullName = computed(() => {
+    const p = this.profile();
+    if (!p) return '';
+    return `${p.firstName} ${p.lastName}`.trim() || p.email;
+  });
+
+  protected readonly roleLabel = computed(() => {
+    const roles = this.profile()?.roles ?? [];
+    if (roles.includes('Admin')) return 'Administrateur';
+    if (roles.includes('Staff')) return 'Personnel';
+    return 'Client';
+  });
+
+  // ── Formulaire informations ──────────────────────────────────
+  protected readonly infoForm = this.fb.nonNullable.group({
+    firstName: ['', [Validators.required, Validators.maxLength(100)]],
+    lastName: ['', [Validators.required, Validators.maxLength(100)]],
+    phoneNumber: [''],
+    preferredLanguage: ['fr'],
+  });
+
+  // ── Formulaire adresse ───────────────────────────────────────
+  protected readonly addressForm = this.fb.nonNullable.group({
+    street: ['', Validators.maxLength(200)],
+    city: ['', Validators.maxLength(100)],
+    province: ['QC'],
+    postalCode: ['', Validators.pattern(/^[A-Za-z]\d[A-Za-z]\d[A-Za-z]\d$/)],
+    country: ['Canada'],
+  });
+
+  // ── Formulaire sécurité (changement mot de passe) ───────────
+  protected readonly securityForm = this.fb.nonNullable.group({
+    currentPassword: ['', Validators.required],
+    newPassword: ['', [
+      Validators.required,
+      Validators.minLength(8),
+      Validators.pattern(/[A-Z]/),
+      Validators.pattern(/[0-9]/),
+      Validators.pattern(/[^a-zA-Z0-9]/),
+    ]],
+    confirmPassword: ['', Validators.required],
+  });
+
+  // Raccourcis
+  protected get fFirst() { return this.infoForm.controls.firstName; }
+  protected get fLast() { return this.infoForm.controls.lastName; }
+  protected get fPhone() { return this.infoForm.controls.phoneNumber; }
+  protected get fLang() { return this.infoForm.controls.preferredLanguage; }
+
+  protected get aPostal() { return this.addressForm.controls.postalCode; }
+
+  protected get sCurrent() { return this.securityForm.controls.currentPassword; }
+  protected get sNew() { return this.securityForm.controls.newPassword; }
+  protected get sConfirm() { return this.securityForm.controls.confirmPassword; }
+  protected get sPwdMismatch() {
+    return this.sNew.value !== this.sConfirm.value && this.sConfirm.touched;
+  }
+
+  // ── Cycle de vie ────────────────────────────────────────────
+  ngOnInit(): void {
+    this.http
+      .get<UserProfileDto>(`${environment.apiUrl}/auth/me`)
+      .subscribe({
+        next: profile => {
+          this.profile.set(profile);
+          this.patchForms(profile);
+          this.loading.set(false);
+        },
+        error: () => {
+          // Fallback : utiliser les données du token JWT
+          const u = this.auth.user();
+          if (u) {
+            this.infoForm.patchValue({
+              firstName: u.firstName,
+              lastName: u.lastName,
+            });
+          }
+          this.loading.set(false);
+        },
+      });
+  }
+
+  // ── Navigation des onglets ───────────────────────────────────
+  protected setTab(tab: ActiveTab): void {
+    this.activeTab.set(tab);
+    this.saveSuccess.set(false);
+    this.saveError.set(null);
+  }
+
+  // ── Sauvegarde informations ──────────────────────────────────
+  protected saveInfo(): void {
+    if (this.infoForm.invalid) { this.infoForm.markAllAsTouched(); return; }
+    this.save({ ...this.infoForm.getRawValue(), phoneNumber: this.fPhone.value || null });
+  }
+
+  // ── Sauvegarde adresse ───────────────────────────────────────
+  protected saveAddress(): void {
+    if (this.addressForm.invalid) { this.addressForm.markAllAsTouched(); return; }
+
+    const addr = this.addressForm.getRawValue();
+    const hasAddress = addr.street || addr.city || addr.postalCode;
+
+    this.save({
+      firstName: this.fFirst.value,
+      lastName: this.fLast.value,
+      phoneNumber: this.fPhone.value || null,
+      preferredLanguage: this.fLang.value,
+      defaultDeliveryAddress: hasAddress ? addr : null,
+    });
+  }
+
+  // ── Changement de mot de passe ───────────────────────────────
+  protected changePassword(): void {
+    if (this.securityForm.invalid || this.sPwdMismatch) {
+      this.securityForm.markAllAsTouched();
+      return;
+    }
+    this.saving.set(true);
+    this.saveError.set(null);
+
+    this.http
+      .post(`${environment.apiUrl}/auth/me/change-password`, {
+        currentPassword: this.sCurrent.value,
+        newPassword: this.sNew.value,
+      })
+      .subscribe({
+        next: () => {
+          this.saving.set(false);
+          this.saveSuccess.set(true);
+          this.securityForm.reset();
+          setTimeout(() => this.saveSuccess.set(false), 4000);
+        },
+        error: err => {
+          this.saving.set(false);
+          this.saveError.set(
+            err.error?.error ?? err.error?.detail ?? 'Erreur lors du changement.',
+          );
+        },
+      });
+  }
+
+  // ── Privé ────────────────────────────────────────────────────
+  private save(partial: Partial<UpdateProfileRequest>): void {
+    this.saving.set(true);
+    this.saveError.set(null);
+    this.saveSuccess.set(false);
+
+    const payload: UpdateProfileRequest = {
+      firstName: this.fFirst.value,
+      lastName: this.fLast.value,
+      phoneNumber: this.fPhone.value || null,
+      preferredLanguage: this.fLang.value,
+      defaultDeliveryAddress: null,
+      ...partial,
+    };
+
+    this.http
+      .put<UserProfileDto>(`${environment.apiUrl}/auth/me`, payload)
+      .subscribe({
+        next: updated => {
+          this.profile.set(updated);
+          this.patchForms(updated);
+          this.saving.set(false);
+          this.saveSuccess.set(true);
+          setTimeout(() => this.saveSuccess.set(false), 4000);
+        },
+        error: err => {
+          this.saving.set(false);
+          this.saveError.set(
+            err.error?.error ?? err.error?.detail ?? 'Erreur lors de la sauvegarde.',
+          );
+        },
+      });
+  }
+
+  private patchForms(p: UserProfileDto): void {
+    this.infoForm.patchValue({
+      firstName: p.firstName,
+      lastName: p.lastName,
+      phoneNumber: p.phoneNumber ?? '',
+      preferredLanguage: p.preferredLanguage ?? 'fr',
+    });
+
+    if (p.defaultDeliveryAddress) {
+      this.addressForm.patchValue(p.defaultDeliveryAddress);
+    }
+  }
+}

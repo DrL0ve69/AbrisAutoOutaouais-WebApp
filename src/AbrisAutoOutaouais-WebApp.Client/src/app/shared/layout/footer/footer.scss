@@ -1,2 +1,141 @@
-body {
+// ============================================================
+// Footer — AbrisTempo Local
+// ============================================================
+
+:host {
+  display: block;
+}
+
+// ── Inner layout ─────────────────────────────────────────────
+.footer-inner {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-8);
+  padding-top: var(--space-10);
+  padding-bottom: var(--space-8);
+
+  @media (min-width: 768px) {
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: var(--space-12);
+  }
+}
+
+// ── Logo ─────────────────────────────────────────────────────
+.footer-logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  text-decoration: none;
+  color: white;
+  font-family: var(--font-display);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-3);
+
+  &:hover {
+    opacity: 0.85;
+  }
+
+  &:visited {
+    color: white;
+  }
+
+  strong {
+    color: var(--color-primary-light);
+  }
+
+  small {
+    display: block;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-normal);
+    color: rgba(255, 255, 255, 0.4);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+}
+
+.footer-logo__icon {
+  font-size: 1.5rem;
+  color: var(--color-primary-light);
+  line-height: 1;
+}
+
+.footer-tagline {
+  font-size: var(--font-size-sm);
+  color: rgba(255, 255, 255, 0.55);
+  line-height: var(--line-height-relaxed);
+  max-width: 300px;
+  margin-bottom: var(--space-4);
+}
+
+.footer-phone {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+
+  &:hover {
+    color: white;
+  }
+
+  &:visited {
+    color: rgba(255, 255, 255, 0.75);
+  }
+}
+
+// ── Navigation ───────────────────────────────────────────────
+.footer-nav__heading {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+  margin-bottom: var(--space-4);
+}
+
+.footer-nav__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+
+  a {
+    font-size: var(--font-size-sm);
+    color: rgba(255, 255, 255, 0.65);
+    text-decoration: none;
+    transition: color var(--transition-fast), padding-left var(--transition-fast);
+
+    &:hover {
+      color: white;
+      padding-left: var(--space-1);
+    }
+
+    &:visited {
+      color: rgba(255, 255, 255, 0.65);
+    }
+  }
+}
+
+// ── Barre copyright ───────────────────────────────────────────
+.footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: var(--space-4) 0;
+}
+
+.footer-bottom__inner {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.footer-copy {
+  font-size: var(--font-size-xs);
+  color: rgba(255, 255, 255, 0.35);
+  margin: 0;
 }

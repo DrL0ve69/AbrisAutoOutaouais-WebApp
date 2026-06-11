@@ -9,7 +9,7 @@ import { RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CurrencyPipe } from '@angular/common';
 import { environment } from '../../../environments/environment';
-import { ProductSummaryDto } from '../../core/models/product.model';
+import { ProductSummaryDto, PaginatedList } from '../../core/models/product.model';
 
 interface ServiceCard {
   icon: string;
@@ -71,11 +71,11 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.http
-      .get<{ items: ProductSummaryDto[] }>(
+      .get<PaginatedList<ProductSummaryDto>>(
         `${environment.apiUrl}/products?page=1&pageSize=3`
       )
       .subscribe({
-        next: res => { this.featuredProducts.set(res.items); this.loadingProducts.set(false); },
+        next: res => { this.featuredProducts.set([...res.items]); this.loadingProducts.set(false); },
         error: () => { this.loadingProducts.set(false); },
       });
   }

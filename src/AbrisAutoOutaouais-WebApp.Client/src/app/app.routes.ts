@@ -15,22 +15,17 @@ export const routes: Routes = [
   //   loadComponent: AUTH_ROUTES[0].loadComponent,
   //   title: AUTH_ROUTES[0].title,
   // },
-  {
-    path: 'login',
-    loadComponent: () => import('./features/auth/login/login').then(m => m.LoginComponent),
-    title: 'AbrisTempo Local — Connexion',   // title est utilisé par le router pour WCAG 2.4.2
-  },
-  {
-    path: 'register',
-    loadComponent: () => import('./features/auth/register/register.component').then(m => m.RegisterComponent),
-    title: 'AbrisTempo Local — Inscription',   // title est utilisé par le router pour WCAG 2.4.2
-  },
+  // ── Redirections des anciens chemins ──────────────────────────
+  { path: 'login', redirectTo: '/auth', pathMatch: 'full' },
+  { path: 'register', redirectTo: '/auth', pathMatch: 'full' },
   {
     path: 'me',
     loadComponent: () => import('./features/auth/me/profile').then(m => m.ProfileComponent),
     canActivate: [authGuard],
     title: 'AbrisTempo Local — Mon Compte',   // title est utilisé par le router pour WCAG 2.4.2
   },
+  // ── Ancienne route /me → redirection ─────────────────────────
+  // { path: 'me', redirectTo: '/mon-compte/profil', pathMatch: 'full' },
   // {
   //   path: 'boutique',
   //   loadChildren: () => import('./features/shop/shop.routes').then(m => m.SHOP_ROUTES),
@@ -54,10 +49,18 @@ export const routes: Routes = [
   //   canActivate: [authGuard, adminGuard],
   //   loadChildren: () => import('./features/admin/admin.routes').then(m => m.ADMIN_ROUTES),
   // },
+  // ── Auth (connexion + inscription, flip card) ─────────────────
+  // publicGuard redirige vers '/' si l'utilisateur est déjà connecté
   {
     path: 'auth',
     canActivate: [publicGuard],
     loadChildren: () => import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES),
+  },
+  // ── Mon compte (profil, commandes, réservations) ─────────────
+  {
+    path: 'mon-compte',
+    canActivate: [authGuard],
+    loadChildren: () => import('./features/account/account.routes').then(m => m.ACCOUNT_ROUTES),
   },
   // {
   //   path: 'projects/accessible-components',

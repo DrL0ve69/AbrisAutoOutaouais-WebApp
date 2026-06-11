@@ -65,9 +65,10 @@
 
 .hero__shape {
   position: absolute;
+  z-index: 0;
   border-radius: var(--radius-full);
 
-  &hero__shape--1 {
+  &--1 {
     width: 600px;
     height: 600px;
     top: -200px;
@@ -75,7 +76,7 @@
     background: radial-gradient(circle, rgba(185, 28, 28, 0.18) 0%, transparent 65%);
   }
 
-  &hero__shape--2 {
+  &--2 {
     width: 400px;
     height: 400px;
     bottom: -100px;
@@ -83,7 +84,7 @@
     background: radial-gradient(circle, rgba(29, 78, 216, 0.12) 0%, transparent 65%);
   }
 
-  &hero__shape--3 {
+  &--3 {
     width: 300px;
     height: 300px;
     top: 40%;
@@ -378,6 +379,9 @@
 }
 
 .product-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
   border-radius: var(--radius-xl);
   border: 1px solid var(--color-border);
   overflow: hidden;
@@ -385,9 +389,30 @@
   box-shadow: var(--shadow-sm);
   transition: transform var(--transition-base), box-shadow var(--transition-base);
 
-  &:hover {
+  &:hover, &:focus-within {
     transform: translateY(-4px);
     box-shadow: var(--shadow-lg);
+  }
+
+  &__link {
+    text-decoration: none;
+    color: inherit;
+    /* Pseudo-élément pour rendre toute la carte cliquable avec un seul lien */
+    &::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 1;
+    }
+    /* Focus visible clair pour WCAG AA */
+    &:focus-visible::after {
+      outline: 3px solid var(--color-primary, #dc3545);
+      outline-offset: 2px;
+      border-radius: 8px;
+    }
   }
 }
 
