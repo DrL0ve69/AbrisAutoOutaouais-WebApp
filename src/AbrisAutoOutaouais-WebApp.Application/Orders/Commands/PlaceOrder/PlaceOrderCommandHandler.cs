@@ -37,7 +37,7 @@ internal sealed class PlaceOrderCommandHandler(
             : null;
 
         // 4. Créer l'agrégat — les règles métier sont dans Order.Create()
-        var order = Order.Create((Guid)currentUser.UserId!, cmd.DeliveryType, (IReadOnlyList<(global::Domain.Entities.Product Product, int Qty)>)items, address);
+        var order = Order.Create((Guid)currentUser.UserId!, cmd.DeliveryType, items, address);
 
         // 5. Décrémenter le stock
         foreach (var (product, qty) in items)

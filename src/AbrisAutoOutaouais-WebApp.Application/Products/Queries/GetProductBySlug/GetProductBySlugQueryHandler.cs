@@ -1,5 +1,6 @@
 ﻿using AbrisAutoOutaouais_WebApp.Application.Common.Interfaces;
 using AbrisAutoOutaouais_WebApp.Application.Common.Mediator;
+using AbrisAutoOutaouais_WebApp.Domain.Entities;
 using AbrisAutoOutaouais_WebApp.Domain.Exceptions;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -9,7 +10,7 @@ using System.Text;
 
 namespace AbrisAutoOutaouais_WebApp.Application.Products.Queries.GetProductBySlug;
 
-internal sealed class GetProductBySlugQueryHandler(IApplicationDbContext db)
+public sealed class GetProductBySlugQueryHandler(IApplicationDbContext db)
     : IQueryHandler<GetProductBySlugQuery, ProductDto>
 {
     public async ValueTask<ProductDto> Handle(

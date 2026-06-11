@@ -5,7 +5,7 @@ using System.Text;
 
 namespace AbrisAutoOutaouais_WebApp.Infrastructure.Services;
 
-internal sealed class DateTimeProvider : IDateTimeProvider
+public sealed class DateTimeProvider : IDateTimeProvider
 {
     public DateTime UtcNow => DateTime.UtcNow;
 }

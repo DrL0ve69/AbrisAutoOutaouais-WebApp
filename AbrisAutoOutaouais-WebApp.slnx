@@ -27,7 +27,9 @@
     <File Path=".ai/LAYER_TESTS.md" />
   </Folder>
   <Folder Name="/src/tests/" />
-  <Folder Name="/src/tests/Integration/" />
+  <Folder Name="/src/tests/Integration/">
+    <Project Path="AbrisAutoOutaouais-WebApp.IntegrationTest/AbrisAutoOutaouais-WebApp.IntegrationTest.csproj" Id="b5139af3-b687-4d5e-ab44-da6d00fe2583" />
+  </Folder>
   <Folder Name="/src/tests/Unit/">
     <Project Path="AbrisAutoOutaouais-WebApp.UnitTest/AbrisAutoOutaouais-WebApp.UnitTest.csproj" Id="d482d885-af45-48c3-97dd-3b1f98a3df90" />
   </Folder>

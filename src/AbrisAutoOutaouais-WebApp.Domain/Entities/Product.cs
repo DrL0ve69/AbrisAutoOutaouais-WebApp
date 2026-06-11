@@ -3,7 +3,7 @@ using AbrisAutoOutaouais_WebApp.Domain.Enums;
 using AbrisAutoOutaouais_WebApp.Domain.Exceptions;
 using AbrisAutoOutaouais_WebApp.Domain.Interfaces;
 
-namespace Domain.Entities;
+namespace AbrisAutoOutaouais_WebApp.Domain.Entities;
 
 /// <summary>
 /// Produit du catalogue (abri simple, double, toile de remplacement, accessoire).

@@ -1,0 +1,138 @@
+﻿using Domain.Entities;
+using Domain.ValueObjects;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace AbrisAutoOutaouais_WebApp.UnitTest.Domain;
+
+public sealed class OrderTests
+{
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    private static Product MakeProduct(decimal price = 100m, int stock = 5)
+        => Product.Create("Abri", "abri", price, stock, Guid.NewGuid());
+
+    private static Address MakeAddress()
+        => Address.Create("123 rue des Érables", "Saint-Jérôme", "QC", "J7Z1A1");
+
+    // ── Create ────────────────────────────────────────────────────────────────
+
+    [Fact]
+    public void Create_WithPickup_DoesNotRequireAddress()
+    {
+        var product = MakeProduct();
+        var items = new[] { (product, 2) }.ToList<(Product, int)>();
+
+        var order = Order.Create(Guid.NewGuid(), DeliveryType.Pickup, items);
+
+        order.Should().NotBeNull();
+        order.DeliveryType.Should().Be(DeliveryType.Pickup);
+        order.ShippingAddress.Should().BeNull();
+        order.Status.Should().Be(OrderStatus.Pending);
+    }
+
+    [Fact]
+    public void Create_WithDelivery_RequiresAddress()
+    {
+        var product = MakeProduct();
+        var items = new[] { (product, 1) }.ToList<(Product, int)>();
+
+        var act = () => Order.Create(Guid.NewGuid(), DeliveryType.Delivery, items);
+
+        act.Should().Throw<BusinessRuleException>()
+            .WithMessage("*adresse*");
+    }
+
+    [Fact]
+    public void Create_WithDeliveryAndAddress_Succeeds()
+    {
+        var product = MakeProduct(price: 200m);
+        var items = new[] { (product, 3) }.ToList<(Product, int)>();
+        var address = MakeAddress();
+
+        var order = Order.Create(Guid.NewGuid(), DeliveryType.Delivery, items, address);
+
+        order.TotalAmount.Should().Be(600m);   // 200 * 3
+        order.Lines.Should().HaveCount(1);
+        order.ShippingAddress.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void Create_WithEmptyItems_Throws()
+    {
+        var act = () => Order.Create(
+            Guid.NewGuid(), DeliveryType.Pickup,
+            new List<(Product, int)>());
+
+        act.Should().Throw<BusinessRuleException>()
+            .WithMessage("*au moins un produit*");
+    }
+
+    [Fact]
+    public void Create_WithUnavailableProduct_Throws()
+    {
+        var product = Product.Create("Abri", "abri", 100m, 0, Guid.NewGuid()); // stock 0
+        var items = new[] { (product, 1) }.ToList<(Product, int)>();
+
+        var act = () => Order.Create(Guid.NewGuid(), DeliveryType.Pickup, items);
+
+        act.Should().Throw<BusinessRuleException>()
+            .WithMessage("*disponible*");
+    }
+
+    // ── TotalAmount ───────────────────────────────────────────────────────────
+
+    [Theory]
+    [InlineData(100, 1, 100)]
+    [InlineData(50, 3, 150)]
+    [InlineData(299.99, 2, 599.98)]
+    public void Create_TotalAmountIsCorrect(decimal price, int qty, decimal expected)
+    {
+        var product = MakeProduct(price: price);
+        var items = new[] { (product, qty) }.ToList<(Product, int)>();
+
+        var order = Order.Create(Guid.NewGuid(), DeliveryType.Pickup, items);
+
+        order.TotalAmount.Should().Be(expected);
+    }
+
+    // ── Status transitions ────────────────────────────────────────────────────
+
+    [Fact]
+    public void Confirm_FromPending_ChangesStatusToConfirmed()
+    {
+        var product = MakeProduct();
+        var order = Order.Create(Guid.NewGuid(), DeliveryType.Pickup,
+            new[] { (product, 1) }.ToList<(Product, int)>());
+
+        order.Confirm();
+
+        order.Status.Should().Be(OrderStatus.Confirmed);
+    }
+
+    [Fact]
+    public void Confirm_FromConfirmed_Throws()
+    {
+        var product = MakeProduct();
+        var order = Order.Create(Guid.NewGuid(), DeliveryType.Pickup,
+            new[] { (product, 1) }.ToList<(Product, int)>());
+
+        order.Confirm();
+        var act = () => order.Confirm();
+
+        act.Should().Throw<BusinessRuleException>();
+    }
+
+    [Fact]
+    public void Cancel_FromPending_Succeeds()
+    {
+        var product = MakeProduct();
+        var order = Order.Create(Guid.NewGuid(), DeliveryType.Pickup,
+            new[] { (product, 1) }.ToList<(Product, int)>());
+
+        order.Cancel();
+
+        order.Status.Should().Be(OrderStatus.Cancelled);
+    }
+}
