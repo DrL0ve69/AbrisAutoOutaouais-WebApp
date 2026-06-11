@@ -1,0 +1,142 @@
+<!-- ============================================================
+     Panier — AbrisTempo Local
+     WCAG AA : h1 unique, chaque contrôle libellé, quantité annoncée
+     via aria-live, état vide explicite, focus visible.
+============================================================ -->
+<section class="cart-page" aria-labelledby="cart-heading">
+  <div class="container">
+
+    <header class="section-header">
+      <p class="section-eyebrow" i18n="@@cart.eyebrow">Votre commande</p>
+      <h1 id="cart-heading" i18n="@@cart.title">Mon panier</h1>
+    </header>
+
+    <!-- Live region : annonce les changements de quantité / suppression -->
+    <p class="sr-only" aria-live="polite" aria-atomic="true">{{ announcement() }}</p>
+
+    @if (isEmpty()) {
+    <!-- ── État vide ─────────────────────────────────────────────── -->
+    <div class="cart-empty" role="status">
+      <p class="cart-empty__icon" aria-hidden="true">🛒</p>
+      <p class="cart-empty__text" i18n="@@cart.empty">Votre panier est vide</p>
+      <a routerLink="/boutique" class="btn btn--primary" i18n="@@cart.empty.shopLink">
+        Découvrir la boutique
+      </a>
+    </div>
+    } @else {
+    <div class="cart-layout">
+
+      <!-- ── Liste des articles ──────────────────────────────────── -->
+      <ul class="cart-items" role="list" aria-label="Articles du panier"
+          i18n-aria-label="@@cart.itemsLabel">
+        @for (item of items(); track item.product.id) {
+        <li class="cart-item">
+          <img class="cart-item__img"
+               [src]="imageOf(item.product)"
+               [alt]="item.product.name"
+               width="96" height="96"
+               loading="lazy" />
+
+          <div class="cart-item__info">
+            <h2 class="cart-item__name">{{ item.product.name }}</h2>
+            <p class="cart-item__category">{{ item.product.categoryName }}</p>
+            <p class="cart-item__unit">
+              <span i18n="@@cart.unitPrice">Prix unitaire :</span>
+              {{ item.product.price | currency:'CAD':'symbol-narrow':'1.2-2':'fr-CA' }}
+            </p>
+          </div>
+
+          <!-- Sélecteur de quantité -->
+          <div class="cart-item__qty"
+               role="group"
+               [attr.aria-label]="'Quantité pour ' + item.product.name">
+            <button type="button"
+                    class="qty-btn"
+                    (click)="decrease(item.product, item.quantity)"
+                    [attr.aria-label]="'Diminuer la quantité de ' + item.product.name">
+              <span aria-hidden="true">−</span>
+            </button>
+            <span class="qty-value" aria-live="off">{{ item.quantity }}</span>
+            <button type="button"
+                    class="qty-btn"
+                    (click)="increase(item.product)"
+                    [attr.aria-label]="'Augmenter la quantité de ' + item.product.name">
+              <span aria-hidden="true">+</span>
+            </button>
+          </div>
+
+          <!-- Sous-total ligne -->
+          <p class="cart-item__line-total">
+            <span class="sr-only" i18n="@@cart.lineTotal">Total pour cet article :</span>
+            {{ item.product.price * item.quantity | currency:'CAD':'symbol-narrow':'1.2-2':'fr-CA' }}
+          </p>
+
+          <!-- Retrait -->
+          <button type="button"
+                  class="cart-item__remove"
+                  (click)="remove(item.product)"
+                  [attr.aria-label]="'Retirer ' + item.product.name + ' du panier'">
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6" />
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+            </svg>
+          </button>
+        </li>
+        }
+      </ul>
+
+      <!-- ── Récapitulatif ───────────────────────────────────────── -->
+      <aside class="cart-summary" aria-labelledby="summary-heading">
+        <h2 id="summary-heading" class="cart-summary__title" i18n="@@cart.summary.title">
+          Récapitulatif
+        </h2>
+
+        <dl class="cart-summary__rows">
+          <div class="cart-summary__row">
+            <dt i18n="@@cart.summary.count">Articles</dt>
+            <dd>{{ count() }}</dd>
+          </div>
+          <div class="cart-summary__row cart-summary__row--total">
+            <dt i18n="@@cart.summary.subtotal">Sous-total</dt>
+            <dd>{{ subtotal() | currency:'CAD':'symbol-narrow':'1.2-2':'fr-CA' }}</dd>
+          </div>
+        </dl>
+
+        <p class="cart-summary__note" i18n="@@cart.summary.note">
+          Les frais de livraison et taxes sont calculés au paiement.
+        </p>
+
+        <button type="button"
+                class="btn btn--primary btn--full"
+                (click)="checkout()"
+                i18n="@@cart.checkout">
+          Passer à la caisse
+        </button>
+
+        <button type="button"
+                class="btn btn--ghost btn--full cart-summary__clear"
+                (click)="clear()"
+                i18n="@@cart.clear">
+          Vider le panier
+        </button>
+
+        <!-- Placeholder paiement (Stripe à venir) -->
+        <div aria-live="polite" aria-atomic="true">
+          @if (checkoutOpen()) {
+          <p class="cart-summary__soon" role="status" i18n="@@cart.checkout.soon">
+            Le paiement en ligne sera bientôt disponible (Stripe à venir).
+            Contactez-nous pour finaliser votre commande.
+          </p>
+          }
+        </div>
+
+        <a routerLink="/boutique" class="cart-summary__continue" i18n="@@cart.continue">
+          ← Continuer mes achats
+        </a>
+      </aside>
+
+    </div>
+    }
+  </div>
+</section>

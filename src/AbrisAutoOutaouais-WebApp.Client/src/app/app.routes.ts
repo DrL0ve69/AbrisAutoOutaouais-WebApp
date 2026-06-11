@@ -18,37 +18,40 @@ export const routes: Routes = [
   // ── Redirections des anciens chemins ──────────────────────────
   { path: 'login', redirectTo: '/auth', pathMatch: 'full' },
   { path: 'register', redirectTo: '/auth', pathMatch: 'full' },
-  {
-    path: 'me',
-    loadComponent: () => import('./features/auth/me/profile').then(m => m.ProfileComponent),
-    canActivate: [authGuard],
-    title: 'AbrisTempo Local — Mon Compte',   // title est utilisé par le router pour WCAG 2.4.2
-  },
-  // ── Ancienne route /me → redirection ─────────────────────────
-  // { path: 'me', redirectTo: '/mon-compte/profil', pathMatch: 'full' },
+  // ── /me → redirection vers le profil canonique (account/profile) ─
+  { path: 'me', redirectTo: '/mon-compte/profil', pathMatch: 'full' },
   {
     path: 'boutique',
     loadChildren: () => import('./features/shop/shop.routes').then(m => m.SHOP_ROUTES),
   },
-  // {
-  //   path: 'location',
-  //   loadChildren: () => import('./features/rental/rental.routes').then(m => m.RENTAL_ROUTES),
-  // },
-  // {
-  //   path: 'installation',
-  //   canActivate: [authGuard],
-  //   loadChildren: () => import('./features/booking/booking.routes').then(m => m.BOOKING_ROUTES),
-  // },
+  {
+    path: 'panier',
+    loadComponent: () => import('./features/cart/cart').then(m => m.CartComponent),
+    title: 'AbrisTempo Local — Mon panier',
+  },
+  // Pages provisoires « en construction » — les fonctionnalités complètes
+  // (location saisonnière, réservation d'installation) arrivent plus tard.
+  {
+    path: 'location',
+    loadComponent: () => import('./features/location/location').then(m => m.LocationComponent),
+    title: 'Location d’abris — AbrisTempo Local',
+  },
+  {
+    path: 'installation',
+    loadComponent: () =>
+      import('./features/installation/installation').then(m => m.InstallationComponent),
+    title: 'Réservation d’installation — AbrisTempo Local',
+  },
   // {
   //   path: 'mon-compte',
   //   canActivate: [authGuard],
   //   loadChildren: () => import('./features/account/account.routes').then(m => m.ACCOUNT_ROUTES),
   // },
-  // {
-  //   path: 'admin',
-  //   canActivate: [authGuard, adminGuard],
-  //   loadChildren: () => import('./features/admin/admin.routes').then(m => m.ADMIN_ROUTES),
-  // },
+  {
+    path: 'admin',
+    canActivate: [authGuard, adminGuard],
+    loadChildren: () => import('./features/admin/admin.routes').then(m => m.ADMIN_ROUTES),
+  },
   // ── Auth (connexion + inscription, flip card) ─────────────────
   // publicGuard redirige vers '/' si l'utilisateur est déjà connecté
   {

@@ -52,6 +52,54 @@
     <!-- ── Actions desktop ───────────────────────────────────── -->
     <div class="navbar__actions">
 
+      <!-- Sélecteur de langue FR / EN -->
+      <div class="navbar__lang"
+           role="group"
+           aria-label="Choisir la langue"
+           i18n-aria-label="@@navbar.langGroup">
+        <button type="button"
+                class="navbar__lang-btn"
+                [class.is-active]="currentLang() === 'fr'"
+                [attr.aria-pressed]="currentLang() === 'fr'"
+                (click)="switchLang('fr')"
+                aria-label="Français"
+                i18n-aria-label="@@navbar.langFr">
+          FR
+        </button>
+        <span class="navbar__lang-sep" aria-hidden="true">/</span>
+        <button type="button"
+                class="navbar__lang-btn"
+                [class.is-active]="currentLang() === 'en'"
+                [attr.aria-pressed]="currentLang() === 'en'"
+                (click)="switchLang('en')"
+                aria-label="English"
+                i18n-aria-label="@@navbar.langEn">
+          EN
+        </button>
+      </div>
+
+      <!-- Bascule thème clair / sombre -->
+      <button type="button"
+              class="navbar__icon-btn navbar__theme-toggle"
+              (click)="toggleTheme()"
+              [attr.aria-pressed]="theme.theme() === 'dark'"
+              [attr.aria-label]="themeLabel()">
+        @if (theme.theme() === 'dark') {
+        <!-- Soleil : passer en clair -->
+        <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+        </svg>
+        } @else {
+        <!-- Lune : passer en sombre -->
+        <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        </svg>
+        }
+      </button>
+
       <!-- Panier -->
       <a routerLink="/panier"
          class="navbar__icon-btn"
@@ -98,7 +146,7 @@
             role="menu"
             [attr.aria-hidden]="!userMenuOpen()">
           <li role="none">
-            <a routerLink="/me"
+            <a routerLink="/mon-compte/profil"
                role="menuitem"
                (click)="closeUserMenu()">Mon profil</a>
           </li>
@@ -169,7 +217,7 @@
         S'inscrire
       </a>
       } @else {
-      <a routerLink="/me" class="btn btn--outline btn--full" (click)="closeMenu()">
+      <a routerLink="/mon-compte/profil" class="btn btn--outline btn--full" (click)="closeMenu()">
         Mon compte
       </a>
       <button type="button" class="btn btn--ghost btn--full" (click)="logout()">

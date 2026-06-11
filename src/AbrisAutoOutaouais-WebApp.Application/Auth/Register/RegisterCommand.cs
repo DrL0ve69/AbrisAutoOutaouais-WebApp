@@ -6,6 +6,7 @@ namespace AbrisAutoOutaouais_WebApp.Application.Auth.Register;
 
 public sealed record RegisterCommand(
     string Email,
+    string Username,
     string Password,
     string ConfirmPassword,
     string FirstName,
@@ -20,63 +21,31 @@ public sealed class RegisterCommandHandler : ICommandHandler<RegisterCommand, Re
         _identityService = identityService;
     }
 
-    public async ValueTask<Result<AuthResponse>> Handle(RegisterCommand command, CancellationToken ct)
-    {
-        // Validation simple
-        if (string.IsNullOrWhiteSpace(command.Email))
-        {
-            return Result<AuthResponse>.Failure("L'email est requis.");
-        }
-
-        if (command.Password != command.ConfirmPassword)
-        {
-            return Result<AuthResponse>.Failure("Les mots de passe ne correspondent pas.");
-        }
-
-        if (string.IsNullOrWhiteSpace(command.FirstName) || string.IsNullOrWhiteSpace(command.LastName))
-        {
-            return Result<AuthResponse>.Failure("Le prénom et le nom sont requis.");
-        }
-
-        // Appeler le service Identity
-        var result = await _identityService.RegisterAsync(
-            command.Email,
-            command.Password,
-            command.FirstName,
-            command.LastName,
-            ct);
-
-        return result;
-    }
+    // Contrat IQueryHandler/ICommandHandler — délègue à HandleAsync (appelé par le Dispatcher).
+    public ValueTask<Result<AuthResponse>> Handle(RegisterCommand command, CancellationToken ct)
+        => new(HandleAsync(command, ct));
 
     public async Task<Result<AuthResponse>> HandleAsync(
-        RegisterCommand command,
-        CancellationToken cancellationToken = default)
+        RegisterCommand command, CancellationToken cancellationToken = default)
     {
-        // Validation simple
         if (string.IsNullOrWhiteSpace(command.Email))
-        {
-            return Result<AuthResponse>.Failure("L'email est requis.");
-        }
+            return Result<AuthResponse>.Failure("Le courriel est requis.");
+
+        if (string.IsNullOrWhiteSpace(command.Username))
+            return Result<AuthResponse>.Failure("Le nom d'utilisateur est requis.");
 
         if (command.Password != command.ConfirmPassword)
-        {
             return Result<AuthResponse>.Failure("Les mots de passe ne correspondent pas.");
-        }
 
         if (string.IsNullOrWhiteSpace(command.FirstName) || string.IsNullOrWhiteSpace(command.LastName))
-        {
             return Result<AuthResponse>.Failure("Le prénom et le nom sont requis.");
-        }
 
-        // Appeler le service Identity
-        var result = await _identityService.RegisterAsync(
+        return await _identityService.RegisterAsync(
             command.Email,
+            command.Username,
             command.Password,
             command.FirstName,
             command.LastName,
             cancellationToken);
-
-        return result;
     }
 }

@@ -15,3 +15,13 @@ try {
 } catch {
   // Environnement de test déjà initialisé (multi-fichiers / rechargement Vite) — ignorer.
 }
+
+// En mode navigateur, les fichiers de test partagent le même contexte : on réinitialise
+// le module TestBed après chaque test pour éviter « test module already instantiated ».
+afterEach(() => {
+  try {
+    getTestBed().resetTestingModule();
+  } catch {
+    /* noop */
+  }
+});

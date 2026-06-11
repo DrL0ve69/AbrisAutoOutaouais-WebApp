@@ -8,7 +8,11 @@ import {
 import { RouterLink } from '@angular/router';
 import { CurrencyPipe } from '@angular/common';
 import { ProductService } from '../../core/services/product.service';
-import { CategoryDto, ProductDto } from '../../core/models/product.model';
+import {
+  CategoryDto,
+  ProductDto,
+  resolveProductImage,
+} from '../../core/models/product.model';
 
 interface ServiceCard {
   icon: string;
@@ -108,6 +112,17 @@ export class HomeComponent implements OnInit {
 
     // Tous les produits au départ
     this.loadCatalog(null);
+  }
+
+  // URL de l'image (SVG par slug) pour les cartes de la page d'accueil.
+  protected imageFor(product: ProductDto): string {
+    return resolveProductImage(product);
+  }
+
+  // En cas d'erreur de chargement, on masque l'image pour révéler le
+  // placeholder en dégradé positionné dessous.
+  protected onImageError(event: Event): void {
+    (event.target as HTMLImageElement).style.display = 'none';
   }
 
   protected selectCategory(slug: string | null): void {

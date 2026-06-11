@@ -1,0 +1,1033 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="fr" datatype="plaintext" original="ng2.template">
+    <body>
+      <trans-unit id="account.back" datatype="html">
+        <source> ← Mon compte </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/account/orders/orders.ts</context>
+          <context context-type="linenumber">38,40</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/account/rentals/rentals.ts</context>
+          <context context-type="linenumber">38,40</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/account/reservations/reservations.ts</context>
+          <context context-type="linenumber">36,38</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="account.orders.title" datatype="html">
+        <source>Mes commandes</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/account/orders/orders.ts</context>
+          <context context-type="linenumber">40,41</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="account.orders.lead" datatype="html">
+        <source> Retrouvez l&apos;historique de vos achats d&apos;abris et accessoires. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/account/orders/orders.ts</context>
+          <context context-type="linenumber">42,44</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="account.orders.loading" datatype="html">
+        <source> Chargement de vos commandes… </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/account/orders/orders.ts</context>
+          <context context-type="linenumber">49,51</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="account.orders.empty" datatype="html">
+        <source>Aucune commande pour le moment</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/account/orders/orders.ts</context>
+          <context context-type="linenumber">69,70</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="account.orders.emptyHint" datatype="html">
+        <source>Vos prochaines commandes apparaîtront ici une fois passées.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/account/orders/orders.ts</context>
+          <context context-type="linenumber">71,72</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="account.rentals.title" datatype="html">
+        <source>Mes locations</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/account/rentals/rentals.ts</context>
+          <context context-type="linenumber">40,41</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="account.rentals.lead" datatype="html">
+        <source> Consultez vos locations saisonnières d&apos;abris en cours et passées. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/account/rentals/rentals.ts</context>
+          <context context-type="linenumber">42,44</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="account.rentals.loading" datatype="html">
+        <source> Chargement de vos locations… </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/account/rentals/rentals.ts</context>
+          <context context-type="linenumber">49,51</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="account.rentals.empty" datatype="html">
+        <source>Aucune location pour le moment</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/account/rentals/rentals.ts</context>
+          <context context-type="linenumber">73,74</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="account.rentals.emptyHint" datatype="html">
+        <source>Vos locations saisonnières apparaîtront ici dès qu&apos;elles seront disponibles.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/account/rentals/rentals.ts</context>
+          <context context-type="linenumber">75,76</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="account.reservations.title" datatype="html">
+        <source> Mes réservations </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/account/reservations/reservations.ts</context>
+          <context context-type="linenumber">39,41</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="account.reservations.lead" datatype="html">
+        <source> Suivez vos rendez-vous d&apos;installation d&apos;abris. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/account/reservations/reservations.ts</context>
+          <context context-type="linenumber">42,44</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="account.reservations.loading" datatype="html">
+        <source> Chargement de vos réservations… </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/account/reservations/reservations.ts</context>
+          <context context-type="linenumber">49,51</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="account.reservations.empty" datatype="html">
+        <source>Aucune réservation pour le moment</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/account/reservations/reservations.ts</context>
+          <context context-type="linenumber">68,69</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="account.reservations.emptyHint" datatype="html">
+        <source>Réservez une installation depuis la page dédiée pour la voir apparaître ici.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/account/reservations/reservations.ts</context>
+          <context context-type="linenumber">70,71</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.eyebrow" datatype="html">
+        <source>Espace réservé</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/dashboard/dashboard.ts</context>
+          <context context-type="linenumber">25,26</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.title" datatype="html">
+        <source>Tableau de bord administrateur</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/dashboard/dashboard.ts</context>
+          <context context-type="linenumber">26,27</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.lead" datatype="html">
+        <source> Gérez le catalogue, les commandes et les utilisateurs d&apos;AbrisTempo Local. Les modules ci-dessous arrivent prochainement. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/dashboard/dashboard.ts</context>
+          <context context-type="linenumber">28,30</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.sectionsLabel" datatype="html">
+        <source>Sections d&apos;administration</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/dashboard/dashboard.ts</context>
+          <context context-type="linenumber">33,34</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.card.soon" datatype="html">
+        <source>Section en construction</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/dashboard/dashboard.ts</context>
+          <context context-type="linenumber">41,43</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.back" datatype="html">
+        <source> ← Retour au site </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/dashboard/dashboard.ts</context>
+          <context context-type="linenumber">48,50</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.section.products" datatype="html">
+        <source>Produits</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/dashboard/dashboard.ts</context>
+          <context context-type="linenumber">59</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.section.productsDesc" datatype="html">
+        <source>Ajouter, modifier et retirer des abris du catalogue.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/dashboard/dashboard.ts</context>
+          <context context-type="linenumber">60</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.section.orders" datatype="html">
+        <source>Commandes</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/dashboard/dashboard.ts</context>
+          <context context-type="linenumber">65</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.section.ordersDesc" datatype="html">
+        <source>Suivre et traiter les commandes des clients.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/dashboard/dashboard.ts</context>
+          <context context-type="linenumber">66</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.section.users" datatype="html">
+        <source>Utilisateurs</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/dashboard/dashboard.ts</context>
+          <context context-type="linenumber">71</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.section.usersDesc" datatype="html">
+        <source>Gérer les comptes et les rôles des utilisateurs.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/dashboard/dashboard.ts</context>
+          <context context-type="linenumber">72</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.section.reservations" datatype="html">
+        <source>Réservations</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/dashboard/dashboard.ts</context>
+          <context context-type="linenumber">77</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.section.reservationsDesc" datatype="html">
+        <source>Planifier les installations et les locations d&apos;abris.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/dashboard/dashboard.ts</context>
+          <context context-type="linenumber">78</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="cart.eyebrow" datatype="html">
+        <source>Votre commande</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/cart/cart.html</context>
+          <context context-type="linenumber">10,11</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="cart.title" datatype="html">
+        <source>Mon panier</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/cart/cart.html</context>
+          <context context-type="linenumber">11,14</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="cart.empty" datatype="html">
+        <source>Votre panier est vide</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/cart/cart.html</context>
+          <context context-type="linenumber">21,22</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="cart.empty.shopLink" datatype="html">
+        <source> Découvrir la boutique </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/cart/cart.html</context>
+          <context context-type="linenumber">23,26</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="cart.itemsLabel" datatype="html">
+        <source>Articles du panier</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/cart/cart.html</context>
+          <context context-type="linenumber">30,31</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="cart.unitPrice" datatype="html">
+        <source>Prix unitaire :</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/cart/cart.html</context>
+          <context context-type="linenumber">44,45</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="cart.lineTotal" datatype="html">
+        <source>Total pour cet article :</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/cart/cart.html</context>
+          <context context-type="linenumber">70,71</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="cart.summary.title" datatype="html">
+        <source> Récapitulatif </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/cart/cart.html</context>
+          <context context-type="linenumber">92,95</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="cart.summary.count" datatype="html">
+        <source>Articles</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/cart/cart.html</context>
+          <context context-type="linenumber">97,98</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="cart.summary.subtotal" datatype="html">
+        <source>Sous-total</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/cart/cart.html</context>
+          <context context-type="linenumber">101,102</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="cart.summary.note" datatype="html">
+        <source> Les frais de livraison et taxes sont calculés au paiement. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/cart/cart.html</context>
+          <context context-type="linenumber">107,110</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="cart.checkout" datatype="html">
+        <source> Passer à la caisse </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/cart/cart.html</context>
+          <context context-type="linenumber">114,116</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="cart.clear" datatype="html">
+        <source> Vider le panier </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/cart/cart.html</context>
+          <context context-type="linenumber">121,122</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="cart.checkout.soon" datatype="html">
+        <source> Le paiement en ligne sera bientôt disponible (Stripe à venir). Contactez-nous pour finaliser votre commande. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/cart/cart.html</context>
+          <context context-type="linenumber">128,130</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="cart.continue" datatype="html">
+        <source> ← Continuer mes achats </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/cart/cart.html</context>
+          <context context-type="linenumber">135,137</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="cart.announce.increased" datatype="html">
+        <source>Quantité de <x id="name" equiv-text="product.name"/> augmentée.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/cart/cart.ts</context>
+          <context context-type="linenumber">52</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="cart.announce.decreased" datatype="html">
+        <source>Quantité de <x id="name" equiv-text="product.name"/> diminuée.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/cart/cart.ts</context>
+          <context context-type="linenumber">70</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="cart.announce.removed" datatype="html">
+        <source><x id="name" equiv-text="product.name"/> retiré du panier.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/cart/cart.ts</context>
+          <context context-type="linenumber">78</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="cart.announce.cleared" datatype="html">
+        <source>Le panier a été vidé.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/cart/cart.ts</context>
+          <context context-type="linenumber">86</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.hero.badge" datatype="html">
+        <source>Représentant officiel Tempo — Outaouais</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">18,21</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.hero.title" datatype="html">
+        <source>Protégez votre véhicule</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">22,23</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.hero.titleAccent" datatype="html">
+        <source>toute l&apos;année</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">23,26</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.hero.subtitle" datatype="html">
+        <source> Vente, location et installation d&apos;abris d&apos;auto Tempo de qualité. Livraison partout en Outaouais — service local et personnalisé. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">27,31</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.hero.catalogAria" datatype="html">
+        <source>Voir notre catalogue d&apos;abris</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">34,35</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.hero.catalogCta" datatype="html">
+        <source>Voir le catalogue</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">36,37</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.hero.installAria" datatype="html">
+        <source>Réserver une installation à domicile</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">45,46</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.hero.installCta" datatype="html">
+        <source> Réserver une installation </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">48,51</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.hero.statsAria" datatype="html">
+        <source>Chiffres clés</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">53,54</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.hero.stat1" datatype="html">
+        <source>Abris installés</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">57,59</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.hero.stat2Number" datatype="html">
+        <source>15 ans</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">61,62</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.hero.stat2" datatype="html">
+        <source>D&apos;expérience</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">62,64</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.hero.stat3" datatype="html">
+        <source>Clients satisfaits</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">67,69</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.services.eyebrow" datatype="html">
+        <source>Ce que nous offrons</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">77,78</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.services.title" datatype="html">
+        <source>Tous vos besoins en abris</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">78,79</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.services.subtitle" datatype="html">
+        <source> De la vente à l&apos;installation, nous vous accompagnons à chaque étape. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">80,83</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.whyUs.eyebrow" datatype="html">
+        <source>Notre engagement</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">111,112</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.whyUs.titleLead" datatype="html">
+        <source>Pourquoi choisir</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">113,114</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.whyUs.titleAccent" datatype="html">
+        <source>AbrisTempo Outaouais ?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">114,116</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.whyUs.body" datatype="html">
+        <source> Nous sommes votre représentant local de confiance pour les abris Tempo. Qualité, service et expertise au service de votre tranquillité d&apos;esprit. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">117,119</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.whyUs.cta" datatype="html">
+        <source> Découvrir nos produits </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">122,124</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.featured.eyebrow" datatype="html">
+        <source>Nos produits populaires</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">145,146</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.featured.title" datatype="html">
+        <source>Abris les plus populaires</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">146,149</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.featured.loading" datatype="html">
+        <source>Chargement des produits…</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">151,152</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.featured.soldOut" datatype="html">
+        <source>Épuisé</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">170,172</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.featured.rentLabel" datatype="html">
+        <source>Location</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">192,193</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.featured.month" datatype="html">
+        <source>mois</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">194,196</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.featured.viewProduct" datatype="html">
+        <source> Voir le produit </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">202,204</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.featured.viewAll" datatype="html">
+        <source> Voir tous nos produits </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">211,214</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.catalog.eyebrow" datatype="html">
+        <source>Notre catalogue</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">222,223</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.catalog.title" datatype="html">
+        <source>Parcourez nos abris</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">223,224</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.catalog.subtitle" datatype="html">
+        <source> Filtrez par catégorie pour trouver rapidement l&apos;abri qu&apos;il vous faut. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">225,227</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.catalog.filterGroup" datatype="html">
+        <source>Filtrer les produits par catégorie</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">232,233</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.catalog.filterAll" datatype="html">
+        <source>Tous</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">239,241</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.catalog.loading" datatype="html">
+        <source>Chargement des produits…</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">257,258</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.product.soldOut" datatype="html">
+        <source>Épuisé</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">276,278</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.product.rentLabel" datatype="html">
+        <source>Location</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">295,296</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.product.month" datatype="html">
+        <source>mois</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">297,299</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.catalog.empty" datatype="html">
+        <source> Aucun produit dans cette catégorie pour le moment. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">307,310</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.cta.title" datatype="html">
+        <source>Prêt à protéger votre véhicule ?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">317,318</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.cta.body" datatype="html">
+        <source> Contactez-nous pour obtenir une soumission gratuite ou réservez directement votre installation en ligne. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">319,321</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.cta.installAria" datatype="html">
+        <source>Réserver une installation d&apos;abri</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">326,327</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.cta.installCta" datatype="html">
+        <source> Réserver l&apos;installation </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">329,331</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.cta.phoneAria" datatype="html">
+        <source>Appeler au 819 123-4567</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.html</context>
+          <context context-type="linenumber">333,334</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.services.shop.title" datatype="html">
+        <source>Boutique en ligne</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.ts</context>
+          <context context-type="linenumber">54</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.services.shop.desc" datatype="html">
+        <source>Parcourez notre catalogue complet d&apos;abris d&apos;auto Tempo. Livraison disponible partout en Outaouais.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.ts</context>
+          <context context-type="linenumber">55</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.services.shop.link" datatype="html">
+        <source>Voir le catalogue</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.ts</context>
+          <context context-type="linenumber">57</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.services.rental.title" datatype="html">
+        <source>Location saisonnière</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.ts</context>
+          <context context-type="linenumber">61</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.services.rental.desc" datatype="html">
+        <source>Louez un abri pour la saison. Solution flexible et économique sans engagement à long terme.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.ts</context>
+          <context context-type="linenumber">62</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.services.rental.link" datatype="html">
+        <source>Explorer la location</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.ts</context>
+          <context context-type="linenumber">64</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.services.install.title" datatype="html">
+        <source>Installation professionnelle</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.ts</context>
+          <context context-type="linenumber">68</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.services.install.desc" datatype="html">
+        <source>Service d&apos;installation et de démontage à domicile. Réservez votre créneau en ligne.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.ts</context>
+          <context context-type="linenumber">69</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.services.install.link" datatype="html">
+        <source>Réserver maintenant</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.ts</context>
+          <context context-type="linenumber">71</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.whyUs.official.title" datatype="html">
+        <source>Représentant officiel</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.ts</context>
+          <context context-type="linenumber">78</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.whyUs.official.text" datatype="html">
+        <source>Distributeur agréé Tempo pour la région de l&apos;Outaouais. Produits garantis et authentiques.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.ts</context>
+          <context context-type="linenumber">79</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.whyUs.delivery.title" datatype="html">
+        <source>Livraison régionale</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.ts</context>
+          <context context-type="linenumber">83</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.whyUs.delivery.text" datatype="html">
+        <source>Livraison directement chez vous dans toute la région. Disponible 7 jours sur 7.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.ts</context>
+          <context context-type="linenumber">84</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.whyUs.service.title" datatype="html">
+        <source>Service personnalisé</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.ts</context>
+          <context context-type="linenumber">88</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.whyUs.service.text" datatype="html">
+        <source>Parlez à un vrai représentant. Conseils sur mesure pour choisir le bon abri.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.ts</context>
+          <context context-type="linenumber">89</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.whyUs.quality.title" datatype="html">
+        <source>Qualité garantie</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.ts</context>
+          <context context-type="linenumber">93</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.whyUs.quality.text" datatype="html">
+        <source>Abris Tempo reconnus pour leur robustesse face aux conditions hivernales du Québec.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/home.ts</context>
+          <context context-type="linenumber">94</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="installation.eyebrow" datatype="html">
+        <source>Bientôt disponible</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/installation/installation.ts</context>
+          <context context-type="linenumber">15,16</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="installation.title" datatype="html">
+        <source> Réservation d&apos;installation — page en construction </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/installation/installation.ts</context>
+          <context context-type="linenumber">17,19</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="installation.body" datatype="html">
+        <source> La réservation en ligne de votre installation à domicile arrive bientôt. En attendant, appelez-nous au 819 123-4567 pour planifier votre rendez-vous. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/installation/installation.ts</context>
+          <context context-type="linenumber">20,22</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="installation.back" datatype="html">
+        <source> Retour à l&apos;accueil </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/installation/installation.ts</context>
+          <context context-type="linenumber">24,26</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="location.eyebrow" datatype="html">
+        <source>Bientôt disponible</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/location/location.ts</context>
+          <context context-type="linenumber">15,16</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="location.title" datatype="html">
+        <source>Location d&apos;abris — page en construction</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/location/location.ts</context>
+          <context context-type="linenumber">16,17</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="location.body" datatype="html">
+        <source> Notre service de location saisonnière d&apos;abris arrive bientôt. En attendant, parcourez notre boutique ou contactez-nous pour toute question. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/location/location.ts</context>
+          <context context-type="linenumber">18,20</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="location.back" datatype="html">
+        <source> Retour à l&apos;accueil </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/location/location.ts</context>
+          <context context-type="linenumber">22,24</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.catalog.eyebrow" datatype="html">
+        <source>Notre boutique</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/catalog/catalog.html</context>
+          <context context-type="linenumber">9,10</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.catalog.title" datatype="html">
+        <source>Tous nos abris d&apos;auto</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/catalog/catalog.html</context>
+          <context context-type="linenumber">10,11</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.catalog.subtitle" datatype="html">
+        <source> Filtrez par catégorie et ajoutez vos abris au panier en quelques clics. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/catalog/catalog.html</context>
+          <context context-type="linenumber">12,16</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.catalog.filterGroup" datatype="html">
+        <source>Filtrer les produits par catégorie</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/catalog/catalog.html</context>
+          <context context-type="linenumber">19,20</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.catalog.filterAll" datatype="html">
+        <source>Tous</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/catalog/catalog.html</context>
+          <context context-type="linenumber">26,28</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.catalog.loading" datatype="html">
+        <source>Chargement des produits…</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/catalog/catalog.html</context>
+          <context context-type="linenumber">44,45</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.catalog.empty" datatype="html">
+        <source> Aucun produit dans cette catégorie pour le moment. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/catalog/catalog.html</context>
+          <context context-type="linenumber">70,74</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.catalog.addedToast" datatype="html">
+        <source><x id="name" equiv-text="product.name"/> a été ajouté au panier.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/catalog/catalog.ts</context>
+          <context context-type="linenumber">54</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.detail.back" datatype="html">
+        <source> ← Retour à la boutique </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
+          <context context-type="linenumber">11,14</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.detail.loading" datatype="html">
+        <source> Chargement du produit… </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
+          <context context-type="linenumber">19,21</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.detail.notFoundTitle" datatype="html">
+        <source>Produit introuvable</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
+          <context context-type="linenumber">23,24</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.detail.notFoundBody" datatype="html">
+        <source> Le produit que vous cherchez n&apos;existe pas ou n&apos;est plus disponible. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
+          <context context-type="linenumber">25,27</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.detail.notFoundCta" datatype="html">
+        <source> Retour au catalogue </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
+          <context context-type="linenumber">30,33</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.detail.rentLabel" datatype="html">
+        <source>Location</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
+          <context context-type="linenumber">70,71</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.detail.month" datatype="html">
+        <source>mois</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
+          <context context-type="linenumber">72,74</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.detail.available" datatype="html">
+        <source>En stock</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
+          <context context-type="linenumber">84,86</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.detail.unavailable" datatype="html">
+        <source>Épuisé</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
+          <context context-type="linenumber">87,91</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.detail.descriptionTitle" datatype="html">
+        <source>Description</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
+          <context context-type="linenumber">93,94</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.detail.addToCart" datatype="html">
+        <source> Ajouter au panier </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
+          <context context-type="linenumber">104,106</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.detail.addedToast" datatype="html">
+        <source><x id="name" equiv-text="product.name"/> a été ajouté au panier.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.ts</context>
+          <context context-type="linenumber">70</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="product.available" datatype="html">
+        <source>En stock</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/product-card/product-card.html</context>
+          <context context-type="linenumber">63,65</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="product.unavailable" datatype="html">
+        <source>Épuisé</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/product-card/product-card.html</context>
+          <context context-type="linenumber">66,70</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="product.addToCart" datatype="html">
+        <source> Ajouter au panier </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/product-card/product-card.html</context>
+          <context context-type="linenumber">77,81</context>
+        </context-group>
+        <note priority="1" from="description">Bouton ajouter au panier</note>
+      </trans-unit>
+      <trans-unit id="navbar.langGroup" datatype="html">
+        <source>Choisir la langue</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
+          <context context-type="linenumber">58,59</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="navbar.langFr" datatype="html">
+        <source>Français</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
+          <context context-type="linenumber">65,66</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="navbar.langEn" datatype="html">
+        <source>English</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
+          <context context-type="linenumber">75,76</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="skipNav.link" datatype="html">
+        <source> Aller au contenu principal
+</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/layout/skip-nav/skip-nav.html</context>
+          <context context-type="linenumber">6,8</context>
+        </context-group>
+        <note priority="1" from="description">Lien d&apos;évitement</note>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

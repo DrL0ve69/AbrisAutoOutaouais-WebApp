@@ -8,12 +8,16 @@
      tabindex="-1"
      aria-hidden="true">
     <!-- tabindex="-1" : le lien du titre suffit — éviter la navigation dupliquée -->
-    @if (product().thumbnailUrl) {
-    <img ngSrc="{{ product().thumbnailUrl! }}"
+    @if (!imageFailed()) {
+    <!-- SVG → <img> simple (NgOptimizedImage est réservé au matriciel) -->
+    <img [src]="imageSrc()"
          [alt]="product().name"
          width="400"
          height="300"
-         class="product-card__image" />
+         loading="lazy"
+         decoding="async"
+         class="product-card__image"
+         (error)="onImageError()" />
     } @else {
     <div class="product-card__image-placeholder" aria-hidden="true">
       <span>📦</span>

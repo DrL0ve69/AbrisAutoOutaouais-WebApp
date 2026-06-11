@@ -35,6 +35,11 @@ yarn-error.log
 /connect.lock
 /coverage
 /libpeerconnection.log
+
+# Playwright (e2e a11y)
+/test-results
+/playwright-report
+/playwright/.cache
 testem.log
 /typings
 __screenshots__/

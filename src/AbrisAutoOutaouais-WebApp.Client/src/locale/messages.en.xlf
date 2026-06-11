@@ -2,6 +2,208 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="fr" target-language="en" datatype="plaintext" original="ng2.template">
     <body>
+      <trans-unit id="account.back" datatype="html">
+        <source> ← Mon compte </source>
+        <target> ← My account </target>
+      </trans-unit>
+      <trans-unit id="account.orders.title" datatype="html">
+        <source>Mes commandes</source>
+        <target>My orders</target>
+      </trans-unit>
+      <trans-unit id="account.orders.lead" datatype="html">
+        <source> Retrouvez l&apos;historique de vos achats d&apos;abris et accessoires. </source>
+        <target> Review the history of your shelter and accessory purchases. </target>
+      </trans-unit>
+      <trans-unit id="account.orders.loading" datatype="html">
+        <source> Chargement de vos commandes… </source>
+        <target> Loading your orders… </target>
+      </trans-unit>
+      <trans-unit id="account.orders.empty" datatype="html">
+        <source>Aucune commande pour le moment</source>
+        <target>No orders yet</target>
+      </trans-unit>
+      <trans-unit id="account.orders.emptyHint" datatype="html">
+        <source>Vos prochaines commandes apparaîtront ici une fois passées.</source>
+        <target>Your next orders will appear here once placed.</target>
+      </trans-unit>
+      <trans-unit id="account.rentals.title" datatype="html">
+        <source>Mes locations</source>
+        <target>My rentals</target>
+      </trans-unit>
+      <trans-unit id="account.rentals.lead" datatype="html">
+        <source> Consultez vos locations saisonnières d&apos;abris en cours et passées. </source>
+        <target> View your current and past seasonal shelter rentals. </target>
+      </trans-unit>
+      <trans-unit id="account.rentals.loading" datatype="html">
+        <source> Chargement de vos locations… </source>
+        <target> Loading your rentals… </target>
+      </trans-unit>
+      <trans-unit id="account.rentals.empty" datatype="html">
+        <source>Aucune location pour le moment</source>
+        <target>No rentals yet</target>
+      </trans-unit>
+      <trans-unit id="account.rentals.emptyHint" datatype="html">
+        <source>Vos locations saisonnières apparaîtront ici dès qu&apos;elles seront disponibles.</source>
+        <target>Your seasonal rentals will appear here as soon as they are available.</target>
+      </trans-unit>
+      <trans-unit id="account.reservations.title" datatype="html">
+        <source> Mes réservations </source>
+        <target> My bookings </target>
+      </trans-unit>
+      <trans-unit id="account.reservations.lead" datatype="html">
+        <source> Suivez vos rendez-vous d&apos;installation d&apos;abris. </source>
+        <target> Track your shelter installation appointments. </target>
+      </trans-unit>
+      <trans-unit id="account.reservations.loading" datatype="html">
+        <source> Chargement de vos réservations… </source>
+        <target> Loading your bookings… </target>
+      </trans-unit>
+      <trans-unit id="account.reservations.empty" datatype="html">
+        <source>Aucune réservation pour le moment</source>
+        <target>No bookings yet</target>
+      </trans-unit>
+      <trans-unit id="account.reservations.emptyHint" datatype="html">
+        <source>Réservez une installation depuis la page dédiée pour la voir apparaître ici.</source>
+        <target>Book an installation from the dedicated page to see it appear here.</target>
+      </trans-unit>
+
+      <!-- ===== ADMIN ===== -->
+      <trans-unit id="admin.eyebrow" datatype="html">
+        <source>Espace réservé</source>
+        <target>Restricted area</target>
+      </trans-unit>
+      <trans-unit id="admin.title" datatype="html">
+        <source>Tableau de bord administrateur</source>
+        <target>Administrator dashboard</target>
+      </trans-unit>
+      <trans-unit id="admin.lead" datatype="html">
+        <source> Gérez le catalogue, les commandes et les utilisateurs d&apos;AbrisTempo Local. Les modules ci-dessous arrivent prochainement. </source>
+        <target> Manage the catalogue, orders and users of AbrisTempo Local. The modules below are coming soon. </target>
+      </trans-unit>
+      <trans-unit id="admin.sectionsLabel" datatype="html">
+        <source>Sections d&apos;administration</source>
+        <target>Administration sections</target>
+      </trans-unit>
+      <trans-unit id="admin.card.soon" datatype="html">
+        <source>Section en construction</source>
+        <target>Section under construction</target>
+      </trans-unit>
+      <trans-unit id="admin.back" datatype="html">
+        <source> ← Retour au site </source>
+        <target> ← Back to the site </target>
+      </trans-unit>
+      <trans-unit id="admin.section.products" datatype="html">
+        <source>Produits</source>
+        <target>Products</target>
+      </trans-unit>
+      <trans-unit id="admin.section.productsDesc" datatype="html">
+        <source>Ajouter, modifier et retirer des abris du catalogue.</source>
+        <target>Add, edit and remove shelters from the catalogue.</target>
+      </trans-unit>
+      <trans-unit id="admin.section.orders" datatype="html">
+        <source>Commandes</source>
+        <target>Orders</target>
+      </trans-unit>
+      <trans-unit id="admin.section.ordersDesc" datatype="html">
+        <source>Suivre et traiter les commandes des clients.</source>
+        <target>Track and process customer orders.</target>
+      </trans-unit>
+      <trans-unit id="admin.section.users" datatype="html">
+        <source>Utilisateurs</source>
+        <target>Users</target>
+      </trans-unit>
+      <trans-unit id="admin.section.usersDesc" datatype="html">
+        <source>Gérer les comptes et les rôles des utilisateurs.</source>
+        <target>Manage user accounts and roles.</target>
+      </trans-unit>
+      <trans-unit id="admin.section.reservations" datatype="html">
+        <source>Réservations</source>
+        <target>Bookings</target>
+      </trans-unit>
+      <trans-unit id="admin.section.reservationsDesc" datatype="html">
+        <source>Planifier les installations et les locations d&apos;abris.</source>
+        <target>Schedule shelter installations and rentals.</target>
+      </trans-unit>
+
+      <!-- ===== PANIER ===== -->
+      <trans-unit id="cart.eyebrow" datatype="html">
+        <source>Votre commande</source>
+        <target>Your order</target>
+      </trans-unit>
+      <trans-unit id="cart.title" datatype="html">
+        <source>Mon panier</source>
+        <target>My cart</target>
+      </trans-unit>
+      <trans-unit id="cart.empty" datatype="html">
+        <source>Votre panier est vide</source>
+        <target>Your cart is empty</target>
+      </trans-unit>
+      <trans-unit id="cart.empty.shopLink" datatype="html">
+        <source> Découvrir la boutique </source>
+        <target> Discover the store </target>
+      </trans-unit>
+      <trans-unit id="cart.itemsLabel" datatype="html">
+        <source>Articles du panier</source>
+        <target>Cart items</target>
+      </trans-unit>
+      <trans-unit id="cart.unitPrice" datatype="html">
+        <source>Prix unitaire :</source>
+        <target>Unit price:</target>
+      </trans-unit>
+      <trans-unit id="cart.lineTotal" datatype="html">
+        <source>Total pour cet article :</source>
+        <target>Total for this item:</target>
+      </trans-unit>
+      <trans-unit id="cart.summary.title" datatype="html">
+        <source> Récapitulatif </source>
+        <target> Summary </target>
+      </trans-unit>
+      <trans-unit id="cart.summary.count" datatype="html">
+        <source>Articles</source>
+        <target>Items</target>
+      </trans-unit>
+      <trans-unit id="cart.summary.subtotal" datatype="html">
+        <source>Sous-total</source>
+        <target>Subtotal</target>
+      </trans-unit>
+      <trans-unit id="cart.summary.note" datatype="html">
+        <source> Les frais de livraison et taxes sont calculés au paiement. </source>
+        <target> Delivery fees and taxes are calculated at checkout. </target>
+      </trans-unit>
+      <trans-unit id="cart.checkout" datatype="html">
+        <source> Passer à la caisse </source>
+        <target> Proceed to checkout </target>
+      </trans-unit>
+      <trans-unit id="cart.clear" datatype="html">
+        <source> Vider le panier </source>
+        <target> Empty the cart </target>
+      </trans-unit>
+      <trans-unit id="cart.checkout.soon" datatype="html">
+        <source> Le paiement en ligne sera bientôt disponible (Stripe à venir). Contactez-nous pour finaliser votre commande. </source>
+        <target> Online payment will be available soon (Stripe coming soon). Contact us to finalize your order. </target>
+      </trans-unit>
+      <trans-unit id="cart.continue" datatype="html">
+        <source> ← Continuer mes achats </source>
+        <target> ← Continue shopping </target>
+      </trans-unit>
+      <trans-unit id="cart.announce.increased" datatype="html">
+        <source>Quantité de <x id="name" equiv-text="product.name"/> augmentée.</source>
+        <target>Quantity of <x id="name" equiv-text="product.name"/> increased.</target>
+      </trans-unit>
+      <trans-unit id="cart.announce.decreased" datatype="html">
+        <source>Quantité de <x id="name" equiv-text="product.name"/> diminuée.</source>
+        <target>Quantity of <x id="name" equiv-text="product.name"/> decreased.</target>
+      </trans-unit>
+      <trans-unit id="cart.announce.removed" datatype="html">
+        <source><x id="name" equiv-text="product.name"/> retiré du panier.</source>
+        <target><x id="name" equiv-text="product.name"/> removed from the cart.</target>
+      </trans-unit>
+      <trans-unit id="cart.announce.cleared" datatype="html">
+        <source>Le panier a été vidé.</source>
+        <target>The cart has been emptied.</target>
+      </trans-unit>
+
+      <!-- ===== HOME — CATALOGUE ===== -->
       <trans-unit id="home.catalog.eyebrow" datatype="html">
         <source>Notre catalogue</source>
         <target>Our catalogue</target>
@@ -11,8 +213,8 @@
         <target>Browse our shelters</target>
       </trans-unit>
       <trans-unit id="home.catalog.subtitle" datatype="html">
-        <source>Filtrez par catégorie pour trouver rapidement l'abri qu'il vous faut.</source>
-        <target>Filter by category to quickly find the shelter you need.</target>
+        <source> Filtrez par catégorie pour trouver rapidement l&apos;abri qu&apos;il vous faut. </source>
+        <target> Filter by category to quickly find the shelter you need. </target>
       </trans-unit>
       <trans-unit id="home.catalog.filterGroup" datatype="html">
         <source>Filtrer les produits par catégorie</source>
@@ -27,8 +229,8 @@
         <target>Loading products…</target>
       </trans-unit>
       <trans-unit id="home.catalog.empty" datatype="html">
-        <source>Aucun produit dans cette catégorie pour le moment.</source>
-        <target>No products in this category yet.</target>
+        <source> Aucun produit dans cette catégorie pour le moment. </source>
+        <target> No products in this category yet. </target>
       </trans-unit>
       <trans-unit id="home.product.soldOut" datatype="html">
         <source>Épuisé</source>
@@ -53,30 +255,28 @@
         <target>Protect your vehicle</target>
       </trans-unit>
       <trans-unit id="home.hero.titleAccent" datatype="html">
-        <source>toute l'année</source>
+        <source>toute l&apos;année</source>
         <target>all year long</target>
       </trans-unit>
       <trans-unit id="home.hero.subtitle" datatype="html">
-        <source>Vente, location et installation d'abris d'auto Tempo de qualité.
-      Livraison partout en Outaouais — service local et personnalisé.</source>
-        <target>Sale, rental and installation of quality Tempo car shelters.
-      Delivery throughout the Outaouais — local, personalized service.</target>
+        <source> Vente, location et installation d&apos;abris d&apos;auto Tempo de qualité. Livraison partout en Outaouais — service local et personnalisé. </source>
+        <target> Sale, rental and installation of quality Tempo car shelters. Delivery throughout the Outaouais — local, personalized service. </target>
+      </trans-unit>
+      <trans-unit id="home.hero.catalogAria" datatype="html">
+        <source>Voir notre catalogue d&apos;abris</source>
+        <target>View our shelter catalogue</target>
       </trans-unit>
       <trans-unit id="home.hero.catalogCta" datatype="html">
         <source>Voir le catalogue</source>
         <target>View the catalogue</target>
       </trans-unit>
-      <trans-unit id="home.hero.catalogAria" datatype="html">
-        <source>Voir notre catalogue d'abris</source>
-        <target>View our shelter catalogue</target>
-      </trans-unit>
-      <trans-unit id="home.hero.installCta" datatype="html">
-        <source>Réserver une installation</source>
-        <target>Book an installation</target>
-      </trans-unit>
       <trans-unit id="home.hero.installAria" datatype="html">
         <source>Réserver une installation à domicile</source>
         <target>Book an at-home installation</target>
+      </trans-unit>
+      <trans-unit id="home.hero.installCta" datatype="html">
+        <source> Réserver une installation </source>
+        <target> Book an installation </target>
       </trans-unit>
       <trans-unit id="home.hero.statsAria" datatype="html">
         <source>Chiffres clés</source>
@@ -91,7 +291,7 @@
         <target>15 years</target>
       </trans-unit>
       <trans-unit id="home.hero.stat2" datatype="html">
-        <source>D'expérience</source>
+        <source>D&apos;expérience</source>
         <target>Of experience</target>
       </trans-unit>
       <trans-unit id="home.hero.stat3" datatype="html">
@@ -109,15 +309,87 @@
         <target>All your shelter needs</target>
       </trans-unit>
       <trans-unit id="home.services.subtitle" datatype="html">
-        <source>De la vente à l'installation, nous vous accompagnons à chaque étape.</source>
-        <target>From sale to installation, we support you every step of the way.</target>
+        <source> De la vente à l&apos;installation, nous vous accompagnons à chaque étape. </source>
+        <target> From sale to installation, we support you every step of the way. </target>
+      </trans-unit>
+      <trans-unit id="home.whyUs.eyebrow" datatype="html">
+        <source>Notre engagement</source>
+        <target>Our commitment</target>
+      </trans-unit>
+      <trans-unit id="home.whyUs.titleLead" datatype="html">
+        <source>Pourquoi choisir</source>
+        <target>Why choose</target>
+      </trans-unit>
+      <trans-unit id="home.whyUs.titleAccent" datatype="html">
+        <source>AbrisTempo Outaouais ?</source>
+        <target>AbrisTempo Outaouais?</target>
+      </trans-unit>
+      <trans-unit id="home.whyUs.body" datatype="html">
+        <source> Nous sommes votre représentant local de confiance pour les abris Tempo. Qualité, service et expertise au service de votre tranquillité d&apos;esprit. </source>
+        <target> We are your trusted local representative for Tempo shelters. Quality, service and expertise dedicated to your peace of mind. </target>
+      </trans-unit>
+      <trans-unit id="home.whyUs.cta" datatype="html">
+        <source> Découvrir nos produits </source>
+        <target> Discover our products </target>
+      </trans-unit>
+      <trans-unit id="home.featured.eyebrow" datatype="html">
+        <source>Nos produits populaires</source>
+        <target>Our popular products</target>
+      </trans-unit>
+      <trans-unit id="home.featured.title" datatype="html">
+        <source>Abris les plus populaires</source>
+        <target>Most popular shelters</target>
+      </trans-unit>
+      <trans-unit id="home.featured.loading" datatype="html">
+        <source>Chargement des produits…</source>
+        <target>Loading products…</target>
+      </trans-unit>
+      <trans-unit id="home.featured.soldOut" datatype="html">
+        <source>Épuisé</source>
+        <target>Sold out</target>
+      </trans-unit>
+      <trans-unit id="home.featured.rentLabel" datatype="html">
+        <source>Location</source>
+        <target>Rental</target>
+      </trans-unit>
+      <trans-unit id="home.featured.month" datatype="html">
+        <source>mois</source>
+        <target>month</target>
+      </trans-unit>
+      <trans-unit id="home.featured.viewProduct" datatype="html">
+        <source> Voir le produit </source>
+        <target> View product </target>
+      </trans-unit>
+      <trans-unit id="home.featured.viewAll" datatype="html">
+        <source> Voir tous nos produits </source>
+        <target> View all our products </target>
+      </trans-unit>
+      <trans-unit id="home.cta.title" datatype="html">
+        <source>Prêt à protéger votre véhicule ?</source>
+        <target>Ready to protect your vehicle?</target>
+      </trans-unit>
+      <trans-unit id="home.cta.body" datatype="html">
+        <source> Contactez-nous pour obtenir une soumission gratuite ou réservez directement votre installation en ligne. </source>
+        <target> Contact us for a free quote or book your installation directly online. </target>
+      </trans-unit>
+      <trans-unit id="home.cta.installAria" datatype="html">
+        <source>Réserver une installation d&apos;abri</source>
+        <target>Book a shelter installation</target>
+      </trans-unit>
+      <trans-unit id="home.cta.installCta" datatype="html">
+        <source> Réserver l&apos;installation </source>
+        <target> Book the installation </target>
+      </trans-unit>
+      <trans-unit id="home.cta.phoneAria" datatype="html">
+        <source>Appeler au 819 123-4567</source>
+        <target>Call 819 123-4567</target>
       </trans-unit>
       <trans-unit id="home.services.shop.title" datatype="html">
         <source>Boutique en ligne</source>
         <target>Online store</target>
       </trans-unit>
       <trans-unit id="home.services.shop.desc" datatype="html">
-        <source>Parcourez notre catalogue complet d'abris d'auto Tempo. Livraison disponible partout en Outaouais.</source>
+        <source>Parcourez notre catalogue complet d&apos;abris d&apos;auto Tempo. Livraison disponible partout en Outaouais.</source>
         <target>Browse our full catalogue of Tempo car shelters. Delivery available throughout the Outaouais.</target>
       </trans-unit>
       <trans-unit id="home.services.shop.link" datatype="html">
@@ -141,43 +413,19 @@
         <target>Professional installation</target>
       </trans-unit>
       <trans-unit id="home.services.install.desc" datatype="html">
-        <source>Service d'installation et de démontage à domicile. Réservez votre créneau en ligne.</source>
+        <source>Service d&apos;installation et de démontage à domicile. Réservez votre créneau en ligne.</source>
         <target>At-home installation and takedown service. Book your time slot online.</target>
       </trans-unit>
       <trans-unit id="home.services.install.link" datatype="html">
         <source>Réserver maintenant</source>
         <target>Book now</target>
       </trans-unit>
-
-      <!-- ===== HOME — POURQUOI NOUS ===== -->
-      <trans-unit id="home.whyUs.eyebrow" datatype="html">
-        <source>Notre engagement</source>
-        <target>Our commitment</target>
-      </trans-unit>
-      <trans-unit id="home.whyUs.titleLead" datatype="html">
-        <source>Pourquoi choisir</source>
-        <target>Why choose</target>
-      </trans-unit>
-      <trans-unit id="home.whyUs.titleAccent" datatype="html">
-        <source>AbrisTempo Outaouais ?</source>
-        <target>AbrisTempo Outaouais?</target>
-      </trans-unit>
-      <trans-unit id="home.whyUs.body" datatype="html">
-        <source>Nous sommes votre représentant local de confiance pour les abris Tempo.
-          Qualité, service et expertise au service de votre tranquillité d'esprit.</source>
-        <target>We are your trusted local representative for Tempo shelters.
-          Quality, service and expertise dedicated to your peace of mind.</target>
-      </trans-unit>
-      <trans-unit id="home.whyUs.cta" datatype="html">
-        <source>Découvrir nos produits</source>
-        <target>Discover our products</target>
-      </trans-unit>
       <trans-unit id="home.whyUs.official.title" datatype="html">
         <source>Représentant officiel</source>
         <target>Official representative</target>
       </trans-unit>
       <trans-unit id="home.whyUs.official.text" datatype="html">
-        <source>Distributeur agréé Tempo pour la région de l'Outaouais. Produits garantis et authentiques.</source>
+        <source>Distributeur agréé Tempo pour la région de l&apos;Outaouais. Produits garantis et authentiques.</source>
         <target>Authorized Tempo distributor for the Outaouais region. Guaranteed, authentic products.</target>
       </trans-unit>
       <trans-unit id="home.whyUs.delivery.title" datatype="html">
@@ -205,61 +453,40 @@
         <target>Tempo shelters renowned for their durability against Quebec winter conditions.</target>
       </trans-unit>
 
-      <!-- ===== HOME — PRODUITS VEDETTES ===== -->
-      <trans-unit id="home.featured.eyebrow" datatype="html">
-        <source>Nos produits populaires</source>
-        <target>Our popular products</target>
+      <!-- ===== INSTALLATION ===== -->
+      <trans-unit id="installation.eyebrow" datatype="html">
+        <source>Bientôt disponible</source>
+        <target>Coming soon</target>
       </trans-unit>
-      <trans-unit id="home.featured.title" datatype="html">
-        <source>Abris les plus populaires</source>
-        <target>Most popular shelters</target>
+      <trans-unit id="installation.title" datatype="html">
+        <source> Réservation d&apos;installation — page en construction </source>
+        <target> Installation booking — page under construction </target>
       </trans-unit>
-      <trans-unit id="home.featured.loading" datatype="html">
-        <source>Chargement des produits…</source>
-        <target>Loading products…</target>
+      <trans-unit id="installation.body" datatype="html">
+        <source> La réservation en ligne de votre installation à domicile arrive bientôt. En attendant, appelez-nous au 819 123-4567 pour planifier votre rendez-vous. </source>
+        <target> Online booking for your at-home installation is coming soon. In the meantime, call us at 819 123-4567 to schedule your appointment. </target>
       </trans-unit>
-      <trans-unit id="home.featured.soldOut" datatype="html">
-        <source>Épuisé</source>
-        <target>Sold out</target>
-      </trans-unit>
-      <trans-unit id="home.featured.rentLabel" datatype="html">
-        <source>Location</source>
-        <target>Rental</target>
-      </trans-unit>
-      <trans-unit id="home.featured.month" datatype="html">
-        <source>mois</source>
-        <target>month</target>
-      </trans-unit>
-      <trans-unit id="home.featured.viewProduct" datatype="html">
-        <source>Voir le produit</source>
-        <target>View product</target>
-      </trans-unit>
-      <trans-unit id="home.featured.viewAll" datatype="html">
-        <source>Voir tous nos produits</source>
-        <target>View all our products</target>
+      <trans-unit id="installation.back" datatype="html">
+        <source> Retour à l&apos;accueil </source>
+        <target> Back to home </target>
       </trans-unit>
 
-      <!-- ===== HOME — BANDEAU CTA ===== -->
-      <trans-unit id="home.cta.title" datatype="html">
-        <source>Prêt à protéger votre véhicule ?</source>
-        <target>Ready to protect your vehicle?</target>
+      <!-- ===== LOCATION ===== -->
+      <trans-unit id="location.eyebrow" datatype="html">
+        <source>Bientôt disponible</source>
+        <target>Coming soon</target>
       </trans-unit>
-      <trans-unit id="home.cta.body" datatype="html">
-        <source>Contactez-nous pour obtenir une soumission gratuite ou réservez
-        directement votre installation en ligne.</source>
-        <target>Contact us for a free quote or book your installation directly online.</target>
+      <trans-unit id="location.title" datatype="html">
+        <source>Location d&apos;abris — page en construction</source>
+        <target>Shelter rentals — page under construction</target>
       </trans-unit>
-      <trans-unit id="home.cta.installCta" datatype="html">
-        <source>Réserver l'installation</source>
-        <target>Book the installation</target>
+      <trans-unit id="location.body" datatype="html">
+        <source> Notre service de location saisonnière d&apos;abris arrive bientôt. En attendant, parcourez notre boutique ou contactez-nous pour toute question. </source>
+        <target> Our seasonal shelter rental service is coming soon. In the meantime, browse our store or contact us with any questions. </target>
       </trans-unit>
-      <trans-unit id="home.cta.installAria" datatype="html">
-        <source>Réserver une installation d'abri</source>
-        <target>Book a shelter installation</target>
-      </trans-unit>
-      <trans-unit id="home.cta.phoneAria" datatype="html">
-        <source>Appeler au 819 123-4567</source>
-        <target>Call 819 123-4567</target>
+      <trans-unit id="location.back" datatype="html">
+        <source> Retour à l&apos;accueil </source>
+        <target> Back to home </target>
       </trans-unit>
 
       <!-- ===== BOUTIQUE — CATALOGUE ===== -->
@@ -268,12 +495,12 @@
         <target>Our store</target>
       </trans-unit>
       <trans-unit id="shop.catalog.title" datatype="html">
-        <source>Tous nos abris d'auto</source>
+        <source>Tous nos abris d&apos;auto</source>
         <target>All our car shelters</target>
       </trans-unit>
       <trans-unit id="shop.catalog.subtitle" datatype="html">
-        <source>Filtrez par catégorie et ajoutez vos abris au panier en quelques clics.</source>
-        <target>Filter by category and add your shelters to the cart in a few clicks.</target>
+        <source> Filtrez par catégorie et ajoutez vos abris au panier en quelques clics. </source>
+        <target> Filter by category and add your shelters to the cart in a few clicks. </target>
       </trans-unit>
       <trans-unit id="shop.catalog.filterGroup" datatype="html">
         <source>Filtrer les produits par catégorie</source>
@@ -288,8 +515,8 @@
         <target>Loading products…</target>
       </trans-unit>
       <trans-unit id="shop.catalog.empty" datatype="html">
-        <source>Aucun produit dans cette catégorie pour le moment.</source>
-        <target>No products in this category yet.</target>
+        <source> Aucun produit dans cette catégorie pour le moment. </source>
+        <target> No products in this category yet. </target>
       </trans-unit>
       <trans-unit id="shop.catalog.addedToast" datatype="html">
         <source><x id="name" equiv-text="product.name"/> a été ajouté au panier.</source>
@@ -298,24 +525,24 @@
 
       <!-- ===== BOUTIQUE — DÉTAIL PRODUIT ===== -->
       <trans-unit id="shop.detail.back" datatype="html">
-        <source>← Retour à la boutique</source>
-        <target>← Back to the store</target>
+        <source> ← Retour à la boutique </source>
+        <target> ← Back to the store </target>
       </trans-unit>
       <trans-unit id="shop.detail.loading" datatype="html">
-        <source>Chargement du produit…</source>
-        <target>Loading product…</target>
+        <source> Chargement du produit… </source>
+        <target> Loading product… </target>
       </trans-unit>
       <trans-unit id="shop.detail.notFoundTitle" datatype="html">
         <source>Produit introuvable</source>
         <target>Product not found</target>
       </trans-unit>
       <trans-unit id="shop.detail.notFoundBody" datatype="html">
-        <source>Le produit que vous cherchez n'existe pas ou n'est plus disponible.</source>
-        <target>The product you are looking for does not exist or is no longer available.</target>
+        <source> Le produit que vous cherchez n&apos;existe pas ou n&apos;est plus disponible. </source>
+        <target> The product you are looking for does not exist or is no longer available. </target>
       </trans-unit>
       <trans-unit id="shop.detail.notFoundCta" datatype="html">
-        <source>Retour au catalogue</source>
-        <target>Back to the catalogue</target>
+        <source> Retour au catalogue </source>
+        <target> Back to the catalogue </target>
       </trans-unit>
       <trans-unit id="shop.detail.rentLabel" datatype="html">
         <source>Location</source>
@@ -338,15 +565,15 @@
         <target>Description</target>
       </trans-unit>
       <trans-unit id="shop.detail.addToCart" datatype="html">
-        <source>Ajouter au panier</source>
-        <target>Add to cart</target>
+        <source> Ajouter au panier </source>
+        <target> Add to cart </target>
       </trans-unit>
       <trans-unit id="shop.detail.addedToast" datatype="html">
         <source><x id="name" equiv-text="product.name"/> a été ajouté au panier.</source>
         <target><x id="name" equiv-text="product.name"/> was added to the cart.</target>
       </trans-unit>
 
-      <!-- ===== PARTAGÉS (product-card, skip-nav) ===== -->
+      <!-- ===== PARTAGÉS (product-card, navbar, skip-nav) ===== -->
       <trans-unit id="product.available" datatype="html">
         <source>En stock</source>
         <target>In stock</target>
@@ -356,12 +583,28 @@
         <target>Sold out</target>
       </trans-unit>
       <trans-unit id="product.addToCart" datatype="html">
-        <source>Ajouter au panier</source>
-        <target>Add to cart</target>
+        <source> Ajouter au panier </source>
+        <target> Add to cart </target>
+        <note priority="1" from="description">Bouton ajouter au panier</note>
+      </trans-unit>
+      <trans-unit id="navbar.langGroup" datatype="html">
+        <source>Choisir la langue</source>
+        <target>Choose language</target>
+      </trans-unit>
+      <trans-unit id="navbar.langFr" datatype="html">
+        <source>Français</source>
+        <target>Français</target>
+      </trans-unit>
+      <trans-unit id="navbar.langEn" datatype="html">
+        <source>English</source>
+        <target>English</target>
       </trans-unit>
       <trans-unit id="skipNav.link" datatype="html">
-        <source>Aller au contenu principal</source>
-        <target>Skip to main content</target>
+        <source> Aller au contenu principal
+</source>
+        <target> Skip to main content
+</target>
+        <note priority="1" from="description">Lien d&apos;évitement</note>
       </trans-unit>
     </body>
   </file>

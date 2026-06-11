@@ -210,6 +210,55 @@
   border: 2px solid var(--color-secondary);
 }
 
+// ── Sélecteur de langue ────────────────────────────────────
+.navbar__lang {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0 var(--space-1);
+}
+
+.navbar__lang-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  min-height: 32px;
+  padding: var(--space-1) var(--space-2);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: rgba(255, 255, 255, 0.6);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: color var(--transition-fast), background var(--transition-fast);
+
+  &:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  &.is-active {
+    color: white;
+    background: rgba(255, 255, 255, 0.16);
+  }
+}
+
+.navbar__lang-sep {
+  color: rgba(255, 255, 255, 0.35);
+  font-size: var(--font-size-xs);
+}
+
+// ── Bascule thème ──────────────────────────────────────────
+.navbar__theme-toggle {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
 // ── Menu utilisateur ───────────────────────────────────────
 .navbar__user-menu {
   position: relative;
@@ -217,6 +266,13 @@
 
   @media (min-width: 1024px) {
     display: block;
+  }
+
+  // Quand le menu est ouvert, on élève toute la pile pour garantir
+  // que le dropdown passe AU-DESSUS de tout contenu à n'importe quelle
+  // position de défilement.
+  &.is-open {
+    z-index: var(--z-overlay);
   }
 }
 
@@ -282,7 +338,9 @@
   border-radius: var(--radius-lg);
   padding: var(--space-2) 0;
   box-shadow: var(--shadow-xl);
-  z-index: var(--z-dropdown);
+  // Au-dessus de la navbar (z-sticky) et de tout contenu de page, peu importe
+  // le défilement — corrige le dropdown inutilisable après scroll.
+  z-index: var(--z-overlay);
   list-style: none;
   // Animation d'apparition
   opacity: 0;

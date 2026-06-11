@@ -48,7 +48,8 @@
     display: block;
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-normal);
-    color: rgba(255, 255, 255, 0.4);
+    // Contraste ≥ 4.5:1 sur le fond #0f1923 (WCAG AA, texte 12px) — était 0.4 (3.8:1).
+    color: rgba(255, 255, 255, 0.7);
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
@@ -93,7 +94,8 @@
   font-weight: var(--font-weight-bold);
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.4);
+  // Contraste ≥ 4.5:1 sur le fond #0f1923 (WCAG AA, texte 12px) — était 0.4 (3.8:1).
+  color: rgba(255, 255, 255, 0.7);
   margin-bottom: var(--space-4);
 }
 
@@ -136,6 +138,7 @@
 
 .footer-copy {
   font-size: var(--font-size-xs);
-  color: rgba(255, 255, 255, 0.35);
+  // Contraste ≥ 4.5:1 sur le fond #0f1923 (WCAG AA, texte 12px) — était 0.35 (3.23:1).
+  color: rgba(255, 255, 255, 0.7);
   margin: 0;
 }

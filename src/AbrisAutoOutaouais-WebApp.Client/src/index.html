@@ -33,6 +33,22 @@
 
 </head>
 <body>
+  <!-- Thème clair/sombre — appliqué AVANT le rendu pour éviter le flash (FOUC).
+       Reprend le choix sauvegardé, sinon suit la préférence système. -->
+  <script>
+    (function () {
+      try {
+        var stored = localStorage.getItem('abristempo-theme');
+        var theme = (stored === 'light' || stored === 'dark')
+          ? stored
+          : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) { /* localStorage indisponible — défaut clair via :root */ }
+    })();
+  </script>
+
   <!-- Skip navigation — OBLIGATOIRE WCAG 2.4.1 (Bypass Blocks) -->
   <!-- Le composant app-skip-nav affiche ce lien et gère le focus -->
   <app-root></app-root>

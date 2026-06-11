@@ -64,26 +64,24 @@
               novalidate
               aria-describedby="login-heading">
 
-          <!-- Email ───────────────────────────────────────── -->
+          <!-- Identifiant (courriel ou nom d'utilisateur) ──── -->
           <div class="field">
             <label class="field__label" for="login-email">
-              Adresse courriel
+              Courriel ou nom d'utilisateur
               <span class="required" aria-hidden="true">*</span>
             </label>
             <input id="login-email"
-                   type="email"
+                   type="text"
                    class="field__input"
                    formControlName="email"
-                   autocomplete="email"
-                   inputmode="email"
+                   autocomplete="username"
                    [attr.aria-invalid]="lEmail.invalid && lEmail.touched"
                    [attr.aria-required]="true"
                    aria-describedby="login-email-err"
-                   placeholder="votre@courriel.com" />
+                   placeholder="votre@courriel.com ou pseudo" />
             @if (lEmail.invalid && lEmail.touched) {
             <span id="login-email-err" class="field__error" role="alert">
-              @if (lEmail.hasError('required')) { L'adresse courriel est requise. }
-              @else if (lEmail.hasError('email')) { Format d'adresse courriel invalide. }
+              @if (lEmail.hasError('required')) { Ce champ est requis. }
             </span>
             }
           </div>
@@ -231,6 +229,31 @@
             <span id="reg-email-err" class="field__error" role="alert">
               @if (rEmail.hasError('required')) { L'adresse courriel est requise. }
               @else if (rEmail.hasError('email')) { Format de courriel invalide. }
+            </span>
+            }
+          </div>
+
+          <!-- Nom d'utilisateur ────────────────────────────── -->
+          <div class="field">
+            <label class="field__label" for="reg-username">
+              Nom d'utilisateur <span class="required" aria-hidden="true">*</span>
+            </label>
+            <input id="reg-username"
+                   type="text"
+                   class="field__input"
+                   formControlName="username"
+                   autocomplete="username"
+                   [attr.aria-invalid]="rUsername.invalid && rUsername.touched"
+                   aria-describedby="reg-username-hint reg-username-err"
+                   placeholder="jean.tremblay" />
+            <span id="reg-username-hint" class="field__hint">
+              3 à 30 caractères (lettres, chiffres, « . », « _ », « - »). Sert aussi à vous connecter.
+            </span>
+            @if (rUsername.invalid && rUsername.touched) {
+            <span id="reg-username-err" class="field__error" role="alert">
+              @if (rUsername.hasError('required')) { Le nom d'utilisateur est requis. }
+              @else if (rUsername.hasError('minlength')) { Minimum 3 caractères. }
+              @else { Caractères autorisés : lettres, chiffres, . _ - }
             </span>
             }
           </div>

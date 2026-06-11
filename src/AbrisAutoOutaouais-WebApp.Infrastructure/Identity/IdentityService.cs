@@ -1,12 +1,13 @@
+using AbrisAutoOutaouais_WebApp.Application.Auth.DTOs;
 using AbrisAutoOutaouais_WebApp.Application.Common.Interfaces;
 using AbrisAutoOutaouais_WebApp.Application.Common.Models;
+using Domain.ValueObjects;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace AbrisAutoOutaouais_WebApp.Infrastructure.Identity;
 
 /// <summary>
-/// Implémentation de IIdentityService — gère l'authentification et l'autorisation.
+/// Implémentation de IIdentityService — gère l'authentification, l'autorisation et le profil.
 /// </summary>
 public sealed class IdentityService : IIdentityService
 {
@@ -25,27 +26,22 @@ public sealed class IdentityService : IIdentityService
     }
 
     public async Task<Result<AuthResponse>> RegisterAsync(
-        string email,
-        string password,
-        string firstName,
-        string lastName,
-        CancellationToken cancellationToken = default)
+        string email, string username, string password,
+        string firstName, string lastName, CancellationToken cancellationToken = default)
     {
-        // Vérifier si l'utilisateur existe déjà
-        var existingUser = await _userManager.FindByEmailAsync(email);
-        if (existingUser is not null)
-        {
-            return Result<AuthResponse>.Failure("Un utilisateur avec cet email existe déjà.");
-        }
+        if (await _userManager.FindByEmailAsync(email) is not null)
+            return Result<AuthResponse>.Failure("Un utilisateur avec ce courriel existe déjà.");
 
-        // Créer le nouvel utilisateur
+        if (await _userManager.FindByNameAsync(username) is not null)
+            return Result<AuthResponse>.Failure("Ce nom d'utilisateur est déjà pris.");
+
         var user = new AppUser
         {
             Email = email,
-            UserName = email,
+            UserName = username,
             FirstName = firstName,
             LastName = lastName,
-            EmailConfirmed = true, // Assume l'email est confirmé pour la démo
+            EmailConfirmed = true, // Démo : courriel considéré confirmé
             CreatedAt = DateTime.UtcNow,
         };
 
@@ -56,68 +52,30 @@ public sealed class IdentityService : IIdentityService
             return Result<AuthResponse>.Failure($"Erreur lors de la création de l'utilisateur: {errors}");
         }
 
-        // Assigner le rôle Customer par défaut
         await _userManager.AddToRoleAsync(user, "Customer");
-
-        // Générer le token
-        var roles = (await _userManager.GetRolesAsync(user)).ToList().AsReadOnly();
-        var token = _tokenService.GenerateToken(user, roles);
-
-        var response = new AuthResponse(
-            user.Id,
-            user.Email!,
-            user.FirstName,
-            user.LastName,
-            user.FullName,
-            token,
-            roles);
-
-        return Result<AuthResponse>.Success(response);
+        return Result<AuthResponse>.Success(await BuildAuthResponseAsync(user));
     }
 
     public async Task<Result<AuthResponse>> LoginAsync(
-        string email,
-        string password,
-        CancellationToken cancellationToken = default)
+        string identifier, string password, CancellationToken cancellationToken = default)
     {
-        // Chercher l'utilisateur
-        var user = await _userManager.FindByEmailAsync(email);
-        if (user is null)
-        {
-            return Result<AuthResponse>.Failure("Email ou mot de passe incorrect.");
-        }
+        // Connexion par courriel OU nom d'utilisateur
+        var user = identifier.Contains('@')
+            ? await _userManager.FindByEmailAsync(identifier)
+            : await _userManager.FindByNameAsync(identifier);
+        user ??= await _userManager.FindByEmailAsync(identifier);
+        user ??= await _userManager.FindByNameAsync(identifier);
 
-        // Vérifier le mot de passe
-        var isPasswordValid = await _userManager.CheckPasswordAsync(user, password);
-        if (!isPasswordValid)
-        {
-            return Result<AuthResponse>.Failure("Email ou mot de passe incorrect.");
-        }
+        if (user is null || !await _userManager.CheckPasswordAsync(user, password))
+            return Result<AuthResponse>.Failure("Identifiants incorrects.");
 
-        // Générer le token
-        var roles = (await _userManager.GetRolesAsync(user)).ToList().AsReadOnly();
-        var token = _tokenService.GenerateToken(user, roles);
-
-        var response = new AuthResponse(
-            user.Id,
-            user.Email!,
-            user.FirstName,
-            user.LastName,
-            user.FullName,
-            token,
-            roles);
-
-        return Result<AuthResponse>.Success(response);
+        return Result<AuthResponse>.Success(await BuildAuthResponseAsync(user));
     }
 
     public async Task<string> GenerateTokenAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        var user = await _userManager.FindByIdAsync(userId.ToString());
-        if (user is null)
-        {
-            throw new InvalidOperationException("Utilisateur introuvable.");
-        }
-
+        var user = await _userManager.FindByIdAsync(userId.ToString())
+            ?? throw new InvalidOperationException("Utilisateur introuvable.");
         var roles = (await _userManager.GetRolesAsync(user)).ToList().AsReadOnly();
         return _tokenService.GenerateToken(user, roles);
     }
@@ -125,74 +83,103 @@ public sealed class IdentityService : IIdentityService
     public async Task<Result> AssignRoleAsync(Guid userId, string role, CancellationToken cancellationToken = default)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
-        if (user is null)
-        {
-            return Result.Failure("Utilisateur introuvable.");
-        }
+        if (user is null) return Result.Failure("Utilisateur introuvable.");
 
-        var roleExists = await _roleManager.RoleExistsAsync(role);
-        if (!roleExists)
-        {
+        if (!await _roleManager.RoleExistsAsync(role))
             return Result.Failure($"Le rôle '{role}' n'existe pas.");
-        }
 
         var result = await _userManager.AddToRoleAsync(user, role);
-        if (!result.Succeeded)
-        {
-            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-            return Result.Failure($"Erreur lors de l'assignation du rôle: {errors}");
-        }
-
-        return Result.Success();
+        return result.Succeeded
+            ? Result.Success()
+            : Result.Failure($"Erreur lors de l'assignation du rôle: {string.Join(", ", result.Errors.Select(e => e.Description))}");
     }
 
     public async Task<Result> RemoveRoleAsync(Guid userId, string role, CancellationToken cancellationToken = default)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
-        if (user is null)
-        {
-            return Result.Failure("Utilisateur introuvable.");
-        }
+        if (user is null) return Result.Failure("Utilisateur introuvable.");
 
         var result = await _userManager.RemoveFromRoleAsync(user, role);
-        if (!result.Succeeded)
-        {
-            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-            return Result.Failure($"Erreur lors du retrait du rôle: {errors}");
-        }
-
-        return Result.Success();
+        return result.Succeeded
+            ? Result.Success()
+            : Result.Failure($"Erreur lors du retrait du rôle: {string.Join(", ", result.Errors.Select(e => e.Description))}");
     }
 
     public async Task<IReadOnlyList<string>> GetUserRolesAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
-        if (user is null)
-        {
-            return [];
-        }
-
+        if (user is null) return [];
         var roles = await _userManager.GetRolesAsync(user);
         return roles.ToList().AsReadOnly();
     }
 
-    //Task<Result<AuthResponse>> IIdentityService.RegisterAsync(string email, string password, string firstName, string lastName, CancellationToken cancellationToken)
-    //{
-    //    throw new NotImplementedException();
-    //}
+    public async Task<UserProfileDto?> GetProfileAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user is null) return null;
 
-    //Task<Result<AuthResponse>> IIdentityService.LoginAsync(string email, string password, CancellationToken cancellationToken)
-    //{
-    //    throw new NotImplementedException();
-    //}
+        var roles = (await _userManager.GetRolesAsync(user)).ToList().AsReadOnly();
 
-    //Task<Result> IIdentityService.AssignRoleAsync(Guid userId, string role, CancellationToken cancellationToken)
-    //{
-    //    throw new NotImplementedException();
-    //}
+        AddressDto? address = user.DefaultDeliveryAddress is { } a
+            ? new AddressDto(a.Street, a.City, a.Province, a.PostalCode, a.Country)
+            : null;
 
-    //Task<Result> IIdentityService.RemoveRoleAsync(Guid userId, string role, CancellationToken cancellationToken)
-    //{
-    //    throw new NotImplementedException();
-    //}
+        return new UserProfileDto(
+            user.Id, user.Email!, user.UserName!, user.FirstName, user.LastName,
+            user.PhoneNumber, user.Avatar, user.PreferredLanguage, address, user.CreatedAt, roles);
+    }
+
+    public async Task<Result> UpdateProfileAsync(
+        Guid userId, UpdateProfileRequest request, CancellationToken cancellationToken = default)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user is null) return Result.Failure("Utilisateur introuvable.");
+
+        user.FirstName = request.FirstName;
+        user.LastName = request.LastName;
+        user.PhoneNumber = request.PhoneNumber;
+        user.PreferredLanguage = string.IsNullOrWhiteSpace(request.PreferredLanguage)
+            ? "fr"
+            : request.PreferredLanguage;
+        user.UpdatedAt = DateTime.UtcNow;
+
+        var d = request.DefaultDeliveryAddress;
+        user.DefaultDeliveryAddress =
+            d is not null
+            && !string.IsNullOrWhiteSpace(d.Street)
+            && !string.IsNullOrWhiteSpace(d.City)
+            && !string.IsNullOrWhiteSpace(d.PostalCode)
+                ? Address.Create(
+                    d.Street, d.City,
+                    string.IsNullOrWhiteSpace(d.Province) ? "QC" : d.Province,
+                    d.PostalCode,
+                    string.IsNullOrWhiteSpace(d.Country) ? "Canada" : d.Country)
+                : null;
+
+        var result = await _userManager.UpdateAsync(user);
+        return result.Succeeded
+            ? Result.Success()
+            : Result.Failure(string.Join(", ", result.Errors.Select(e => e.Description)));
+    }
+
+    public async Task<Result> ChangePasswordAsync(
+        Guid userId, string currentPassword, string newPassword, CancellationToken cancellationToken = default)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user is null) return Result.Failure("Utilisateur introuvable.");
+
+        var result = await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
+        return result.Succeeded
+            ? Result.Success()
+            : Result.Failure(string.Join(", ", result.Errors.Select(e => e.Description)));
+    }
+
+    private async Task<AuthResponse> BuildAuthResponseAsync(AppUser user)
+    {
+        var roles = (await _userManager.GetRolesAsync(user)).ToList().AsReadOnly();
+        var token = _tokenService.GenerateToken(user, roles);
+        return new AuthResponse(
+            user.Id, user.Email!, user.UserName!, user.FirstName, user.LastName,
+            user.FullName, token, roles);
+    }
 }

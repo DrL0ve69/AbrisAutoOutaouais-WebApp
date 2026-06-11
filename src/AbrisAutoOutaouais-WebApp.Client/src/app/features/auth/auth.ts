@@ -52,8 +52,9 @@ export class AuthComponent {
   protected readonly isLogin = computed(() => this.view() === 'login');
 
   // ── Formulaire Login ────────────────────────────────────────
+  // « email » accepte aussi bien un courriel qu'un nom d'utilisateur → pas de Validators.email
   protected readonly loginForm = this.fb.nonNullable.group({
-    email: ['', [Validators.required, Validators.email]],
+    email: ['', [Validators.required]],
     password: ['', [Validators.required, Validators.minLength(8)]],
   });
 
@@ -63,6 +64,12 @@ export class AuthComponent {
       firstName: ['', [Validators.required, Validators.maxLength(100)]],
       lastName: ['', [Validators.required, Validators.maxLength(100)]],
       email: ['', [Validators.required, Validators.email]],
+      username: ['', [
+        Validators.required,
+        Validators.minLength(3),
+        Validators.maxLength(30),
+        Validators.pattern(/^[a-zA-Z0-9._-]+$/),
+      ]],
       password: ['', [
         Validators.required,
         Validators.minLength(8),
@@ -82,6 +89,7 @@ export class AuthComponent {
   protected get rFirst() { return this.registerForm.controls.firstName; }
   protected get rLast() { return this.registerForm.controls.lastName; }
   protected get rEmail() { return this.registerForm.controls.email; }
+  protected get rUsername() { return this.registerForm.controls.username; }
   protected get rPwd() { return this.registerForm.controls.password; }
   protected get rConfirm() { return this.registerForm.controls.confirmPassword; }
   protected get rPwdMismatch() {
@@ -113,7 +121,7 @@ export class AuthComponent {
     this.error.set(null);
 
     this.auth.login(this.loginForm.getRawValue()).subscribe({
-      next: () => this.router.navigateByUrl('/'),
+      next: () => this.router.navigateByUrl('/mon-compte/profil'),
       error: err => {
         // Le backend renvoie { error: "..." } (pas detail)
         this.error.set(
@@ -133,11 +141,11 @@ export class AuthComponent {
     this.loading.set(true);
     this.error.set(null);
 
-    const { firstName, lastName, email, password, confirmPassword } =
+    const { firstName, lastName, email, username, password, confirmPassword } =
       this.registerForm.getRawValue();
 
-    this.auth.register({ firstName, lastName, email, password, confirmPassword }).subscribe({
-      next: () => this.router.navigateByUrl('/'),
+    this.auth.register({ firstName, lastName, email, username, password, confirmPassword }).subscribe({
+      next: () => this.router.navigateByUrl('/mon-compte/profil'),
       error: err => {
         this.error.set(
           err.error?.error ?? err.error?.detail ?? 'Erreur lors de l\'inscription.',

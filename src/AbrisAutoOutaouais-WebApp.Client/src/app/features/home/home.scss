@@ -98,7 +98,10 @@
 }
 
 .text-accent {
-  color: var(--color-primary);
+  // Utilisé sur le fond sombre de la section .why-us : la teinte plus claire
+  // (#dc2626) atteint le ratio AA requis (≥ 3:1 pour le grand texte gras) —
+  // --color-primary (#b91c1c) ne donnait que 2.74:1 sur #0f1923.
+  color: var(--color-primary-light);
 }
 
 // ── HERO ──────────────────────────────────────────────────────
@@ -494,6 +497,16 @@
   position: absolute;
   inset: 0;
   background: linear-gradient(135deg, var(--color-bg-muted) 0%, #e5e7eb 100%);
+}
+
+// Image produit posée par-dessus le placeholder en dégradé : si elle échoue
+// au chargement, elle est masquée (cf. onImageError) et le dégradé reste visible.
+.product-card__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .product-card__sold-out {

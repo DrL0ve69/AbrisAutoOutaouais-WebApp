@@ -34,12 +34,15 @@
     <article class="detail" [attr.aria-label]="product()!.name">
       <!-- Image -->
       <div class="detail__media">
-        @if (product()!.thumbnailUrl) {
-        <img ngSrc="{{ product()!.thumbnailUrl! }}"
+        @if (!imageFailed()) {
+        <!-- SVG → <img> simple (NgOptimizedImage est réservé au matriciel) -->
+        <img [src]="imageSrc()"
              [alt]="product()!.name"
              width="640"
              height="480"
-             class="detail__image" />
+             decoding="async"
+             class="detail__image"
+             (error)="onImageError()" />
         } @else {
         <div class="detail__image-placeholder" aria-hidden="true">
           <span>📦</span>

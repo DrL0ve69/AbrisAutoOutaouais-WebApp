@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Toile de remplacement — abri simple">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1e2d3d"/>
+      <stop offset="1" stop-color="#0f1923"/>
+    </linearGradient>
+    <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#92400e" stop-opacity="0.25"/>
+      <stop offset="1" stop-color="#92400e" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <rect y="380" width="800" height="220" fill="url(#ground)"/>
+  <circle cx="650" cy="120" r="70" fill="#92400e" fill-opacity="0.18"/>
+  <g fill="none" stroke="#ffffff" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M250 180 L550 180 L520 330 L280 330 Z" fill="#92400e" fill-opacity="0.35"/>
+    <path d="M250 180 Q400 230 550 180" />
+    <path d="M280 330 Q400 280 520 330" />
+  </g>
+  <line x1="120" y1="380" x2="680" y2="380" stroke="#ffffff" stroke-opacity="0.18" stroke-width="2"/>
+  <text x="400" y="470" text-anchor="middle" font-family="'Sora', 'Segoe UI', sans-serif" font-size="30" font-weight="700" fill="#ffffff">Toile de remplacement — abri simple</text>
+  <text x="400" y="510" text-anchor="middle" font-family="'DM Sans', 'Segoe UI', sans-serif" font-size="20" fill="#ffffff" fill-opacity="0.6">AbrisTempo Outaouais</text>
+</svg>

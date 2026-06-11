@@ -36,7 +36,7 @@ export class LoginComponent {
     this.error.set(null);
 
     this.auth.login(this.form.getRawValue()).subscribe({
-      next: () => this.router.navigateByUrl('/'),
+      next: () => this.router.navigateByUrl('/mon-compte/profil'),
       error: err => {
         this.error.set(err.error?.detail ?? 'Identifiants incorrects.');
         this.loading.set(false);

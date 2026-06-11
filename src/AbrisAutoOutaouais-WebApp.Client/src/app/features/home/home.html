@@ -170,6 +170,12 @@
           <div class="product-card__sold-out" i18n="@@home.featured.soldOut">Épuisé</div>
           }
           <div class="product-card__img-placeholder"></div>
+          <img [src]="imageFor(product)"
+               alt=""
+               loading="lazy"
+               decoding="async"
+               class="product-card__img"
+               (error)="onImageError($event)" />
         </div>
         <div class="product-card__body">
           <span class="product-card__cat">{{ product.categoryName }}</span>
@@ -270,6 +276,12 @@
           <div class="product-card__sold-out" i18n="@@home.product.soldOut">Épuisé</div>
           }
           <div class="product-card__img-placeholder"></div>
+          <img [src]="imageFor(product)"
+               alt=""
+               loading="lazy"
+               decoding="async"
+               class="product-card__img"
+               (error)="onImageError($event)" />
         </div>
         <div class="product-card__body">
           <span class="product-card__cat">{{ product.categoryName }}</span>

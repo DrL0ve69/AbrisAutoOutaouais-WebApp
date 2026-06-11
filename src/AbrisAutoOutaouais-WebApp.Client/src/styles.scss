@@ -122,6 +122,18 @@ input, textarea, select, button {
   font-size: inherit;
 }
 
+// Lisibilité garantie : les contrôles de saisie utilisent un texte foncé
+// (--color-text) sur leur fond, dans les deux thèmes. Évite le « fond blanc /
+// texte pâle » signalé. Le placeholder reste au plus à --color-text-muted (AA).
+input, textarea, select {
+  color: var(--color-text);
+
+  &::placeholder {
+    color: var(--color-text-muted);
+    opacity: 1;
+  }
+}
+
 // ── Layout utilitaire ─────────────────────────────────────────
 .container {
   width: 100%;
@@ -140,6 +152,36 @@ input, textarea, select, button {
 
 .container--narrow {
   max-width: 720px;
+}
+
+// ── Skip link — WCAG 2.4.1 (Bypass Blocks) ─────────────────
+// Hors écran jusqu'au focus clavier (pas de display:none → reste
+// dans l'ordre de tabulation et n'apparaît pas pendant l'hydratation SSR).
+.skip-link {
+  position: fixed;
+  top: var(--space-3);
+  left: var(--space-3);
+  z-index: var(--z-toast);
+  padding: var(--space-3) var(--space-5);
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  // Replié hors de l'écran tant qu'il n'a pas le focus clavier.
+  transform: translateY(calc(-100% - var(--space-6)));
+  transition: transform var(--transition-fast);
+
+  &:focus,
+  &:focus-visible {
+    transform: translateY(0);
+    color: var(--color-text-inverse);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
 }
 
 // ── Screen reader only — WCAG ──────────────────────────────

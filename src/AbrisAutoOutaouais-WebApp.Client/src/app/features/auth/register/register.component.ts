@@ -305,7 +305,7 @@ export class RegisterComponent {
 
     this.authService.register(this.registerForm.value).subscribe({
       next: () => {
-        this.router.navigate(['/home']);
+        this.router.navigate(['/mon-compte/profil']);
       },
       error: (err) => {
         this.isLoading.set(false);

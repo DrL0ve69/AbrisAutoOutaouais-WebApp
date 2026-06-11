@@ -10,6 +10,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "vitest run",
     "test:watch": "vitest",
+    "e2e": "playwright test",
     "i18n:extract": "ng extract-i18n --output-path src/locale --format xlf",
     "i18n:serve": "ng serve --configuration=en"
   },
@@ -37,6 +38,8 @@
     "@angular/cli": "^21.2.0",
     "@angular/compiler-cli": "^21.2.0",
     "@angular/platform-browser-dynamic": "^21.2.16",
+    "@axe-core/playwright": "^4.11.3",
+    "@playwright/test": "^1.60.0",
     "@testing-library/angular": "^18.0.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/user-event": "^14.6.1",

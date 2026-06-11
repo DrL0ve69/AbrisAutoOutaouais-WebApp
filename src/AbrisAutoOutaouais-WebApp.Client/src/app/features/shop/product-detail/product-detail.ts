@@ -2,16 +2,16 @@ import {
   ChangeDetectionStrategy,
   Component,
   OnInit,
+  computed,
   inject,
   input,
   signal,
 } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { NgOptimizedImage } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
-import { ProductDto } from '../../../core/models/product.model';
+import { ProductDto, resolveProductImage } from '../../../core/models/product.model';
 import { CartService } from '../../../core/services/cart.service';
 import { ToastService } from '../../../core/services/toast.service';
 
@@ -20,7 +20,7 @@ import { ToastService } from '../../../core/services/toast.service';
   templateUrl: './product-detail.html',
   styleUrl: './product-detail.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CurrencyPipe, RouterLink, NgOptimizedImage],
+  imports: [CurrencyPipe, RouterLink],
 })
 export class ProductDetailComponent implements OnInit {
   private readonly http = inject(HttpClient);
@@ -33,6 +33,17 @@ export class ProductDetailComponent implements OnInit {
   protected readonly product = signal<ProductDto | null>(null);
   protected readonly loading = signal(true);
   protected readonly notFound = signal(false);
+
+  // Image SVG dérivée du slug, avec repli emoji si introuvable.
+  protected readonly imageFailed = signal(false);
+  protected readonly imageSrc = computed(() => {
+    const p = this.product();
+    return p ? resolveProductImage(p) : '';
+  });
+
+  protected onImageError(): void {
+    this.imageFailed.set(true);
+  }
 
   ngOnInit(): void {
     this.http

@@ -14,6 +14,7 @@ import { environment } from '../../../environments/environment';
 export interface AuthUser {
   readonly id: string;
   readonly email: string;
+  readonly username: string;
   readonly firstName: string;
   readonly lastName: string;
   readonly roles: readonly string[];
@@ -26,6 +27,7 @@ export interface LoginRequest {
 
 export interface RegisterRequest {
   email: string;
+  username: string;
   firstName: string;
   lastName: string;
   password: string;
@@ -40,9 +42,11 @@ export interface RegisterRequest {
  */
 export interface AuthResponse {
   token: string;
-  expiresAt: string;
   userId: string;
   email: string;
+  username: string;
+  firstName: string;
+  lastName: string;
   fullName: string;
   roles: string[];
 }
@@ -105,16 +109,12 @@ export class AuthService {
   // ── Privé ──────────────────────────────────────────────────
 
   private setSession(res: AuthResponse): void {
-    // Découper fullName en firstName / lastName
-    const parts = (res.fullName ?? '').trim().split(/\s+/);
-    const firstName = parts[0] ?? '';
-    const lastName = parts.slice(1).join(' ');
-
     const user: AuthUser = {
       id: res.userId,
       email: res.email,
-      firstName,
-      lastName,
+      username: res.username,
+      firstName: res.firstName,
+      lastName: res.lastName,
       roles: res.roles,
     };
 
