@@ -9,9 +9,9 @@
     </header>
 
     @if (loading()) {
-    <p class="rental__loading" role="status" aria-busy="true" i18n="@@location.loading">
+    <output class="rental__loading" aria-busy="true" i18n="@@location.loading">
       Chargement des abris disponibles…
-    </p>
+    </output>
     } @else {
     <form class="rental__form" [formGroup]="form" (ngSubmit)="confirm()" novalidate>
       <!-- ÉTAPE 1 : abri -->
@@ -21,27 +21,30 @@
         </legend>
 
         @if (hasProducts()) {
-        <div class="rental__products" role="radiogroup" aria-labelledby="location-heading">
+        <div class="rental__products" role="group" aria-labelledby="location-heading">
           @for (product of rentable(); track product.id) {
-          <button
-            type="button"
+          <label
             class="rental__product"
-            [class.rental__product--selected]="selectedId() === product.id"
-            role="radio"
-            [attr.aria-checked]="selectedId() === product.id"
-            (click)="selectProduct(product.id)">
+            [class.rental__product--selected]="selectedId() === product.id">
+            <input
+              type="radio"
+              name="rentalProduct"
+              class="sr-only"
+              [value]="product.id"
+              [checked]="selectedId() === product.id"
+              (change)="selectProduct(product.id)" />
             <span class="rental__product-name">{{ product.name }}</span>
             <span class="rental__product-rate">
               {{ product.rentalPrice | currency:'CAD':'symbol-narrow':'1.2-2':'fr-CA' }}
               <span i18n="@@location.perMonth">/ mois</span>
             </span>
-          </button>
+          </label>
           }
         </div>
         } @else {
-        <p class="rental__empty" role="status" i18n="@@location.products.empty">
+        <output class="rental__empty" i18n="@@location.products.empty">
           Aucun abri n'est disponible à la location pour le moment.
-        </p>
+        </output>
         }
       </fieldset>
 
@@ -75,7 +78,7 @@
 
         <div class="form-field">
           <label for="street" i18n="@@location.field.street">Adresse</label>
-          <input id="street" type="text" formControlName="street" autocomplete="street-address" />
+          <input id="street" type="text" formControlName="street" autocomplete="address-line1" />
           @if (f.street.touched && f.street.invalid) {
           <p class="form-field__error" role="alert" i18n="@@location.field.streetRequired">
             L'adresse est requise.

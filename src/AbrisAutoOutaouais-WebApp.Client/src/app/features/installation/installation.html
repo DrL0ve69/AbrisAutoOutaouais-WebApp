@@ -11,9 +11,9 @@
     </header>
 
     @if (loading()) {
-    <p class="booking__loading" role="status" aria-busy="true" i18n="@@installation.loading">
+    <output class="booking__loading" aria-busy="true" i18n="@@installation.loading">
       Chargement des créneaux disponibles…
-    </p>
+    </output>
     } @else {
     <form class="booking__form" [formGroup]="form" (ngSubmit)="confirm()" novalidate>
       <!-- ÉTAPE 1 : créneaux -->
@@ -24,29 +24,32 @@
 
         @if (hasSlots()) {
         @for (group of groups(); track group.dayKey) {
-        <div class="booking__day" role="radiogroup" [attr.aria-label]="group.dayLabel">
+        <div class="booking__day" role="group" [attr.aria-label]="group.dayLabel">
           <p class="booking__day-label">{{ group.dayLabel }}</p>
           <div class="booking__slots">
             @for (slot of group.slots; track slot.start) {
-            <button
-              type="button"
+            <label
               class="booking__slot"
-              [class.booking__slot--selected]="selectedSlot() === slot.start"
-              role="radio"
-              [attr.aria-checked]="selectedSlot() === slot.start"
-              (click)="selectSlot(slot.start)">
+              [class.booking__slot--selected]="selectedSlot() === slot.start">
+              <input
+                type="radio"
+                name="slot"
+                class="sr-only"
+                [value]="slot.start"
+                [checked]="selectedSlot() === slot.start"
+                (change)="selectSlot(slot.start)" />
               {{ slot.start | date:'shortTime':'':'fr-CA' }}
               –
               {{ slot.end | date:'shortTime':'':'fr-CA' }}
-            </button>
+            </label>
             }
           </div>
         </div>
         }
         } @else {
-        <p class="booking__empty" role="status" i18n="@@installation.slots.empty">
+        <output class="booking__empty" i18n="@@installation.slots.empty">
           Aucun créneau disponible pour le moment. Réessayez plus tard ou appelez-nous.
-        </p>
+        </output>
         }
       </fieldset>
 
@@ -73,7 +76,7 @@
 
         <div class="form-field">
           <label for="street" i18n="@@installation.field.street">Adresse</label>
-          <input id="street" type="text" formControlName="street" autocomplete="street-address" />
+          <input id="street" type="text" formControlName="street" autocomplete="address-line1" />
           @if (f.street.touched && f.street.invalid) {
           <p class="form-field__error" role="alert" i18n="@@installation.field.streetRequired">
             L'adresse est requise.
