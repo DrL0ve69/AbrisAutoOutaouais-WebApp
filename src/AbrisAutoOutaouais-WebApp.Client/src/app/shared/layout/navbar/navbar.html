@@ -31,33 +31,33 @@
           routerLink="/boutique"
           routerLinkActive="is-active"
           [routerLinkActiveOptions]="{ exact: false }"
-        >
-          Boutique
-        </a>
+          i18n="@@navbar.shop"
+        >Boutique</a>
       </li>
       <li>
         <a
           routerLink="/location"
           routerLinkActive="is-active"
           [routerLinkActiveOptions]="{ exact: false }"
-        >
-          Location
-        </a>
+          i18n="@@navbar.rental"
+        >Location</a>
       </li>
       <li>
         <a
           routerLink="/installation"
           routerLinkActive="is-active"
           [routerLinkActiveOptions]="{ exact: false }"
-        >
-          Installation
-        </a>
+          i18n="@@navbar.install"
+        >Installation</a>
       </li>
       @if (auth.isAdmin()) {
         <li>
-          <a routerLink="/admin" routerLinkActive="is-active" class="navbar__admin-link">
-            Administration
-          </a>
+          <a
+            routerLink="/admin"
+            routerLinkActive="is-active"
+            class="navbar__admin-link"
+            i18n="@@navbar.admin"
+          >Administration</a>
         </li>
       }
     </ul>
@@ -159,8 +159,8 @@
 
       <!-- Non authentifié -->
       @if (!auth.isAuthenticated()) {
-        <a routerLink="/auth" class="btn btn--ghost btn--sm">Connexion</a>
-        <a routerLink="/auth" class="btn btn--primary btn--sm">S'inscrire</a>
+        <a routerLink="/auth" class="btn btn--ghost btn--sm" i18n="@@navbar.login">Connexion</a>
+        <a routerLink="/auth" class="btn btn--primary btn--sm" i18n="@@navbar.register">S'inscrire</a>
       }
 
       <!-- Authentifié — menu utilisateur -->
@@ -205,23 +205,41 @@
             [attr.aria-hidden]="!userMenuOpen()"
           >
             <li role="none">
-              <a routerLink="/mon-compte/profil" role="menuitem" (click)="closeUserMenu()"
+              <a
+                routerLink="/mon-compte/profil"
+                role="menuitem"
+                (click)="closeUserMenu()"
+                i18n="@@navbar.profile"
                 >Mon profil</a
               >
             </li>
             <li role="none">
-              <a routerLink="/mon-compte/commandes" role="menuitem" (click)="closeUserMenu()"
+              <a
+                routerLink="/mon-compte/commandes"
+                role="menuitem"
+                (click)="closeUserMenu()"
+                i18n="@@navbar.myOrders"
                 >Mes commandes</a
               >
             </li>
             <li role="none">
-              <a routerLink="/mon-compte/reservations" role="menuitem" (click)="closeUserMenu()"
+              <a
+                routerLink="/mon-compte/reservations"
+                role="menuitem"
+                (click)="closeUserMenu()"
+                i18n="@@navbar.myReservations"
                 >Mes réservations</a
               >
             </li>
             <li role="separator" class="navbar__divider"></li>
             <li role="none">
-              <button type="button" role="menuitem" class="navbar__logout" (click)="logout()">
+              <button
+                type="button"
+                role="menuitem"
+                class="navbar__logout"
+                (click)="logout()"
+                i18n="@@navbar.logout"
+              >
                 Déconnexion
               </button>
             </li>
@@ -246,47 +264,62 @@
     </button>
   </div>
   <!-- /.container -->
-  <!-- ── Menu mobile ────────────────────────────────────────── -->
-  <div
-    id="mobile-menu"
-    #mobileMenu
-    class="navbar__mobile"
-    [class.is-open]="menuOpen()"
-    role="dialog"
-    [attr.aria-hidden]="!menuOpen()"
-    aria-label="Menu mobile"
-  >
-    <ul role="list" class="navbar__mobile-list">
-      <li>
-        <a routerLink="/" (click)="closeMenu()">Accueil</a>
-      </li>
-      <li>
-        <a routerLink="/boutique" (click)="closeMenu()">Boutique</a>
-      </li>
-      <li>
-        <a routerLink="/location" (click)="closeMenu()">Location</a>
-      </li>
-      <li>
-        <a routerLink="/installation" (click)="closeMenu()">Installation</a>
-      </li>
-    </ul>
-
-    <div class="navbar__mobile-footer">
-      @if (!auth.isAuthenticated()) {
-        <a routerLink="/auth" class="btn btn--outline btn--full" (click)="closeMenu()">
-          Connexion
-        </a>
-        <a routerLink="/auth" class="btn btn--primary btn--full" (click)="closeMenu()">
-          S'inscrire
-        </a>
-      } @else {
-        <a routerLink="/mon-compte/profil" class="btn btn--outline btn--full" (click)="closeMenu()">
-          Mon compte
-        </a>
-        <button type="button" class="btn btn--ghost btn--full" (click)="logout()">
-          Déconnexion
-        </button>
-      }
-    </div>
-  </div>
 </nav>
+
+<!-- ── Menu mobile ──────────────────────────────────────────────
+     Placé HORS de <nav class="navbar"> : le backdrop-filter de la navbar crée
+     un bloc conteneur local, qui « piégeait » le position:fixed du panneau (il
+     restait collé au sommet, trop grand et ne suivait pas le défilement). En
+     dehors de l'élément filtré, le fixed se réfère bien au viewport. ───────── -->
+<div
+  id="mobile-menu"
+  #mobileMenu
+  class="navbar__mobile"
+  [class.is-open]="menuOpen()"
+  role="dialog"
+  [attr.aria-hidden]="!menuOpen()"
+  aria-label="Menu mobile"
+  i18n-aria-label="@@navbar.mobileMenuAria"
+>
+  <ul role="list" class="navbar__mobile-list">
+    <li>
+      <a routerLink="/" (click)="closeMenu()" i18n="@@navbar.home">Accueil</a>
+    </li>
+    <li>
+      <a routerLink="/boutique" (click)="closeMenu()" i18n="@@navbar.shop">Boutique</a>
+    </li>
+    <li>
+      <a routerLink="/location" (click)="closeMenu()" i18n="@@navbar.rental">Location</a>
+    </li>
+    <li>
+      <a routerLink="/installation" (click)="closeMenu()" i18n="@@navbar.install">Installation</a>
+    </li>
+  </ul>
+
+  <div class="navbar__mobile-footer">
+    @if (!auth.isAuthenticated()) {
+      <a
+        routerLink="/auth"
+        class="btn btn--outline btn--full"
+        (click)="closeMenu()"
+        i18n="@@navbar.login"
+      >Connexion</a>
+      <a
+        routerLink="/auth"
+        class="btn btn--primary btn--full"
+        (click)="closeMenu()"
+        i18n="@@navbar.register"
+      >S'inscrire</a>
+    } @else {
+      <a
+        routerLink="/mon-compte/profil"
+        class="btn btn--outline btn--full"
+        (click)="closeMenu()"
+        i18n="@@navbar.account"
+      >Mon compte</a>
+      <button type="button" class="btn btn--ghost btn--full" (click)="logout()" i18n="@@navbar.logout">
+        Déconnexion
+      </button>
+    }
+  </div>
+</div>
