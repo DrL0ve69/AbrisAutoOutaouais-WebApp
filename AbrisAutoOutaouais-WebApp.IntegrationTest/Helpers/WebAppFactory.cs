@@ -22,6 +22,14 @@ public sealed class WebAppFactory : WebApplicationFactory<Program>, IAsyncLifeti
 {
     public HttpClient Client { get; private set; } = null!;
 
+    /// <summary>
+    /// Substitut PARTAGÉ du service courriel : la même instance est servie à chaque
+    /// requête, ce qui permet aux tests de lire les appels reçus (ex. récupérer le
+    /// lien de réinitialisation « envoyé »). Une fabrique par requête (lambda
+    /// Substitute.For) rendrait les appels invérifiables.
+    /// </summary>
+    public IEmailService EmailService { get; } = Substitute.For<IEmailService>();
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.ConfigureServices(services =>
@@ -44,8 +52,9 @@ public sealed class WebAppFactory : WebApplicationFactory<Program>, IAsyncLifeti
             services.AddDbContext<ApplicationDbContext>(opts =>
                 opts.UseInMemoryDatabase("IntegrationTestDb"));
 
-            // Remplacer le service email par un mock (pas d'envoi réel)
-            services.AddScoped<IEmailService>(_ => Substitute.For<IEmailService>());
+            // Remplacer le service email par le substitut partagé (pas d'envoi réel,
+            // et les tests peuvent inspecter les appels reçus via factory.EmailService).
+            services.AddScoped<IEmailService>(_ => EmailService);
         });
 
         builder.UseEnvironment("Test");

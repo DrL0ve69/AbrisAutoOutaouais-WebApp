@@ -189,6 +189,37 @@ public sealed class IdentityService : IIdentityService
             : Result.Failure(string.Join(", ", result.Errors.Select(e => e.Description)));
     }
 
+    public async Task<Result<string>> GeneratePasswordResetTokenAsync(
+        string email, CancellationToken cancellationToken = default)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+        if (user is null) return Result<string>.Failure("Utilisateur introuvable.");
+
+        // Jeton à durée limitée émis par le DataProtectorTokenProvider (AddDefaultTokenProviders).
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+        return Result<string>.Success(token);
+    }
+
+    public async Task<Result> ResetPasswordAsync(
+        string email, string token, string newPassword, CancellationToken cancellationToken = default)
+    {
+        // Message volontairement identique pour un compte inconnu et un jeton invalide :
+        // la réponse ne doit pas permettre de déduire l'existence d'un compte.
+        const string invalidLink = "Le lien de réinitialisation est invalide ou expiré.";
+
+        var user = await _userManager.FindByEmailAsync(email);
+        if (user is null) return Result.Failure(invalidLink);
+
+        var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
+        if (result.Succeeded) return Result.Success();
+
+        // Jeton invalide/expiré → message générique ; autres erreurs (politique de mot de
+        // passe…) → détails utiles à l'utilisateur, comme ChangePasswordAsync.
+        return result.Errors.Any(e => e.Code == nameof(IdentityErrorDescriber.InvalidToken))
+            ? Result.Failure(invalidLink)
+            : Result.Failure(string.Join(", ", result.Errors.Select(e => e.Description)));
+    }
+
     private async Task<AuthResponse> BuildAuthResponseAsync(AppUser user)
     {
         var roles = (await _userManager.GetRolesAsync(user)).ToList().AsReadOnly();

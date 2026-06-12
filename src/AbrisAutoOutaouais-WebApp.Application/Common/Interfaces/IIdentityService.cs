@@ -46,6 +46,16 @@ public interface IIdentityService
 
     /// <summary>Change le mot de passe.</summary>
     Task<Result> ChangePasswordAsync(Guid userId, string currentPassword, string newPassword, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Génère un jeton de réinitialisation du mot de passe pour le courriel donné.
+    /// Échec si aucun compte ne correspond (l'appelant décide de rester silencieux —
+    /// anti-énumération de comptes).
+    /// </summary>
+    Task<Result<string>> GeneratePasswordResetTokenAsync(string email, CancellationToken cancellationToken = default);
+
+    /// <summary>Réinitialise le mot de passe à partir d'un jeton de réinitialisation valide.</summary>
+    Task<Result> ResetPasswordAsync(string email, string token, string newPassword, CancellationToken cancellationToken = default);
 }
 
 /// <summary>

@@ -1706,6 +1706,66 @@
         <source>Format de courriel invalide.</source>
         <target>Invalid email format.</target>
       </trans-unit>
+      <trans-unit id="reset.logoAria" datatype="html">
+        <source>AbrisTempo Local — Retour à l&apos;accueil</source>
+        <target>AbrisTempo Local — Back to home</target>
+      </trans-unit>
+      <trans-unit id="reset.newTitle" datatype="html">
+        <source>Choisir un nouveau mot de passe</source>
+        <target>Choose a new password</target>
+      </trans-unit>
+      <trans-unit id="reset.newSubtitle" datatype="html">
+        <source> Définissez le nouveau mot de passe du compte <x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong&gt;"/><x id="INTERPOLATION" equiv-text="{{ email() }}"/><x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong&gt;"/>. </source>
+        <target> Set the new password for the account <x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong&gt;"/><x id="INTERPOLATION" equiv-text="{{ email() }}"/><x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong&gt;"/>. </target>
+      </trans-unit>
+      <trans-unit id="reset.successTitle" datatype="html">
+        <source> Mot de passe réinitialisé </source>
+        <target> Password reset </target>
+      </trans-unit>
+      <trans-unit id="reset.successBody" datatype="html">
+        <source> Votre mot de passe a été mis à jour. Vous pouvez maintenant vous connecter avec votre nouveau mot de passe. </source>
+        <target> Your password has been updated. You can now sign in with your new password. </target>
+      </trans-unit>
+      <trans-unit id="reset.successLogin" datatype="html">
+        <source> Se connecter </source>
+        <target> Sign in </target>
+      </trans-unit>
+      <trans-unit id="reset.newPwdLabel" datatype="html">
+        <source> Nouveau mot de passe <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;required&quot; aria-hidden=&quot;true&quot;&gt;"/>*<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
+        <target> New password <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;required&quot; aria-hidden=&quot;true&quot;&gt;"/>*<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
+      </trans-unit>
+      <trans-unit id="reset.newPwdHint" datatype="html">
+        <source> Min. 8 caractères, avec majuscule, chiffre et caractère spécial. </source>
+        <target> Min. 8 characters, with an uppercase letter, a digit and a special character. </target>
+      </trans-unit>
+      <trans-unit id="reset.newPwdRequired" datatype="html">
+        <source>Le nouveau mot de passe est requis.</source>
+        <target>The new password is required.</target>
+      </trans-unit>
+      <trans-unit id="reset.newPwdWeak" datatype="html">
+        <source>Le mot de passe ne respecte pas les exigences ci-dessus.</source>
+        <target>The password does not meet the requirements above.</target>
+      </trans-unit>
+      <trans-unit id="reset.confirmPwdLabel" datatype="html">
+        <source> Confirmer le mot de passe <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;required&quot; aria-hidden=&quot;true&quot;&gt;"/>*<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
+        <target> Confirm the password <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;required&quot; aria-hidden=&quot;true&quot;&gt;"/>*<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
+      </trans-unit>
+      <trans-unit id="reset.confirmPwdRequired" datatype="html">
+        <source>La confirmation est requise.</source>
+        <target>The confirmation is required.</target>
+      </trans-unit>
+      <trans-unit id="reset.confirmPwdMismatch" datatype="html">
+        <source>Les mots de passe ne correspondent pas.</source>
+        <target>The passwords do not match.</target>
+      </trans-unit>
+      <trans-unit id="reset.newSubmit" datatype="html">
+        <source> Réinitialiser le mot de passe </source>
+        <target> Reset the password </target>
+      </trans-unit>
+      <trans-unit id="reset.errorGeneric" datatype="html">
+        <source>Le lien de réinitialisation est invalide ou expiré. Demandez un nouveau lien.</source>
+        <target>The reset link is invalid or has expired. Request a new link.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

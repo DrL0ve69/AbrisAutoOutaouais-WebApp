@@ -35,6 +35,14 @@ export interface RegisterRequest {
   confirmPassword: string;
 }
 
+/** Correspond au sealed record C# ResetPasswordCommand (camelCase). */
+export interface ResetPasswordRequest {
+  email: string;
+  token: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
 /**
  * AuthResponse — correspond exactement au sealed record C# :
  * AuthResponse(string Token, DateTime ExpiresAt, Guid UserId,
@@ -98,6 +106,21 @@ export class AuthService {
     return this.http
       .post<AuthResponse>(`${environment.apiUrl}/auth/register`, req)
       .pipe(tap(res => this.setSession(res)));
+  }
+
+  /**
+   * Demande l'envoi d'un lien de réinitialisation du mot de passe.
+   * Le backend répond TOUJOURS 202 (anti-énumération de comptes).
+   */
+  forgotPassword(email: string) {
+    return this.http.post<void>(
+      `${environment.apiUrl}/auth/forgot-password`, { email });
+  }
+
+  /** Réinitialise le mot de passe avec le jeton reçu par courriel (204 ou 400). */
+  resetPassword(req: ResetPasswordRequest) {
+    return this.http.post<void>(
+      `${environment.apiUrl}/auth/reset-password`, req);
   }
 
   logout(): void {

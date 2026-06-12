@@ -104,6 +104,7 @@ public static class DependencyInjection
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
         services.AddScoped<IFileStorageService, LocalFileStorageService>();
         services.AddScoped<IEmailService, EmailService>();
+        services.AddSingleton<IClientUrlProvider, ClientUrlProvider>();
 
         // ── Auto-enregistrement des handlers CQRS via Scrutor ─────────────────
         services.Scan(scan => scan
