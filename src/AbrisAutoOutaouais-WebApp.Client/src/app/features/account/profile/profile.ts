@@ -12,45 +12,9 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { ProfileService } from '../../../core/services/profile.service';
 import { environment } from '../../../../environments/environment';
-
-/** Correspond à UserProfileDto côté backend */
-interface UserProfileDto {
-  id: string;
-  email: string;
-  username: string;
-  firstName: string;
-  lastName: string;
-  phoneNumber: string | null;
-  avatar: string | null;
-  preferredLanguage: string;
-  defaultDeliveryAddress: AddressDto | null;
-  createdAt: string;
-  roles: string[];
-}
-
-interface AddressDto {
-  street: string;
-  city: string;
-  province: string;
-  postalCode: string;
-  country: string;
-}
-
-/** Correspond au UpdateProfileRequest côté backend */
-interface UpdateProfileRequest {
-  firstName: string;
-  lastName: string;
-  phoneNumber: string | null;
-  preferredLanguage: string;
-  defaultDeliveryAddress: {
-    street: string;
-    city: string;
-    province: string;
-    postalCode: string;
-    country: string;
-  } | null;
-}
+import { UserProfileDto, UpdateProfileRequest } from '../../../core/models/profile.model';
 
 type ActiveTab = 'info' | 'address' | 'security';
 
@@ -64,6 +28,7 @@ type ActiveTab = 'info' | 'address' | 'security';
 export class ProfileComponent implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly fb = inject(FormBuilder);
+  private readonly profileStore = inject(ProfileService);
   protected readonly auth = inject(AuthService);
 
   // ── État ────────────────────────────────────────────────────
@@ -114,7 +79,11 @@ export class ProfileComponent implements OnInit {
     street: ['', Validators.maxLength(200)],
     city: ['', Validators.maxLength(100)],
     province: ['QC'],
-    postalCode: ['', Validators.pattern(/^[A-Za-z]\d[A-Za-z]\d[A-Za-z]\d$/)],
+    // Accepte le format canadien avec OU sans espace (« A1A 1A1 » ou « A1A1A1 »),
+    // exactement comme l'indice du champ l'affiche. Sans le « espace optionnel »,
+    // saisir « J8X 1A1 » échouait silencieusement la validation → l'adresse ne se
+    // sauvegardait jamais (leçon L-001). Normalisée à l'enregistrement.
+    postalCode: ['', Validators.pattern(/^[A-Za-z]\d[A-Za-z] ?\d[A-Za-z]\d$/)],
     country: ['Canada'],
   });
 
@@ -170,6 +139,7 @@ export class ProfileComponent implements OnInit {
     this.http.get<UserProfileDto>(`${environment.apiUrl}/auth/me`).subscribe({
       next: (profile) => {
         this.profile.set(profile);
+        this.profileStore.setProfile(profile);
         this.patchForms(profile);
         this.loading.set(false);
       },
@@ -242,7 +212,8 @@ export class ProfileComponent implements OnInit {
       return;
     }
 
-    const addr = this.addressForm.getRawValue();
+    const raw = this.addressForm.getRawValue();
+    const addr = { ...raw, postalCode: this.normalizePostal(raw.postalCode) };
     const hasAddress = addr.street || addr.city || addr.postalCode;
 
     this.save({
@@ -358,6 +329,7 @@ export class ProfileComponent implements OnInit {
     this.http.put<UserProfileDto>(`${environment.apiUrl}/auth/me`, payload).subscribe({
       next: (updated) => {
         this.profile.set(updated);
+        this.profileStore.setProfile(updated);
         this.patchForms(updated);
         // Rafraîchit le nom mis en cache → la navbar se met à jour aussitôt.
         this.auth.updateProfile({
@@ -375,6 +347,12 @@ export class ProfileComponent implements OnInit {
         );
       },
     });
+  }
+
+  /** Normalise un code postal canadien en « A1A 1A1 » (majuscules, espace unique). */
+  private normalizePostal(value: string): string {
+    const compact = (value ?? '').replace(/\s+/g, '').toUpperCase();
+    return compact.length === 6 ? `${compact.slice(0, 3)} ${compact.slice(3)}` : value.trim();
   }
 
   private patchForms(p: UserProfileDto): void {

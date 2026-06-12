@@ -3,6 +3,7 @@ import {
   Component,
   OnInit,
   computed,
+  effect,
   inject,
   signal,
 } from '@angular/core';
@@ -13,6 +14,7 @@ import { ProductService } from '../../core/services/product.service';
 import { RentalService } from '../../core/services/rental.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
+import { ProfileService } from '../../core/services/profile.service';
 import { ProductSummaryDto } from '../../core/models/product.model';
 import { CreateRentalContractRequest } from '../../core/models/rental.model';
 
@@ -35,6 +37,7 @@ export class LocationComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
+  private readonly profile = inject(ProfileService);
 
   protected readonly loading = signal(true);
   protected readonly submitting = signal(false);
@@ -53,6 +56,12 @@ export class LocationComponent implements OnInit {
     province: ['QC', Validators.required],
     postalCode: ['', Validators.required],
   });
+
+  constructor() {
+    // Pré-remplit l'adresse de location avec l'adresse par défaut enregistrée.
+    this.profile.ensureLoaded();
+    effect(() => this.profile.applyDefaultAddress(this.form));
+  }
 
   protected get f() {
     return this.form.controls;
