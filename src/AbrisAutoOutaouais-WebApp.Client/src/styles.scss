@@ -315,6 +315,35 @@ select {
   }
 }
 
+// Bouton « inverse » : action principale posée sur une surface MARQUE à rouge
+// fixe (bandeau CTA), identique dans les deux thèmes. Un .btn--primary y est
+// invisible en clair (rouge #b91c1c sur rouge) et ≈2.3:1 en sombre (#f87171
+// sur rouge). Fond blanc + texte rouge sombre : ≈8.3:1 sur blanc ✅ (WCAG 1.4.3).
+.btn--inverse {
+  background: var(--color-surface-on-brand);
+  color: var(--color-text-on-brand-inverse);
+  border-color: transparent;
+
+  &:hover:not(:disabled) {
+    background: #f3f4f6; // ≈7.5:1 avec le texte #991b1b ✅
+    color: var(--color-text-on-brand-inverse);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: none;
+  }
+
+  // L'anneau de focus global (--color-focus, bleu) manque de contraste sur le
+  // rouge du bandeau (WCAG 2.4.13) — anneau blanc à la place (≥6:1 sur la marque).
+  &:focus-visible {
+    outline: 3px solid var(--color-on-brand);
+    outline-offset: 3px;
+  }
+}
+
 .btn--sm {
   font-size: var(--font-size-xs);
   padding: var(--space-2) var(--space-4);

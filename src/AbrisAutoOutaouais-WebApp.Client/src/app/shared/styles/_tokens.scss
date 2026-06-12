@@ -132,6 +132,13 @@
   --z-modal: 500;
   --z-toast: 600;
   --z-tooltip: 700;
+  // ── Tokens v2 (préfiguration — Epic E) ─────────────────────
+  // Jetons pour les surfaces « marque » (rouge FIXE #b91c1c → #991b1b, identique
+  // dans les deux thèmes — ex. bandeau CTA). Ils sont indépendants du thème et
+  // ne sont donc PAS surchargés dans le mixin sombre.
+  --color-on-brand: #ffffff; // texte/icônes posés directement sur la marque
+  --color-surface-on-brand: #ffffff; // fond d'un contrôle posé sur la marque
+  --color-text-on-brand-inverse: #991b1b; // texte d'un contrôle clair sur la marque (≈8.3:1 sur blanc ✅)
 }
 
 // ── Dark mode ────────────────────────────────────────────────
