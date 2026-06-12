@@ -63,11 +63,10 @@ test('Mes locations — annulation accessible (focus + POST /cancel)', async ({ 
   const annuler = page.getByRole('button', { name: /annuler la location/i });
   await expect(annuler).toBeVisible();
 
-  // a11y de la liste — limité au composant « locations » (app-rentals englobe la liste
-  // ET le dialogue). On exclut volontairement la navbar : son menu utilisateur porte un
-  // bug d'accessibilité PRÉEXISTANT (aria-hidden-focus sur le menu déroulant fermé), sans
-  // rapport avec cette fonctionnalité — à traiter séparément.
-  let results = await new AxeBuilder({ page }).include('app-rentals').withTags(WCAG_TAGS).analyze();
+  // a11y de la PAGE ENTIÈRE — seul scénario e2e où la navbar est dans son état
+  // authentifié (menu utilisateur rendu). L'ancienne exclusion « app-rentals »
+  // contournait Bug-08 (aria-hidden-focus sur le menu fermé), corrigé par `inert`.
+  let results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
   expect(results.violations, JSON.stringify(results.violations.map((v) => v.id))).toEqual([]);
 
   // Ouvre la confirmation → alertdialog visible et focus capturé dans la boîte.
@@ -76,8 +75,8 @@ test('Mes locations — annulation accessible (focus + POST /cancel)', async ({ 
   await expect(dialog).toBeVisible();
   await expect(dialog).toBeFocused();
 
-  // a11y avec le dialogue ouvert.
-  results = await new AxeBuilder({ page }).include('app-rentals').withTags(WCAG_TAGS).analyze();
+  // a11y de la page entière avec le dialogue ouvert.
+  results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
   expect(results.violations, JSON.stringify(results.violations.map((v) => v.id))).toEqual([]);
 
   // Échap ferme et rend le focus au bouton déclencheur (WCAG 2.4.3).

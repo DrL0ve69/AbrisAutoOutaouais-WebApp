@@ -377,9 +377,14 @@
 
   // Surtitre 12px gras = « texte normal » WCAG → ratio ≥ 4.5:1 requis.
   // rgba(255,255,255,0.45) sur #0f1923 ≈ 4.48:1 (échec limite AA) ;
-  // alpha 0.72 ≈ 9:1 ✅ (WCAG 1.4.3).
+  // alpha 0.72 ≈ 9:1 ✅ (WCAG 1.4.3). Attention : le seuil « grand texte »
+  // (3:1) ne s'appliquerait qu'à partir de 18,66px gras.
   .section-eyebrow--dark {
     color: rgba(255, 255, 255, 0.72);
+    // « p » ci-dessus (0,1,1) battait .section-eyebrow (0,1,0) : le surtitre
+    // héritait de 18px au lieu des 12px voulus. On rétablit la taille prévue,
+    // cohérente avec les surtitres des autres sections.
+    font-size: var(--font-size-xs);
   }
 }
 
