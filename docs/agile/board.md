@@ -13,9 +13,10 @@
 | US-6.3 Réservation installation | US-1.6 Page panier révisable | | | US-1.2 Détail produit |
 | US-6.4 Location saisonnière | US-3.6 Cibles tactiles ≥ 44px (chips) | | | US-1.3 Ajout au panier |
 | US-2.6 Réinitialisation mot de passe | Bug-07 Menus fermables (`Échap`/clic ext.) | | | US-1.4 Seed produits/catégories |
-| US-4.2 Bascule langue robuste | | | | US-2.1 → 2.5 Auth + profil |
+| | | | | US-2.1 → 2.5 Auth + profil |
 | | | | | US-3.1 → 3.5 A11y socle |
 | | | | | US-4.1 i18n balisage |
+| | | | | US-4.2/4.3 Bascule FR/EN + build localisé `/en/` |
 | | | | | US-5.1/5.2/5.4 Thème |
 
 ---
