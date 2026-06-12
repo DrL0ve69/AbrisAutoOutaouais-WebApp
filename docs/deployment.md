@@ -67,19 +67,43 @@ postbuild de `build:prod`). Il sert le français à `/`, l'anglais à `/en/`, av
 locale et cache long sur les ressources hachées. Le sélecteur de langue de la navbar (et la
 « langue préférée » du profil) basculent en rechargeant l'autre baseHref en conservant le chemin.
 
-- **Azure App Service (Node)** — déployer l'artifact `client` (= `dist/abristempo-client`),
-  **commande de démarrage** `node serve-i18n.mjs` (depuis la racine de l'artifact ; `PORT` est
-  fourni par App Service). Vérifiable en local : `npm run build:i18n && npm run preview:i18n`.
-- **Azure Static Web Apps / autre statique** — servir `browser/` avec une règle de *fallback*
-  équivalente (`/en/*` → `/en/index.csr.html`, sinon `/index.csr.html`).
+- **Azure Static Web Apps (gratuit, recommandé)** — hébergement **statique** : SWA ne lance pas
+  `serve-i18n.mjs`, mais reproduit le même repli SPA par locale via
+  **`public/staticwebapp.config.json`** (copié à la racine du build). Déploiement par **GitHub
+  Actions** (`.github/workflows/azure-static-web-apps.yml`). Voir la mise en place ci-dessous.
+- **Azure App Service (Node)** — alternative *server* : déployer l'artifact `client`
+  (= `dist/abristempo-client`), **commande de démarrage** `node serve-i18n.mjs` (`PORT` fourni par
+  App Service). Vérifiable en local : `npm run build:i18n && npm run preview:i18n`.
 
-> Le job *Frontend* du pipeline produit déjà l'artifact `client` (build `prod` localisé fr + en,
-> hôte inclus) ; il reste à brancher l'étape de déploiement et la commande de démarrage ci-dessus.
->
 > *Suivi possible (SEO) :* rendu **SSR par locale** — les bundles `server/server.mjs` (fr) et
 > `server/en/server.mjs` (en) existent, mais composer les deux derrière une origine unique
 > (montage par baseHref) reste à faire et à vérifier ; l'hôte statique ci-dessus est la solution
 > livrée et testée.
+
+### 4.1 Mise en place Azure Static Web Apps (plan **Free**, 0 $)
+
+Le **plan Free** de SWA est gratuit (SSL, domaines, 100 Go/mois, **environnements de
+prévisualisation par PR**). Un compte **Azure for Students** convient ; le plan Free ne consomme
+pas de crédit (service « toujours gratuit »). **Pas besoin d'Azure DevOps** : GitHub Actions +
+les preview environments de SWA couvrent prod (branche `master`) et « staging » (chaque PR).
+
+1. **Créer la ressource** (Portail Azure → *Create a resource → Static Web App*) :
+   - *Plan type* : **Free**.
+   - *Deployment source* : **Other** (le workflow GitHub est déjà fourni — ne pas laisser SWA en
+     créer un second). Région au choix.
+   - Alternative CLI : `az staticwebapp create -n abristempo-web -g <rg> --sku Free`.
+2. **Récupérer le jeton de déploiement** : SWA → *Manage deployment token* (ou
+   `az staticwebapp secrets list -n abristempo-web --query "properties.apiKey" -o tsv`).
+3. **Ajouter le secret GitHub** : repo → *Settings → Secrets and variables → Actions → New
+   repository secret* → nom **`AZURE_STATIC_WEB_APPS_API_TOKEN`**, valeur = le jeton.
+4. **Déclencher** : pousser sur `master` (ou rouvrir le workflow). Tant que le secret est absent,
+   l'étape de déploiement se **saute** (workflow vert, build seul). Une fois le secret en place :
+   - `master` → **production** `https://<nom>.azurestaticapps.net`
+   - chaque **PR** → URL de **prévisualisation** éphémère (commentée sur la PR), fermée à la
+     fusion par le job `close_pull_request`.
+5. **Vérifier** : ouvrir `/` (fr, bouton « EN ») puis `/en/` (en, bouton « Switch to French ») ;
+   un lien profond comme `/en/boutique` doit charger l'app **anglaise** (repli géré par
+   `staticwebapp.config.json`, validé via l'émulateur `swa start`).
 
 ## 5. Base de données
 - Appliquer les migrations EF Core lors du déploiement :
