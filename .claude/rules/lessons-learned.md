@@ -11,6 +11,30 @@
 
 ---
 
+## L-006 · Move focus AFTER render, not in the same tick that removes the element
+
+> (L-005 vit sur une branche sœur — réservé pour éviter une collision de numéro au merge.)
+
+- **Symptom.** A « retour de focus » handler called `element.focus()` **synchronously** inside an
+  RxJS `next`, right after a signal update that removes the triggering button from the DOM (the
+  cancelled rental row hides its « Annuler » via `@if`). Change detection hadn't run yet, so the
+  button was still connected → focus landed on it → CD then removed it → focus silently fell back to
+  `<body>`. WCAG 2.4.3 (focus order) was violated even though the code "looked" right, and an
+  `isConnected` heuristic hid it. The status-only e2e passed; the bug surfaced only when a **vitest**
+  `expect(heading).toHaveFocus()` assertion was added and failed.
+- **Rule.** When the focus target only exists **after** the next render (a signal add/removes DOM),
+  focus it **after** the view updates — `setTimeout(() => target.focus())` (macrotask, post-CD),
+  `afterNextRender`, or an `effect()` reading the target's `viewChild()` signal so it re-runs once the
+  element is in the DOM. Never call `.focus()` in the same tick as the signal update that changes
+  which elements exist. Split the cases: focus the **trigger** (still present) when nothing changed
+  (dismiss / error), but focus a **stable fallback** (the heading) *after render* when the trigger is
+  being removed. And **assert focus at the unit level** (vitest `toHaveFocus()`) — a status-only e2e
+  never catches a focus bug. Same discipline as [[L-002]]: the a11y assertion must test the real
+  post-condition, not a proxy.
+- **Refs.** `features/account/rentals/rentals.ts` (`confirmCancel` / `focusTrigger` /
+  `focusHeadingAfterRender`, the `effect()` reading `cancelDialog()`),
+  `features/account/rentals/rentals.spec.ts` (the `toHaveFocus()` assertions).
+
 ## L-004 · A value shared across screens needs ONE agreed format (client AND server)
 
 - **Symptom.** Fixing the profile postal code to the canonical « A1A 1A1 » (with space) and

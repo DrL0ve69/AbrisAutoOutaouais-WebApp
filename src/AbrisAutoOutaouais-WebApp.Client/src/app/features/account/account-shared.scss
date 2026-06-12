@@ -112,3 +112,49 @@
   font-weight: var(--font-weight-bold);
   color: var(--color-text);
 }
+
+// Bouton « Annuler » d'une ligne — cible tactile ≥ 44px (WCAG 2.5.8).
+.account-list__cancel {
+  min-height: 44px;
+  flex-shrink: 0;
+}
+
+// ── Boîte de dialogue de confirmation d'annulation ────────────
+.account-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.account-dialog {
+  width: 100%;
+  max-width: 420px;
+  padding: var(--space-6);
+  background: var(--color-surface, #fff);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+
+  h2 {
+    font-family: var(--font-display);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    margin-bottom: var(--space-3);
+  }
+
+  p {
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-4);
+  }
+}
+
+.account-dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}

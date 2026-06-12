@@ -61,6 +61,8 @@ public sealed class RentalContract : ISoftDeletable, IAuditableEntity
     {
         if (Status == RentalStatus.Expired)
             throw new BusinessRuleException("Impossible d'annuler un contrat expiré.");
+        if (Status == RentalStatus.Cancelled)
+            throw new BusinessRuleException("Ce contrat de location est déjà annulé.");
         Status = RentalStatus.Cancelled;
     }
 }
