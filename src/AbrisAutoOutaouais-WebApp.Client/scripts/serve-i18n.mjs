@@ -46,6 +46,9 @@ const enIndex = join(browser, 'en', INDEX);
 
 const app = express();
 
+// Ne pas divulguer le framework via l'en-tête « X-Powered-By » (durcissement).
+app.disable('x-powered-by');
+
 // Cache long pour les ressources hachées (immuables) ; l'index reste revalidé.
 app.use(
   express.static(browser, {
