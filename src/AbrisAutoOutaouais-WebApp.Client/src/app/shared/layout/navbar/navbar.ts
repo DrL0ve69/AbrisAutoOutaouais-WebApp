@@ -2,8 +2,10 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  ElementRef,
   inject,
   signal,
+  viewChild,
   PLATFORM_ID,
 } from '@angular/core';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
@@ -20,8 +22,12 @@ import { ThemeService } from '../../../core/services/theme.service';
   imports: [RouterLink, RouterLinkActive],
   host: {
     class: 'navbar-host',
-    // Écoute du scroll sans @HostListener (convention v21).
+    // Écoute sans @HostListener (convention v21).
     '(window:scroll)': 'onScroll()',
+    // Fermeture des menus au clavier (Échap) et au clic extérieur — pattern
+    // disclosure (WCAG 2.1.2 / H3 « Contrôle et liberté »).
+    '(document:keydown.escape)': 'onEscape()',
+    '(document:click)': 'onDocumentClick($event)',
   },
 })
 export class NavbarComponent {
@@ -30,6 +36,12 @@ export class NavbarComponent {
   protected readonly theme = inject(ThemeService);
   private readonly platform = inject(PLATFORM_ID);
   private readonly document = inject(DOCUMENT);
+
+  // Références pour le renvoi de focus à la fermeture des menus.
+  private readonly userMenuWrap = viewChild<ElementRef<HTMLElement>>('userMenuWrap');
+  private readonly userMenuBtn = viewChild<ElementRef<HTMLElement>>('userMenuBtn');
+  private readonly mobileMenu = viewChild<ElementRef<HTMLElement>>('mobileMenu');
+  private readonly hamburger = viewChild<ElementRef<HTMLElement>>('hamburger');
 
   protected readonly menuOpen = signal(false);
   protected readonly scrolled = signal(false);
@@ -40,17 +52,11 @@ export class NavbarComponent {
 
   protected readonly cartLabel = computed(() => {
     const n = this.cart.count();
-    return n === 0
-      ? 'Panier, vide'
-      : n === 1
-        ? 'Panier, 1 article'
-        : `Panier, ${n} articles`;
+    return n === 0 ? 'Panier, vide' : n === 1 ? 'Panier, 1 article' : `Panier, ${n} articles`;
   });
 
   protected readonly themeLabel = computed(() =>
-    this.theme.theme() === 'dark'
-      ? 'Activer le thème clair'
-      : 'Activer le thème sombre',
+    this.theme.theme() === 'dark' ? 'Activer le thème clair' : 'Activer le thème sombre',
   );
 
   // Détecter le scroll pour changer l'apparence de la navbar.
@@ -60,7 +66,7 @@ export class NavbarComponent {
   }
 
   protected toggleMenu(): void {
-    this.menuOpen.update(v => !v);
+    this.menuOpen.update((v) => !v);
     if (this.menuOpen()) this.userMenuOpen.set(false);
   }
 
@@ -69,11 +75,41 @@ export class NavbarComponent {
   }
 
   protected toggleUserMenu(): void {
-    this.userMenuOpen.update(v => !v);
+    this.userMenuOpen.update((v) => !v);
   }
 
   protected closeUserMenu(): void {
     this.userMenuOpen.set(false);
+  }
+
+  /** Échap ferme le menu ouvert et renvoie le focus à son déclencheur. */
+  protected onEscape(): void {
+    if (this.userMenuOpen()) {
+      this.userMenuOpen.set(false);
+      this.userMenuBtn()?.nativeElement.focus();
+    }
+    if (this.menuOpen()) {
+      this.menuOpen.set(false);
+      this.hamburger()?.nativeElement.focus();
+    }
+  }
+
+  /** Un clic hors d'un menu ouvert le referme (sans déplacer le focus). */
+  protected onDocumentClick(event: MouseEvent): void {
+    if (!isPlatformBrowser(this.platform)) return;
+    const target = event.target as Node;
+
+    if (this.userMenuOpen() && !this.userMenuWrap()?.nativeElement.contains(target)) {
+      this.userMenuOpen.set(false);
+    }
+
+    if (
+      this.menuOpen() &&
+      !this.mobileMenu()?.nativeElement.contains(target) &&
+      !this.hamburger()?.nativeElement.contains(target)
+    ) {
+      this.menuOpen.set(false);
+    }
   }
 
   protected toggleTheme(): void {

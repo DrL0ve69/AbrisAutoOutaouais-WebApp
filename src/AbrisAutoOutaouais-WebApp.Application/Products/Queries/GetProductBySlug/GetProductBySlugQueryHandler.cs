@@ -13,8 +13,10 @@ namespace AbrisAutoOutaouais_WebApp.Application.Products.Queries.GetProductBySlu
 public sealed class GetProductBySlugQueryHandler(IApplicationDbContext db)
     : IQueryHandler<GetProductBySlugQuery, ProductDto>
 {
-    public async ValueTask<ProductDto> Handle(
-        GetProductBySlugQuery query, CancellationToken ct)
+    // Les contrôleurs appellent dispatcher.DispatchAsync(...) qui invoque HandleAsync
+    // (Task). HandleAsync porte la logique ; Handle (ValueTask) satisfait l'interface
+    // et délègue — même patron que les autres handlers du projet.
+    public async Task<ProductDto> HandleAsync(GetProductBySlugQuery query, CancellationToken ct)
     {
         // AsNoTracking() obligatoire sur les queries — pas de tracking EF inutile
         return await db.Products
@@ -27,4 +29,7 @@ public sealed class GetProductBySlugQueryHandler(IApplicationDbContext db)
             .FirstOrDefaultAsync(ct)
             ?? throw new NotFoundException(nameof(Product), query.Slug);
     }
+
+    public ValueTask<ProductDto> Handle(GetProductBySlugQuery query, CancellationToken ct)
+        => new(HandleAsync(query, ct));
 }

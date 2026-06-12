@@ -173,13 +173,13 @@ détection → recommandation → remédiation → re-test.
 
 | # | Constat | Critère lié | Recommandation concrète | Priorité |
 |---|---------|-------------|--------------------------|----------|
-| R1 | **Deux implémentations d'inscription coexistent** : `features/auth/auth.ts` (accessible, *flip*, `username`) et `features/auth/register/register.component.ts` (legacy `*ngIf`, libellés non i18n, sans `aria-invalid`/`aria-describedby`, styles inline gradient) | 3.3.1 / 4.1.2 / 3.1.2 | Supprimer le composant legacy `register.component.ts` ou le faire converger vers le patron `auth.html` ; éviter qu'une route le réintroduise | Haute |
-| R2 | Chips de filtre sous 44 px de hauteur | 2.5.8 (AA ok) / 2.5.5 (AAA) | `min-height: 44px` sur `.catalog__chip` | Moyenne |
-| R3 | Couverture axe **e2e limitée à 3 pages** (Accueil, Boutique, Détail) | Méthodo | Ajouter `/auth`, `/mon-compte/profil` et états d'erreur/vides aux scénarios Playwright | Moyenne |
+| R1 | **Deux implémentations d'inscription coexistent** : `features/auth/auth.ts` (accessible, *flip*, `username`) et `features/auth/register/register.component.ts` (legacy `*ngIf`, libellés non i18n, sans `aria-invalid`/`aria-describedby`, styles inline gradient) | 3.3.1 / 4.1.2 / 3.1.2 | ✅ **Corrigé** : `features/auth/login/` et `features/auth/register/` supprimés (code mort, aucune route) ; tout passe par `AuthComponent` | ~~Haute~~ |
+| R2 | Chips de filtre sous 44 px de hauteur | 2.5.8 (AA ok) / 2.5.5 (AAA) | ✅ **Corrigé** : `min-height: 44px` sur `.catalog__chip` (+ champs de recherche/tri) | ~~Moyenne~~ |
+| R3 | Couverture axe **e2e limitée à 3 pages** (Accueil, Boutique, Détail) | Méthodo | ✅ **Corrigé** : `/auth` et `/panier` ajoutés à `e2e/a11y.spec.ts` (`color-contrast` actif) ; `/mon-compte/profil` à suivre | ~~Moyenne~~ |
 | R4 | `color-contrast` désactivé en tests unitaires | Méthodo | Acceptable (documenté), mais s'appuyer sur l'e2e comme garde-fou de non-régression CI | Basse |
-| R5 | Parcours panier / paiement / réservation **non implémentés** (`/location`, `/installation` = pages « en construction ») | 3.3.4 / 3.3.7 | Concevoir le checkout dès le départ avec étape de révision, pré-remplissage profil, et messages d'erreur reliés | Haute (futur) |
+| R5 | ~~Parcours panier / paiement / réservation **non implémentés**~~ | 3.3.4 / 3.3.7 | ⚠️ **Obsolète** : `/installation` et `/location` sont désormais de vrais formulaires (réservation/location) et le panier/caisse (`/panier`, `/panier/caisse`) existent. Reste à étendre la couverture axe e2e à ces parcours transactionnels | Moyenne (futur) |
 | R6 | Changement de langue = rechargement complet vers `/en/` (`navbar.ts switchLang`) | 3.2.3 | Annoncer le changement (page rechargée, focus repositionné) ; vérifier que le build `en` est servi (sinon EN inactif en `ng serve`) | Basse |
-| R7 | `2.4.12` (focus non masqué par la navbar sticky lors des sauts d'ancre) | AAA | `scroll-margin-top` sur les cibles d'ancrage (`#catalogue`, `#main`) | Basse |
+| R7 | `2.4.12` (focus non masqué par la navbar sticky lors des sauts d'ancre) | AAA | ✅ **Corrigé** : `scroll-padding-top` (html) + `scroll-margin-top` sur `:target`/`#main` (`styles.scss`) | ~~Basse~~ |
 
 ---
 

@@ -43,6 +43,8 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
+  // Cible tactile confortable ≥ 44px (WCAG 2.5.8 / 2.5.5 AAA, US-3.6).
+  min-height: 44px;
   padding: var(--space-2) var(--space-4);
   font-family: var(--font-sans);
   font-size: var(--font-size-sm);
@@ -86,6 +88,95 @@
   background: rgba(255, 255, 255, 0.25);
 }
 
+// ── Barre d'outils : recherche + tri ─────────────────────────
+.catalog__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-8);
+}
+
+.catalog__search {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  flex: 1 1 280px;
+}
+
+.catalog__search-label,
+.catalog__sort-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+}
+
+.catalog__search-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.catalog__search-icon {
+  position: absolute;
+  left: var(--space-3);
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+.catalog__search-input {
+  width: 100%;
+  min-height: 44px;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  padding: var(--space-2) var(--space-4) var(--space-2) calc(var(--space-3) + 26px);
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+  appearance: none;
+
+  &::placeholder {
+    color: var(--color-text-muted);
+    opacity: 1;
+  }
+
+  &:focus-visible {
+    outline: none;
+    border-color: var(--color-focus);
+    box-shadow: var(--color-focus-ring);
+  }
+}
+
+.catalog__sort {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  flex: 0 1 220px;
+}
+
+.catalog__sort-select {
+  min-height: 44px;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-4);
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: none;
+    border-color: var(--color-focus);
+    box-shadow: var(--color-focus-ring);
+  }
+}
+
 // ── Grille de produits ───────────────────────────────────────
 .catalog__grid {
   display: grid;
@@ -119,7 +210,12 @@
 
 .skeleton-card__img {
   aspect-ratio: 4 / 3;
-  background: linear-gradient(90deg, var(--color-bg-muted) 25%, var(--color-bg-subtle) 50%, var(--color-bg-muted) 75%);
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-muted) 25%,
+    var(--color-bg-subtle) 50%,
+    var(--color-bg-muted) 75%
+  );
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.5s infinite;
 }
@@ -134,7 +230,12 @@
 .skeleton-line {
   height: 14px;
   border-radius: var(--radius-sm);
-  background: linear-gradient(90deg, var(--color-bg-muted) 25%, var(--color-bg-subtle) 50%, var(--color-bg-muted) 75%);
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-muted) 25%,
+    var(--color-bg-subtle) 50%,
+    var(--color-bg-muted) 75%
+  );
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.5s infinite;
 

@@ -6,505 +6,600 @@
 
 <div class="profile-page">
   <div class="container">
-
     <!-- ── Chargement ─────────────────────────────────────────── -->
     @if (loading()) {
-    <div class="profile-skeleton" aria-busy="true" aria-label="Chargement du profil…">
-      <div class="skeleton-avatar"></div>
-      <div class="skeleton-lines">
-        <div class="skeleton-line skeleton-line--lg"></div>
-        <div class="skeleton-line skeleton-line--med"></div>
-        <div class="skeleton-line skeleton-line--sm"></div>
+      <div class="profile-skeleton" aria-busy="true" aria-label="Chargement du profil…">
+        <div class="skeleton-avatar"></div>
+        <div class="skeleton-lines">
+          <div class="skeleton-line skeleton-line--lg"></div>
+          <div class="skeleton-line skeleton-line--med"></div>
+          <div class="skeleton-line skeleton-line--sm"></div>
+        </div>
       </div>
-    </div>
     } @else {
-
-    <div class="profile-layout">
-
-      <!-- ── SIDEBAR ───────────────────────────────────────────── -->
-      <aside class="profile-sidebar" aria-label="Informations du compte">
-
-        <!-- Avatar + édition de la photo de profil -->
-        <div class="profile-avatar-editor">
-          <div class="profile-avatar">
-            @if (profile()?.avatar) {
-            <img [src]="profile()!.avatar!" alt="" width="96" height="96" />
-            } @else {
-            <span class="profile-avatar__initials" aria-hidden="true">{{ initials() }}</span>
-            }
-            @if (avatarUploading()) {
-            <span class="profile-avatar__overlay" role="status">
-              <span class="sr-only">Traitement de la photo en cours…</span>
-              <span class="spinner spinner--sm" aria-hidden="true"></span>
-            </span>
-            }
-          </div>
-
-          <!-- Input fichier masqué, déclenché par un bouton accessible -->
-          <input #avatarInput
-                 type="file"
-                 hidden
-                 accept="image/png,image/jpeg,image/webp"
-                 (change)="onAvatarSelected($event)" />
-
-          <div class="profile-avatar__actions">
-            <button type="button"
-                    class="btn btn--outline btn--sm"
-                    (click)="avatarInput.click()"
-                    [disabled]="avatarUploading()"
-                    aria-describedby="avatar-hint">
-              @if (profile()?.avatar) { Changer la photo } @else { Ajouter une photo }
-            </button>
-            @if (profile()?.avatar) {
-            <button type="button"
-                    class="btn btn--ghost btn--sm"
-                    (click)="removeAvatar()"
-                    [disabled]="avatarUploading()">
-              Retirer
-            </button>
-            }
-          </div>
-
-          <p id="avatar-hint" class="profile-avatar__hint">
-            JPG, PNG ou WebP — 5 Mo maximum.
-          </p>
-
-          <div aria-live="polite" aria-atomic="true">
-            @if (avatarError()) {
-            <p class="field__error profile-avatar__error" role="alert">{{ avatarError() }}</p>
-            }
-          </div>
-        </div>
-
-        <div class="profile-identity">
-          <h1 class="profile-name">{{ fullName() }}</h1>
-          <p class="profile-email">{{ profile()?.email }}</p>
-          <span class="profile-role-badge">{{ roleLabel() }}</span>
-        </div>
-
-        <!-- Navigation secondaire -->
-        <nav class="profile-nav" aria-label="Navigation du compte">
-          <ul role="list">
-            <li>
-              <a routerLink="/mon-compte/commandes" class="profile-nav__link">
-                <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24"
-                     fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
-                  <line x1="3" y1="6" x2="21" y2="6" />
-                  <path d="M16 10a4 4 0 0 1-8 0" />
-                </svg>
-                Mes commandes
-              </a>
-            </li>
-            <li>
-              <a routerLink="/mon-compte/reservations" class="profile-nav__link">
-                <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24"
-                     fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                  <line x1="16" y1="2" x2="16" y2="6" />
-                  <line x1="8" y1="2" x2="8" y2="6" />
-                  <line x1="3" y1="10" x2="21" y2="10" />
-                </svg>
-                Mes réservations
-              </a>
-            </li>
-            <li>
-              <a routerLink="/mon-compte/locations" class="profile-nav__link">
-                <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24"
-                     fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                  <polyline points="9 22 9 12 15 12 15 22" />
-                </svg>
-                Mes locations
-              </a>
-            </li>
-          </ul>
-        </nav>
-
-        <!-- Déconnexion -->
-        <button type="button"
-                class="profile-logout"
-                (click)="auth.logout()">
-          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24"
-               fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-            <polyline points="16 17 21 12 16 7" />
-            <line x1="21" y1="12" x2="9" y2="12" />
-          </svg>
-          Déconnexion
-        </button>
-
-      </aside>
-
-      <!-- ── CONTENU PRINCIPAL ──────────────────────────────────── -->
-      <main class="profile-main" aria-label="Paramètres du profil">
-
-        <!-- Onglets ─────────────────────────────────────────────── -->
-        <div role="tablist"
-             class="profile-tabs"
-             aria-label="Sections du profil">
-
-          <button role="tab"
-                  class="profile-tab"
-                  [class.is-active]="activeTab() === 'info'"
-                  [attr.aria-selected]="activeTab() === 'info'"
-                  [attr.aria-controls]="'panel-info'"
-                  id="tab-info"
-                  (click)="setTab('info')">
-            Informations
-          </button>
-
-          <button role="tab"
-                  class="profile-tab"
-                  [class.is-active]="activeTab() === 'address'"
-                  [attr.aria-selected]="activeTab() === 'address'"
-                  [attr.aria-controls]="'panel-address'"
-                  id="tab-address"
-                  (click)="setTab('address')">
-            Adresse de livraison
-          </button>
-
-          <button role="tab"
-                  class="profile-tab"
-                  [class.is-active]="activeTab() === 'security'"
-                  [attr.aria-selected]="activeTab() === 'security'"
-                  [attr.aria-controls]="'panel-security'"
-                  id="tab-security"
-                  (click)="setTab('security')">
-            Sécurité
-          </button>
-        </div>
-
-        <!-- Message de succès / erreur — aria-live ─────────────── -->
-        <div aria-live="polite" aria-atomic="true">
-          @if (saveSuccess()) {
-          <div class="profile-feedback profile-feedback--success" role="status">
-            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24"
-                 fill="none" stroke="currentColor" stroke-width="2.5">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
-            Modifications sauvegardées avec succès.
-          </div>
-          }
-          @if (saveError()) {
-          <div class="profile-feedback profile-feedback--error" role="alert">
-            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24"
-                 fill="none" stroke="currentColor" stroke-width="2.5">
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="8" x2="12" y2="12" />
-              <line x1="12" y1="16" x2="12.01" y2="16" />
-            </svg>
-            {{ saveError() }}
-          </div>
-          }
-        </div>
-
-        <!-- ── Panel : Informations ──────────────────────────────── -->
-        @if (activeTab() === 'info') {
-        <section id="panel-info"
-                 role="tabpanel"
-                 aria-labelledby="tab-info"
-                 class="profile-panel">
-
-          <h2 class="profile-panel__title">Informations personnelles</h2>
-          <p class="profile-panel__desc">
-            Ces informations apparaissent sur vos confirmations de commande.
-          </p>
-
-          <form [formGroup]="infoForm"
-                (ngSubmit)="saveInfo()"
-                novalidate
-                class="profile-form">
-
-            <div class="field-row">
-              <div class="field">
-                <label class="field__label" for="prof-first">
-                  Prénom <span class="required" aria-hidden="true">*</span>
-                </label>
-                <input id="prof-first"
-                       type="text"
-                       class="field__input"
-                       formControlName="firstName"
-                       autocomplete="given-name"
-                       [attr.aria-invalid]="fFirst.invalid && fFirst.touched"
-                       aria-describedby="prof-first-err" />
-                @if (fFirst.invalid && fFirst.touched) {
-                <span id="prof-first-err" class="field__error" role="alert">
-                  Le prénom est requis.
+      <div class="profile-layout">
+        <!-- ── SIDEBAR ───────────────────────────────────────────── -->
+        <aside class="profile-sidebar" aria-label="Informations du compte">
+          <!-- Avatar + édition de la photo de profil -->
+          <div class="profile-avatar-editor">
+            <div class="profile-avatar">
+              @if (profile()?.avatar) {
+                <img [src]="profile()!.avatar!" alt="" width="96" height="96" />
+              } @else {
+                <span class="profile-avatar__initials" aria-hidden="true">{{ initials() }}</span>
+              }
+              @if (avatarUploading()) {
+                <span class="profile-avatar__overlay" role="status">
+                  <span class="sr-only">Traitement de la photo en cours…</span>
+                  <span class="spinner spinner--sm" aria-hidden="true"></span>
                 </span>
-                }
-              </div>
-
-              <div class="field">
-                <label class="field__label" for="prof-last">
-                  Nom <span class="required" aria-hidden="true">*</span>
-                </label>
-                <input id="prof-last"
-                       type="text"
-                       class="field__input"
-                       formControlName="lastName"
-                       autocomplete="family-name"
-                       [attr.aria-invalid]="fLast.invalid && fLast.touched"
-                       aria-describedby="prof-last-err" />
-                @if (fLast.invalid && fLast.touched) {
-                <span id="prof-last-err" class="field__error" role="alert">
-                  Le nom est requis.
-                </span>
-                }
-              </div>
+              }
             </div>
 
-            <div class="field">
-              <label class="field__label" for="prof-email">
-                Adresse courriel
-              </label>
-              <input id="prof-email"
-                     type="email"
-                     class="field__input field__input--readonly"
-                     [value]="profile()?.email ?? ''"
-                     readonly
-                     aria-describedby="prof-email-hint" />
-              <span id="prof-email-hint" class="field__hint">
-                L'adresse courriel ne peut pas être modifiée ici.
-              </span>
-            </div>
+            <!-- Input fichier masqué, déclenché par un bouton accessible -->
+            <input
+              #avatarInput
+              type="file"
+              hidden
+              accept="image/png,image/jpeg,image/webp"
+              (change)="onAvatarSelected($event)"
+            />
 
-            <div class="field">
-              <label class="field__label" for="prof-phone">Téléphone</label>
-              <input id="prof-phone"
-                     type="tel"
-                     class="field__input"
-                     formControlName="phoneNumber"
-                     autocomplete="tel"
-                     inputmode="tel"
-                     placeholder="819 123-4567" />
-            </div>
-
-            <div class="field">
-              <label class="field__label" for="prof-lang">Langue préférée</label>
-              <select id="prof-lang" class="field__input field__select" formControlName="preferredLanguage">
-                <option value="fr">Français</option>
-                <option value="en">English</option>
-              </select>
-            </div>
-
-            <div class="profile-form__actions">
-              <button type="submit"
-                      class="btn btn--primary"
-                      [disabled]="saving()"
-                      [attr.aria-busy]="saving()">
-                @if (saving()) {
-                <span class="sr-only">Sauvegarde en cours…</span>
-                <span class="spinner spinner--sm" aria-hidden="true"></span>
-                } @else {
-                Sauvegarder
-                }
+            <div class="profile-avatar__actions">
+              <button
+                type="button"
+                class="btn btn--outline btn--sm"
+                (click)="avatarInput.click()"
+                [disabled]="avatarUploading()"
+                aria-describedby="avatar-hint"
+              >
+                @if (profile()?.avatar) { Changer la photo } @else { Ajouter une photo }
               </button>
+              @if (profile()?.avatar) {
+                <button
+                  type="button"
+                  class="btn btn--ghost btn--sm"
+                  (click)="removeAvatar()"
+                  [disabled]="avatarUploading()"
+                >
+                  Retirer
+                </button>
+              }
             </div>
-          </form>
-        </section>
-        }
 
-        <!-- ── Panel : Adresse ───────────────────────────────────── -->
-        @if (activeTab() === 'address') {
-        <section id="panel-address"
-                 role="tabpanel"
-                 aria-labelledby="tab-address"
-                 class="profile-panel">
+            <p id="avatar-hint" class="profile-avatar__hint">JPG, PNG ou WebP — 5 Mo maximum.</p>
 
-          <h2 class="profile-panel__title">Adresse de livraison par défaut</h2>
-          <p class="profile-panel__desc">
-            Cette adresse sera pré-remplie lors de vos commandes et réservations.
-          </p>
+            <div aria-live="polite" aria-atomic="true">
+              @if (avatarError()) {
+                <p class="field__error profile-avatar__error" role="alert">{{ avatarError() }}</p>
+              }
+            </div>
+          </div>
 
-          <form [formGroup]="addressForm"
+          <div class="profile-identity">
+            <h1 class="profile-name">{{ fullName() }}</h1>
+            <p class="profile-email">{{ profile()?.email }}</p>
+            <span class="profile-role-badge">{{ roleLabel() }}</span>
+          </div>
+
+          <!-- Navigation secondaire -->
+          <nav class="profile-nav" aria-label="Navigation du compte">
+            <ul role="list">
+              <li>
+                <a routerLink="/mon-compte/commandes" class="profile-nav__link">
+                  <svg
+                    aria-hidden="true"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <path d="M16 10a4 4 0 0 1-8 0" />
+                  </svg>
+                  Mes commandes
+                </a>
+              </li>
+              <li>
+                <a routerLink="/mon-compte/reservations" class="profile-nav__link">
+                  <svg
+                    aria-hidden="true"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                    <line x1="16" y1="2" x2="16" y2="6" />
+                    <line x1="8" y1="2" x2="8" y2="6" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                  </svg>
+                  Mes réservations
+                </a>
+              </li>
+              <li>
+                <a routerLink="/mon-compte/locations" class="profile-nav__link">
+                  <svg
+                    aria-hidden="true"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                    <polyline points="9 22 9 12 15 12 15 22" />
+                  </svg>
+                  Mes locations
+                </a>
+              </li>
+            </ul>
+          </nav>
+
+          <!-- Déconnexion -->
+          <button type="button" class="profile-logout" (click)="auth.logout()">
+            <svg
+              aria-hidden="true"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+            Déconnexion
+          </button>
+        </aside>
+
+        <!-- ── CONTENU PRINCIPAL ──────────────────────────────────── -->
+        <main class="profile-main" aria-label="Paramètres du profil">
+          <!-- Onglets ─────────────────────────────────────────────── -->
+          <div
+            role="tablist"
+            class="profile-tabs"
+            aria-label="Sections du profil"
+            (keydown)="onTabKeydown($event)"
+          >
+            <button
+              role="tab"
+              #tabBtn
+              class="profile-tab"
+              [class.is-active]="activeTab() === 'info'"
+              [attr.aria-selected]="activeTab() === 'info'"
+              [attr.tabindex]="activeTab() === 'info' ? 0 : -1"
+              [attr.aria-controls]="'panel-info'"
+              id="tab-info"
+              (click)="setTab('info')"
+            >
+              Informations
+            </button>
+
+            <button
+              role="tab"
+              #tabBtn
+              class="profile-tab"
+              [class.is-active]="activeTab() === 'address'"
+              [attr.aria-selected]="activeTab() === 'address'"
+              [attr.tabindex]="activeTab() === 'address' ? 0 : -1"
+              [attr.aria-controls]="'panel-address'"
+              id="tab-address"
+              (click)="setTab('address')"
+            >
+              Adresse de livraison
+            </button>
+
+            <button
+              role="tab"
+              #tabBtn
+              class="profile-tab"
+              [class.is-active]="activeTab() === 'security'"
+              [attr.aria-selected]="activeTab() === 'security'"
+              [attr.tabindex]="activeTab() === 'security' ? 0 : -1"
+              [attr.aria-controls]="'panel-security'"
+              id="tab-security"
+              (click)="setTab('security')"
+            >
+              Sécurité
+            </button>
+          </div>
+
+          <!-- Message de succès / erreur — aria-live ─────────────── -->
+          <div aria-live="polite" aria-atomic="true">
+            @if (saveSuccess()) {
+              <div class="profile-feedback profile-feedback--success" role="status">
+                <svg
+                  aria-hidden="true"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                Modifications sauvegardées avec succès.
+              </div>
+            }
+            @if (saveError()) {
+              <div class="profile-feedback profile-feedback--error" role="alert">
+                <svg
+                  aria-hidden="true"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+                {{ saveError() }}
+              </div>
+            }
+          </div>
+
+          <!-- ── Panel : Informations ──────────────────────────────── -->
+          @if (activeTab() === 'info') {
+            <section
+              id="panel-info"
+              role="tabpanel"
+              aria-labelledby="tab-info"
+              class="profile-panel"
+            >
+              <h2 class="profile-panel__title">Informations personnelles</h2>
+              <p class="profile-panel__desc">
+                Ces informations apparaissent sur vos confirmations de commande.
+              </p>
+
+              <form [formGroup]="infoForm" (ngSubmit)="saveInfo()" novalidate class="profile-form">
+                <div class="field-row">
+                  <div class="field">
+                    <label class="field__label" for="prof-first">
+                      Prénom <span class="required" aria-hidden="true">*</span>
+                    </label>
+                    <input
+                      id="prof-first"
+                      type="text"
+                      class="field__input"
+                      formControlName="firstName"
+                      autocomplete="given-name"
+                      [attr.aria-invalid]="fFirst.invalid && fFirst.touched"
+                      aria-describedby="prof-first-err"
+                    />
+                    @if (fFirst.invalid && fFirst.touched) {
+                      <span id="prof-first-err" class="field__error" role="alert">
+                        Le prénom est requis.
+                      </span>
+                    }
+                  </div>
+
+                  <div class="field">
+                    <label class="field__label" for="prof-last">
+                      Nom <span class="required" aria-hidden="true">*</span>
+                    </label>
+                    <input
+                      id="prof-last"
+                      type="text"
+                      class="field__input"
+                      formControlName="lastName"
+                      autocomplete="family-name"
+                      [attr.aria-invalid]="fLast.invalid && fLast.touched"
+                      aria-describedby="prof-last-err"
+                    />
+                    @if (fLast.invalid && fLast.touched) {
+                      <span id="prof-last-err" class="field__error" role="alert">
+                        Le nom est requis.
+                      </span>
+                    }
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label class="field__label" for="prof-email"> Adresse courriel </label>
+                  <input
+                    id="prof-email"
+                    type="email"
+                    class="field__input field__input--readonly"
+                    [value]="profile()?.email ?? ''"
+                    readonly
+                    aria-describedby="prof-email-hint"
+                  />
+                  <span id="prof-email-hint" class="field__hint">
+                    L'adresse courriel ne peut pas être modifiée ici.
+                  </span>
+                </div>
+
+                <div class="field">
+                  <label class="field__label" for="prof-phone">Téléphone</label>
+                  <input
+                    id="prof-phone"
+                    type="tel"
+                    class="field__input"
+                    formControlName="phoneNumber"
+                    autocomplete="tel"
+                    inputmode="tel"
+                    placeholder="819 123-4567"
+                  />
+                </div>
+
+                <div class="field">
+                  <label class="field__label" for="prof-lang">Langue préférée</label>
+                  <select
+                    id="prof-lang"
+                    class="field__input field__select"
+                    formControlName="preferredLanguage"
+                  >
+                    <option value="fr">Français</option>
+                    <option value="en">English</option>
+                  </select>
+                </div>
+
+                <div class="profile-form__actions">
+                  <button
+                    type="submit"
+                    class="btn btn--primary"
+                    [disabled]="saving()"
+                    [attr.aria-busy]="saving()"
+                  >
+                    @if (saving()) {
+                      <span class="sr-only">Sauvegarde en cours…</span>
+                      <span class="spinner spinner--sm" aria-hidden="true"></span>
+                    } @else {
+                      Sauvegarder
+                    }
+                  </button>
+                </div>
+              </form>
+            </section>
+          }
+
+          <!-- ── Panel : Adresse ───────────────────────────────────── -->
+          @if (activeTab() === 'address') {
+            <section
+              id="panel-address"
+              role="tabpanel"
+              aria-labelledby="tab-address"
+              class="profile-panel"
+            >
+              <h2 class="profile-panel__title">Adresse de livraison par défaut</h2>
+              <p class="profile-panel__desc">
+                Cette adresse sera pré-remplie lors de vos commandes et réservations.
+              </p>
+
+              <form
+                [formGroup]="addressForm"
                 (ngSubmit)="saveAddress()"
                 novalidate
-                class="profile-form">
+                class="profile-form"
+              >
+                <div class="field">
+                  <label class="field__label" for="addr-street">Rue et numéro civique</label>
+                  <input
+                    id="addr-street"
+                    type="text"
+                    class="field__input"
+                    formControlName="street"
+                    autocomplete="street-address"
+                    placeholder="123 rue des Érables"
+                  />
+                </div>
 
-            <div class="field">
-              <label class="field__label" for="addr-street">Rue et numéro civique</label>
-              <input id="addr-street"
-                     type="text"
-                     class="field__input"
-                     formControlName="street"
-                     autocomplete="street-address"
-                     placeholder="123 rue des Érables" />
-            </div>
+                <div class="field-row">
+                  <div class="field">
+                    <label class="field__label" for="addr-city">Ville</label>
+                    <input
+                      id="addr-city"
+                      type="text"
+                      class="field__input"
+                      formControlName="city"
+                      autocomplete="address-level2"
+                      placeholder="Gatineau"
+                    />
+                  </div>
+                  <div class="field">
+                    <label class="field__label" for="addr-province">Province</label>
+                    <select
+                      id="addr-province"
+                      class="field__input field__select"
+                      formControlName="province"
+                    >
+                      <option value="QC">Québec (QC)</option>
+                      <option value="ON">Ontario (ON)</option>
+                      <option value="BC">Colombie-Britannique (BC)</option>
+                      <option value="AB">Alberta (AB)</option>
+                      <option value="MB">Manitoba (MB)</option>
+                      <option value="SK">Saskatchewan (SK)</option>
+                      <option value="NS">Nouvelle-Écosse (NS)</option>
+                      <option value="NB">Nouveau-Brunswick (NB)</option>
+                      <option value="NL">Terre-Neuve-et-Labrador (NL)</option>
+                      <option value="PE">Île-du-Prince-Édouard (PE)</option>
+                    </select>
+                  </div>
+                </div>
 
-            <div class="field-row">
-              <div class="field">
-                <label class="field__label" for="addr-city">Ville</label>
-                <input id="addr-city"
-                       type="text"
-                       class="field__input"
-                       formControlName="city"
-                       autocomplete="address-level2"
-                       placeholder="Gatineau" />
-              </div>
-              <div class="field">
-                <label class="field__label" for="addr-province">Province</label>
-                <select id="addr-province" class="field__input field__select" formControlName="province">
-                  <option value="QC">Québec (QC)</option>
-                  <option value="ON">Ontario (ON)</option>
-                  <option value="BC">Colombie-Britannique (BC)</option>
-                  <option value="AB">Alberta (AB)</option>
-                  <option value="MB">Manitoba (MB)</option>
-                  <option value="SK">Saskatchewan (SK)</option>
-                  <option value="NS">Nouvelle-Écosse (NS)</option>
-                  <option value="NB">Nouveau-Brunswick (NB)</option>
-                  <option value="NL">Terre-Neuve-et-Labrador (NL)</option>
-                  <option value="PE">Île-du-Prince-Édouard (PE)</option>
-                </select>
-              </div>
-            </div>
+                <div class="field-row">
+                  <div class="field">
+                    <label class="field__label" for="addr-postal"> Code postal </label>
+                    <input
+                      id="addr-postal"
+                      type="text"
+                      class="field__input"
+                      formControlName="postalCode"
+                      autocomplete="postal-code"
+                      inputmode="text"
+                      placeholder="J8X 3K1"
+                      [attr.aria-invalid]="aPostal.invalid && aPostal.touched"
+                      aria-describedby="addr-postal-err addr-postal-hint"
+                    />
+                    <span id="addr-postal-hint" class="field__hint">Format : A1A 1A1</span>
+                    @if (aPostal.invalid && aPostal.touched) {
+                      <span id="addr-postal-err" class="field__error" role="alert">
+                        Format de code postal invalide.
+                      </span>
+                    }
+                  </div>
 
-            <div class="field-row">
-              <div class="field">
-                <label class="field__label" for="addr-postal">
-                  Code postal
-                </label>
-                <input id="addr-postal"
-                       type="text"
-                       class="field__input"
-                       formControlName="postalCode"
-                       autocomplete="postal-code"
-                       inputmode="text"
-                       placeholder="J8X 3K1"
-                       [attr.aria-invalid]="aPostal.invalid && aPostal.touched"
-                       aria-describedby="addr-postal-err addr-postal-hint" />
-                <span id="addr-postal-hint" class="field__hint">Format : A1A 1A1</span>
-                @if (aPostal.invalid && aPostal.touched) {
-                <span id="addr-postal-err" class="field__error" role="alert">
-                  Format de code postal invalide.
-                </span>
-                }
-              </div>
+                  <div class="field">
+                    <label class="field__label" for="addr-country">Pays</label>
+                    <input
+                      id="addr-country"
+                      type="text"
+                      class="field__input field__input--readonly"
+                      formControlName="country"
+                      readonly
+                    />
+                  </div>
+                </div>
 
-              <div class="field">
-                <label class="field__label" for="addr-country">Pays</label>
-                <input id="addr-country"
-                       type="text"
-                       class="field__input field__input--readonly"
-                       formControlName="country"
-                       readonly />
-              </div>
-            </div>
+                <div class="profile-form__actions">
+                  <button
+                    type="submit"
+                    class="btn btn--primary"
+                    [disabled]="saving()"
+                    [attr.aria-busy]="saving()"
+                  >
+                    @if (saving()) {
+                      <span class="sr-only">Sauvegarde en cours…</span>
+                      <span class="spinner spinner--sm" aria-hidden="true"></span>
+                    } @else {
+                      Sauvegarder l'adresse
+                    }
+                  </button>
+                </div>
+              </form>
+            </section>
+          }
 
-            <div class="profile-form__actions">
-              <button type="submit"
-                      class="btn btn--primary"
-                      [disabled]="saving()"
-                      [attr.aria-busy]="saving()">
-                @if (saving()) {
-                <span class="sr-only">Sauvegarde en cours…</span>
-                <span class="spinner spinner--sm" aria-hidden="true"></span>
-                } @else {
-                Sauvegarder l'adresse
-                }
-              </button>
-            </div>
-          </form>
-        </section>
-        }
+          <!-- ── Panel : Sécurité ──────────────────────────────────── -->
+          @if (activeTab() === 'security') {
+            <section
+              id="panel-security"
+              role="tabpanel"
+              aria-labelledby="tab-security"
+              class="profile-panel"
+            >
+              <h2 class="profile-panel__title">Changer le mot de passe</h2>
+              <p class="profile-panel__desc">
+                Choisissez un mot de passe fort d'au moins 8 caractères.
+              </p>
 
-        <!-- ── Panel : Sécurité ──────────────────────────────────── -->
-        @if (activeTab() === 'security') {
-        <section id="panel-security"
-                 role="tabpanel"
-                 aria-labelledby="tab-security"
-                 class="profile-panel">
-
-          <h2 class="profile-panel__title">Changer le mot de passe</h2>
-          <p class="profile-panel__desc">
-            Choisissez un mot de passe fort d'au moins 8 caractères.
-          </p>
-
-          <form [formGroup]="securityForm"
+              <form
+                [formGroup]="securityForm"
                 (ngSubmit)="changePassword()"
                 novalidate
-                class="profile-form">
+                class="profile-form"
+              >
+                <div class="field">
+                  <label class="field__label" for="sec-current">
+                    Mot de passe actuel <span class="required" aria-hidden="true">*</span>
+                  </label>
+                  <input
+                    id="sec-current"
+                    type="password"
+                    class="field__input"
+                    formControlName="currentPassword"
+                    autocomplete="current-password"
+                    [attr.aria-invalid]="sCurrent.invalid && sCurrent.touched"
+                    aria-describedby="sec-current-err"
+                  />
+                  @if (sCurrent.invalid && sCurrent.touched) {
+                    <span id="sec-current-err" class="field__error" role="alert">
+                      Le mot de passe actuel est requis.
+                    </span>
+                  }
+                </div>
 
-            <div class="field">
-              <label class="field__label" for="sec-current">
-                Mot de passe actuel <span class="required" aria-hidden="true">*</span>
-              </label>
-              <input id="sec-current"
-                     type="password"
-                     class="field__input"
-                     formControlName="currentPassword"
-                     autocomplete="current-password"
-                     [attr.aria-invalid]="sCurrent.invalid && sCurrent.touched"
-                     aria-describedby="sec-current-err" />
-              @if (sCurrent.invalid && sCurrent.touched) {
-              <span id="sec-current-err" class="field__error" role="alert">
-                Le mot de passe actuel est requis.
-              </span>
-              }
-            </div>
+                <div class="field">
+                  <label class="field__label" for="sec-new">
+                    Nouveau mot de passe <span class="required" aria-hidden="true">*</span>
+                  </label>
+                  <input
+                    id="sec-new"
+                    type="password"
+                    class="field__input"
+                    formControlName="newPassword"
+                    autocomplete="new-password"
+                    [attr.aria-invalid]="sNew.invalid && sNew.touched"
+                    aria-describedby="sec-new-hint sec-new-err"
+                  />
+                  <span id="sec-new-hint" class="field__hint">
+                    8 caractères min. — majuscule, chiffre et caractère spécial.
+                  </span>
+                  @if (sNew.invalid && sNew.touched) {
+                    <span id="sec-new-err" class="field__error" role="alert">
+                      @if (sNew.hasError('required')) {
+                        Ce champ est requis.
+                      } @else if (sNew.hasError('minlength')) {
+                        Minimum 8 caractères.
+                      } @else {
+                        Ne respecte pas les exigences de sécurité.
+                      }
+                    </span>
+                  }
+                </div>
 
-            <div class="field">
-              <label class="field__label" for="sec-new">
-                Nouveau mot de passe <span class="required" aria-hidden="true">*</span>
-              </label>
-              <input id="sec-new"
-                     type="password"
-                     class="field__input"
-                     formControlName="newPassword"
-                     autocomplete="new-password"
-                     [attr.aria-invalid]="sNew.invalid && sNew.touched"
-                     aria-describedby="sec-new-hint sec-new-err" />
-              <span id="sec-new-hint" class="field__hint">
-                8 caractères min. — majuscule, chiffre et caractère spécial.
-              </span>
-              @if (sNew.invalid && sNew.touched) {
-              <span id="sec-new-err" class="field__error" role="alert">
-                @if (sNew.hasError('required'))    { Ce champ est requis. }
-                @else if (sNew.hasError('minlength')) { Minimum 8 caractères. }
-                @else { Ne respecte pas les exigences de sécurité. }
-              </span>
-              }
-            </div>
+                <div class="field">
+                  <label class="field__label" for="sec-confirm">
+                    Confirmer le nouveau mot de passe
+                    <span class="required" aria-hidden="true">*</span>
+                  </label>
+                  <input
+                    id="sec-confirm"
+                    type="password"
+                    class="field__input"
+                    formControlName="confirmPassword"
+                    autocomplete="new-password"
+                    [attr.aria-invalid]="(sConfirm.invalid && sConfirm.touched) || sPwdMismatch"
+                    aria-describedby="sec-confirm-err"
+                  />
+                  @if (sConfirm.touched && (sConfirm.hasError('required') || sPwdMismatch)) {
+                    <span id="sec-confirm-err" class="field__error" role="alert">
+                      @if (sConfirm.hasError('required')) {
+                        Ce champ est requis.
+                      } @else {
+                        Les mots de passe ne correspondent pas.
+                      }
+                    </span>
+                  }
+                </div>
 
-            <div class="field">
-              <label class="field__label" for="sec-confirm">
-                Confirmer le nouveau mot de passe <span class="required" aria-hidden="true">*</span>
-              </label>
-              <input id="sec-confirm"
-                     type="password"
-                     class="field__input"
-                     formControlName="confirmPassword"
-                     autocomplete="new-password"
-                     [attr.aria-invalid]="sConfirm.invalid && sConfirm.touched || sPwdMismatch"
-                     aria-describedby="sec-confirm-err" />
-              @if (sConfirm.touched && (sConfirm.hasError('required') || sPwdMismatch)) {
-              <span id="sec-confirm-err" class="field__error" role="alert">
-                @if (sConfirm.hasError('required')) { Ce champ est requis. }
-                @else { Les mots de passe ne correspondent pas. }
-              </span>
-              }
-            </div>
-
-            <div class="profile-form__actions">
-              <button type="submit"
-                      class="btn btn--primary"
-                      [disabled]="saving()"
-                      [attr.aria-busy]="saving()">
-                @if (saving()) {
-                <span class="sr-only">Modification en cours…</span>
-                <span class="spinner spinner--sm" aria-hidden="true"></span>
-                } @else {
-                Changer le mot de passe
-                }
-              </button>
-            </div>
-          </form>
-        </section>
-        }
-
-      </main>
-    </div><!-- /.profile-layout -->
-    }<!-- /else loading -->
-
-  </div><!-- /.container -->
-</div><!-- /.profile-page -->
+                <div class="profile-form__actions">
+                  <button
+                    type="submit"
+                    class="btn btn--primary"
+                    [disabled]="saving()"
+                    [attr.aria-busy]="saving()"
+                  >
+                    @if (saving()) {
+                      <span class="sr-only">Modification en cours…</span>
+                      <span class="spinner spinner--sm" aria-hidden="true"></span>
+                    } @else {
+                      Changer le mot de passe
+                    }
+                  </button>
+                </div>
+              </form>
+            </section>
+          }
+        </main>
+      </div>
+      <!-- /.profile-layout -->
+    }
+    <!-- /else loading -->
+  </div>
+  <!-- /.container -->
+</div>
+<!-- /.profile-page -->

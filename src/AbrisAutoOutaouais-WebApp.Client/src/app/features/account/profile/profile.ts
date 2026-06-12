@@ -2,15 +2,13 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  ElementRef,
   inject,
   OnInit,
   signal,
+  viewChildren,
 } from '@angular/core';
-import {
-  FormBuilder,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -80,11 +78,14 @@ export class ProfileComponent implements OnInit {
   protected readonly avatarUploading = signal(false);
   protected readonly avatarError = signal<string | null>(null);
 
+  // Ordre des onglets pour la navigation clavier (ARIA APG : flèches + Home/End).
+  protected readonly tabOrder: readonly ActiveTab[] = ['info', 'address', 'security'];
+  private readonly tabButtons = viewChildren<ElementRef<HTMLButtonElement>>('tabBtn');
+
   protected readonly initials = computed(() => {
     const p = this.profile();
     if (!p) return '?';
-    return ((p.firstName ?? '') + (p.lastName ?? '')).toUpperCase()
-      || p.email[0].toUpperCase();
+    return ((p.firstName ?? '') + (p.lastName ?? '')).toUpperCase() || p.email[0].toUpperCase();
   });
 
   protected readonly fullName = computed(() => {
@@ -120,53 +121,70 @@ export class ProfileComponent implements OnInit {
   // ── Formulaire sécurité (changement mot de passe) ───────────
   protected readonly securityForm = this.fb.nonNullable.group({
     currentPassword: ['', Validators.required],
-    newPassword: ['', [
-      Validators.required,
-      Validators.minLength(8),
-      Validators.pattern(/[A-Z]/),
-      Validators.pattern(/[0-9]/),
-      Validators.pattern(/[^a-zA-Z0-9]/),
-    ]],
+    newPassword: [
+      '',
+      [
+        Validators.required,
+        Validators.minLength(8),
+        Validators.pattern(/[A-Z]/),
+        Validators.pattern(/[0-9]/),
+        Validators.pattern(/[^a-zA-Z0-9]/),
+      ],
+    ],
     confirmPassword: ['', Validators.required],
   });
 
   // Raccourcis
-  protected get fFirst() { return this.infoForm.controls.firstName; }
-  protected get fLast() { return this.infoForm.controls.lastName; }
-  protected get fPhone() { return this.infoForm.controls.phoneNumber; }
-  protected get fLang() { return this.infoForm.controls.preferredLanguage; }
+  protected get fFirst() {
+    return this.infoForm.controls.firstName;
+  }
+  protected get fLast() {
+    return this.infoForm.controls.lastName;
+  }
+  protected get fPhone() {
+    return this.infoForm.controls.phoneNumber;
+  }
+  protected get fLang() {
+    return this.infoForm.controls.preferredLanguage;
+  }
 
-  protected get aPostal() { return this.addressForm.controls.postalCode; }
+  protected get aPostal() {
+    return this.addressForm.controls.postalCode;
+  }
 
-  protected get sCurrent() { return this.securityForm.controls.currentPassword; }
-  protected get sNew() { return this.securityForm.controls.newPassword; }
-  protected get sConfirm() { return this.securityForm.controls.confirmPassword; }
+  protected get sCurrent() {
+    return this.securityForm.controls.currentPassword;
+  }
+  protected get sNew() {
+    return this.securityForm.controls.newPassword;
+  }
+  protected get sConfirm() {
+    return this.securityForm.controls.confirmPassword;
+  }
   protected get sPwdMismatch() {
     return this.sNew.value !== this.sConfirm.value && this.sConfirm.touched;
   }
 
   // ── Cycle de vie ────────────────────────────────────────────
   ngOnInit(): void {
-    this.http
-      .get<UserProfileDto>(`${environment.apiUrl}/auth/me`)
-      .subscribe({
-        next: profile => {
-          this.profile.set(profile);
-          this.patchForms(profile);
-          this.loading.set(false);
-        },
-        error: () => {
-          // Fallback : utiliser les données du token JWT
-          const u = this.auth.user();
-          if (u) {
-            this.infoForm.patchValue({
-              firstName: u.firstName,
-              lastName: u.lastName,
-            });
-          }
-          this.loading.set(false);
-        },
-      });
+    this.http.get<UserProfileDto>(`${environment.apiUrl}/auth/me`).subscribe({
+      next: (profile) => {
+        this.profile.set(profile);
+        this.patchForms(profile);
+        this.loading.set(false);
+      },
+      error: () => {
+        // Fallback : utiliser les données du token JWT
+        const u = this.auth.user();
+        if (u) {
+          this.infoForm.patchValue({
+            firstName: u.firstName,
+            lastName: u.lastName,
+          });
+        }
+        this.loading.set(false);
+      },
+    });
   }
 
   // ── Navigation des onglets ───────────────────────────────────
@@ -176,15 +194,53 @@ export class ProfileComponent implements OnInit {
     this.saveError.set(null);
   }
 
+  /**
+   * Navigation clavier des onglets (ARIA Authoring Practices) :
+   * flèches gauche/droite (avec bouclage), Home/End. Activation automatique —
+   * la sélection suit le focus, le focus reste sur l'onglet (Tab entre dans le panneau).
+   */
+  protected onTabKeydown(event: KeyboardEvent): void {
+    const tabs = this.tabOrder;
+    const current = tabs.indexOf(this.activeTab());
+    let next = current;
+
+    switch (event.key) {
+      case 'ArrowRight':
+        next = (current + 1) % tabs.length;
+        break;
+      case 'ArrowLeft':
+        next = (current - 1 + tabs.length) % tabs.length;
+        break;
+      case 'Home':
+        next = 0;
+        break;
+      case 'End':
+        next = tabs.length - 1;
+        break;
+      default:
+        return;
+    }
+
+    event.preventDefault();
+    this.setTab(tabs[next]);
+    this.tabButtons()[next]?.nativeElement.focus();
+  }
+
   // ── Sauvegarde informations ──────────────────────────────────
   protected saveInfo(): void {
-    if (this.infoForm.invalid) { this.infoForm.markAllAsTouched(); return; }
+    if (this.infoForm.invalid) {
+      this.infoForm.markAllAsTouched();
+      return;
+    }
     this.save({ ...this.infoForm.getRawValue(), phoneNumber: this.fPhone.value || null });
   }
 
   // ── Sauvegarde adresse ───────────────────────────────────────
   protected saveAddress(): void {
-    if (this.addressForm.invalid) { this.addressForm.markAllAsTouched(); return; }
+    if (this.addressForm.invalid) {
+      this.addressForm.markAllAsTouched();
+      return;
+    }
 
     const addr = this.addressForm.getRawValue();
     const hasAddress = addr.street || addr.city || addr.postalCode;
@@ -219,11 +275,9 @@ export class ProfileComponent implements OnInit {
           this.securityForm.reset();
           setTimeout(() => this.saveSuccess.set(false), 4000);
         },
-        error: err => {
+        error: (err) => {
           this.saving.set(false);
-          this.saveError.set(
-            err.error?.error ?? err.error?.detail ?? 'Erreur lors du changement.',
-          );
+          this.saveError.set(err.error?.error ?? err.error?.detail ?? 'Erreur lors du changement.');
         },
       });
   }
@@ -301,28 +355,26 @@ export class ProfileComponent implements OnInit {
       ...partial,
     };
 
-    this.http
-      .put<UserProfileDto>(`${environment.apiUrl}/auth/me`, payload)
-      .subscribe({
-        next: updated => {
-          this.profile.set(updated);
-          this.patchForms(updated);
-          // Rafraîchit le nom mis en cache → la navbar se met à jour aussitôt.
-          this.auth.updateProfile({
-            firstName: updated.firstName,
-            lastName: updated.lastName,
-          });
-          this.saving.set(false);
-          this.saveSuccess.set(true);
-          setTimeout(() => this.saveSuccess.set(false), 4000);
-        },
-        error: err => {
-          this.saving.set(false);
-          this.saveError.set(
-            err.error?.error ?? err.error?.detail ?? 'Erreur lors de la sauvegarde.',
-          );
-        },
-      });
+    this.http.put<UserProfileDto>(`${environment.apiUrl}/auth/me`, payload).subscribe({
+      next: (updated) => {
+        this.profile.set(updated);
+        this.patchForms(updated);
+        // Rafraîchit le nom mis en cache → la navbar se met à jour aussitôt.
+        this.auth.updateProfile({
+          firstName: updated.firstName,
+          lastName: updated.lastName,
+        });
+        this.saving.set(false);
+        this.saveSuccess.set(true);
+        setTimeout(() => this.saveSuccess.set(false), 4000);
+      },
+      error: (err) => {
+        this.saving.set(false);
+        this.saveError.set(
+          err.error?.error ?? err.error?.detail ?? 'Erreur lors de la sauvegarde.',
+        );
+      },
+    });
   }
 
   private patchForms(p: UserProfileDto): void {

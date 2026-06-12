@@ -166,3 +166,14 @@ soignée. Le talon d'Achille est l'**efficacité de bout en bout** sur les deux 
 transactionnels (achat et réservation), faute de checkout et de module de réservation. Les
 priorités UX sont donc : (1) compléter le checkout, (2) implémenter/clarifier la réservation,
 (3) ajouter recherche/tri, (4) résorber la dette des composants auth legacy.
+
+---
+
+## Remédiations livrées (2026-06-11)
+
+- **T1 Acheter** : recherche `role="search"` + tri (prix/nom/dispo) ajoutés au catalogue ; rendu unifié sur `ProductCardComponent` (catalogue dupliqué retiré de la home). Le checkout existe désormais (`/panier`, `/panier/caisse`).
+- **T2 Auth** : composants legacy `login`/`register` **supprimés** ; page **`/auth/reset`** créée (le lien « Mot de passe oublié ? » pointait vers une route inexistante) avec confirmation neutre anti-énumération. Le *flip* est déjà neutralisé sous `prefers-reduced-motion`.
+- **T3 Profil** : **navigation clavier complète des onglets** (ARIA APG) — roving `tabindex`, flèches gauche/droite avec bouclage, Home/End, activation automatique (`profile.ts`).
+- **T4 Réserver** : **obsolète** — `/installation` et `/location` ne sont plus des placeholders mais de vrais formulaires (créneaux/radiogroup, adresse pré-remplissable, confirmation `aria-live`).
+
+Restent ouverts (priorité basse) : navigation par flèches généralisée, validation asynchrone d'unicité (T2), confirmation de déconnexion (T3).

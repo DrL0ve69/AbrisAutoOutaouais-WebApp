@@ -427,12 +427,13 @@ form {
 // ── Pied de page ──────────────────────────────────────────────
 .auth-footer {
   font-size: var(--font-size-xs);
-  color: rgba(255, 255, 255, 0.4);
+  // Contraste AA sur le fond sombre de la page d'authentification (WCAG 1.4.3).
+  color: rgba(255, 255, 255, 0.75);
   text-align: center;
   line-height: var(--line-height-relaxed);
 
   a {
-    color: rgba(255, 255, 255, 0.65);
+    color: rgba(255, 255, 255, 0.85);
     text-underline-offset: 2px;
 
     &:hover {
@@ -440,7 +441,7 @@ form {
     }
 
     &:visited {
-      color: rgba(255, 255, 255, 0.65);
+      color: rgba(255, 255, 255, 0.85);
     }
   }
 }
