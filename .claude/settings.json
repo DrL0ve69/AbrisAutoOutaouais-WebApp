@@ -13,8 +13,10 @@
   "enabledMcpjsonServers": ["angular-cli"],
 
   "//hooks": "Deterministic automation — fires regardless of what the model remembers to do.",
+  "//hooks2": "SessionStart injects the operating rules + lessons-learned into every session/subagent context.",
+  "//hooks3": "PostToolUse reminds, after each edit, which skill/MCP/verification applies to that layer.",
+  "//hooks4": "NOTE: keys inside 'hooks' must be valid event names — do not put '//'-comment keys there.",
   "hooks": {
-    "//SessionStart": "Inject the operating rules + lessons-learned into every session/subagent context.",
     "SessionStart": [
       {
         "matcher": "startup|resume|clear|compact",
@@ -27,7 +29,6 @@
       }
     ],
 
-    "//PostToolUse": "After each edit, remind which skill/MCP/verification applies to that layer.",
     "PostToolUse": [
       {
         "matcher": "Edit|Write|MultiEdit",
