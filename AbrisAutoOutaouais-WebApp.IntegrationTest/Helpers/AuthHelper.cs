@@ -8,8 +8,9 @@ namespace AbrisAutoOutaouais_WebApp.IntegrationTest.helpers;
 /// <summary>Génère des tokens JWT pour les tests d'intégration authentifiés.</summary>
 public static class AuthHelper
 {
+    // Identifiants du compte admin créé par IdentitySeeder (source de vérité).
     public static async Task<string> LoginAsAdminAsync(HttpClient client)
-        => await LoginAsync(client, "admin@abristempo.local", "Admin@123!");
+        => await LoginAsync(client, "admin@abrisauto.com", "Admin123!");
 
     public static async Task<string> LoginAsync(
         HttpClient client, string email, string password)

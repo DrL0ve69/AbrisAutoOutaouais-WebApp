@@ -17,8 +17,8 @@ public sealed class AuthEndpointTests(WebAppFactory factory)
     {
         var response = await _client.PostAsJsonAsync("/api/v1/auth/login", new
         {
-            email = "admin@abristempo.local",
-            password = "Admin@123!",
+            email = "admin@abrisauto.com",
+            password = "Admin123!",
         });
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -33,7 +33,7 @@ public sealed class AuthEndpointTests(WebAppFactory factory)
     {
         var response = await _client.PostAsJsonAsync("/api/v1/auth/login", new
         {
-            email = "admin@abristempo.local",
+            email = "admin@abrisauto.com",
             password = "MauvaisMotDePasse",
         });
 
@@ -43,9 +43,11 @@ public sealed class AuthEndpointTests(WebAppFactory factory)
     [Fact]
     public async Task Register_WithValidData_Returns200WithToken()
     {
+        var unique = Guid.NewGuid().ToString("N")[..8];
         var response = await _client.PostAsJsonAsync("/api/v1/auth/register", new
         {
-            email = $"nouveau-{Guid.NewGuid()}@test.com",
+            email = $"nouveau-{unique}@test.com",
+            username = $"user-{unique}",
             firstName = "Jean",
             lastName = "Tremblay",
             password = "Test@123!",
@@ -59,18 +61,21 @@ public sealed class AuthEndpointTests(WebAppFactory factory)
     }
 
     [Fact]
-    public async Task Register_WithPasswordMismatch_Returns422()
+    public async Task Register_WithPasswordMismatch_Returns400()
     {
+        var unique = Guid.NewGuid().ToString("N")[..8];
         var response = await _client.PostAsJsonAsync("/api/v1/auth/register", new
         {
-            email = "test@test.com",
+            email = $"mismatch-{unique}@test.com",
+            username = $"mismatch-{unique}",
             firstName = "Jean",
             lastName = "Tremblay",
             password = "Test@123!",
             confirmPassword = "Différent@456!",  // Ne correspond pas
         });
 
-        response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        // Le handler renvoie Result.Failure → le contrôleur répond 400 BadRequest.
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
@@ -83,7 +88,7 @@ public sealed class AuthEndpointTests(WebAppFactory factory)
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var profile = await response.Content.ReadFromJsonAsync<AppUser>();
-        profile!.Email.Should().Be("admin@abristempo.local");
+        profile!.Email.Should().Be("admin@abrisauto.com");
 
         _client.DefaultRequestHeaders.Authorization = null;
     }
