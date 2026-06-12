@@ -61,7 +61,7 @@ stages:
             displayName: 'Tests + accessibilité (Vitest + axe)'
           - script: npm run build:prod
             workingDirectory: '$(clientDir)'
-            displayName: 'Build production (SSR, fr + en)'
+            displayName: 'Build production (localisé fr + en, hôte bilingue inclus)'
           - publish: '$(clientDir)/dist/abristempo-client'
             artifact: client
 
@@ -86,8 +86,9 @@ stages:
                     azureSubscription: '$(azureSubscription)'
                     appName: '$(apiAppNameDev)'
                     package: '$(Pipeline.Workspace)/api'
-                # Frontend : déployer l'artifact `client` (Azure Static Web Apps ou App Service Node SSR).
-                # Voir docs/deployment.md pour les options d'hébergement du SSR.
+                # Frontend : déployer l'artifact `client` (= dist/abristempo-client) sur un
+                # App Service Node, commande de démarrage « node serve-i18n.mjs » (hôte bilingue
+                # fr « / » + en « /en/ »). Voir docs/deployment.md §4.
 
   # ── 3. DEPLOY STAGING (avec approbation sur l'Environment) ──────────────────
   - stage: Deploy_Staging

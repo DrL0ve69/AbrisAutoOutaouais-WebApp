@@ -77,8 +77,8 @@ les critères a11y dans sa Definition of Done (voir `definition-of-done.md`).
 | ID | User Story | Estimation | MoSCoW | Statut |
 |----|-----------|:----------:|:------:|--------|
 | US-4.1 | En tant qu'**équipe**, je veux **baliser les chaînes** avec `i18n`/`$localize` afin de permettre la traduction. | 5 | **Must** | ✅ Livré (balises `@@id`) |
-| US-4.2 | En tant qu'**utilisateur**, je veux **basculer FR/EN** afin de consulter le site dans ma langue. | 3 | **Should** | 🟡 Partiel (bascule = reload `/en/`) |
-| US-4.3 | En tant qu'**équipe**, je veux le **build localisé EN** (`build:fr --localize`, config `en`) afin de servir `/en/`. | 3 | **Should** | 🟡 Config présente (`angular.json`) |
+| US-4.2 | En tant qu'**utilisateur**, je veux **basculer FR/EN** afin de consulter le site dans ma langue. | 3 | **Should** | ✅ Livré (sélecteur bouton unique + « langue préférée » du profil → `LocaleService`) |
+| US-4.3 | En tant qu'**équipe**, je veux le **build localisé EN** (`build:i18n`) afin de servir `/en/`. | 3 | **Should** | ✅ Livré (`subPath` fr « / » + en « /en/ », hôte bilingue `scripts/serve-i18n.mjs`) |
 
 **Critères d'acceptation — US-4.1**
 - `sourceLocale: fr` + locale `en` (`messages.en.xlf`, baseHref `/en/`) dans `angular.json`.

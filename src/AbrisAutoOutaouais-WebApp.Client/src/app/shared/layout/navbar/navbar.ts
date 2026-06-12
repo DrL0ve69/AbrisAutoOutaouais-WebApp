@@ -13,6 +13,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { CartService } from '../../../core/services/cart.service';
 import { ThemeService } from '../../../core/services/theme.service';
+import { LocaleService } from '../../../core/services/locale.service';
 
 @Component({
   selector: 'app-navbar',
@@ -34,6 +35,7 @@ export class NavbarComponent {
   protected readonly auth = inject(AuthService);
   protected readonly cart = inject(CartService);
   protected readonly theme = inject(ThemeService);
+  protected readonly locale = inject(LocaleService);
   private readonly platform = inject(PLATFORM_ID);
   private readonly document = inject(DOCUMENT);
 
@@ -46,9 +48,6 @@ export class NavbarComponent {
   protected readonly menuOpen = signal(false);
   protected readonly scrolled = signal(false);
   protected readonly userMenuOpen = signal(false);
-
-  // Locale courante détectée à partir du baseHref (fr par défaut, /en/ → en).
-  protected readonly currentLang = signal<'fr' | 'en'>(this.detectLang());
 
   protected readonly cartLabel = computed(() => {
     const n = this.cart.count();
@@ -116,26 +115,9 @@ export class NavbarComponent {
     this.theme.toggle();
   }
 
-  /**
-   * Change la langue. L'i18n est compile-time : changer de locale = naviguer
-   * vers le baseHref de l'autre build (« / » pour fr, « /en/ » pour en).
-   * Le build localisé est requis (`npm run build:fr` / configuration `en`) ;
-   * en `ng serve` standard seul le français est servi.
-   */
-  protected switchLang(lang: 'fr' | 'en'): void {
-    if (!isPlatformBrowser(this.platform) || lang === this.currentLang()) return;
-    const target = lang === 'en' ? '/en/' : '/';
-    this.document.defaultView!.location.href = target;
-  }
-
   protected logout(): void {
     this.auth.logout();
     this.closeMenu();
     this.closeUserMenu();
-  }
-
-  private detectLang(): 'fr' | 'en' {
-    if (!isPlatformBrowser(this.platform)) return 'fr';
-    return this.document.defaultView!.location.pathname.startsWith('/en') ? 'en' : 'fr';
   }
 }

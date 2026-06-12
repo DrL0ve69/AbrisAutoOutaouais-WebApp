@@ -64,37 +64,32 @@
 
     <!-- ── Actions desktop ───────────────────────────────────── -->
     <div class="navbar__actions">
-      <!-- Sélecteur de langue FR / EN -->
-      <div
-        class="navbar__lang"
-        role="group"
-        aria-label="Choisir la langue"
-        i18n-aria-label="@@navbar.langGroup"
-      >
+      <!-- Sélecteur de langue : un seul bouton vers l'AUTRE langue.
+           i18n compile-time → un bouton statique par locale (l'aria-label traduit
+           doit être un attribut statique, pas une liaison). -->
+      @if (locale.current() === 'fr') {
         <button
           type="button"
           class="navbar__lang-btn"
-          [class.is-active]="currentLang() === 'fr'"
-          [attr.aria-pressed]="currentLang() === 'fr'"
-          (click)="switchLang('fr')"
-          aria-label="Français"
-          i18n-aria-label="@@navbar.langFr"
-        >
-          FR
-        </button>
-        <span class="navbar__lang-sep" aria-hidden="true">/</span>
-        <button
-          type="button"
-          class="navbar__lang-btn"
-          [class.is-active]="currentLang() === 'en'"
-          [attr.aria-pressed]="currentLang() === 'en'"
-          (click)="switchLang('en')"
-          aria-label="English"
-          i18n-aria-label="@@navbar.langEn"
+          lang="en"
+          (click)="locale.switchTo('en')"
+          aria-label="Passer en anglais"
+          i18n-aria-label="@@navbar.langToEn"
         >
           EN
         </button>
-      </div>
+      } @else {
+        <button
+          type="button"
+          class="navbar__lang-btn"
+          lang="fr"
+          (click)="locale.switchTo('fr')"
+          aria-label="Passer en français"
+          i18n-aria-label="@@navbar.langToFr"
+        >
+          FR
+        </button>
+      }
 
       <!-- Bascule thème clair / sombre -->
       <button

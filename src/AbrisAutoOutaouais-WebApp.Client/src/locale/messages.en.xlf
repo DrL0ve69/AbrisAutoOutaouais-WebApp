@@ -847,17 +847,13 @@
         <target> Add to cart </target>
         <note priority="1" from="description">Bouton ajouter au panier</note>
       </trans-unit>
-      <trans-unit id="navbar.langGroup" datatype="html">
-        <source>Choisir la langue</source>
-        <target>Choose language</target>
+      <trans-unit id="navbar.langToEn" datatype="html">
+        <source>Passer en anglais</source>
+        <target>Switch to English</target>
       </trans-unit>
-      <trans-unit id="navbar.langFr" datatype="html">
-        <source>Français</source>
-        <target>Français</target>
-      </trans-unit>
-      <trans-unit id="navbar.langEn" datatype="html">
-        <source>English</source>
-        <target>English</target>
+      <trans-unit id="navbar.langToFr" datatype="html">
+        <source>Passer en français</source>
+        <target>Switch to French</target>
       </trans-unit>
       <trans-unit id="skipNav.link" datatype="html">
         <source> Aller au contenu principal

@@ -54,16 +54,32 @@ En local, garder ces valeurs dans `appsettings.Development.json` ou `dotnet user
    puis ajouter une **Approval check** (déploiement manuel validé par un approbateur).
 4. **Pipeline** : *Pipelines → New → GitHub → ce dépôt → Existing YAML → `/azure-pipelines.yml`*.
 
-## 4. Hébergement du frontend (SSR)
+## 4. Hébergement du frontend (i18n compile-time, fr + en)
 
-Le client Angular est en **SSR** (`@angular/ssr`). Options :
-- **Azure Static Web Apps** — simple pour le bundle navigateur (le SSR nécessite des Functions).
-- **Azure App Service (Node)** — héberger le serveur SSR : déployer `dist/abristempo-client`,
-  commande de démarrage `node dist/abristempo-client/server/server.mjs`.
-- **Vercel** — détection automatique d'Angular SSR (option historiquement prévue).
+L'i18n est **compile-time** (`@angular/localize`) : `npm run build:prod` produit **une
+application par langue** sous `dist/abristempo-client/browser/` — le français (locale source)
+à la racine (baseHref `/`) et l'anglais sous `en/` (baseHref `/en/`), via `subPath`
+(cf. `angular.json` → `i18n`). Les **deux** doivent être servies ensemble derrière une seule
+origine ; `ng serve` n'en sert qu'une à la fois (utile seulement en dev).
 
-> Le job *Frontend* du pipeline produit déjà l'artifact `client` (build `prod` localisé fr + en) ;
-> il reste à brancher l'étape de déploiement selon l'hébergeur choisi.
+**Hôte bilingue fourni — `scripts/serve-i18n.mjs`** (copié à la racine de l'artifact par le
+postbuild de `build:prod`). Il sert le français à `/`, l'anglais à `/en/`, avec repli SPA par
+locale et cache long sur les ressources hachées. Le sélecteur de langue de la navbar (et la
+« langue préférée » du profil) basculent en rechargeant l'autre baseHref en conservant le chemin.
+
+- **Azure App Service (Node)** — déployer l'artifact `client` (= `dist/abristempo-client`),
+  **commande de démarrage** `node serve-i18n.mjs` (depuis la racine de l'artifact ; `PORT` est
+  fourni par App Service). Vérifiable en local : `npm run build:i18n && npm run preview:i18n`.
+- **Azure Static Web Apps / autre statique** — servir `browser/` avec une règle de *fallback*
+  équivalente (`/en/*` → `/en/index.csr.html`, sinon `/index.csr.html`).
+
+> Le job *Frontend* du pipeline produit déjà l'artifact `client` (build `prod` localisé fr + en,
+> hôte inclus) ; il reste à brancher l'étape de déploiement et la commande de démarrage ci-dessus.
+>
+> *Suivi possible (SEO) :* rendu **SSR par locale** — les bundles `server/server.mjs` (fr) et
+> `server/en/server.mjs` (en) existent, mais composer les deux derrière une origine unique
+> (montage par baseHref) reste à faire et à vérifier ; l'hôte statique ci-dessus est la solution
+> livrée et testée.
 
 ## 5. Base de données
 - Appliquer les migrations EF Core lors du déploiement :
