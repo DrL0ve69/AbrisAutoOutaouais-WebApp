@@ -95,13 +95,13 @@ Remédiations livrées à partir des évaluations UX/WCAG (boucle *audit → cor
 
 | ID | Titre | Type | Critère WCAG | Détecté par | Statut |
 |----|-------|------|--------------|-------------|--------|
-| Bug-08 | Menu utilisateur de la navbar : `<ul role="menu" aria-hidden="true">` conserve des enfants **focusables** une fois fermé (`opacity:0; pointer-events:none` au lieu de `inert`/`display:none`) → violation axe `aria-hidden-focus` sur **toute page authentifiée** | Bug a11y | 4.1.2 (Name, Role, Value) | e2e d'annulation de location (`rental-cancel.spec.ts`) | ⛔ Backlog |
+| Bug-08 | Menu utilisateur de la navbar : `<ul role="menu" aria-hidden="true">` conserve des enfants **focusables** une fois fermé (`opacity:0; pointer-events:none` au lieu de `inert`/`display:none`) → violation axe `aria-hidden-focus` sur **toute page authentifiée** | Bug a11y | 4.1.2 (Name, Role, Value) | e2e d'annulation de location (`rental-cancel.spec.ts`) | ✅ Corrigé (branche `fix/a11y-contrast-dark-theme`) |
 
 > **Contexte.** Distinct de Bug-07 (fermeture clavier/clic — déjà corrigé) : ici le menu *fermé*
-> reste dans l'ordre de tabulation tout en étant `aria-hidden`. Comme le défaut est **hors
-> périmètre** de la fonctionnalité « annulation de location » et touche un composant **partagé**
-> (`navbar`), l'axe pleine page de `rental-cancel.spec.ts` a été volontairement **restreint à
-> `app-rentals`** ; le défaut est consigné ici plutôt que corrigé dans cette PR.
-> **Correctif proposé** : `[attr.inert]="!userMenuOpen()"` sur le menu déroulant (ou
-> `display:none` / `visibility:hidden` à l'état fermé) pour retirer ses enfants de l'ordre de
-> tabulation et de l'arbre d'accessibilité.
+> restait dans l'ordre de tabulation tout en étant `aria-hidden`.
+> **Correctif appliqué** : `[inert]="!userMenuOpen()"` sur le menu déroulant utilisateur **et**
+> sur le menu mobile (même patron fautif) — `aria-hidden` retiré, `inert` retire les enfants de
+> l'ordre de tabulation et de l'arbre d'accessibilité. Garde de régression : `navbar.spec.ts`
+> (assertions de focus réelles, 6 tests) ; l'exclusion `app-rentals` de l'axe pleine page dans
+> `rental-cancel.spec.ts`, devenue obsolète, a été **retirée** — la navbar authentifiée est
+> désormais couverte par axe.
