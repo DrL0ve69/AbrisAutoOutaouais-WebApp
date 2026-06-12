@@ -24,9 +24,13 @@ public sealed class PlaceOrderCommandValidator : AbstractValidator<PlaceOrderCom
                 .WithMessage("Adresse requise pour la livraison.");
             RuleFor(x => x.ShippingAddress!.Street).NotEmpty();
             RuleFor(x => x.ShippingAddress!.City).NotEmpty();
+            // Accepte le format canadien avec OU sans espace, en majuscules ou minuscules
+            // (« J7T 1A1 » / « j7t1a1 ») — cohérent avec le formulaire de profil, l'adresse
+            // par défaut pré-remplie et Address.Create (qui met en majuscules). Auparavant
+            // « ^[A-Z]\d[A-Z]\d[A-Z]\d$ » rejetait l'espace → 400 sur une adresse pourtant valide.
             RuleFor(x => x.ShippingAddress!.PostalCode)
-                .Matches(@"^[A-Z]\d[A-Z]\d[A-Z]\d$")
-                .WithMessage("Format de code postal invalide (ex: J7T1A1).");
+                .Matches(@"^[A-Za-z]\d[A-Za-z] ?\d[A-Za-z]\d$")
+                .WithMessage("Format de code postal invalide (ex: J7T 1A1).");
         });
     }
 }

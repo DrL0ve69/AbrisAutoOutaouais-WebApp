@@ -104,3 +104,23 @@ Standing rules for that loop:
 - Accessibility bar is **hard**: zero AXE violations, WCAG 2.2 AA — focus management (return focus on dismiss; ARIA APG roving `tabindex` + arrow keys for composite widgets), ≥ 44px targets, `aria-live` for async state, `prefers-reduced-motion`, no dead links.
 - **Verify every change**: `npm run build` (typecheck) + `npm test` (vitest/axe) from the client; add an `e2e/a11y.spec.ts` scenario for any newly-audited route; `dotnet test` for backend. CI (`.github/workflows/ci.yml`) re-runs build + tests + axe as the regression guardrail.
 - **Close the loop**: flip the remediated item's status in `docs/agile/board.md` + `product-backlog.md` and record before/after in the relevant audit doc.
+
+## Agent system & automation
+
+This repo ships a 4-agent delivery loop in `.claude/` — **full guide: `.claude/README.md`**. Route
+non-trivial work through it (the `feature-cycle` skill / `/feature-cycle` runs the whole thing):
+
+- **`solution-architect`** (read-only) plans before code; **`feature-developer`** implements;
+  **`code-reviewer`** (read-only) independently reviews the diff; **`mentor`** records durable
+  lessons in `.claude/rules/lessons-learned.md`. Subagents can't call each other — **you (the main
+  thread) are the coordinator**: delegate each step in turn, and never let the implementer sign off
+  on its own diff.
+- **`.claude/rules/lessons-learned.md` is required reading** — it's a list of mistakes not to repeat
+  and is auto-injected each session by the `SessionStart` hook. Check changes against it.
+- **Hooks make the rules automatic:** `SessionStart` injects the lessons; `PostToolUse` reminds you,
+  per edited file, which skill/MCP/verification applies (frontend→`angular` skill + angular-cli MCP
+  + `npm run build`/`npm test`; backend→boundaries + `dotnet test` + `solid-review`; migration→
+  owned-entity/nullability, lesson L-001). You don't need to invoke these by hand.
+- **Agents load at session start** — newly added/edited `agents/*.md` need a restart (or `/clear`).
+  Until then, run each step inline with the matching skill (`solid-review`, `angular`, `a11y-ux-pass`)
+  and `/code-review`.

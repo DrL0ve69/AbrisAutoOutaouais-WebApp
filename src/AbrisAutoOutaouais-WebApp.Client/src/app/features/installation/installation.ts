@@ -3,6 +3,7 @@ import {
   Component,
   OnInit,
   computed,
+  effect,
   inject,
   signal,
 } from '@angular/core';
@@ -12,6 +13,7 @@ import { Router } from '@angular/router';
 import { BookingService } from '../../core/services/booking.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
+import { ProfileService } from '../../core/services/profile.service';
 import {
   AvailableSlotDto,
   BookingType,
@@ -43,6 +45,7 @@ export class InstallationComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
+  private readonly profile = inject(ProfileService);
 
   protected readonly loading = signal(true);
   protected readonly submitting = signal(false);
@@ -64,6 +67,12 @@ export class InstallationComponent implements OnInit {
     postalCode: ['', Validators.required],
     notes: [''],
   });
+
+  constructor() {
+    // Pré-remplit l'adresse d'installation avec l'adresse par défaut enregistrée.
+    this.profile.ensureLoaded();
+    effect(() => this.profile.applyDefaultAddress(this.form));
+  }
 
   protected get f() {
     return this.form.controls;

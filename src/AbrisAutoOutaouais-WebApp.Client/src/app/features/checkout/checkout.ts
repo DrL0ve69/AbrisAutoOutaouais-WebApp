@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   inject,
   signal,
 } from '@angular/core';
@@ -17,6 +18,7 @@ import { Router, RouterLink } from '@angular/router';
 import { CartService } from '../../core/services/cart.service';
 import { OrderService } from '../../core/services/order.service';
 import { ToastService } from '../../core/services/toast.service';
+import { ProfileService } from '../../core/services/profile.service';
 import { DeliveryType } from '../../core/models/order.model';
 
 /** Adresse requise uniquement si le mode de réception est « Livraison ». */
@@ -49,6 +51,7 @@ export class CheckoutComponent {
   private readonly orders = inject(OrderService);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
+  private readonly profile = inject(ProfileService);
 
   protected readonly items = this.cart.items;
   protected readonly subtotal = this.cart.subtotal;
@@ -70,6 +73,13 @@ export class CheckoutComponent {
     },
     { validators: addressRequiredIfDelivery },
   );
+
+  constructor() {
+    // Pré-remplit l'adresse de livraison avec l'adresse par défaut enregistrée
+    // (sans écraser une saisie en cours — voir ProfileService.applyDefaultAddress).
+    this.profile.ensureLoaded();
+    effect(() => this.profile.applyDefaultAddress(this.form));
+  }
 
   protected get f() {
     return this.form.controls;
