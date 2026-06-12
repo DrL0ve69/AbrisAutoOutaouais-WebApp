@@ -191,3 +191,21 @@ concentrent l'effort de remédiation prioritaire — tous **corrigeables sans re
 relèvent du nettoyage de dette (auth legacy), d'un patron d'interaction standard (menus) et de
 contenu (pages réservation). La base UX est saine grâce au système de design tokenisé et aux
 patrons de champ/bouton réutilisés.
+
+---
+
+## Remédiations livrées (2026-06-11)
+
+| Heuristique | Constat | Sév. | Correctif livré |
+|-------------|---------|:----:|-----------------|
+| H3 Contrôle & liberté | Menus non fermables au clavier | 3 | ✅ `Échap` + clic extérieur + renvoi de focus au déclencheur (`navbar.ts`) |
+| H4 Cohérence | Auth legacy dupliquée | 3 | ✅ `login/` + `register/` supprimés ; routes → `AuthComponent` |
+| H10 Aide & doc | Réservation « en construction » | 3 | ✅ **Obsolète** : `/installation` et `/location` sont devenus de vrais formulaires |
+| H7 Flexibilité | Pas de recherche/tri | 2 | ✅ Recherche `role="search"` + tri (prix/nom/dispo) + comptage `role="status"` |
+| H8 Minimalisme | Home + catalogue dupliqué | 2 | ✅ Section catalogue retirée de la home (vedettes + renvoi `/boutique`) |
+| H6 Reconnaissance | Pas de fil d'Ariane | 1 | ✅ Breadcrumb sur le détail produit |
+| H9 Diagnostic erreurs | Pas de « mot de passe oublié » utile | 1 | ✅ Page `/auth/reset` accessible (le lien existait sans cible) |
+| H2 Monde réel | Logo abstrait « ⬡ » | 1 | ✅ Glyphe d'abri (toit + poteaux) en navbar et auth |
+
+Reste ouvert : **H1** (transition de langue) et **H5** (unicité username/courriel asynchrone) —
+priorité basse. Vérification : `npm run build` ✅, `npm test` 33/33 ✅.

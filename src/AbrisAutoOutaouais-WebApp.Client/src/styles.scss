@@ -21,10 +21,19 @@ html {
   font-size: 100%;
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+  // La navbar « sticky » (~68px) ne doit pas masquer une cible d'ancre ni un
+  // élément focusé après un saut (WCAG 2.4.11 / 2.4.12). On décale le défilement.
+  scroll-padding-top: 80px;
 
   @media (prefers-reduced-motion: reduce) {
     scroll-behavior: auto;
   }
+}
+
+// Marge de défilement sur les cibles d'ancrage explicites (skip-link, #catalogue…).
+:target,
+#main {
+  scroll-margin-top: 80px;
 }
 
 body {
@@ -39,7 +48,12 @@ body {
 }
 
 // ── Typographie ──────────────────────────────────────────────
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-display);
   font-weight: var(--font-weight-bold);
   line-height: var(--line-height-tight);
@@ -105,19 +119,24 @@ a {
 }
 
 // ── Images ───────────────────────────────────────────────────
-img, svg {
+img,
+svg {
   max-width: 100%;
   height: auto;
   display: block;
 }
 
 // ── Listes ───────────────────────────────────────────────────
-ul, ol {
+ul,
+ol {
   list-style: none;
 }
 
 // ── Formulaires — styles de base ─────────────────────────────
-input, textarea, select, button {
+input,
+textarea,
+select,
+button {
   font-family: inherit;
   font-size: inherit;
 }
@@ -125,7 +144,9 @@ input, textarea, select, button {
 // Lisibilité garantie : les contrôles de saisie utilisent un texte foncé
 // (--color-text) sur leur fond, dans les deux thèmes. Évite le « fond blanc /
 // texte pâle » signalé. Le placeholder reste au plus à --color-text-muted (AA).
-input, textarea, select {
+input,
+textarea,
+select {
   color: var(--color-text);
 
   &::placeholder {
@@ -213,7 +234,12 @@ input, textarea, select {
   border: 2px solid transparent;
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast),
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
   white-space: nowrap;
   user-select: none;
   // Min touch target WCAG 2.5.5 (44px)
@@ -221,7 +247,7 @@ input, textarea, select {
   min-width: 44px;
 
   &:disabled,
-  &[aria-disabled="true"] {
+  &[aria-disabled='true'] {
     opacity: 0.5;
     cursor: not-allowed;
     pointer-events: none;
@@ -335,7 +361,9 @@ input, textarea, select {
   padding: var(--space-3) var(--space-4);
   width: 100%;
   min-height: 44px;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
   appearance: none;
 
   &::placeholder {
@@ -349,7 +377,7 @@ input, textarea, select {
     box-shadow: var(--color-focus-ring);
   }
 
-  &[aria-invalid="true"] {
+  &[aria-invalid='true'] {
     border-color: var(--color-error);
     background: var(--color-error-bg);
 
@@ -428,7 +456,9 @@ input, textarea, select {
 
 // ── Animations réduites ───────────────────────────────────
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

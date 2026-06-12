@@ -8,13 +8,15 @@
   left: 0;
   right: 0;
   z-index: var(--z-sticky);
-  background: transparent;
-  transition: background var(--transition-base), box-shadow var(--transition-base);
-  // Apparence au scroll
+  // Fond sombre par défaut : le texte clair de la navbar conserve un contraste
+  // AA sur TOUTES les pages (claires comme /panier, sombres comme /auth), pas
+  // seulement au-dessus d'un hero sombre (WCAG 1.4.3).
+  background: rgba(15, 25, 35, 0.97);
+  backdrop-filter: saturate(180%) blur(16px);
+  -webkit-backdrop-filter: saturate(180%) blur(16px);
+  transition: box-shadow var(--transition-base);
+  // Apparence au scroll : on ajoute l'ombre portée.
   &--scrolled {
-    background: rgba(15, 25, 35, 0.97);
-    backdrop-filter: saturate(180%) blur(16px);
-    -webkit-backdrop-filter: saturate(180%) blur(16px);
     box-shadow: 0 1px 0 rgba(255,255,255,.07), var(--shadow-lg);
   }
 }
@@ -68,7 +70,7 @@
     display: block;
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-normal);
-    color: rgba(255,255,255,0.55);
+    color: rgba(255,255,255,0.7);
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
@@ -163,6 +165,17 @@
 
     @media (min-width: 1024px) {
       display: inline-flex;
+    }
+  }
+
+  // Le bouton « Connexion » (ghost) vit sur la navbar sombre → texte clair
+  // pour garder un contraste AA (sinon texte sombre sur fond sombre).
+  .btn--ghost {
+    color: rgba(255, 255, 255, 0.92);
+
+    &:hover {
+      color: white;
+      background: rgba(255, 255, 255, 0.1);
     }
   }
 }

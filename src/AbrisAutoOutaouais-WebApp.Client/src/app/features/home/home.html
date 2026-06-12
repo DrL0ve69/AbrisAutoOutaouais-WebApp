@@ -24,34 +24,49 @@
     </h1>
 
     <p class="hero__subtitle" i18n="@@home.hero.subtitle">
-      Vente, location et installation d'abris d'auto Tempo de qualité.
-      Livraison partout en Outaouais — service local et personnalisé.
+      Vente, location et installation d'abris d'auto Tempo de qualité. Livraison partout en
+      Outaouais — service local et personnalisé.
     </p>
 
     <div class="hero__actions">
-      <a routerLink="/boutique"
-         class="btn btn--primary btn--lg"
-         aria-label="Voir notre catalogue d'abris"
-         i18n-aria-label="@@home.hero.catalogAria">
+      <a
+        routerLink="/boutique"
+        class="btn btn--primary btn--lg"
+        aria-label="Voir notre catalogue d'abris"
+        i18n-aria-label="@@home.hero.catalogAria"
+      >
         <span i18n="@@home.hero.catalogCta">Voir le catalogue</span>
-        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24"
-             fill="none" stroke="currentColor" stroke-width="2.5">
+        <svg
+          aria-hidden="true"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+        >
           <line x1="5" y1="12" x2="19" y2="12" />
           <polyline points="12 5 19 12 12 19" />
         </svg>
       </a>
-      <a routerLink="/installation"
-         class="btn btn--secondary btn--lg"
-         aria-label="Réserver une installation à domicile"
-         i18n-aria-label="@@home.hero.installAria"
-         i18n="@@home.hero.installCta">
+      <a
+        routerLink="/installation"
+        class="btn btn--secondary btn--lg"
+        aria-label="Réserver une installation à domicile"
+        i18n-aria-label="@@home.hero.installAria"
+        i18n="@@home.hero.installCta"
+      >
         Réserver une installation
       </a>
     </div>
 
     <!-- Statistiques rapides -->
-    <div class="hero__stats" role="list" aria-label="Chiffres clés"
-         i18n-aria-label="@@home.hero.statsAria">
+    <div
+      class="hero__stats"
+      role="list"
+      aria-label="Chiffres clés"
+      i18n-aria-label="@@home.hero.statsAria"
+    >
       <div class="hero__stat" role="listitem">
         <strong class="hero__stat-number">200+</strong>
         <span class="hero__stat-label" i18n="@@home.hero.stat1">Abris installés</span>
@@ -83,21 +98,30 @@
 
     <ul class="services__grid" role="list">
       @for (service of services; track service.title) {
-      <li class="service-card">
-        <div class="service-card__icon" aria-hidden="true">{{ service.icon }}</div>
-        <h3 class="service-card__title">{{ service.title }}</h3>
-        <p class="service-card__desc">{{ service.description }}</p>
-        <a [routerLink]="service.link"
-           class="service-card__link"
-           [attr.aria-label]="service.linkLabel + ' — ' + service.title">
-          {{ service.linkLabel }}
-          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24"
-               fill="none" stroke="currentColor" stroke-width="2.5">
-            <line x1="5" y1="12" x2="19" y2="12" />
-            <polyline points="12 5 19 12 12 19" />
-          </svg>
-        </a>
-      </li>
+        <li class="service-card">
+          <div class="service-card__icon" aria-hidden="true">{{ service.icon }}</div>
+          <h3 class="service-card__title">{{ service.title }}</h3>
+          <p class="service-card__desc">{{ service.description }}</p>
+          <a
+            [routerLink]="service.link"
+            class="service-card__link"
+            [attr.aria-label]="service.linkLabel + ' — ' + service.title"
+          >
+            {{ service.linkLabel }}
+            <svg
+              aria-hidden="true"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
+          </a>
+        </li>
       }
     </ul>
   </div>
@@ -108,30 +132,36 @@
   <div class="container">
     <div class="why-us__inner">
       <div class="why-us__text">
-        <p class="section-eyebrow section-eyebrow--dark" i18n="@@home.whyUs.eyebrow">Notre engagement</p>
+        <p class="section-eyebrow section-eyebrow--dark" i18n="@@home.whyUs.eyebrow">
+          Notre engagement
+        </p>
         <h2 id="why-us-heading">
           <span i18n="@@home.whyUs.titleLead">Pourquoi choisir</span><br />
           <span class="text-accent" i18n="@@home.whyUs.titleAccent">AbrisTempo Outaouais ?</span>
         </h2>
         <p i18n="@@home.whyUs.body">
-          Nous sommes votre représentant local de confiance pour les abris Tempo.
-          Qualité, service et expertise au service de votre tranquillité d'esprit.
+          Nous sommes votre représentant local de confiance pour les abris Tempo. Qualité, service
+          et expertise au service de votre tranquillité d'esprit.
         </p>
-        <a routerLink="/boutique" class="btn btn--primary" style="margin-top: var(--space-6)"
-           i18n="@@home.whyUs.cta">
+        <a
+          routerLink="/boutique"
+          class="btn btn--primary"
+          style="margin-top: var(--space-6)"
+          i18n="@@home.whyUs.cta"
+        >
           Découvrir nos produits
         </a>
       </div>
 
       <ul class="why-us__grid" role="list">
         @for (item of whyUs; track item.title) {
-        <li class="why-card">
-          <div class="why-card__icon" aria-hidden="true">{{ item.icon }}</div>
-          <div class="why-card__body">
-            <h3 class="why-card__title">{{ item.title }}</h3>
-            <p class="why-card__text">{{ item.text }}</p>
-          </div>
-        </li>
+          <li class="why-card">
+            <div class="why-card__icon" aria-hidden="true">{{ item.icon }}</div>
+            <div class="why-card__body">
+              <h3 class="why-card__title">{{ item.title }}</h3>
+              <p class="why-card__text">{{ item.text }}</p>
+            </div>
+          </li>
         }
       </ul>
     </div>
@@ -147,165 +177,84 @@
     </header>
 
     @if (loadingProducts()) {
-    <!-- État de chargement accessible -->
-    <div class="featured__skeleton" aria-busy="true" aria-label="Chargement des produits…"
-         i18n-aria-label="@@home.featured.loading">
-      @for (_ of [1,2,3]; track $index) {
-      <div class="skeleton-card" aria-hidden="true">
-        <div class="skeleton-card__img"></div>
-        <div class="skeleton-card__body">
-          <div class="skeleton-line skeleton-line--short"></div>
-          <div class="skeleton-line"></div>
-          <div class="skeleton-line skeleton-line--med"></div>
-        </div>
+      <!-- État de chargement accessible -->
+      <div
+        class="featured__skeleton"
+        aria-busy="true"
+        aria-label="Chargement des produits…"
+        i18n-aria-label="@@home.featured.loading"
+      >
+        @for (_ of [1, 2, 3]; track $index) {
+          <div class="skeleton-card" aria-hidden="true">
+            <div class="skeleton-card__img"></div>
+            <div class="skeleton-card__body">
+              <div class="skeleton-line skeleton-line--short"></div>
+              <div class="skeleton-line"></div>
+              <div class="skeleton-line skeleton-line--med"></div>
+            </div>
+          </div>
+        }
       </div>
-      }
-    </div>
     } @else if (featuredProducts().length > 0) {
-    <ul class="featured__grid" role="list">
-      @for (product of featuredProducts(); track product.id) {
-      <li class="product-card">
-        <div class="product-card__img-wrap" aria-hidden="true">
-          @if (!product.isAvailable) {
-          <div class="product-card__sold-out" i18n="@@home.featured.soldOut">Épuisé</div>
-          }
-          <div class="product-card__img-placeholder"></div>
-          <img [src]="imageFor(product)"
-               alt=""
-               loading="lazy"
-               decoding="async"
-               class="product-card__img"
-               (error)="onImageError($event)" />
-        </div>
-        <div class="product-card__body">
-          <span class="product-card__cat">{{ product.categoryName }}</span>
-          <h3 class="product-card__name">
-            <a [routerLink]="['/boutique', product.slug]">{{ product.name }}</a>
-          </h3>
-          <div class="product-card__pricing">
-            <span class="product-card__price"
-                  [attr.aria-label]="'Prix : ' + (product.price | currency:'CAD':'symbol':'1.2-2':'fr-CA')">
-              {{ product.price | currency:'CAD':'symbol':'1.2-2':'fr-CA' }}
-            </span>
-            @if (product.rentalPrice) {
-            <span class="product-card__rent">
-              <span i18n="@@home.featured.rentLabel">Location</span> :
-              {{ product.rentalPrice | currency:'CAD':'symbol':'1.2-2':'fr-CA' }}/<span
-                i18n="@@home.featured.month">mois</span>
-            </span>
-            }
-          </div>
-          <a [routerLink]="['/boutique', product.slug]"
-             class="btn btn--outline btn--sm btn--full"
-             [attr.aria-label]="'Voir ' + product.name"
-             i18n="@@home.featured.viewProduct">
-            Voir le produit
-          </a>
-        </div>
-      </li>
-      }
-    </ul>
+      <ul class="featured__grid" role="list">
+        @for (product of featuredProducts(); track product.id) {
+          <li class="product-card">
+            <div class="product-card__img-wrap" aria-hidden="true">
+              @if (!product.isAvailable) {
+                <div class="product-card__sold-out" i18n="@@home.featured.soldOut">Épuisé</div>
+              }
+              <div class="product-card__img-placeholder"></div>
+              <img
+                [src]="imageFor(product)"
+                alt=""
+                loading="lazy"
+                decoding="async"
+                class="product-card__img"
+                (error)="onImageError($event)"
+              />
+            </div>
+            <div class="product-card__body">
+              <span class="product-card__cat">{{ product.categoryName }}</span>
+              <h3 class="product-card__name">
+                <a [routerLink]="['/boutique', product.slug]">{{ product.name }}</a>
+              </h3>
+              <div class="product-card__pricing">
+                <span
+                  class="product-card__price"
+                  [attr.aria-label]="
+                    'Prix : ' + (product.price | currency: 'CAD' : 'symbol' : '1.2-2' : 'fr-CA')
+                  "
+                >
+                  {{ product.price | currency: 'CAD' : 'symbol' : '1.2-2' : 'fr-CA' }}
+                </span>
+                @if (product.rentalPrice) {
+                  <span class="product-card__rent">
+                    <span i18n="@@home.featured.rentLabel">Location</span> :
+                    {{ product.rentalPrice | currency: 'CAD' : 'symbol' : '1.2-2' : 'fr-CA' }}/<span
+                      i18n="@@home.featured.month"
+                      >mois</span
+                    >
+                  </span>
+                }
+              </div>
+              <a
+                [routerLink]="['/boutique', product.slug]"
+                class="btn btn--outline btn--sm btn--full"
+                [attr.aria-label]="'Voir ' + product.name"
+                i18n="@@home.featured.viewProduct"
+              >
+                Voir le produit
+              </a>
+            </div>
+          </li>
+        }
+      </ul>
 
-    <div class="featured__cta">
-      <a routerLink="/boutique" class="btn btn--primary btn--lg" i18n="@@home.featured.viewAll">
-        Voir tous nos produits
-      </a>
-    </div>
-    }
-  </div>
-</section>
-
-<!-- ── CATALOGUE (catégories + produits filtrables) ──────────── -->
-<section class="catalog" id="catalogue" aria-labelledby="catalog-heading">
-  <div class="container">
-    <header class="section-header">
-      <p class="section-eyebrow" i18n="@@home.catalog.eyebrow">Notre catalogue</p>
-      <h2 id="catalog-heading" i18n="@@home.catalog.title">Parcourez nos abris</h2>
-      <p class="section-subtitle" i18n="@@home.catalog.subtitle">
-        Filtrez par catégorie pour trouver rapidement l'abri qu'il vous faut.
-      </p>
-    </header>
-
-    <!-- Filtres par catégorie -->
-    <div class="catalog__filters"
-         role="group"
-         aria-label="Filtrer les produits par catégorie"
-         i18n-aria-label="@@home.catalog.filterGroup">
-      <button type="button"
-              class="catalog__chip"
-              [class.catalog__chip--active]="selectedSlug() === null"
-              [attr.aria-pressed]="selectedSlug() === null"
-              (click)="selectCategory(null)">
-        <span i18n="@@home.catalog.filterAll">Tous</span>
-      </button>
-      @for (cat of categories(); track cat.id) {
-      <button type="button"
-              class="catalog__chip"
-              [class.catalog__chip--active]="selectedSlug() === cat.slug"
-              [attr.aria-pressed]="selectedSlug() === cat.slug"
-              (click)="selectCategory(cat.slug)">
-        {{ cat.name }}
-        <span class="catalog__chip-count" aria-hidden="true">{{ cat.productCount }}</span>
-      </button>
-      }
-    </div>
-
-    <!-- Résultats -->
-    @if (loadingCatalog()) {
-    <div class="featured__skeleton"
-         aria-busy="true"
-         aria-label="Chargement des produits…"
-         i18n-aria-label="@@home.catalog.loading">
-      @for (_ of [1,2,3,4]; track $index) {
-      <div class="skeleton-card" aria-hidden="true">
-        <div class="skeleton-card__img"></div>
-        <div class="skeleton-card__body">
-          <div class="skeleton-line skeleton-line--short"></div>
-          <div class="skeleton-line"></div>
-          <div class="skeleton-line skeleton-line--med"></div>
-        </div>
+      <div class="featured__cta">
+        <a routerLink="/boutique" class="btn btn--primary btn--lg" i18n="@@home.featured.viewAll">
+          Voir tous nos produits
+        </a>
       </div>
-      }
-    </div>
-    } @else if (catalogProducts().length > 0) {
-    <ul class="featured__grid" role="list">
-      @for (product of catalogProducts(); track product.id) {
-      <li class="product-card">
-        <div class="product-card__img-wrap" aria-hidden="true">
-          @if (!product.isAvailable) {
-          <div class="product-card__sold-out" i18n="@@home.product.soldOut">Épuisé</div>
-          }
-          <div class="product-card__img-placeholder"></div>
-          <img [src]="imageFor(product)"
-               alt=""
-               loading="lazy"
-               decoding="async"
-               class="product-card__img"
-               (error)="onImageError($event)" />
-        </div>
-        <div class="product-card__body">
-          <span class="product-card__cat">{{ product.categoryName }}</span>
-          <h3 class="product-card__name">{{ product.name }}</h3>
-          <div class="product-card__pricing">
-            <span class="product-card__price">
-              {{ product.price | currency:'CAD':'symbol':'1.2-2':'fr-CA' }}
-            </span>
-            @if (product.rentalPrice) {
-            <span class="product-card__rent">
-              <span i18n="@@home.product.rentLabel">Location</span> :
-              {{ product.rentalPrice | currency:'CAD':'symbol':'1.2-2':'fr-CA' }}/<span
-                i18n="@@home.product.month">mois</span>
-            </span>
-            }
-          </div>
-        </div>
-      </li>
-      }
-    </ul>
-    } @else {
-    <p class="catalog__empty" role="status" i18n="@@home.catalog.empty">
-      Aucun produit dans cette catégorie pour le moment.
-    </p>
     }
   </div>
 </section>
@@ -316,22 +265,26 @@
     <div class="cta-banner__text">
       <h2 id="cta-heading" i18n="@@home.cta.title">Prêt à protéger votre véhicule ?</h2>
       <p i18n="@@home.cta.body">
-        Contactez-nous pour obtenir une soumission gratuite ou réservez
-        directement votre installation en ligne.
+        Contactez-nous pour obtenir une soumission gratuite ou réservez directement votre
+        installation en ligne.
       </p>
     </div>
     <div class="cta-banner__actions">
-      <a routerLink="/installation"
-         class="btn btn--primary btn--lg"
-         aria-label="Réserver une installation d'abri"
-         i18n-aria-label="@@home.cta.installAria"
-         i18n="@@home.cta.installCta">
+      <a
+        routerLink="/installation"
+        class="btn btn--primary btn--lg"
+        aria-label="Réserver une installation d'abri"
+        i18n-aria-label="@@home.cta.installAria"
+        i18n="@@home.cta.installCta"
+      >
         Réserver l'installation
       </a>
-      <a href="tel:+18191234567"
-         class="btn btn--secondary btn--lg"
-         aria-label="Appeler au 819 123-4567"
-         i18n-aria-label="@@home.cta.phoneAria">
+      <a
+        href="tel:+18191234567"
+        class="btn btn--secondary btn--lg"
+        aria-label="Appeler au 819 123-4567"
+        i18n-aria-label="@@home.cta.phoneAria"
+      >
         📞 819 123-4567
       </a>
     </div>

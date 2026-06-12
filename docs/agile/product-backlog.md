@@ -18,7 +18,7 @@ les critères a11y dans sa Definition of Done (voir `definition-of-done.md`).
 | US-1.2 | En tant que **visiteur**, je veux **voir le détail d'un produit** (prix, location/mois, description, disponibilité) afin de décider en connaissance de cause. | 3 | **Must** | ✅ Livré |
 | US-1.3 | En tant que **visiteur**, je veux **ajouter un abri au panier** et voir un retour immédiat afin de constituer ma commande. | 3 | **Must** | ✅ Livré |
 | US-1.4 | En tant qu'**administrateur**, je veux **alimenter le catalogue** (seed de produits/catégories) afin que la boutique ne soit pas vide. | 5 | **Must** | ✅ Livré (seed backend) |
-| US-1.5 | En tant que **visiteur**, je veux **rechercher et trier** les produits afin de filtrer au-delà des catégories. | 5 | **Should** | ⛔ À faire |
+| US-1.5 | En tant que **visiteur**, je veux **rechercher et trier** les produits afin de filtrer au-delà des catégories. | 5 | **Should** | ✅ Livré (recherche `role="search"` + tri) |
 | US-1.6 | En tant que **visiteur**, je veux une **page panier** révisable afin de vérifier ma commande avant paiement. | 8 | **Should** | ⛔ À faire |
 
 **Critères d'acceptation — US-1.1**
@@ -42,8 +42,8 @@ les critères a11y dans sa Definition of Done (voir `definition-of-done.md`).
 | US-2.3 | En tant que **client**, je veux **gérer mes informations personnelles** afin qu'elles soient justes sur mes commandes. | 3 | **Must** | ✅ Livré (onglet Infos) |
 | US-2.4 | En tant que **client**, je veux **enregistrer mon adresse de livraison** afin de ne pas la ressaisir (WCAG 3.3.7). | 3 | **Must** | ✅ Livré (onglet Adresse) |
 | US-2.5 | En tant que **client**, je veux **changer mon mot de passe** afin de sécuriser mon compte. | 3 | **Must** | ✅ Livré (onglet Sécurité) |
-| US-2.6 | En tant que **client**, je veux **réinitialiser un mot de passe oublié** afin de récupérer l'accès. | 5 | **Should** | ⛔ À faire |
-| US-2.7 | En tant qu'**équipe**, je veux **retirer les écrans d'auth legacy** (`login`, `register.component`) afin d'éliminer la dette et l'incohérence a11y. | 2 | **Should** | ⛔ À faire |
+| US-2.6 | En tant que **client**, je veux **réinitialiser un mot de passe oublié** afin de récupérer l'accès. | 5 | **Should** | 🟡 Partiel (page `/auth/reset` accessible ; endpoint backend à venir) |
+| US-2.7 | En tant qu'**équipe**, je veux **retirer les écrans d'auth legacy** (`login`, `register.component`) afin d'éliminer la dette et l'incohérence a11y. | 2 | **Should** | ✅ Livré (fichiers legacy supprimés) |
 
 **Critères d'acceptation — US-2.1 / 2.2**
 - Champ login `type="text"` sans `Validators.email` (accepte courriel ou username).
@@ -63,8 +63,8 @@ les critères a11y dans sa Definition of Done (voir `definition-of-done.md`).
 | US-3.3 | En tant qu'**utilisateur de lecteur d'écran**, je veux des **états annoncés** (`aria-live`, `role=status/alert`) afin de suivre le système. | 3 | **Must** | ✅ Livré |
 | US-3.4 | En tant qu'**équipe**, je veux des **tests axe automatisés** (unitaires + e2e) afin de prévenir les régressions a11y. | 5 | **Must** | ✅ Livré (`axe-helper`, `e2e/a11y.spec.ts`) |
 | US-3.5 | En tant qu'**utilisateur à basse vision**, je veux des **contrastes ≥ AA** afin de lire confortablement. | 3 | **Must** | ✅ Livré (tokens documentés) |
-| US-3.6 | En tant qu'**utilisateur tactile**, je veux des **cibles ≥ 44px** afin de cliquer sans erreur. | 2 | **Should** | 🟡 Partiel (chips < 44px) |
-| US-3.7 | En tant qu'**équipe**, je veux **étendre la couverture axe e2e** (auth, profil, états d'erreur) afin de fiabiliser la CI. | 3 | **Should** | ⛔ À faire |
+| US-3.6 | En tant qu'**utilisateur tactile**, je veux des **cibles ≥ 44px** afin de cliquer sans erreur. | 2 | **Should** | ✅ Livré (`min-height: 44px` chips + champs) |
+| US-3.7 | En tant qu'**équipe**, je veux **étendre la couverture axe e2e** (auth, profil, états d'erreur) afin de fiabiliser la CI. | 3 | **Should** | ✅ Livré (`/auth`, `/panier` ajoutés) |
 
 **Critères d'acceptation — US-3.4**
 - Suite axe (tags `wcag2a/2aa/21a/21aa`) verte en local et CI.

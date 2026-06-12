@@ -1,14 +1,23 @@
-<nav class="navbar"
-     [class.navbar--scrolled]="scrolled()"
-     aria-label="Navigation principale">
-
+<nav class="navbar" [class.navbar--scrolled]="scrolled()" aria-label="Navigation principale">
   <div class="container navbar__inner">
-
     <!-- ── Logo ──────────────────────────────────────────────── -->
-    <a routerLink="/"
-       class="navbar__brand"
-       aria-label="AbrisTempo Local — Retour à l'accueil">
-      <span class="navbar__brand-icon" aria-hidden="true">⬡</span>
+    <a routerLink="/" class="navbar__brand" aria-label="AbrisTempo Local — Retour à l'accueil">
+      <svg
+        class="navbar__brand-icon"
+        aria-hidden="true"
+        width="28"
+        height="28"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M2 11 12 4l10 7" />
+        <path d="M5 10v9M19 10v9" />
+        <path d="M3 19h18" />
+      </svg>
       <span class="navbar__brand-text">
         Abris<strong>Tempo</strong>
         <small>Outaouais</small>
@@ -18,181 +27,236 @@
     <!-- ── Navigation principale (desktop) ───────────────────── -->
     <ul class="navbar__links" role="list">
       <li>
-        <a routerLink="/boutique"
-           routerLinkActive="is-active"
-           [routerLinkActiveOptions]="{ exact: false }">
+        <a
+          routerLink="/boutique"
+          routerLinkActive="is-active"
+          [routerLinkActiveOptions]="{ exact: false }"
+        >
           Boutique
         </a>
       </li>
       <li>
-        <a routerLink="/location"
-           routerLinkActive="is-active"
-           [routerLinkActiveOptions]="{ exact: false }">
+        <a
+          routerLink="/location"
+          routerLinkActive="is-active"
+          [routerLinkActiveOptions]="{ exact: false }"
+        >
           Location
         </a>
       </li>
       <li>
-        <a routerLink="/installation"
-           routerLinkActive="is-active"
-           [routerLinkActiveOptions]="{ exact: false }">
+        <a
+          routerLink="/installation"
+          routerLinkActive="is-active"
+          [routerLinkActiveOptions]="{ exact: false }"
+        >
           Installation
         </a>
       </li>
       @if (auth.isAdmin()) {
-      <li>
-        <a routerLink="/admin"
-           routerLinkActive="is-active"
-           class="navbar__admin-link">
-          Administration
-        </a>
-      </li>
+        <li>
+          <a routerLink="/admin" routerLinkActive="is-active" class="navbar__admin-link">
+            Administration
+          </a>
+        </li>
       }
     </ul>
 
     <!-- ── Actions desktop ───────────────────────────────────── -->
     <div class="navbar__actions">
-
       <!-- Sélecteur de langue FR / EN -->
-      <div class="navbar__lang"
-           role="group"
-           aria-label="Choisir la langue"
-           i18n-aria-label="@@navbar.langGroup">
-        <button type="button"
-                class="navbar__lang-btn"
-                [class.is-active]="currentLang() === 'fr'"
-                [attr.aria-pressed]="currentLang() === 'fr'"
-                (click)="switchLang('fr')"
-                aria-label="Français"
-                i18n-aria-label="@@navbar.langFr">
+      <div
+        class="navbar__lang"
+        role="group"
+        aria-label="Choisir la langue"
+        i18n-aria-label="@@navbar.langGroup"
+      >
+        <button
+          type="button"
+          class="navbar__lang-btn"
+          [class.is-active]="currentLang() === 'fr'"
+          [attr.aria-pressed]="currentLang() === 'fr'"
+          (click)="switchLang('fr')"
+          aria-label="Français"
+          i18n-aria-label="@@navbar.langFr"
+        >
           FR
         </button>
         <span class="navbar__lang-sep" aria-hidden="true">/</span>
-        <button type="button"
-                class="navbar__lang-btn"
-                [class.is-active]="currentLang() === 'en'"
-                [attr.aria-pressed]="currentLang() === 'en'"
-                (click)="switchLang('en')"
-                aria-label="English"
-                i18n-aria-label="@@navbar.langEn">
+        <button
+          type="button"
+          class="navbar__lang-btn"
+          [class.is-active]="currentLang() === 'en'"
+          [attr.aria-pressed]="currentLang() === 'en'"
+          (click)="switchLang('en')"
+          aria-label="English"
+          i18n-aria-label="@@navbar.langEn"
+        >
           EN
         </button>
       </div>
 
       <!-- Bascule thème clair / sombre -->
-      <button type="button"
-              class="navbar__icon-btn navbar__theme-toggle"
-              (click)="toggleTheme()"
-              [attr.aria-pressed]="theme.theme() === 'dark'"
-              [attr.aria-label]="themeLabel()">
+      <button
+        type="button"
+        class="navbar__icon-btn navbar__theme-toggle"
+        (click)="toggleTheme()"
+        [attr.aria-pressed]="theme.theme() === 'dark'"
+        [attr.aria-label]="themeLabel()"
+      >
         @if (theme.theme() === 'dark') {
-        <!-- Soleil : passer en clair -->
-        <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="4" />
-          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
-        </svg>
+          <!-- Soleil : passer en clair -->
+          <svg
+            aria-hidden="true"
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="12" r="4" />
+            <path
+              d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"
+            />
+          </svg>
         } @else {
-        <!-- Lune : passer en sombre -->
-        <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-        </svg>
+          <!-- Lune : passer en sombre -->
+          <svg
+            aria-hidden="true"
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
         }
       </button>
 
       <!-- Panier -->
-      <a routerLink="/panier"
-         class="navbar__icon-btn"
-         [attr.aria-label]="cartLabel()">
-        <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <a routerLink="/panier" class="navbar__icon-btn" [attr.aria-label]="cartLabel()">
+        <svg
+          aria-hidden="true"
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <circle cx="9" cy="21" r="1" />
           <circle cx="20" cy="21" r="1" />
           <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
         </svg>
         @if (cart.count() > 0) {
-        <span class="navbar__badge" aria-hidden="true">{{ cart.count() }}</span>
+          <span class="navbar__badge" aria-hidden="true">{{ cart.count() }}</span>
         }
       </a>
 
       <!-- Non authentifié -->
       @if (!auth.isAuthenticated()) {
-      <a routerLink="/auth" class="btn btn--ghost btn--sm">Connexion</a>
-      <a routerLink="/register" class="btn btn--primary btn--sm">S'inscrire</a>
+        <a routerLink="/auth" class="btn btn--ghost btn--sm">Connexion</a>
+        <a routerLink="/auth" class="btn btn--primary btn--sm">S'inscrire</a>
       }
 
       <!-- Authentifié — menu utilisateur -->
       @if (auth.isAuthenticated()) {
-      <div class="navbar__user-menu" [class.is-open]="userMenuOpen()">
-        <button type="button"
-                class="navbar__user-btn"
-                (click)="toggleUserMenu()"
-                [attr.aria-expanded]="userMenuOpen()"
-                aria-haspopup="menu"
-                aria-controls="user-dropdown"
-                [attr.aria-label]="'Menu de ' + (auth.fullName() ?? 'utilisateur')">
-          <span class="navbar__user-avatar" aria-hidden="true">
-            {{ (auth.fullName() ?? 'U')[0].toUpperCase() }}
-          </span>
-          <span class="navbar__user-name">{{ auth.fullName() }}</span>
-          <svg aria-hidden="true" class="navbar__chevron" width="14" height="14"
-               viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <polyline points="6 9 12 15 18 9" />
-          </svg>
-        </button>
+        <div class="navbar__user-menu" #userMenuWrap [class.is-open]="userMenuOpen()">
+          <button
+            type="button"
+            class="navbar__user-btn"
+            #userMenuBtn
+            (click)="toggleUserMenu()"
+            [attr.aria-expanded]="userMenuOpen()"
+            aria-haspopup="menu"
+            aria-controls="user-dropdown"
+            [attr.aria-label]="'Menu de ' + (auth.fullName() ?? 'utilisateur')"
+          >
+            <span class="navbar__user-avatar" aria-hidden="true">
+              {{ (auth.fullName() ?? 'U')[0].toUpperCase() }}
+            </span>
+            <span class="navbar__user-name">{{ auth.fullName() }}</span>
+            <svg
+              aria-hidden="true"
+              class="navbar__chevron"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
 
-        <ul id="user-dropdown"
+          <ul
+            id="user-dropdown"
             class="navbar__dropdown"
             role="menu"
-            [attr.aria-hidden]="!userMenuOpen()">
-          <li role="none">
-            <a routerLink="/mon-compte/profil"
-               role="menuitem"
-               (click)="closeUserMenu()">Mon profil</a>
-          </li>
-          <li role="none">
-            <a routerLink="/mon-compte/commandes"
-               role="menuitem"
-               (click)="closeUserMenu()">Mes commandes</a>
-          </li>
-          <li role="none">
-            <a routerLink="/mon-compte/reservations"
-               role="menuitem"
-               (click)="closeUserMenu()">Mes réservations</a>
-          </li>
-          <li role="separator" class="navbar__divider"></li>
-          <li role="none">
-            <button type="button" role="menuitem" class="navbar__logout"
-                    (click)="logout()">
-              Déconnexion
-            </button>
-          </li>
-        </ul>
-      </div>
+            [attr.aria-hidden]="!userMenuOpen()"
+          >
+            <li role="none">
+              <a routerLink="/mon-compte/profil" role="menuitem" (click)="closeUserMenu()"
+                >Mon profil</a
+              >
+            </li>
+            <li role="none">
+              <a routerLink="/mon-compte/commandes" role="menuitem" (click)="closeUserMenu()"
+                >Mes commandes</a
+              >
+            </li>
+            <li role="none">
+              <a routerLink="/mon-compte/reservations" role="menuitem" (click)="closeUserMenu()"
+                >Mes réservations</a
+              >
+            </li>
+            <li role="separator" class="navbar__divider"></li>
+            <li role="none">
+              <button type="button" role="menuitem" class="navbar__logout" (click)="logout()">
+                Déconnexion
+              </button>
+            </li>
+          </ul>
+        </div>
       }
     </div>
 
     <!-- ── Bouton mobile ──────────────────────────────────────── -->
-    <button type="button"
-            class="navbar__hamburger"
-            (click)="toggleMenu()"
-            [attr.aria-expanded]="menuOpen()"
-            aria-controls="mobile-menu"
-            aria-label="Ouvrir le menu de navigation">
+    <button
+      type="button"
+      class="navbar__hamburger"
+      #hamburger
+      (click)="toggleMenu()"
+      [attr.aria-expanded]="menuOpen()"
+      aria-controls="mobile-menu"
+      aria-label="Ouvrir le menu de navigation"
+    >
       <span class="navbar__burger-line" aria-hidden="true"></span>
       <span class="navbar__burger-line" aria-hidden="true"></span>
       <span class="navbar__burger-line" aria-hidden="true"></span>
     </button>
-
-  </div><!-- /.container -->
+  </div>
+  <!-- /.container -->
   <!-- ── Menu mobile ────────────────────────────────────────── -->
-  <div id="mobile-menu"
-       class="navbar__mobile"
-       [class.is-open]="menuOpen()"
-       role="dialog"
-       [attr.aria-hidden]="!menuOpen()"
-       aria-label="Menu mobile">
-
+  <div
+    id="mobile-menu"
+    #mobileMenu
+    class="navbar__mobile"
+    [class.is-open]="menuOpen()"
+    role="dialog"
+    [attr.aria-hidden]="!menuOpen()"
+    aria-label="Menu mobile"
+  >
     <ul role="list" class="navbar__mobile-list">
       <li>
         <a routerLink="/" (click)="closeMenu()">Accueil</a>
@@ -210,21 +274,20 @@
 
     <div class="navbar__mobile-footer">
       @if (!auth.isAuthenticated()) {
-      <a routerLink="/auth" class="btn btn--outline btn--full" (click)="closeMenu()">
-        Connexion
-      </a>
-      <a routerLink="/register" class="btn btn--primary btn--full" (click)="closeMenu()">
-        S'inscrire
-      </a>
+        <a routerLink="/auth" class="btn btn--outline btn--full" (click)="closeMenu()">
+          Connexion
+        </a>
+        <a routerLink="/auth" class="btn btn--primary btn--full" (click)="closeMenu()">
+          S'inscrire
+        </a>
       } @else {
-      <a routerLink="/mon-compte/profil" class="btn btn--outline btn--full" (click)="closeMenu()">
-        Mon compte
-      </a>
-      <button type="button" class="btn btn--ghost btn--full" (click)="logout()">
-        Déconnexion
-      </button>
+        <a routerLink="/mon-compte/profil" class="btn btn--outline btn--full" (click)="closeMenu()">
+          Mon compte
+        </a>
+        <button type="button" class="btn btn--ghost btn--full" (click)="logout()">
+          Déconnexion
+        </button>
       }
     </div>
   </div>
-
 </nav>

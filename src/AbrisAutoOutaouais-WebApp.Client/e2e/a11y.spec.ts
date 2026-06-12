@@ -67,18 +67,12 @@ const productList = {
 
 async function mockApi(page: Page): Promise<void> {
   // Catégories
-  await page.route('**/api/v1/categories', route =>
-    route.fulfill({ json: categories }),
-  );
+  await page.route('**/api/v1/categories', (route) => route.fulfill({ json: categories }));
   // Produit unique par slug (ex. /products/abri-simple).
   // Enregistré AVANT le pattern de liste pour matcher en priorité.
-  await page.route('**/api/v1/products/*', route =>
-    route.fulfill({ json: product }),
-  );
+  await page.route('**/api/v1/products/*', (route) => route.fulfill({ json: product }));
   // Liste paginée (ex. /products?page=1&pageSize=50)
-  await page.route('**/api/v1/products*', route =>
-    route.fulfill({ json: productList }),
-  );
+  await page.route('**/api/v1/products*', (route) => route.fulfill({ json: productList }));
 }
 
 // Tags WCAG validés (A + AA, 2.0 et 2.1). color-contrast N'EST PAS désactivé.
@@ -90,15 +84,13 @@ test.beforeEach(async ({ page }) => {
 
 test('Accueil (/) — aucune violation WCAG AA', async ({ page }) => {
   await page.goto('/');
-  await expect(
-    page.getByRole('heading', { name: /abri/i }).first(),
-  ).toBeVisible();
+  await expect(page.getByRole('heading', { name: /abri/i }).first()).toBeVisible();
 
   const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
   expect(
     results.violations,
     JSON.stringify(
-      results.violations.map(v => ({ id: v.id, nodes: v.nodes.length })),
+      results.violations.map((v) => ({ id: v.id, nodes: v.nodes.length })),
       null,
       2,
     ),
@@ -107,34 +99,59 @@ test('Accueil (/) — aucune violation WCAG AA', async ({ page }) => {
 
 test('Boutique (/boutique) — aucune violation WCAG AA', async ({ page }) => {
   await page.goto('/boutique');
-  await expect(
-    page.getByRole('heading', { name: /abri/i }).first(),
-  ).toBeVisible();
+  await expect(page.getByRole('heading', { name: /abri/i }).first()).toBeVisible();
 
   const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
   expect(
     results.violations,
     JSON.stringify(
-      results.violations.map(v => ({ id: v.id, nodes: v.nodes.length })),
+      results.violations.map((v) => ({ id: v.id, nodes: v.nodes.length })),
       null,
       2,
     ),
   ).toEqual([]);
 });
 
-test('Détail produit (/boutique/abri-simple) — aucune violation WCAG AA', async ({
-  page,
-}) => {
+test('Détail produit (/boutique/abri-simple) — aucune violation WCAG AA', async ({ page }) => {
   await page.goto('/boutique/abri-simple');
-  await expect(
-    page.getByRole('heading', { name: /abri/i }).first(),
-  ).toBeVisible();
+  await expect(page.getByRole('heading', { name: /abri/i }).first()).toBeVisible();
 
   const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
   expect(
     results.violations,
     JSON.stringify(
-      results.violations.map(v => ({ id: v.id, nodes: v.nodes.length })),
+      results.violations.map((v) => ({ id: v.id, nodes: v.nodes.length })),
+      null,
+      2,
+    ),
+  ).toEqual([]);
+});
+
+test('Authentification (/auth) — aucune violation WCAG AA', async ({ page }) => {
+  await page.goto('/auth');
+  await expect(page.getByRole('heading', { name: /connexion/i }).first()).toBeVisible();
+
+  const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
+  expect(
+    results.violations,
+    JSON.stringify(
+      results.violations.map((v) => ({ id: v.id, nodes: v.nodes.length })),
+      null,
+      2,
+    ),
+  ).toEqual([]);
+});
+
+test('Panier (/panier) — aucune violation WCAG AA', async ({ page }) => {
+  await page.goto('/panier');
+  // Panier vide par défaut (aucun article en session) — doit rester accessible.
+  await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
+
+  const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
+  expect(
+    results.violations,
+    JSON.stringify(
+      results.violations.map((v) => ({ id: v.id, nodes: v.nodes.length })),
       null,
       2,
     ),
