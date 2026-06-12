@@ -48,6 +48,27 @@ export const routes: Routes = [
       import('./features/installation/installation').then(m => m.InstallationComponent),
     title: 'Réservation d’installation — AbrisTempo Local',
   },
+  // ── Pages légales (contenu statique, liées depuis le footer et /auth) ──
+  {
+    path: 'conditions',
+    loadComponent: () =>
+      import('./features/legal/conditions/conditions').then(m => m.ConditionsComponent),
+    title: 'Conditions d’utilisation — AbrisTempo Local',
+  },
+  {
+    path: 'confidentialite',
+    loadComponent: () =>
+      import('./features/legal/confidentialite/confidentialite').then(
+        m => m.ConfidentialiteComponent,
+      ),
+    title: 'Politique de confidentialité — AbrisTempo Local',
+  },
+  {
+    path: 'accessibilite',
+    loadComponent: () =>
+      import('./features/legal/accessibilite/accessibilite').then(m => m.AccessibiliteComponent),
+    title: 'Déclaration d’accessibilité — AbrisTempo Local',
+  },
   // {
   //   path: 'mon-compte',
   //   canActivate: [authGuard],

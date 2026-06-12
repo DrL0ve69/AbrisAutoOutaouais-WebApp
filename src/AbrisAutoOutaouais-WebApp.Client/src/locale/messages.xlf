@@ -1822,6 +1822,422 @@
           <context context-type="linenumber">152</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="legal.eyebrow" datatype="html">
+        <source>Informations légales</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/accessibilite/accessibilite.html</context>
+          <context context-type="linenumber">9,10</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">9,10</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">9,10</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.title" datatype="html">
+        <source> Déclaration d&apos;accessibilité </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/accessibilite/accessibilite.html</context>
+          <context context-type="linenumber">11,13</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.updated" datatype="html">
+        <source> Dernière révision : juin 2026 </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/accessibilite/accessibilite.html</context>
+          <context context-type="linenumber">14,18</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.commitment.title" datatype="html">
+        <source>1. Notre engagement</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/accessibilite/accessibilite.html</context>
+          <context context-type="linenumber">20,21</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.commitment.p1" datatype="html">
+        <source> AbrisTempo Outaouais s&apos;engage à rendre son site accessible à toutes et à tous, y compris aux personnes en situation de handicap. Notre cible de conformité est le référentiel <x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong&gt;"/>WCAG 2.2, niveau AA<x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong&gt;"/>, appliqué dès la conception et vérifié en continu à chaque modification du site. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/accessibilite/accessibilite.html</context>
+          <context context-type="linenumber">22,26</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.measures.title" datatype="html">
+        <source>2. Mesures de vérification</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/accessibilite/accessibilite.html</context>
+          <context context-type="linenumber">30,31</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.measures.p1" datatype="html">
+        <source> L&apos;accessibilité est validée par une combinaison de tests automatisés et de vérifications manuelles — l&apos;automatisation ne couvrant qu&apos;une partie des critères WCAG : </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/accessibilite/accessibilite.html</context>
+          <context context-type="linenumber">32,36</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.measures.item1" datatype="html">
+        <source> tests automatisés axe-core à deux niveaux : sur chaque composant (tests unitaires) et sur chaque page complète de l&apos;application réelle (tests de bout en bout, y compris le contraste des couleurs) ; </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/accessibilite/accessibilite.html</context>
+          <context context-type="linenumber">38,41</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.measures.item2" datatype="html">
+        <source> passes manuelles avec les lecteurs d&apos;écran NVDA (Windows) et VoiceOver (macOS) ; </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/accessibilite/accessibilite.html</context>
+          <context context-type="linenumber">43,45</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.measures.item3" datatype="html">
+        <source> navigation complète au clavier (ordre de tabulation, focus visible, absence de piège) et zoom jusqu&apos;à 400 % sans perte de contenu ; </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/accessibilite/accessibilite.html</context>
+          <context context-type="linenumber">46,49</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.measures.item4" datatype="html">
+        <source> balayage de contraste dans les deux thèmes (clair et sombre) et respect des préférences système, dont la réduction des animations. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/accessibilite/accessibilite.html</context>
+          <context context-type="linenumber">50,53</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.status.title" datatype="html">
+        <source>3. État de conformité</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/accessibilite/accessibilite.html</context>
+          <context context-type="linenumber">57,58</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.status.p1" datatype="html">
+        <source> Selon notre audit interne (juin 2026), le site est conforme au niveau AA des WCAG 2.2 sur les parcours principaux : accueil, boutique, fiche produit, authentification, panier et espace client. Cet état est réévalué à chaque évolution du site. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/accessibilite/accessibilite.html</context>
+          <context context-type="linenumber">59,63</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.limits.title" datatype="html">
+        <source>4. Limites connues</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/accessibilite/accessibilite.html</context>
+          <context context-type="linenumber">66,67</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.limits.p1" datatype="html">
+        <source> Malgré nos efforts, certains contenus peuvent présenter des limites ponctuelles, notamment des contenus récents pas encore passés en revue ou des éléments fournis par des tiers. Si vous rencontrez un obstacle, signalez-le-nous : nous corrigerons dans les meilleurs délais et vous proposerons une solution de rechange accessible. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/accessibilite/accessibilite.html</context>
+          <context context-type="linenumber">68,72</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.feedback.title" datatype="html">
+        <source>5. Rétroaction et assistance</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/accessibilite/accessibilite.html</context>
+          <context context-type="linenumber">76,77</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.feedback.p1" datatype="html">
+        <source> Vos commentaires nous aident à nous améliorer. Pour signaler un problème d&apos;accessibilité ou demander de l&apos;aide, écrivez à <x id="START_LINK" ctype="x-a" equiv-text="&lt;a href=&quot;mailto:accessibilite@abristempo-outaouais.ca&quot;
+            &gt;"/>accessibilite@abristempo-outaouais.ca<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/> ou appelez le <x id="START_LINK_1" equiv-text="&lt;a href=&quot;tel:+18191234567&quot;&gt;"/>819 123-4567<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/>. Nous nous engageons à répondre dans un délai de cinq jours ouvrables. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/accessibilite/accessibilite.html</context>
+          <context context-type="linenumber">78,85</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.title" datatype="html">
+        <source>Conditions d&apos;utilisation</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">10,11</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.updated" datatype="html">
+        <source> Dernière mise à jour : juin 2026 </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">12,16</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.intro.title" datatype="html">
+        <source>1. Objet et acceptation</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">18,19</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.intro.p1" datatype="html">
+        <source> Les présentes conditions encadrent l&apos;utilisation du site AbrisTempo Outaouais, représentant régional de la marque Abris Tempo pour l&apos;Outaouais. En naviguant sur le site, en créant un compte ou en passant une commande, vous acceptez ces conditions dans leur intégralité. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">20,24</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.intro.demo" datatype="html">
+        <source> Avis : cette plateforme est un site de démonstration à des fins de portfolio. Les commandes, locations et réservations qui y sont effectuées n&apos;engagent aucune transaction réelle. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">26,29</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.account.title" datatype="html">
+        <source>2. Compte et utilisation du site</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">33,34</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.account.p1" datatype="html">
+        <source> La création d&apos;un compte est requise pour commander, louer un abri ou réserver une installation. Vous êtes responsable de l&apos;exactitude des renseignements fournis et de la confidentialité de votre mot de passe. Toute utilisation frauduleuse, abusive ou contraire à la loi peut entraîner la suspension du compte. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">35,39</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.orders.title" datatype="html">
+        <source>3. Commandes et livraison</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">43,44</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.orders.p1" datatype="html">
+        <source> Les prix sont affichés en dollars canadiens, taxes en sus. Une commande est confirmée après validation du paiement et de l&apos;adresse de livraison. La livraison est offerte dans la région de l&apos;Outaouais et les environs ; les délais communiqués sont indicatifs et peuvent varier selon la saison et les conditions routières. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">45,49</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.rentals.title" datatype="html">
+        <source>4. Location saisonnière</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">53,54</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.rentals.p1" datatype="html">
+        <source> La location d&apos;un abri couvre la période convenue au contrat (généralement la saison hivernale). L&apos;abri demeure la propriété d&apos;AbrisTempo Outaouais ; le locataire s&apos;engage à l&apos;utiliser avec soin et à signaler tout dommage. Des frais peuvent s&apos;appliquer en cas de bris ou de perte attribuable à une utilisation anormale. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">55,59</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.bookings.title" datatype="html">
+        <source>5. Réservation d&apos;installation</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">63,64</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.bookings.p1" datatype="html">
+        <source> Les créneaux d&apos;installation et de désinstallation sont réservés en ligne et confirmés par courriel. Vous pouvez reporter ou annuler un rendez-vous depuis votre compte jusqu&apos;à 48 heures avant le créneau prévu. L&apos;accès au lieu d&apos;installation doit être dégagé et sécuritaire ; à défaut, le rendez-vous pourra être reporté. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">65,69</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.liability.title" datatype="html">
+        <source>6. Responsabilité</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">73,74</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.liability.p1" datatype="html">
+        <source> AbrisTempo Outaouais met tout en œuvre pour assurer l&apos;exactitude des renseignements publiés, sans garantir l&apos;absence d&apos;erreurs. Dans les limites permises par la loi, sa responsabilité est limitée au montant payé pour le produit ou le service concerné. Rien dans les présentes ne restreint les garanties légales prévues par la Loi sur la protection du consommateur du Québec. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">75,79</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.law.title" datatype="html">
+        <source>7. Droit applicable</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">84,85</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.law.p1" datatype="html">
+        <source> Les présentes conditions sont régies par les lois applicables au Québec et au Canada. Tout litige relève des tribunaux compétents du district judiciaire de Gatineau (Québec). </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">86,89</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.contact.title" datatype="html">
+        <source>8. Nous joindre</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">93,94</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.contact.p1" datatype="html">
+        <source> Pour toute question sur ces conditions, écrivez-nous à <x id="START_LINK" ctype="x-a" equiv-text="&lt;a href=&quot;mailto:info@abristempo-outaouais.ca&quot;&gt;"/>info@abristempo-outaouais.ca<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/> ou appelez le <x id="START_LINK_1" equiv-text="&lt;a href=&quot;tel:+18191234567&quot;&gt;"/>819 123-4567<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/>. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">95,99</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.title" datatype="html">
+        <source> Politique de confidentialité </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">11,13</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.updated" datatype="html">
+        <source> Dernière mise à jour : juin 2026 </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">14,18</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.collect.title" datatype="html">
+        <source>1. Renseignements recueillis</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">20,21</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.collect.p1" datatype="html">
+        <source> Nous recueillons uniquement les renseignements nécessaires à la prestation de nos services : </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">22,26</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.collect.item1" datatype="html">
+        <source> Compte : nom, prénom, adresse courriel, nom d&apos;utilisateur, numéro de téléphone (facultatif) et mot de passe (stocké sous forme hachée, jamais en clair) ; </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">27,30</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.collect.item2" datatype="html">
+        <source> Adresses : adresse de livraison ou d&apos;installation que vous enregistrez ; </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">31,33</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.collect.item3" datatype="html">
+        <source> Transactions : historique de vos commandes, locations et réservations. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">34,37</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.purpose.title" datatype="html">
+        <source>2. Finalités d&apos;utilisation</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">40,41</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.purpose.p1" datatype="html">
+        <source> Ces renseignements servent exclusivement à traiter vos commandes, planifier les livraisons et installations, gérer votre compte et vous transmettre les communications liées à vos transactions (confirmations, rappels de rendez-vous). Nous ne vendons ni ne louons vos renseignements personnels à des tiers. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">42,46</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.retention.title" datatype="html">
+        <source>3. Conservation</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">50,51</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.retention.p1" datatype="html">
+        <source> Les renseignements liés à votre compte sont conservés tant que celui-ci est actif. Les renseignements transactionnels sont conservés pour la durée exigée par les obligations légales et fiscales applicables, puis détruits ou anonymisés de façon sécuritaire. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">52,56</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.storage.title" datatype="html">
+        <source>4. Témoins et stockage local</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">60,61</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.storage.p1" datatype="html">
+        <source> Le site n&apos;utilise aucun témoin (cookie) publicitaire ni outil de suivi tiers. Seul le stockage local de votre navigateur est utilisé, pour des fonctions essentielles : </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">62,66</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.storage.item1" datatype="html">
+        <source> votre préférence de thème (clair ou sombre) ; </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">67,69</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.storage.item2" datatype="html">
+        <source> le contenu de votre panier d&apos;achat ; </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">70,72</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.storage.item3" datatype="html">
+        <source> votre jeton de session (JWT) lorsque vous êtes connecté, supprimé à la déconnexion. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">73,76</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.rights.title" datatype="html">
+        <source>5. Vos droits (Loi 25)</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">79,80</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.rights.p1" datatype="html">
+        <source> Conformément à la Loi modernisant des dispositions législatives en matière de protection des renseignements personnels (Loi 25, Québec), vous pouvez en tout temps demander l&apos;accès à vos renseignements personnels, leur rectification, leur retrait ou la cessation de leur diffusion. Vous pouvez modifier vos renseignements directement depuis votre compte, ou nous écrire pour exercer vos autres droits. Une réponse vous sera transmise dans les 30 jours. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">81,86</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.security.title" datatype="html">
+        <source>6. Sécurité</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">91,92</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.security.p1" datatype="html">
+        <source> Les échanges avec nos serveurs sont chiffrés (HTTPS) et l&apos;accès aux renseignements personnels est restreint au personnel qui en a besoin pour fournir le service. En cas d&apos;incident de confidentialité présentant un risque de préjudice sérieux, les personnes concernées et la Commission d&apos;accès à l&apos;information seraient avisées. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">93,97</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.contact.title" datatype="html">
+        <source>7. Responsable de la protection</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">101,102</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.contact.p1" datatype="html">
+        <source> Pour toute question relative à la présente politique ou pour exercer vos droits, contactez le responsable de la protection des renseignements personnels à <x id="START_LINK" ctype="x-a" equiv-text="&lt;a href=&quot;mailto:confidentialite@abristempo-outaouais.ca&quot;
+            &gt;"/>confidentialite@abristempo-outaouais.ca<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/> ou au <x id="START_LINK_1" equiv-text="&lt;a href=&quot;tel:+18191234567&quot;&gt;"/>819 123-4567<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/>. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">103,110</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="location.eyebrow" datatype="html">
         <source>Location</source>
         <context-group purpose="location">
@@ -2311,7 +2727,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">289,291</context>
+          <context context-type="linenumber">294,296</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.rental" datatype="html">
@@ -2326,7 +2742,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">292,295</context>
+          <context context-type="linenumber">297,300</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.install" datatype="html">
@@ -2341,7 +2757,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">295,299</context>
+          <context context-type="linenumber">300,304</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.account" datatype="html">
@@ -2352,7 +2768,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">319,320</context>
+          <context context-type="linenumber">324,325</context>
         </context-group>
       </trans-unit>
       <trans-unit id="footer.legalNavAria" datatype="html">
@@ -2433,7 +2849,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">306,308</context>
+          <context context-type="linenumber">311,313</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.register" datatype="html">
@@ -2444,53 +2860,53 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">312,314</context>
+          <context context-type="linenumber">317,319</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.profile" datatype="html">
         <source>Mon profil</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">213,215</context>
+          <context context-type="linenumber">216,218</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.myOrders" datatype="html">
         <source>Mes commandes</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">222,224</context>
+          <context context-type="linenumber">225,227</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.myReservations" datatype="html">
         <source>Mes réservations</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">231,233</context>
+          <context context-type="linenumber">234,236</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.logout" datatype="html">
         <source> Déconnexion </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">243,244</context>
+          <context context-type="linenumber">246,247</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">321,323</context>
+          <context context-type="linenumber">326,328</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.mobileMenuAria" datatype="html">
         <source>Menu mobile</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">281,282</context>
+          <context context-type="linenumber">286,287</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.home" datatype="html">
         <source>Accueil</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">286,288</context>
+          <context context-type="linenumber">291,293</context>
         </context-group>
       </trans-unit>
       <trans-unit id="skipNav.link" datatype="html">

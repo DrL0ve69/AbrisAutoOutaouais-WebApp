@@ -121,6 +121,32 @@ const routes = [
     chemin: '/panier',
     pret: (page: Page) => expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible(),
   },
+  // Pages légales statiques (liées depuis le footer et /auth) — publiques,
+  // aucun appel API nécessaire au-delà des mocks existants.
+  {
+    nom: 'Conditions d’utilisation (/conditions)',
+    chemin: '/conditions',
+    pret: (page: Page) =>
+      expect(
+        page.getByRole('heading', { level: 1, name: /conditions d'utilisation/i }),
+      ).toBeVisible(),
+  },
+  {
+    nom: 'Politique de confidentialité (/confidentialite)',
+    chemin: '/confidentialite',
+    pret: (page: Page) =>
+      expect(
+        page.getByRole('heading', { level: 1, name: /politique de confidentialité/i }),
+      ).toBeVisible(),
+  },
+  {
+    nom: 'Déclaration d’accessibilité (/accessibilite)',
+    chemin: '/accessibilite',
+    pret: (page: Page) =>
+      expect(
+        page.getByRole('heading', { level: 1, name: /déclaration d'accessibilité/i }),
+      ).toBeVisible(),
+  },
 ] as const;
 
 const themes = [
