@@ -36,14 +36,19 @@
   not widen `AuthUser` with profile fields — auth state and profile state are separate concerns.
 - **Refs.** `core/services/auth.service.ts`, `core/services/profile.service.ts`, `features/account/profile/profile.ts`.
 
-## L-002 · Pre-fill must never clobber what the user is typing
+## L-002 · Pre-fill on "untouched" (pristine), NOT on "empty"
 
-- **Symptom.** Auto-filling a form (e.g. delivery address) risks overwriting a value the user has
-  already entered, or re-overwriting it on every change-detection pass.
-- **Rule.** Pre-fill **once**, and only into controls that are still **pristine and empty**. Use a
-  `signal`-driven `effect()` that patches when the source data arrives, guarded by a pristine/empty
-  check (`ProfileService.applyDefaultAddress(...)` encapsulates this). User input always wins.
-- **Refs.** `core/services/profile.service.ts`, `features/{checkout,location,installation}`.
+- **Symptom.** Auto-filling a form must not clobber what the user typed — but a `pristine && !value`
+  guard silently **skips any field that carries a default value**. The address forms default
+  `province` to « QC », so a saved Ontario address never filled the province (the e2e with a
+  non-default province caught this; a QC-only test would have missed it).
+- **Rule.** Pre-fill **once** into every control the user hasn't touched — guard on **`pristine`
+  only**, not pristine-and-empty. A default like « QC »/« Canada » is not user input, so replace it;
+  only a **dirty** (user-edited) control is sacred. Drive it with a `signal`-backed `effect()` that
+  patches when the data arrives (`ProfileService.applyDefaultAddress(...)`). Test autofill with a
+  value that **differs from the form's default**, or the assertion proves nothing.
+- **Refs.** `core/services/profile.service.ts`, `features/{checkout,location,installation}`,
+  `Client/e2e/address-autofill.spec.ts`.
 
 ## L-001 · Reproduce against the REAL running stack before blaming the backend
 

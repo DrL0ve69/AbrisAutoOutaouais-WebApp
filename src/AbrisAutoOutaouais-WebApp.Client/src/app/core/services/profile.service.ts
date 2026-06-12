@@ -62,8 +62,10 @@ export class ProfileService {
 
   /**
    * Pré-remplit les champs d'adresse d'un formulaire réactif avec l'adresse par défaut —
-   * UNE fois, et seulement les contrôles encore vides/pristine, pour ne jamais écraser une
-   * saisie en cours (voir leçon L-002). À appeler dans un `effect()` du composant.
+   * tant que l'utilisateur n'a PAS touché le champ (pristine). On remplit même un champ qui
+   * porte une valeur par défaut (« QC », « Canada ») : un défaut n'est pas une saisie. Dès que
+   * l'utilisateur édite un champ (dirty), on ne l'écrase jamais (voir leçon L-002). À appeler
+   * dans un `effect()` du composant.
    */
   applyDefaultAddress(
     form: FormGroup,
@@ -79,7 +81,7 @@ export class ProfileService {
     };
     for (const [name, value] of Object.entries(values)) {
       const control = form.get(name);
-      if (control && control.pristine && !control.value) {
+      if (control && control.pristine) {
         control.setValue(value);
       }
     }
