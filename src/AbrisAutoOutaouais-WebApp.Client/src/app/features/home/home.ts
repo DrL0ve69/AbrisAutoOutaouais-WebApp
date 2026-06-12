@@ -1,18 +1,8 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  signal,
-  OnInit,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CurrencyPipe } from '@angular/common';
 import { ProductService } from '../../core/services/product.service';
-import {
-  CategoryDto,
-  ProductDto,
-  resolveProductImage,
-} from '../../core/models/product.model';
+import { ProductDto, resolveProductImage } from '../../core/models/product.model';
 
 interface ServiceCard {
   icon: string;
@@ -41,12 +31,6 @@ export class HomeComponent implements OnInit {
   // ── Produits vedettes ───────────────────────────────────────
   protected readonly featuredProducts = signal<ProductDto[]>([]);
   protected readonly loadingProducts = signal(true);
-
-  // ── Catalogue (catégories + produits filtrables) ────────────
-  protected readonly categories = signal<CategoryDto[]>([]);
-  protected readonly catalogProducts = signal<ProductDto[]>([]);
-  protected readonly loadingCatalog = signal(true);
-  protected readonly selectedSlug = signal<string | null>(null);
 
   protected readonly services: ServiceCard[] = [
     {
@@ -96,22 +80,14 @@ export class HomeComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    // Produits vedettes (3 premiers)
+    // Produits vedettes (3 premiers) — le catalogue complet vit sur /boutique.
     this.productService.getProducts({ page: 1, pageSize: 3 }).subscribe({
-      next: res => {
+      next: (res) => {
         this.featuredProducts.set([...res.items]);
         this.loadingProducts.set(false);
       },
       error: () => this.loadingProducts.set(false),
     });
-
-    // Catégories pour les filtres
-    this.productService.getCategories().subscribe({
-      next: cats => this.categories.set(cats),
-    });
-
-    // Tous les produits au départ
-    this.loadCatalog(null);
   }
 
   // URL de l'image (SVG par slug) pour les cartes de la page d'accueil.
@@ -123,26 +99,5 @@ export class HomeComponent implements OnInit {
   // placeholder en dégradé positionné dessous.
   protected onImageError(event: Event): void {
     (event.target as HTMLImageElement).style.display = 'none';
-  }
-
-  protected selectCategory(slug: string | null): void {
-    if (this.selectedSlug() === slug) {
-      return;
-    }
-    this.selectedSlug.set(slug);
-    this.loadCatalog(slug);
-  }
-
-  private loadCatalog(slug: string | null): void {
-    this.loadingCatalog.set(true);
-    this.productService
-      .getProducts({ page: 1, pageSize: 50, category: slug ?? undefined })
-      .subscribe({
-        next: res => {
-          this.catalogProducts.set([...res.items]);
-          this.loadingCatalog.set(false);
-        },
-        error: () => this.loadingCatalog.set(false),
-      });
   }
 }

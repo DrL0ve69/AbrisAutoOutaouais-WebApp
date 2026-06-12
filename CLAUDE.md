@@ -94,3 +94,13 @@ Hand-rolled dispatcher in `Application/Common/Mediator/`. Interfaces: `ICommand<
 ## Workflow
 
 Feature branches only (never commit to `master` directly). Run `dotnet test` after backend changes, `npm test` + lint before a PR. Conventional Commits. Don't touch `Domain/` lightly.
+
+### Accessibility & UX is a standing workflow, not a one-off
+
+The `docs/` folder ships living audits (WCAG 2.2, heuristic eval, task-flow) whose recommendation/risk tables **are the a11y/UX backlog**. Any request to "apply the docs", act on an audit/heuristic finding, or do an accessibility pass runs through the **`a11y-ux-pass` skill** (`.claude/skills/a11y-ux-pass/`), which codifies the loop: read the audits → reconcile against real code (they drift) → implement pending findings → verify → re-document.
+
+Standing rules for that loop:
+- **Frontend** changes follow the **`angular` skill** + the `angular-cli` MCP (`get_best_practices`) as source of truth; **backend** changes get a **`solid-review`** pass on the diff before finishing.
+- Accessibility bar is **hard**: zero AXE violations, WCAG 2.2 AA — focus management (return focus on dismiss; ARIA APG roving `tabindex` + arrow keys for composite widgets), ≥ 44px targets, `aria-live` for async state, `prefers-reduced-motion`, no dead links.
+- **Verify every change**: `npm run build` (typecheck) + `npm test` (vitest/axe) from the client; add an `e2e/a11y.spec.ts` scenario for any newly-audited route; `dotnet test` for backend. CI (`.github/workflows/ci.yml`) re-runs build + tests + axe as the regression guardrail.
+- **Close the loop**: flip the remediated item's status in `docs/agile/board.md` + `product-backlog.md` and record before/after in the relevant audit doc.

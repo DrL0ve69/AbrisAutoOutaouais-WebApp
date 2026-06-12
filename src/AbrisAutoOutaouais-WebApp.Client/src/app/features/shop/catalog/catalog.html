@@ -14,61 +14,133 @@
     </header>
 
     <!-- Filtres par catégorie -->
-    <div class="catalog__filters"
-         role="group"
-         aria-label="Filtrer les produits par catégorie"
-         i18n-aria-label="@@shop.catalog.filterGroup">
-      <button type="button"
-              class="catalog__chip"
-              [class.catalog__chip--active]="selectedSlug() === null"
-              [attr.aria-pressed]="selectedSlug() === null"
-              (click)="selectCategory(null)">
+    <div
+      class="catalog__filters"
+      role="group"
+      aria-label="Filtrer les produits par catégorie"
+      i18n-aria-label="@@shop.catalog.filterGroup"
+    >
+      <button
+        type="button"
+        class="catalog__chip"
+        [class.catalog__chip--active]="selectedSlug() === null"
+        [attr.aria-pressed]="selectedSlug() === null"
+        (click)="selectCategory(null)"
+      >
         <span i18n="@@shop.catalog.filterAll">Tous</span>
       </button>
       @for (cat of categories(); track cat.id) {
-      <button type="button"
-              class="catalog__chip"
-              [class.catalog__chip--active]="selectedSlug() === cat.slug"
-              [attr.aria-pressed]="selectedSlug() === cat.slug"
-              (click)="selectCategory(cat.slug)">
-        {{ cat.name }}
-        <span class="catalog__chip-count" aria-hidden="true">{{ cat.productCount }}</span>
-      </button>
+        <button
+          type="button"
+          class="catalog__chip"
+          [class.catalog__chip--active]="selectedSlug() === cat.slug"
+          [attr.aria-pressed]="selectedSlug() === cat.slug"
+          (click)="selectCategory(cat.slug)"
+        >
+          {{ cat.name }}
+          <span class="catalog__chip-count" aria-hidden="true">{{ cat.productCount }}</span>
+        </button>
       }
+    </div>
+
+    <!-- Recherche + tri -->
+    <div class="catalog__toolbar">
+      <search class="catalog__search" role="search">
+        <label class="catalog__search-label" for="catalog-search" i18n="@@shop.catalog.searchLabel"
+          >Rechercher un abri</label
+        >
+        <div class="catalog__search-field">
+          <svg
+            class="catalog__search-icon"
+            aria-hidden="true"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input
+            id="catalog-search"
+            type="search"
+            class="catalog__search-input"
+            [value]="searchTerm()"
+            (input)="onSearch($any($event.target).value)"
+            autocomplete="off"
+            placeholder="Ex. : abri double, garage…"
+            i18n-placeholder="@@shop.catalog.searchPlaceholder"
+          />
+        </div>
+      </search>
+
+      <div class="catalog__sort">
+        <label class="catalog__sort-label" for="catalog-sort" i18n="@@shop.catalog.sortLabel"
+          >Trier par</label
+        >
+        <select
+          id="catalog-sort"
+          class="catalog__sort-select"
+          [value]="sortBy()"
+          (change)="onSort($any($event.target).value)"
+        >
+          <option value="default" i18n="@@shop.catalog.sortDefault">Pertinence</option>
+          <option value="price-asc" i18n="@@shop.catalog.sortPriceAsc">Prix croissant</option>
+          <option value="price-desc" i18n="@@shop.catalog.sortPriceDesc">Prix décroissant</option>
+          <option value="name-asc" i18n="@@shop.catalog.sortName">Nom (A→Z)</option>
+          <option value="availability" i18n="@@shop.catalog.sortAvailability">Disponibilité</option>
+        </select>
+      </div>
     </div>
 
     <!-- Résultats -->
     @if (loading()) {
-    <div class="catalog__grid"
-         aria-busy="true"
-         aria-label="Chargement des produits…"
-         i18n-aria-label="@@shop.catalog.loading">
-      @for (_ of [1,2,3,4,5,6]; track $index) {
-      <div class="skeleton-card" aria-hidden="true">
-        <div class="skeleton-card__img"></div>
-        <div class="skeleton-card__body">
-          <div class="skeleton-line skeleton-line--short"></div>
-          <div class="skeleton-line"></div>
-          <div class="skeleton-line skeleton-line--med"></div>
-        </div>
+      <div
+        class="catalog__grid"
+        aria-busy="true"
+        aria-label="Chargement des produits…"
+        i18n-aria-label="@@shop.catalog.loading"
+      >
+        @for (_ of [1, 2, 3, 4, 5, 6]; track $index) {
+          <div class="skeleton-card" aria-hidden="true">
+            <div class="skeleton-card__img"></div>
+            <div class="skeleton-card__body">
+              <div class="skeleton-line skeleton-line--short"></div>
+              <div class="skeleton-line"></div>
+              <div class="skeleton-line skeleton-line--med"></div>
+            </div>
+          </div>
+        }
       </div>
-      }
-    </div>
-    } @else if (products().length > 0) {
-    <ul class="catalog__grid" role="list">
-      @for (product of products(); track product.id) {
-      <li>
-        <app-product-card
-          [product]="product"
-          [showRent]="true"
-          (addToCart)="onAddToCart($event)" />
-      </li>
-      }
-    </ul>
     } @else {
-    <p class="catalog__empty" role="status" i18n="@@shop.catalog.empty">
-      Aucun produit dans cette catégorie pour le moment.
-    </p>
+      <!-- Nombre de résultats annoncé aux lecteurs d'écran -->
+      <p class="sr-only" role="status">{{ resultsLabel() }}</p>
+
+      @if (visibleProducts().length > 0) {
+        <ul class="catalog__grid" role="list">
+          @for (product of visibleProducts(); track product.id) {
+            <li>
+              <app-product-card
+                [product]="product"
+                [showRent]="true"
+                (addToCart)="onAddToCart($event)"
+              />
+            </li>
+          }
+        </ul>
+      } @else if (searchTerm().trim()) {
+        <p class="catalog__empty" i18n="@@shop.catalog.emptySearch">
+          Aucun produit ne correspond à votre recherche.
+        </p>
+      } @else {
+        <p class="catalog__empty" i18n="@@shop.catalog.empty">
+          Aucun produit dans cette catégorie pour le moment.
+        </p>
+      }
     }
   </div>
 </section>
