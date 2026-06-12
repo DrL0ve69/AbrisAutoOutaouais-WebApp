@@ -834,6 +834,10 @@
         <source>Ville</source>
         <target>City</target>
       </trans-unit>
+      <trans-unit id="checkout.address.province" datatype="html">
+        <source>Province</source>
+        <target>Province</target>
+      </trans-unit>
       <trans-unit id="checkout.address.postal" datatype="html">
         <source>Code postal</source>
         <target>Postal code</target>

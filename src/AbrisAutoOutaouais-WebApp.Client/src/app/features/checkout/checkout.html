@@ -45,11 +45,16 @@
             <input id="co-street" class="field__input" type="text" formControlName="street"
                    autocomplete="address-line1" />
           </div>
+          <div class="field">
+            <label class="field__label" for="co-city" i18n="@@checkout.address.city">Ville</label>
+            <input id="co-city" class="field__input" type="text" formControlName="city"
+                   autocomplete="address-level2" />
+          </div>
           <div class="field-row">
             <div class="field">
-              <label class="field__label" for="co-city" i18n="@@checkout.address.city">Ville</label>
-              <input id="co-city" class="field__input" type="text" formControlName="city"
-                     autocomplete="address-level2" />
+              <label class="field__label" for="co-province" i18n="@@checkout.address.province">Province</label>
+              <input id="co-province" class="field__input" type="text" formControlName="province"
+                     autocomplete="address-level1" />
             </div>
             <div class="field">
               <label class="field__label" for="co-postal" i18n="@@checkout.address.postal">Code postal</label>
