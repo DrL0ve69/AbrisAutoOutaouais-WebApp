@@ -109,12 +109,14 @@ a {
   text-underline-offset: 3px;
   transition: color var(--transition-fast);
 
+  // Jeton dédié : --color-primary-dark échoue AA en thème sombre (≈4.02:1
+  // sur --color-bg-subtle) — voir --color-link-hover dans _tokens.scss.
   &:hover {
-    color: var(--color-primary-dark);
+    color: var(--color-link-hover);
   }
 
   &:visited {
-    color: var(--color-primary-dark);
+    color: var(--color-link-hover);
   }
 }
 

@@ -331,7 +331,8 @@
   }
 
   &:hover {
-    color: var(--color-primary-dark);
+    // Jeton AA dans les deux thèmes (cf. --color-link-hover, _tokens.scss).
+    color: var(--color-link-hover);
     gap: var(--space-3);
 
     svg {
@@ -374,8 +375,11 @@
     font-size: clamp(var(--font-size-2xl), 4vw, var(--font-size-4xl));
   }
 
+  // Surtitre 12px gras = « texte normal » WCAG → ratio ≥ 4.5:1 requis.
+  // rgba(255,255,255,0.45) sur #0f1923 ≈ 4.48:1 (échec limite AA) ;
+  // alpha 0.72 ≈ 9:1 ✅ (WCAG 1.4.3).
   .section-eyebrow--dark {
-    color: rgba(255,255,255,0.45);
+    color: rgba(255, 255, 255, 0.72);
   }
 }
 

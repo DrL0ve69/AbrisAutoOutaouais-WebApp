@@ -41,6 +41,9 @@
   --color-primary-dark: #991b1b; // Hover
   --color-primary-light: #dc2626; // Active / accents
   --color-primary-subtle: #fef2f2; // Fond teinte légère
+  // Liens au survol / visités. En clair : rouge sombre (≈8.3:1 sur blanc ✅).
+  // Surchargé en sombre — voir le mixin dark-theme.
+  --color-link-hover: var(--color-primary-dark);
 
   --color-secondary: #0f1923; // Bleu nuit profond
   --color-secondary-mid: #1e2d3d; // Variante plus claire
@@ -162,6 +165,9 @@
   --color-primary: #f87171; // ratio ~5.1:1 sur #0f1923 ✅
   --color-primary-dark: #ef4444;
   --color-primary-light: #fca5a5;
+  // Liens au survol / visités : --color-primary-dark (#ef4444) ne fait que
+  // ≈4.02:1 sur --color-bg-subtle #1a2736 (échec AA). #f87171 ≈ 5.5:1 ✅.
+  --color-link-hover: #f87171;
   --color-text: #f1f5f9;
   --color-text-secondary: #cbd5e1;
   --color-text-muted: #94a3b8;
