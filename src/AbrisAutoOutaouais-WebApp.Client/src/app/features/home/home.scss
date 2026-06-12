@@ -529,6 +529,13 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+  flex: 1; // occupe la hauteur restante de la carte (étirée par la grille)
+
+  // Le bouton « Voir le produit » s'ancre au bas : la ligne « Location »
+  // optionnelle ne décale plus le bouton → boutons alignés sur la rangée.
+  .btn {
+    margin-top: auto;
+  }
 }
 
 .product-card__cat {
@@ -654,7 +661,11 @@
 // ── CTA BANNER ────────────────────────────────────────────────
 .cta-banner {
   padding: var(--space-20) 0;
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  // Bandeau « marque » à contenu BLANC (titre, texte, boutons). On fige les
+  // rouges sombres au lieu des tokens --color-primary*, qui basculent en rouge
+  // PÂLE en dark mode (#f87171) → le texte blanc tomberait à ~2.77:1 (échec AA).
+  // Rouges fixes → blanc ≥ 4.9:1 dans les deux thèmes (WCAG 1.4.3).
+  background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
   position: relative;
   overflow: hidden;
 

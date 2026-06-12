@@ -279,7 +279,10 @@ select {
 
 .btn--secondary {
   background: transparent;
-  color: var(--color-text-inverse);
+  // Bouton conçu pour les surfaces SOMBRES (hero, bandeau CTA) : le texte doit
+  // rester clair dans les DEUX thèmes. --color-text-inverse bascule à #0f1923
+  // en dark → texte foncé invisible sur fond sombre. On fige donc le blanc.
+  color: var(--color-white);
   border-color: rgba(255, 255, 255, 0.5);
 
   &:hover:not(:disabled) {

@@ -1280,6 +1280,198 @@
         <source>La mise à jour du statut a échoué.</source>
         <target>Status update failed.</target>
       </trans-unit>
+      <trans-unit id="navbar.shop" datatype="html">
+        <source>Boutique</source>
+        <target>Shop</target>
+      </trans-unit>
+      <trans-unit id="navbar.rental" datatype="html">
+        <source>Location</source>
+        <target>Rentals</target>
+      </trans-unit>
+      <trans-unit id="navbar.install" datatype="html">
+        <source>Installation</source>
+        <target>Installation</target>
+      </trans-unit>
+      <trans-unit id="navbar.admin" datatype="html">
+        <source>Administration</source>
+        <target>Administration</target>
+      </trans-unit>
+      <trans-unit id="navbar.login" datatype="html">
+        <source>Connexion</source>
+        <target>Sign in</target>
+      </trans-unit>
+      <trans-unit id="navbar.register" datatype="html">
+        <source>S&apos;inscrire</source>
+        <target>Sign up</target>
+      </trans-unit>
+      <trans-unit id="navbar.profile" datatype="html">
+        <source>Mon profil</source>
+        <target>My profile</target>
+      </trans-unit>
+      <trans-unit id="navbar.myOrders" datatype="html">
+        <source>Mes commandes</source>
+        <target>My orders</target>
+      </trans-unit>
+      <trans-unit id="navbar.myReservations" datatype="html">
+        <source>Mes réservations</source>
+        <target>My reservations</target>
+      </trans-unit>
+      <trans-unit id="navbar.logout" datatype="html">
+        <source> Déconnexion </source>
+        <target>Sign out</target>
+      </trans-unit>
+      <trans-unit id="navbar.account" datatype="html">
+        <source>Mon compte</source>
+        <target>My account</target>
+      </trans-unit>
+      <trans-unit id="navbar.home" datatype="html">
+        <source>Accueil</source>
+        <target>Home</target>
+      </trans-unit>
+      <trans-unit id="navbar.mobileMenuAria" datatype="html">
+        <source>Menu mobile</source>
+        <target>Mobile menu</target>
+      </trans-unit>
+      <trans-unit id="footer.logoAria" datatype="html">
+        <source>AbrisTempo Local — Accueil</source>
+        <target>AbrisTempo Local — Home</target>
+      </trans-unit>
+      <trans-unit id="footer.tagline" datatype="html">
+        <source> Représentant officiel Tempo pour la région de l&apos;Outaouais. Vente, location et installation d&apos;abris d&apos;auto. </source>
+        <target> Official Tempo representative for the Outaouais region. Sale, rental and installation of car shelters. </target>
+      </trans-unit>
+      <trans-unit id="footer.phoneAria" datatype="html">
+        <source>Appeler le 819 123-4567</source>
+        <target>Call 819 123-4567</target>
+      </trans-unit>
+      <trans-unit id="footer.quickNavAria" datatype="html">
+        <source>Liens rapides du pied de page</source>
+        <target>Footer quick links</target>
+      </trans-unit>
+      <trans-unit id="footer.navHeading" datatype="html">
+        <source>Navigation</source>
+        <target>Navigation</target>
+      </trans-unit>
+      <trans-unit id="footer.legalNavAria" datatype="html">
+        <source>Informations légales</source>
+        <target>Legal information</target>
+      </trans-unit>
+      <trans-unit id="footer.legalHeading" datatype="html">
+        <source>Légal</source>
+        <target>Legal</target>
+      </trans-unit>
+      <trans-unit id="footer.linkTerms" datatype="html">
+        <source>Conditions d&apos;utilisation</source>
+        <target>Terms of use</target>
+      </trans-unit>
+      <trans-unit id="footer.linkPrivacy" datatype="html">
+        <source>Confidentialité</source>
+        <target>Privacy</target>
+      </trans-unit>
+      <trans-unit id="footer.linkA11y" datatype="html">
+        <source>Accessibilité</source>
+        <target>Accessibility</target>
+      </trans-unit>
+      <trans-unit id="footer.copyright" datatype="html">
+        <source> © <x id="INTERPOLATION" equiv-text="{{ year }}"/> AbrisTempo Outaouais. Tous droits réservés. </source>
+        <target> © <x id="INTERPOLATION" equiv-text="{{ year }}"/> AbrisTempo Outaouais. All rights reserved. </target>
+      </trans-unit>
+      <trans-unit id="footer.builtWith" datatype="html">
+        <source> Construit avec Angular 21 — conforme WCAG AA </source>
+        <target> Built with Angular 21 — WCAG AA compliant </target>
+      </trans-unit>
+      <trans-unit id="shop.detail.crumbHome" datatype="html">
+        <source>Accueil</source>
+        <target>Home</target>
+      </trans-unit>
+      <trans-unit id="shop.detail.crumbShop" datatype="html">
+        <source>Boutique</source>
+        <target>Shop</target>
+      </trans-unit>
+      <trans-unit id="shop.detail.breadcrumbAria" datatype="html">
+        <source>Fil d&apos;Ariane</source>
+        <target>Breadcrumb</target>
+      </trans-unit>
+      <trans-unit id="shop.catalog.searchLabel" datatype="html">
+        <source>Rechercher un abri</source>
+        <target>Search for a shelter</target>
+      </trans-unit>
+      <trans-unit id="shop.catalog.searchPlaceholder" datatype="html">
+        <source>Ex. : abri double, garage…</source>
+        <target>E.g. double shelter, garage…</target>
+      </trans-unit>
+      <trans-unit id="shop.catalog.sortLabel" datatype="html">
+        <source>Trier par</source>
+        <target>Sort by</target>
+      </trans-unit>
+      <trans-unit id="shop.catalog.sortDefault" datatype="html">
+        <source>Pertinence</source>
+        <target>Relevance</target>
+      </trans-unit>
+      <trans-unit id="shop.catalog.sortPriceAsc" datatype="html">
+        <source>Prix croissant</source>
+        <target>Price: low to high</target>
+      </trans-unit>
+      <trans-unit id="shop.catalog.sortPriceDesc" datatype="html">
+        <source>Prix décroissant</source>
+        <target>Price: high to low</target>
+      </trans-unit>
+      <trans-unit id="shop.catalog.sortName" datatype="html">
+        <source>Nom (A→Z)</source>
+        <target>Name (A→Z)</target>
+      </trans-unit>
+      <trans-unit id="shop.catalog.sortAvailability" datatype="html">
+        <source>Disponibilité</source>
+        <target>Availability</target>
+      </trans-unit>
+      <trans-unit id="shop.catalog.emptySearch" datatype="html">
+        <source> Aucun produit ne correspond à votre recherche. </source>
+        <target> No product matches your search. </target>
+      </trans-unit>
+      <trans-unit id="shop.catalog.resultsNone" datatype="html">
+        <source>Aucun produit ne correspond.</source>
+        <target>No products match.</target>
+      </trans-unit>
+      <trans-unit id="shop.catalog.resultsOne" datatype="html">
+        <source>1 produit affiché.</source>
+        <target>1 product shown.</target>
+      </trans-unit>
+      <trans-unit id="shop.catalog.resultsMany" datatype="html">
+        <source><x id="count" equiv-text="n"/> produits affichés.</source>
+        <target><x id="count" equiv-text="n"/> products shown.</target>
+      </trans-unit>
+      <trans-unit id="reset.title" datatype="html">
+        <source>Réinitialiser le mot de passe</source>
+        <target>Reset your password</target>
+      </trans-unit>
+      <trans-unit id="reset.subtitle" datatype="html">
+        <source> Indiquez votre adresse courriel. Si un compte y est associé, vous recevrez un lien de réinitialisation. </source>
+        <target> Enter your email address. If an account is linked to it, you will receive a reset link. </target>
+      </trans-unit>
+      <trans-unit id="reset.backToLogin" datatype="html">
+        <source>← Retour à la connexion</source>
+        <target>← Back to sign in</target>
+      </trans-unit>
+      <trans-unit id="reset.confirm" datatype="html">
+        <source> Si un compte correspond à cette adresse, un courriel de réinitialisation vient d&apos;être envoyé. Pensez à vérifier vos pourriels. </source>
+        <target> If an account matches this address, a reset email has just been sent. Remember to check your spam folder. </target>
+      </trans-unit>
+      <trans-unit id="reset.emailLabel" datatype="html">
+        <source> Adresse courriel <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;required&quot; aria-hidden=&quot;true&quot;&gt;"/>*<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
+        <target> Email address <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;required&quot; aria-hidden=&quot;true&quot;&gt;"/>*<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
+      </trans-unit>
+      <trans-unit id="reset.submit" datatype="html">
+        <source> Envoyer le lien </source>
+        <target> Send the link </target>
+      </trans-unit>
+      <trans-unit id="reset.emailRequired" datatype="html">
+        <source>L&apos;adresse courriel est requise.</source>
+        <target>Email address is required.</target>
+      </trans-unit>
+      <trans-unit id="reset.emailInvalid" datatype="html">
+        <source>Format de courriel invalide.</source>
+        <target>Invalid email format.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -2,9 +2,19 @@
 // Product card — AbrisTempo Local
 // ============================================================
 
+// L'hôte remplit la cellule de grille (le <li> parent est étiré à la hauteur
+// de la rangée) pour que toutes les cartes d'une rangée aient la même hauteur,
+// qu'elles affichent ou non la ligne « Location ».
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
 .product-card {
   display: flex;
   flex-direction: column;
+  flex: 1; // remplit la hauteur de l'hôte → cartes de hauteur égale
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
@@ -45,6 +55,7 @@
   flex-direction: column;
   gap: var(--space-2);
   padding: var(--space-5);
+  flex: 1; // grandit pour occuper la hauteur → le bouton peut s'ancrer en bas
 }
 
 .product-card__category {
@@ -115,7 +126,10 @@
 }
 
 .product-card__btn {
-  margin-top: var(--space-3);
+  // Ancré au bas du corps : aligne les boutons de toutes les cartes d'une rangée
+  // quel que soit le nombre de lignes au-dessus (la ligne « Location » optionnelle
+  // ne décale plus le bouton). `auto` l'emporte sur le `gap` du conteneur.
+  margin-top: auto;
 
   &:disabled {
     opacity: 0.6;

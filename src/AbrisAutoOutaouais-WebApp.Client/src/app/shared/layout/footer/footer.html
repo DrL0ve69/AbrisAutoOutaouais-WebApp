@@ -2,38 +2,44 @@
 
   <!-- Logo + description ────────────────────────────────────── -->
   <div class="footer-brand">
-    <a routerLink="/" class="footer-logo" aria-label="AbrisTempo Local — Accueil">
+    <a
+      routerLink="/"
+      class="footer-logo"
+      aria-label="AbrisTempo Local — Accueil"
+      i18n-aria-label="@@footer.logoAria"
+    >
       <span class="footer-logo__icon" aria-hidden="true">⬡</span>
       <span>Abris<strong>Tempo</strong> <small>Outaouais</small></span>
     </a>
-    <p class="footer-tagline">
+    <p class="footer-tagline" i18n="@@footer.tagline">
       Représentant officiel Tempo pour la région de l'Outaouais.
       Vente, location et installation d'abris d'auto.
     </p>
     <a href="tel:+18191234567"
        class="footer-phone"
-       aria-label="Appeler le 819 123-4567">
+       aria-label="Appeler le 819 123-4567"
+       i18n-aria-label="@@footer.phoneAria">
       📞 819 123-4567
     </a>
   </div>
 
   <!-- Navigation secondaire ─────────────────────────────────── -->
-  <nav aria-label="Liens rapides du pied de page">
-    <p class="footer-nav__heading">Navigation</p>
+  <nav aria-label="Liens rapides du pied de page" i18n-aria-label="@@footer.quickNavAria">
+    <p class="footer-nav__heading" i18n="@@footer.navHeading">Navigation</p>
     <ul class="footer-nav__list" role="list">
-      <li><a routerLink="/boutique">Boutique</a></li>
-      <li><a routerLink="/location">Location</a></li>
-      <li><a routerLink="/installation">Installation</a></li>
-      <li><a routerLink="/auth">Mon compte</a></li>
+      <li><a routerLink="/boutique" i18n="@@navbar.shop">Boutique</a></li>
+      <li><a routerLink="/location" i18n="@@navbar.rental">Location</a></li>
+      <li><a routerLink="/installation" i18n="@@navbar.install">Installation</a></li>
+      <li><a routerLink="/auth" i18n="@@navbar.account">Mon compte</a></li>
     </ul>
   </nav>
 
-  <nav aria-label="Informations légales">
-    <p class="footer-nav__heading">Légal</p>
+  <nav aria-label="Informations légales" i18n-aria-label="@@footer.legalNavAria">
+    <p class="footer-nav__heading" i18n="@@footer.legalHeading">Légal</p>
     <ul class="footer-nav__list" role="list">
-      <li><a routerLink="/conditions">Conditions d'utilisation</a></li>
-      <li><a routerLink="/confidentialite">Confidentialité</a></li>
-      <li><a routerLink="/accessibilite">Accessibilité</a></li>
+      <li><a routerLink="/conditions" i18n="@@footer.linkTerms">Conditions d'utilisation</a></li>
+      <li><a routerLink="/confidentialite" i18n="@@footer.linkPrivacy">Confidentialité</a></li>
+      <li><a routerLink="/accessibilite" i18n="@@footer.linkA11y">Accessibilité</a></li>
     </ul>
   </nav>
 
@@ -42,10 +48,10 @@
 <!-- Barre de copyright ────────────────────────────────────────── -->
 <div class="footer-bottom">
   <div class="container footer-bottom__inner">
-    <p class="footer-copy">
+    <p class="footer-copy" i18n="@@footer.copyright">
       © {{ year }} AbrisTempo Outaouais. Tous droits réservés.
     </p>
-    <p class="footer-copy">
+    <p class="footer-copy" i18n="@@footer.builtWith">
       Construit avec Angular 21 — conforme WCAG AA
     </p>
   </div>

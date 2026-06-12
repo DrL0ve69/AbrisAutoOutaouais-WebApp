@@ -193,6 +193,13 @@
   @media (min-width: 1024px) {
     grid-template-columns: repeat(3, 1fr);
   }
+
+  // Chaque <li> est étiré à la hauteur de la rangée (align-items: stretch) :
+  // le rendre flex transmet cette hauteur à <app-product-card> à l'intérieur,
+  // pour que les cartes (avec/sans ligne « Location ») s'alignent.
+  > li {
+    display: flex;
+  }
 }
 
 .catalog__empty {

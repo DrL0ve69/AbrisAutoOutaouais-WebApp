@@ -157,3 +157,53 @@ test('Panier (/panier) — aucune violation WCAG AA', async ({ page }) => {
     ),
   ).toEqual([]);
 });
+
+// ── Mode sombre ────────────────────────────────────────────────────────────
+// Les passes ci-dessus s'exécutent en thème CLAIR (défaut). Plusieurs régressions
+// de contraste ne se manifestaient QU'EN sombre (boutons `btn--secondary` du hero,
+// bandeau CTA, lien « Administration ») car des tokens basculent en dark. On force
+// donc le thème sombre via localStorage (lu par ThemeService au démarrage) et on
+// relance axe sur les pages concernées — garde-fou contre ces régressions.
+function forceDarkTheme(page: Page): Promise<void> {
+  return page.addInitScript(() => {
+    try {
+      localStorage.setItem('abristempo-theme', 'dark');
+    } catch {
+      /* localStorage indisponible — ignoré */
+    }
+  });
+}
+
+test('Accueil (/) en mode SOMBRE — aucune violation WCAG AA', async ({ page }) => {
+  await forceDarkTheme(page);
+  await page.goto('/');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await expect(page.getByRole('heading', { name: /abri/i }).first()).toBeVisible();
+
+  const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
+  expect(
+    results.violations,
+    JSON.stringify(
+      results.violations.map((v) => ({ id: v.id, nodes: v.nodes.length })),
+      null,
+      2,
+    ),
+  ).toEqual([]);
+});
+
+test('Boutique (/boutique) en mode SOMBRE — aucune violation WCAG AA', async ({ page }) => {
+  await forceDarkTheme(page);
+  await page.goto('/boutique');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await expect(page.getByRole('heading', { name: /abri/i }).first()).toBeVisible();
+
+  const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
+  expect(
+    results.violations,
+    JSON.stringify(
+      results.violations.map((v) => ({ id: v.id, nodes: v.nodes.length })),
+      null,
+      2,
+    ),
+  ).toEqual([]);
+});
