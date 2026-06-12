@@ -75,6 +75,47 @@
   user-select: none;
 }
 
+// ── Éditeur d'avatar (téléversement / retrait) ───────────────
+.profile-avatar-editor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+}
+
+// L'overlay de chargement se positionne par-dessus la pastille.
+.profile-avatar {
+  position: relative;
+}
+
+.profile-avatar__overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.45);
+  border-radius: var(--radius-full);
+}
+
+.profile-avatar__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.profile-avatar__hint {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.profile-avatar__error {
+  justify-content: center;
+  text-align: center;
+}
+
 // ── Identité ─────────────────────────────────────────────────
 .profile-identity {
   text-align: center;

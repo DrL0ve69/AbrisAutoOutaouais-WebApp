@@ -132,7 +132,11 @@
                 aria-controls="user-dropdown"
                 [attr.aria-label]="'Menu de ' + (auth.fullName() ?? 'utilisateur')">
           <span class="navbar__user-avatar" aria-hidden="true">
+            @if (auth.avatar(); as avatar) {
+            <img [src]="avatar" alt="" width="32" height="32" />
+            } @else {
             {{ (auth.fullName() ?? 'U')[0].toUpperCase() }}
+            }
           </span>
           <span class="navbar__user-name">{{ auth.fullName() }}</span>
           <svg aria-hidden="true" class="navbar__chevron" width="14" height="14"

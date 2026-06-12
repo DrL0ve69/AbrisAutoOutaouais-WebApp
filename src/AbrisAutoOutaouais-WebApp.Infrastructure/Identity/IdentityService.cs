@@ -162,6 +162,21 @@ public sealed class IdentityService : IIdentityService
             : Result.Failure(string.Join(", ", result.Errors.Select(e => e.Description)));
     }
 
+    public async Task<Result> UpdateAvatarAsync(
+        Guid userId, string? avatarUrl, CancellationToken cancellationToken = default)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user is null) return Result.Failure("Utilisateur introuvable.");
+
+        user.Avatar = avatarUrl;
+        user.UpdatedAt = DateTime.UtcNow;
+
+        var result = await _userManager.UpdateAsync(user);
+        return result.Succeeded
+            ? Result.Success()
+            : Result.Failure(string.Join(", ", result.Errors.Select(e => e.Description)));
+    }
+
     public async Task<Result> ChangePasswordAsync(
         Guid userId, string currentPassword, string newPassword, CancellationToken cancellationToken = default)
     {
@@ -180,6 +195,6 @@ public sealed class IdentityService : IIdentityService
         var token = _tokenService.GenerateToken(user, roles);
         return new AuthResponse(
             user.Id, user.Email!, user.UserName!, user.FirstName, user.LastName,
-            user.FullName, token, roles);
+            user.FullName, token, roles, user.Avatar);
     }
 }

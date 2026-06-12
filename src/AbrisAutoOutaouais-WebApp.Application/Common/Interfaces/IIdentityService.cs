@@ -41,6 +41,9 @@ public interface IIdentityService
     /// <summary>Met à jour les informations de profil.</summary>
     Task<Result> UpdateProfileAsync(Guid userId, UpdateProfileRequest request, CancellationToken cancellationToken = default);
 
+    /// <summary>Définit (ou retire si <paramref name="avatarUrl"/> est null) la photo de profil.</summary>
+    Task<Result> UpdateAvatarAsync(Guid userId, string? avatarUrl, CancellationToken cancellationToken = default);
+
     /// <summary>Change le mot de passe.</summary>
     Task<Result> ChangePasswordAsync(Guid userId, string currentPassword, string newPassword, CancellationToken cancellationToken = default);
 }
@@ -56,4 +59,5 @@ public sealed record AuthResponse(
     string LastName,
     string FullName,
     string Token,
-    IReadOnlyList<string> Roles);
+    IReadOnlyList<string> Roles,
+    string? Avatar = null);
