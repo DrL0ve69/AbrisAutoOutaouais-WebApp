@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/staticwebapp.config.json",
+  "routes": [
+    { "route": "/en", "redirect": "/en/", "statusCode": 301 },
+    { "route": "/en/*.{js,mjs,css,map,ico,png,jpg,jpeg,gif,svg,webp,avif,woff,woff2,ttf,eot,json,txt,xml,webmanifest}" },
+    { "route": "/en/*", "rewrite": "/en/index.csr.html" }
+  ],
+  "navigationFallback": {
+    "rewrite": "/index.csr.html",
+    "exclude": ["/en/*"]
+  },
+  "mimeTypes": {
+    ".csr.html": "text/html"
+  }
+}
