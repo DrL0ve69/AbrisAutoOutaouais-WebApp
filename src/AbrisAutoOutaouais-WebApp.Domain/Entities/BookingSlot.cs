@@ -67,4 +67,18 @@ public sealed class BookingSlot : ISoftDeletable, IAuditableEntity
             throw new BusinessRuleException("Un créneau complété ne peut pas être annulé.");
         Status = BookingStatus.Cancelled;
     }
+
+    /// <summary>
+    /// Reporte la réservation sur un nouveau créneau. Seule une réservation à venir
+    /// (« Pending » ou « Confirmed ») est reportable ; le statut est conservé. La
+    /// disponibilité du créneau cible est vérifiée en amont par le handler.
+    /// </summary>
+    public void Reschedule(DateTime newSlotStart, DateTime nowUtc)
+    {
+        if (Status is BookingStatus.Cancelled or BookingStatus.Completed)
+            throw new BusinessRuleException("Seule une réservation à venir peut être reportée.");
+        if (newSlotStart <= nowUtc)
+            throw new BusinessRuleException("Le nouveau créneau doit être dans le futur.");
+        SlotStart = newSlotStart;
+    }
 }

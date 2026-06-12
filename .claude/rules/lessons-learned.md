@@ -11,6 +11,31 @@
 
 ---
 
+## L-007 · A date-window DB scan is only correct under a max-duration invariant
+
+> (L-005/L-006 vivent sur des branches sœurs — réservés pour éviter les collisions au merge.)
+
+- **Symptom.** The reschedule handler checks « le créneau cible est-il déjà pris ? » by loading
+  **same-day** active bookings (`b.SlotStart >= dayStart && < dayStart.AddDays(1)`) and testing
+  overlap in memory. This is correct **only because every booking is a fixed 2-hour (sub-day) slot** —
+  no existing booking can start the previous day and bleed into the target morning. If durations ever
+  became variable or multi-day (an 8-hour or overnight job), a long booking starting the prior
+  afternoon would overlap the target slot yet be missed by the same-day window — a **silent
+  double-booking**. The constraint that makes the query correct (the fixed 2 h grid) lives in
+  `SlotRules`, far from the query that depends on it.
+- **Rule.** When a time-overlap/availability check narrows the DB scan with a date window (same-day,
+  this-week…), that window's correctness depends on a **maximum-duration assumption**. Pin that
+  assumption **at the query** with a comment AND a test, so any future change to durations is forced
+  to confront it. If durations can exceed the window, widen the scan (`AddDays(-1)`, or filter on
+  `SlotStart < targetEnd && SlotStart + Duration > targetStart` over a sufficient range).
+  Generalises [[L-004]] (one agreed definition shared across producers/consumers) to the *temporal*
+  dimension: the slot-grid duration is a shared value, and every consumer — the availability query
+  and the overlap check — must agree on it.
+- **Refs.** `Application/Bookings/Commands/RescheduleBooking/RescheduleBookingCommand.cs` (same-day
+  overlap query + the pinned-assumption comment), `Application/Bookings/Common/SlotRules.cs` (the 2 h
+  grid constants), `IntegrationTest/Bookings/BookingsEndpointTests.cs`
+  (`Reschedule_ToSlotTakenByAnotherBooking_Returns422`).
+
 ## L-004 · A value shared across screens needs ONE agreed format (client AND server)
 
 - **Symptom.** Fixing the profile postal code to the canonical « A1A 1A1 » (with space) and

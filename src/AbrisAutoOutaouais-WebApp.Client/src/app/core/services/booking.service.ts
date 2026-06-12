@@ -6,6 +6,7 @@ import {
   AvailableSlotDto,
   BookingSummaryDto,
   CreateBookingRequest,
+  RescheduleBookingRequest,
 } from '../models/booking.model';
 
 /** Réservations d'installation / livraison / démontage de l'utilisateur connecté. */
@@ -33,5 +34,9 @@ export class BookingService {
 
   cancel(id: string): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/bookings/${id}/cancel`, {});
+  }
+
+  reschedule(id: string, request: RescheduleBookingRequest): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/bookings/${id}/reschedule`, request);
   }
 }

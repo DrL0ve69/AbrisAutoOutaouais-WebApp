@@ -82,6 +82,50 @@
         <source>Réservez une installation depuis la page dédiée pour la voir apparaître ici.</source>
         <target>Book an installation from the dedicated page to see it appear here.</target>
       </trans-unit>
+      <trans-unit id="account.reservations.reschedule" datatype="html">
+        <source>Reporter</source>
+        <target>Reschedule</target>
+      </trans-unit>
+      <trans-unit id="account.reservations.reschedule.aria" datatype="html">
+        <source>Reporter la réservation</source>
+        <target>Reschedule the booking</target>
+      </trans-unit>
+      <trans-unit id="account.reservations.reschedule.title" datatype="html">
+        <source>Reporter la réservation</source>
+        <target>Reschedule the booking</target>
+      </trans-unit>
+      <trans-unit id="account.reservations.reschedule.desc" datatype="html">
+        <source>Choisissez un nouveau créneau disponible.</source>
+        <target>Choose a new available time slot.</target>
+      </trans-unit>
+      <trans-unit id="account.reservations.reschedule.loading" datatype="html">
+        <source>Chargement des créneaux…</source>
+        <target>Loading time slots…</target>
+      </trans-unit>
+      <trans-unit id="account.reservations.reschedule.legend" datatype="html">
+        <source>Créneaux disponibles</source>
+        <target>Available time slots</target>
+      </trans-unit>
+      <trans-unit id="account.reservations.reschedule.empty" datatype="html">
+        <source>Aucun créneau disponible pour le moment.</source>
+        <target>No time slots available right now.</target>
+      </trans-unit>
+      <trans-unit id="account.reservations.reschedule.confirm" datatype="html">
+        <source>Confirmer le report</source>
+        <target>Confirm reschedule</target>
+      </trans-unit>
+      <trans-unit id="account.reservations.reschedule.dismiss" datatype="html">
+        <source>Annuler</source>
+        <target>Cancel</target>
+      </trans-unit>
+      <trans-unit id="account.reservations.reschedule.success" datatype="html">
+        <source>Réservation reportée.</source>
+        <target>Booking rescheduled.</target>
+      </trans-unit>
+      <trans-unit id="account.reservations.reschedule.error" datatype="html">
+        <source>Le report a échoué. Veuillez réessayer.</source>
+        <target>Reschedule failed. Please try again.</target>
+      </trans-unit>
 
       <!-- ===== ADMIN ===== -->
       <trans-unit id="admin.eyebrow" datatype="html">
