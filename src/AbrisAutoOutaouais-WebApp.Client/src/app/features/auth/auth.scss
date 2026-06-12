@@ -415,7 +415,8 @@ form {
   transition: color var(--transition-fast);
 
   &:hover:not(:disabled) {
-    color: var(--color-primary-dark);
+    // Jeton AA dans les deux thèmes (cf. --color-link-hover, _tokens.scss).
+    color: var(--color-link-hover);
   }
 
   &:disabled {

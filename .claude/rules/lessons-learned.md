@@ -11,6 +11,40 @@
 
 ---
 
+## L-009 · Breakpoint-gated UI: pin the viewport in vitest browser specs, or assertions pass vacuously
+
+- **Symptom.** The navbar has two variants split at 1024px (desktop user-menu vs hamburger panel).
+  In vitest browser mode, whichever variant the default window size hides is `display:none` — and a
+  hidden element satisfies almost any *negative* assertion ("not focusable", "axe-clean", "inert")
+  vacuously, so the spec passes while exercising nothing.
+- **Rule.** When the tested UI lives behind a CSS breakpoint, set the viewport explicitly per
+  variant — `await page.viewport(w, h)` in setup (navbar uses DESKTOP 1280×800 / MOBILE 414×896) —
+  and pair every negative assertion with a positive one proving the element is actually rendered in
+  that variant. Same vacuity class as [[L-002]] (an assertion that can't fail proves nothing).
+- **Refs.** `src/app/shared/layout/navbar/navbar.spec.ts` (`setup(viewport)`, `DESKTOP`/`MOBILE`
+  constants), `src/app/shared/layout/navbar/navbar.scss` (the 1024px breakpoint).
+
+## L-008 · After a fix, hunt down tests pinning the OLD mechanism and guards excusing the OLD bug
+
+- **Symptom.** Two instances in one epic (Bug-08: closed nav menus went from `aria-hidden` to
+  `inert`). (a) `e2e/mobile-menu.spec.ts` asserted `aria-hidden="true"` after Escape — it pinned
+  the *implementation mechanism*, so it failed when the mechanism was correctly replaced; had the
+  replacement been wrong in some other way, it could equally have kept passing. (b)
+  `e2e/rental-cancel.spec.ts` scoped its axe scan with `.include('app-rentals')` plus a comment
+  « bug PRÉEXISTANT … à traiter séparément » — after Bug-08 was fixed the exclusion silently
+  remained, leaving the only authenticated-navbar scenario unscanned until the reviewer caught it.
+- **Rule.** When you fix a bug or replace a mechanism, grep the test suites for two things and fix
+  them **in the same change**: (1) assertions naming the old mechanism — rewrite them to assert the
+  *behavior* (menu children unreachable/infocusable; page axe-clean), not the attribute that
+  happened to implement it ([[L-002]]: test the real post-condition, not a proxy); (2)
+  scopes/exclusions/skips whose justification names the bug you just fixed — remove them and let the
+  full check run, because a fixed bug whose guard still excludes it is **unverified**
+  ([[L-005]]: a guard that doesn't run guards nothing). Corollary: always make workaround comments
+  cite the bug ID (« Bug-08 ») — that's what makes this grep possible.
+- **Refs.** `e2e/mobile-menu.spec.ts` (Escape now asserts `inert` + focus return),
+  `e2e/rental-cancel.spec.ts` (full-page axe scan, exclusion removed),
+  `src/app/shared/layout/navbar/navbar.html` (Bug-08 fix), `docs/agile/board.md` (Bug-08).
+
 ## L-007 · A date-window DB scan is only correct under a max-duration invariant
 
 - **Symptom.** The reschedule handler checks « le créneau cible est-il déjà pris ? » by loading

@@ -41,6 +41,9 @@
   --color-primary-dark: #991b1b; // Hover
   --color-primary-light: #dc2626; // Active / accents
   --color-primary-subtle: #fef2f2; // Fond teinte légère
+  // Liens au survol / visités. En clair : rouge sombre (≈8.3:1 sur blanc ✅).
+  // Surchargé en sombre — voir le mixin dark-theme.
+  --color-link-hover: var(--color-primary-dark);
 
   --color-secondary: #0f1923; // Bleu nuit profond
   --color-secondary-mid: #1e2d3d; // Variante plus claire
@@ -132,6 +135,13 @@
   --z-modal: 500;
   --z-toast: 600;
   --z-tooltip: 700;
+  // ── Tokens v2 (préfiguration — Epic E) ─────────────────────
+  // Jetons pour les surfaces « marque » (rouge FIXE #b91c1c → #991b1b, identique
+  // dans les deux thèmes — ex. bandeau CTA). Ils sont indépendants du thème et
+  // ne sont donc PAS surchargés dans le mixin sombre.
+  --color-on-brand: #ffffff; // texte/icônes posés directement sur la marque
+  --color-surface-on-brand: #ffffff; // fond d'un contrôle posé sur la marque
+  --color-text-on-brand-inverse: #991b1b; // texte d'un contrôle clair sur la marque (≈8.3:1 sur blanc ✅)
 }
 
 // ── Dark mode ────────────────────────────────────────────────
@@ -155,6 +165,9 @@
   --color-primary: #f87171; // ratio ~5.1:1 sur #0f1923 ✅
   --color-primary-dark: #ef4444;
   --color-primary-light: #fca5a5;
+  // Liens au survol / visités : --color-primary-dark (#ef4444) ne fait que
+  // ≈4.02:1 sur --color-bg-subtle #1a2736 (échec AA). #f87171 ≈ 5.5:1 ✅.
+  --color-link-hover: #f87171;
   --color-text: #f1f5f9;
   --color-text-secondary: #cbd5e1;
   --color-text-muted: #94a3b8;
