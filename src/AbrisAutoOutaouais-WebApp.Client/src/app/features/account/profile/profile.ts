@@ -74,6 +74,10 @@ export class ProfileComponent implements OnInit {
   protected readonly saveSuccess = signal(false);
   protected readonly saveError = signal<string | null>(null);
 
+  // ── Avatar (photo de profil) ─────────────────────────────────
+  protected readonly avatarUploading = signal(false);
+  protected readonly avatarError = signal<string | null>(null);
+
   // Ordre des onglets pour la navigation clavier (ARIA APG : flèches + Home/End).
   protected readonly tabOrder: readonly ActiveTab[] = ['info', 'address', 'security'];
   private readonly tabButtons = viewChildren<ElementRef<HTMLButtonElement>>('tabBtn');
@@ -278,18 +282,76 @@ export class ProfileComponent implements OnInit {
       });
   }
 
+  // ── Avatar : téléversement et retrait ────────────────────────
+  protected onAvatarSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    // Réinitialise l'input pour pouvoir resélectionner le même fichier ensuite.
+    input.value = '';
+    if (file) this.uploadAvatar(file);
+  }
+
+  protected removeAvatar(): void {
+    if (!this.profile()?.avatar || this.avatarUploading()) return;
+    this.avatarUploading.set(true);
+    this.avatarError.set(null);
+
+    this.http
+      .delete<UserProfileDto>(`${environment.apiUrl}/auth/me/avatar`)
+      .subscribe({
+        next: updated => {
+          this.profile.set(updated);
+          this.auth.updateProfile({ avatar: updated.avatar });
+          this.avatarUploading.set(false);
+        },
+        error: err => {
+          this.avatarUploading.set(false);
+          this.avatarError.set(
+            err.error?.error ?? err.error?.detail ?? 'Le retrait de la photo a échoué.',
+          );
+        },
+      });
+  }
+
+  private uploadAvatar(file: File): void {
+    this.avatarError.set(null);
+    this.avatarUploading.set(true);
+
+    const form = new FormData();
+    form.append('file', file);
+
+    this.http
+      .post<UserProfileDto>(`${environment.apiUrl}/auth/me/avatar`, form)
+      .subscribe({
+        next: updated => {
+          this.profile.set(updated);
+          this.auth.updateProfile({ avatar: updated.avatar });
+          this.avatarUploading.set(false);
+        },
+        error: err => {
+          this.avatarUploading.set(false);
+          this.avatarError.set(
+            err.error?.error ?? err.error?.detail ?? 'Le téléversement de la photo a échoué.',
+          );
+        },
+      });
+  }
+
   // ── Privé ────────────────────────────────────────────────────
   private save(partial: Partial<UpdateProfileRequest>): void {
     this.saving.set(true);
     this.saveError.set(null);
     this.saveSuccess.set(false);
 
+    // L'adresse enregistrée est préservée par défaut : sauvegarder l'onglet
+    // « Informations » ne doit PAS effacer l'adresse de livraison (régression).
+    const current = this.profile();
     const payload: UpdateProfileRequest = {
       firstName: this.fFirst.value,
       lastName: this.fLast.value,
       phoneNumber: this.fPhone.value || null,
       preferredLanguage: this.fLang.value,
-      defaultDeliveryAddress: null,
+      defaultDeliveryAddress: current?.defaultDeliveryAddress ?? null,
       ...partial,
     };
 
@@ -297,6 +359,11 @@ export class ProfileComponent implements OnInit {
       next: (updated) => {
         this.profile.set(updated);
         this.patchForms(updated);
+        // Rafraîchit le nom mis en cache → la navbar se met à jour aussitôt.
+        this.auth.updateProfile({
+          firstName: updated.firstName,
+          lastName: updated.lastName,
+        });
         this.saving.set(false);
         this.saveSuccess.set(true);
         setTimeout(() => this.saveSuccess.set(false), 4000);

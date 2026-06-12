@@ -18,6 +18,7 @@ export interface AuthUser {
   readonly firstName: string;
   readonly lastName: string;
   readonly roles: readonly string[];
+  readonly avatar?: string | null;
 }
 
 export interface LoginRequest {
@@ -49,6 +50,7 @@ export interface AuthResponse {
   lastName: string;
   fullName: string;
   roles: string[];
+  avatar?: string | null;
 }
 
 const TOKEN_KEY = 'auth_token';
@@ -84,6 +86,7 @@ export class AuthService {
     const l = u.lastName[0] ?? '';
     return (f + l).toUpperCase() || u.email[0].toUpperCase();
   });
+  readonly avatar = computed(() => this._user()?.avatar ?? null);
 
   login(req: LoginRequest) {
     return this.http
@@ -106,6 +109,21 @@ export class AuthService {
     return this._token();
   }
 
+  /**
+   * Met à jour les champs de profil mis en cache (nom, avatar) après une
+   * sauvegarde, pour que la navbar reflète immédiatement le changement sans
+   * réémettre de token. Persiste dans le localStorage.
+   */
+  updateProfile(patch: { firstName?: string; lastName?: string; avatar?: string | null }): void {
+    const u = this._user();
+    if (!u) return;
+    const updated: AuthUser = { ...u, ...patch };
+    this._user.set(updated);
+    if (isPlatformBrowser(this.platform)) {
+      localStorage.setItem(USER_KEY, JSON.stringify(updated));
+    }
+  }
+
   // ── Privé ──────────────────────────────────────────────────
 
   private setSession(res: AuthResponse): void {
@@ -116,6 +134,7 @@ export class AuthService {
       firstName: res.firstName,
       lastName: res.lastName,
       roles: res.roles,
+      avatar: res.avatar ?? null,
     };
 
     this._token.set(res.token);

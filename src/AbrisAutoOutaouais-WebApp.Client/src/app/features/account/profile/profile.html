@@ -20,18 +20,60 @@
       <div class="profile-layout">
         <!-- ── SIDEBAR ───────────────────────────────────────────── -->
         <aside class="profile-sidebar" aria-label="Informations du compte">
-          <!-- Avatar -->
-          <div class="profile-avatar" aria-hidden="true">
-            @if (profile()?.avatar) {
-              <img
-                [src]="profile()!.avatar!"
-                [alt]="fullName() + ' — avatar'"
-                width="80"
-                height="80"
-              />
-            } @else {
-              <span class="profile-avatar__initials">{{ initials() }}</span>
-            }
+          <!-- Avatar + édition de la photo de profil -->
+          <div class="profile-avatar-editor">
+            <div class="profile-avatar">
+              @if (profile()?.avatar) {
+                <img [src]="profile()!.avatar!" alt="" width="96" height="96" />
+              } @else {
+                <span class="profile-avatar__initials" aria-hidden="true">{{ initials() }}</span>
+              }
+              @if (avatarUploading()) {
+                <span class="profile-avatar__overlay" role="status">
+                  <span class="sr-only">Traitement de la photo en cours…</span>
+                  <span class="spinner spinner--sm" aria-hidden="true"></span>
+                </span>
+              }
+            </div>
+
+            <!-- Input fichier masqué, déclenché par un bouton accessible -->
+            <input
+              #avatarInput
+              type="file"
+              hidden
+              accept="image/png,image/jpeg,image/webp"
+              (change)="onAvatarSelected($event)"
+            />
+
+            <div class="profile-avatar__actions">
+              <button
+                type="button"
+                class="btn btn--outline btn--sm"
+                (click)="avatarInput.click()"
+                [disabled]="avatarUploading()"
+                aria-describedby="avatar-hint"
+              >
+                @if (profile()?.avatar) { Changer la photo } @else { Ajouter une photo }
+              </button>
+              @if (profile()?.avatar) {
+                <button
+                  type="button"
+                  class="btn btn--ghost btn--sm"
+                  (click)="removeAvatar()"
+                  [disabled]="avatarUploading()"
+                >
+                  Retirer
+                </button>
+              }
+            </div>
+
+            <p id="avatar-hint" class="profile-avatar__hint">JPG, PNG ou WebP — 5 Mo maximum.</p>
+
+            <div aria-live="polite" aria-atomic="true">
+              @if (avatarError()) {
+                <p class="field__error profile-avatar__error" role="alert">{{ avatarError() }}</p>
+              }
+            </div>
           </div>
 
           <div class="profile-identity">

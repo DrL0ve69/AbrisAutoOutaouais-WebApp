@@ -182,7 +182,11 @@
             [attr.aria-label]="'Menu de ' + (auth.fullName() ?? 'utilisateur')"
           >
             <span class="navbar__user-avatar" aria-hidden="true">
-              {{ (auth.fullName() ?? 'U')[0].toUpperCase() }}
+              @if (auth.avatar(); as avatar) {
+                <img [src]="avatar" alt="" width="32" height="32" />
+              } @else {
+                {{ (auth.fullName() ?? 'U')[0].toUpperCase() }}
+              }
             </span>
             <span class="navbar__user-name">{{ auth.fullName() }}</span>
             <svg
