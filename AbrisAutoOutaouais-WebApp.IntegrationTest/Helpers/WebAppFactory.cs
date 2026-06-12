@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace AbrisAutoOutaouais_WebApp.IntegrationTest.helpers;
@@ -25,11 +26,20 @@ public sealed class WebAppFactory : WebApplicationFactory<Program>, IAsyncLifeti
     {
         builder.ConfigureServices(services =>
         {
-            // Remplacer le DbContext SQL Server par une DB InMemory
-            var descriptor = services.SingleOrDefault(
-                d => d.ServiceType == typeof(DbContextOptions<ApplicationDbContext>));
-            if (descriptor is not null)
-                services.Remove(descriptor);
+            // Remplacer le DbContext SQL Server par une DB InMemory.
+            // EF Core ≥ 9 enregistre, par appel à AddDbContext, à la fois
+            // DbContextOptions<T> ET un IDbContextOptionsConfiguration<T> qui porte le
+            // « .UseSqlServer(...) » : ne retirer que DbContextOptions<T> laisse le
+            // fournisseur SQL Server actif → « Only a single database provider can be
+            // registered ». On retire donc toute la config liée au contexte avant de
+            // réenregistrer. Astuce : « IDbContextOptionsConfiguration » contient lui-même
+            // la sous-chaîne « DbContextOptions », d'où le filtre unique ci-dessous.
+            var toRemove = services.Where(d =>
+                d.ServiceType == typeof(ApplicationDbContext)
+                || (d.ServiceType.FullName?.Contains("DbContextOptions", StringComparison.Ordinal) ?? false))
+                .ToList();
+            foreach (var d in toRemove)
+                services.Remove(d);
 
             services.AddDbContext<ApplicationDbContext>(opts =>
                 opts.UseInMemoryDatabase("IntegrationTestDb"));
