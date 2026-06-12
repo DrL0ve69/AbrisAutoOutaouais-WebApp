@@ -142,10 +142,14 @@
 }
 
 .navbar__admin-link {
-  color: var(--color-accent-bg, #fef3c7) !important;
+  // La navbar a un fond TOUJOURS sombre (rgba(15,25,35,.97)) dans les deux
+  // thèmes : la couleur doit donc rester claire et ne PAS suivre un token qui
+  // bascule en dark (--color-accent-bg → #451a03, brun foncé → ~1.3:1, illisible).
+  // Ambre clair fixe → ratio ~12.7:1 sur le fond navbar (WCAG 1.4.3 AA). [#fcd34d]
+  color: #fcd34d !important;
 
   &::after {
-    background: var(--color-accent-bg, #fef3c7) !important;
+    background: #fcd34d !important;
   }
 }
 
