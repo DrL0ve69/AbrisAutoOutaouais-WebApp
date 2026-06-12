@@ -72,20 +72,28 @@ describe('ProfileService', () => {
     httpMock.expectNone(`${base}/auth/me`);
   });
 
-  it('applyDefaultAddress ne remplit que les champs vides/pristine', () => {
+  it("applyDefaultAddress remplit les champs intacts (pristine) sans écraser une saisie", () => {
     const fb = TestBed.inject(FormBuilder);
     const form = fb.nonNullable.group({
       street: [''],
-      city: ['Hull'], // déjà saisi par l'utilisateur
-      province: ['QC'],
+      city: ['Hull'], // l'utilisateur a saisi « Hull » (marqué dirty ci-dessous)
+      province: ['QC'], // valeur PAR DÉFAUT, pristine → doit être remplacée par l'adresse
       postalCode: [''],
       country: ['Canada'],
     });
+    form.controls.city.markAsDirty(); // simule une saisie utilisateur sur « ville »
 
-    service.applyDefaultAddress(form, profileWithAddress.defaultDeliveryAddress);
+    service.applyDefaultAddress(form, {
+      street: '1 rue des Abris',
+      city: 'Gatineau',
+      province: 'ON', // différent du défaut « QC »
+      postalCode: 'K1A 0A6',
+      country: 'Canada',
+    });
 
-    expect(form.controls.street.value).toBe('1 rue des Abris'); // vide → rempli
-    expect(form.controls.postalCode.value).toBe('J8X 1A1'); // vide → rempli
-    expect(form.controls.city.value).toBe('Hull'); // déjà saisi → préservé
+    expect(form.controls.street.value).toBe('1 rue des Abris'); // vide + pristine → rempli
+    expect(form.controls.postalCode.value).toBe('K1A 0A6'); // vide + pristine → rempli
+    expect(form.controls.province.value).toBe('ON'); // défaut pristine → remplacé
+    expect(form.controls.city.value).toBe('Hull'); // édité (dirty) → préservé
   });
 });
