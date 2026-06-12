@@ -50,6 +50,54 @@
         <source>/mois</source>
         <target>/month</target>
       </trans-unit>
+      <trans-unit id="account.rentals.cancel" datatype="html">
+        <source>Annuler</source>
+        <target>Cancel</target>
+      </trans-unit>
+      <trans-unit id="account.rentals.cancel.aria" datatype="html">
+        <source>Annuler la location</source>
+        <target>Cancel the rental</target>
+      </trans-unit>
+      <trans-unit id="account.rentals.cancel.title" datatype="html">
+        <source>Annuler cette location ?</source>
+        <target>Cancel this rental?</target>
+      </trans-unit>
+      <trans-unit id="account.rentals.cancel.message" datatype="html">
+        <source>Voulez-vous vraiment annuler la location</source>
+        <target>Do you really want to cancel the rental</target>
+      </trans-unit>
+      <trans-unit id="account.rentals.cancel.message2" datatype="html">
+        <source>? Cette action est définitive.</source>
+        <target>? This action is permanent.</target>
+      </trans-unit>
+      <trans-unit id="account.rentals.cancel.confirm" datatype="html">
+        <source>Confirmer l&apos;annulation</source>
+        <target>Confirm cancellation</target>
+      </trans-unit>
+      <trans-unit id="account.rentals.cancel.dismiss" datatype="html">
+        <source>Garder la location</source>
+        <target>Keep the rental</target>
+      </trans-unit>
+      <trans-unit id="account.rentals.cancel.success" datatype="html">
+        <source>Location annulée.</source>
+        <target>Rental cancelled.</target>
+      </trans-unit>
+      <trans-unit id="account.rentals.cancel.error" datatype="html">
+        <source>L&apos;annulation a échoué. Veuillez réessayer.</source>
+        <target>Cancellation failed. Please try again.</target>
+      </trans-unit>
+      <trans-unit id="account.rentals.status.active" datatype="html">
+        <source>Active</source>
+        <target>Active</target>
+      </trans-unit>
+      <trans-unit id="account.rentals.status.cancelled" datatype="html">
+        <source>Annulée</source>
+        <target>Cancelled</target>
+      </trans-unit>
+      <trans-unit id="account.rentals.status.expired" datatype="html">
+        <source>Expirée</source>
+        <target>Expired</target>
+      </trans-unit>
       <trans-unit id="booking.type.installation" datatype="html">
         <source>Installation</source>
         <target>Installation</target>

@@ -87,3 +87,20 @@ Remédiations livrées à partir des évaluations UX/WCAG (boucle *audit → cor
 | — | Ancres non masquées | 2.4.11/2.4.12 (R7) | `scroll-padding-top` + `scroll-margin-top` (navbar sticky) | ✅ Terminé |
 
 > Vérification : `npm run build` ✅, `npm test` (33/33) ✅. Drift corrigé au passage — `installation`/`location` sont désormais de **vrais formulaires** de réservation/location et le panier/caisse existent (les anciens « placeholders » des audits sont obsolètes).
+
+---
+
+## Nouveaux éléments détectés — backlog (Sprint 5)
+
+| ID | Titre | Type | Critère WCAG | Détecté par | Statut |
+|----|-------|------|--------------|-------------|--------|
+| Bug-08 | Menu utilisateur de la navbar : `<ul role="menu" aria-hidden="true">` conserve des enfants **focusables** une fois fermé (`opacity:0; pointer-events:none` au lieu de `inert`/`display:none`) → violation axe `aria-hidden-focus` sur **toute page authentifiée** | Bug a11y | 4.1.2 (Name, Role, Value) | e2e d'annulation de location (`rental-cancel.spec.ts`) | ⛔ Backlog |
+
+> **Contexte.** Distinct de Bug-07 (fermeture clavier/clic — déjà corrigé) : ici le menu *fermé*
+> reste dans l'ordre de tabulation tout en étant `aria-hidden`. Comme le défaut est **hors
+> périmètre** de la fonctionnalité « annulation de location » et touche un composant **partagé**
+> (`navbar`), l'axe pleine page de `rental-cancel.spec.ts` a été volontairement **restreint à
+> `app-rentals`** ; le défaut est consigné ici plutôt que corrigé dans cette PR.
+> **Correctif proposé** : `[attr.inert]="!userMenuOpen()"` sur le menu déroulant (ou
+> `display:none` / `visibility:hidden` à l'état fermé) pour retirer ses enfants de l'ordre de
+> tabulation et de l'arbre d'accessibilité.

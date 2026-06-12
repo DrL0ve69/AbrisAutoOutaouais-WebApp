@@ -94,6 +94,42 @@
           <context context-type="linenumber">65,66</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="account.rentals.cancel" datatype="html">
+        <source>Annuler</source>
+      </trans-unit>
+      <trans-unit id="account.rentals.cancel.aria" datatype="html">
+        <source>Annuler la location</source>
+      </trans-unit>
+      <trans-unit id="account.rentals.cancel.title" datatype="html">
+        <source>Annuler cette location ?</source>
+      </trans-unit>
+      <trans-unit id="account.rentals.cancel.message" datatype="html">
+        <source>Voulez-vous vraiment annuler la location</source>
+      </trans-unit>
+      <trans-unit id="account.rentals.cancel.message2" datatype="html">
+        <source>? Cette action est définitive.</source>
+      </trans-unit>
+      <trans-unit id="account.rentals.cancel.confirm" datatype="html">
+        <source>Confirmer l&apos;annulation</source>
+      </trans-unit>
+      <trans-unit id="account.rentals.cancel.dismiss" datatype="html">
+        <source>Garder la location</source>
+      </trans-unit>
+      <trans-unit id="account.rentals.cancel.success" datatype="html">
+        <source>Location annulée.</source>
+      </trans-unit>
+      <trans-unit id="account.rentals.cancel.error" datatype="html">
+        <source>L&apos;annulation a échoué. Veuillez réessayer.</source>
+      </trans-unit>
+      <trans-unit id="account.rentals.status.active" datatype="html">
+        <source>Active</source>
+      </trans-unit>
+      <trans-unit id="account.rentals.status.cancelled" datatype="html">
+        <source>Annulée</source>
+      </trans-unit>
+      <trans-unit id="account.rentals.status.expired" datatype="html">
+        <source>Expirée</source>
+      </trans-unit>
       <trans-unit id="account.reservations.title" datatype="html">
         <source> Mes réservations </source>
         <context-group purpose="location">

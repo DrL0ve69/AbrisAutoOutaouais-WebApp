@@ -35,6 +35,7 @@ public sealed class RentalsController(IDispatcher dispatcher) : ControllerBase
     [HttpPost("{id:guid}/cancel")]
     [ProducesResponseType(204)]
     [ProducesResponseType<ProblemDetails>(404)]
+    [ProducesResponseType<ProblemDetails>(422)]
     public async Task<IActionResult> Cancel(Guid id, CancellationToken ct)
     {
         await dispatcher.DispatchAsync(new CancelRentalCommand(id), ct);
