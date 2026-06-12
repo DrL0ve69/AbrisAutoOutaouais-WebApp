@@ -223,14 +223,7 @@
   border: 2px solid var(--color-secondary);
 }
 
-// ── Sélecteur de langue ────────────────────────────────────
-.navbar__lang {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  padding: 0 var(--space-1);
-}
-
+// ── Sélecteur de langue (bouton unique vers l'autre langue) ─
 .navbar__lang-btn {
   display: inline-flex;
   align-items: center;
@@ -249,20 +242,11 @@
   cursor: pointer;
   transition: color var(--transition-fast), background var(--transition-fast);
 
-  &:hover {
+  &:hover,
+  &:focus-visible {
     color: white;
     background: rgba(255, 255, 255, 0.1);
   }
-
-  &.is-active {
-    color: white;
-    background: rgba(255, 255, 255, 0.16);
-  }
-}
-
-.navbar__lang-sep {
-  color: rgba(255, 255, 255, 0.35);
-  font-size: var(--font-size-xs);
 }
 
 // ── Bascule thème ──────────────────────────────────────────

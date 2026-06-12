@@ -13,6 +13,7 @@ import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { ProfileService } from '../../../core/services/profile.service';
+import { LocaleService, AppLocale } from '../../../core/services/locale.service';
 import { environment } from '../../../../environments/environment';
 import { UserProfileDto, UpdateProfileRequest } from '../../../core/models/profile.model';
 
@@ -29,6 +30,7 @@ export class ProfileComponent implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly fb = inject(FormBuilder);
   private readonly profileStore = inject(ProfileService);
+  private readonly locale = inject(LocaleService);
   protected readonly auth = inject(AuthService);
 
   // ── État ────────────────────────────────────────────────────
@@ -339,6 +341,13 @@ export class ProfileComponent implements OnInit {
         this.saving.set(false);
         this.saveSuccess.set(true);
         setTimeout(() => this.saveSuccess.set(false), 4000);
+        // Si la langue préférée enregistrée diffère de la locale servie, on
+        // recharge le site dans cette langue (i18n compile-time → navigation
+        // vers l'autre build). No-op sinon ; SSR géré dans LocaleService.
+        const lang = updated.preferredLanguage as AppLocale;
+        if ((lang === 'fr' || lang === 'en') && lang !== this.locale.current()) {
+          this.locale.switchTo(lang);
+        }
       },
       error: (err) => {
         this.saving.set(false);

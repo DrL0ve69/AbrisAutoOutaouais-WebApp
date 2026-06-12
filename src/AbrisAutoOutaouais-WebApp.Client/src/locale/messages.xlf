@@ -1888,25 +1888,18 @@
         </context-group>
         <note priority="1" from="description">Bouton ajouter au panier</note>
       </trans-unit>
-      <trans-unit id="navbar.langGroup" datatype="html">
-        <source>Choisir la langue</source>
+      <trans-unit id="navbar.langToEn" datatype="html">
+        <source>Passer en anglais</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">58,59</context>
+          <context context-type="linenumber">70,71</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="navbar.langFr" datatype="html">
-        <source>Français</source>
+      <trans-unit id="navbar.langToFr" datatype="html">
+        <source>Passer en français</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">65,66</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="navbar.langEn" datatype="html">
-        <source>English</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">75,76</context>
+          <context context-type="linenumber">81,82</context>
         </context-group>
       </trans-unit>
       <trans-unit id="skipNav.link" datatype="html">

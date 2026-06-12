@@ -9,19 +9,37 @@ export default defineConfig({
   retries: 0,
   reporter: 'list',
   use: {
-    baseURL: 'http://127.0.0.1:4200',
     trace: 'on-first-retry',
   },
   projects: [
+    // Spécifications a11y + mécanisme du sélecteur, contre `ng serve` (fr only).
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: { ...devices['Desktop Chrome'], baseURL: 'http://127.0.0.1:4200' },
+      testIgnore: '**/language-switch-i18n.spec.ts',
+    },
+    // Bascule i18n RÉELLE, contre l'hôte bilingue localisé (fr « / » + en « /en/ »).
+    {
+      name: 'i18n',
+      use: { ...devices['Desktop Chrome'], baseURL: 'http://127.0.0.1:4300' },
+      testMatch: '**/language-switch-i18n.spec.ts',
     },
   ],
-  webServer: {
-    command: 'npm start',
-    url: 'http://127.0.0.1:4200',
-    reuseExistingServer: true,
-    timeout: 180000,
-  },
+  webServer: [
+    {
+      command: 'npm start',
+      url: 'http://127.0.0.1:4200',
+      reuseExistingServer: true,
+      timeout: 180000,
+    },
+    {
+      // Build localisé (fr + en) puis hôte bilingue — la bascule réelle exige les
+      // deux builds servis ensemble, ce que `ng serve` ne peut pas faire.
+      command: 'npm run build:i18n && node scripts/serve-i18n.mjs',
+      url: 'http://127.0.0.1:4300',
+      reuseExistingServer: true,
+      timeout: 180000,
+      env: { PORT: '4300' },
+    },
+  ],
 });
