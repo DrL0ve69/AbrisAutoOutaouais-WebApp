@@ -14,10 +14,20 @@ namespace AbrisAutoOutaouais_WebApp.IntegrationTest.Products;
 /// Utilise une vraie HTTP stack, DB InMemory, JWT réel.
 /// </summary>
 [Collection("Integration")]  // Partage WebAppFactory — pas de parallélisme
-public sealed class ProductsEndpointTests(WebAppFactory factory)
-    : IClassFixture<WebAppFactory>
+public sealed class ProductsEndpointTests : IClassFixture<WebAppFactory>
 {
-    private readonly HttpClient _client = factory.Client;
+    private readonly HttpClient _client;
+    private readonly WebAppFactory _factory;
+
+    public ProductsEndpointTests(WebAppFactory factory)
+    {
+        _factory = factory;
+        _client = factory.Client;
+        // Le HttpClient est partagé par la fixture : on repart sans en-tête
+        // d'autorisation à chaque test pour éviter qu'un token admin « fuite »
+        // d'un test à l'autre (sinon Create_AsAnonymous serait authentifié).
+        _client.DefaultRequestHeaders.Authorization = null;
+    }
 
     // ── GET /api/v1/products ─────────────────────────────────────────────────
 
@@ -34,7 +44,7 @@ public sealed class ProductsEndpointTests(WebAppFactory factory)
     [Fact]
     public async Task GetAll_WithSeededProducts_ReturnsPaginatedList()
     {
-        await DbHelper.SeedProductAsync(factory.Services, slug: "test-pagination");
+        await DbHelper.SeedProductAsync(_factory.Services, slug: "test-pagination");
 
         var response = await _client.GetAsync("/api/v1/products?page=1&pageSize=12");
         var body = await response.Content.ReadFromJsonAsync<PaginatedList<ProductDto>>();
@@ -48,7 +58,7 @@ public sealed class ProductsEndpointTests(WebAppFactory factory)
     [Fact]
     public async Task GetBySlug_ExistingProduct_Returns200()
     {
-        await DbHelper.SeedProductAsync(factory.Services, slug: "abri-unique-slug");
+        await DbHelper.SeedProductAsync(_factory.Services, slug: "abri-unique-slug");
 
         var response = await _client.GetAsync("/api/v1/products/abri-unique-slug");
 
@@ -88,8 +98,8 @@ public sealed class ProductsEndpointTests(WebAppFactory factory)
         _client.SetBearerToken(token);
 
         // Seeder une catégorie d'abord
-        await DbHelper.SeedProductAsync(factory.Services, slug: "categorie-seed");
-        var db = factory.Services.CreateScope().ServiceProvider
+        await DbHelper.SeedProductAsync(_factory.Services, slug: "categorie-seed");
+        var db = _factory.Services.CreateScope().ServiceProvider
             .GetRequiredService<ApplicationDbContext>();
         var catId = await db.ProductCategories.Select(c => c.Id).FirstAsync();
 
@@ -104,8 +114,9 @@ public sealed class ProductsEndpointTests(WebAppFactory factory)
         });
 
         response.StatusCode.Should().Be(HttpStatusCode.Created);
-        var id = await response.Content.ReadFromJsonAsync<Guid>();
-        id.Should().NotBeEmpty();
+        // Le contrôleur renvoie CreatedAtAction(..., new { id }) → objet { "id": "..." }.
+        var payload = await response.Content.ReadFromJsonAsync<JsonElement>();
+        payload.GetProperty("id").GetGuid().Should().NotBeEmpty();
 
         // Nettoyage : reset le header
         _client.DefaultRequestHeaders.Authorization = null;
@@ -117,13 +128,15 @@ public sealed class ProductsEndpointTests(WebAppFactory factory)
         var token = await AuthHelper.LoginAsAdminAsync(_client);
         _client.SetBearerToken(token);
 
+        // Tous les champs (non-nullables) sont fournis pour que la liaison réussisse,
+        // mais leurs valeurs violent les règles FluentValidation → ValidationException → 422.
         var response = await _client.PostAsJsonAsync("/api/v1/products", new
         {
-            name = "",      // Invalide
-            slug = "SLUG INVALIDE!",  // Invalide
-            price = -10,     // Invalide
-            stock = -5,      // Invalide
-            categoryId = Guid.Empty,  // Invalide
+            name = "",                 // NotEmpty
+            description = "desc",       // présent (sinon 400 à la liaison du membre non-nullable)
+            price = -10m,              // GreaterThan(0)
+            stockQuantity = -5,         // GreaterThanOrEqualTo(0)
+            categoryId = Guid.Empty,    // NotEmpty
         });
 
         response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);

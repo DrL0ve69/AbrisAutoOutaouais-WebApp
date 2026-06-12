@@ -88,7 +88,7 @@ public sealed class AuthEndpointTests(WebAppFactory factory)
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var profile = await response.Content.ReadFromJsonAsync<AppUser>();
-        profile!.Email.Should().Be("admin@abristempo.local");
+        profile!.Email.Should().Be("admin@abrisauto.com");
 
         _client.DefaultRequestHeaders.Authorization = null;
     }
