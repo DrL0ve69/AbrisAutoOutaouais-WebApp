@@ -104,7 +104,10 @@ public static class DependencyInjection
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
         services.AddScoped<IFileStorageService, LocalFileStorageService>();
         services.AddScoped<IEmailService, EmailService>();
-        services.AddSingleton<IClientUrlProvider, ClientUrlProvider>();
+        // Instance EAGER : une clé « Client:BaseUrl » absente fait échouer le
+        // démarrage (même idiome fail-fast que « Jwt:Key » ci-dessus), plutôt
+        // que la première demande de réinitialisation.
+        services.AddSingleton<IClientUrlProvider>(new ClientUrlProvider(config));
 
         // ── Auto-enregistrement des handlers CQRS via Scrutor ─────────────────
         services.Scan(scan => scan
