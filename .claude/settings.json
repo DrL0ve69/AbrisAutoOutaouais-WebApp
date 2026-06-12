@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+
+  "//": "TEAM-SHARED, COMMITTED settings for AbrisTempo Local. Personal overrides go in",
+  "//2": ".claude/settings.local.json (gitignored). See .claude/README.md for the full picture.",
+  "//3": "An OPTIONAL permissions allowlist (to stop being prompted for routine build/test commands)",
+  "//4": "is documented in .claude/README.md — paste it in yourself if you want it; it is left out",
+  "//5": "here on purpose so this file never silently widens what the agent can auto-run.",
+
+  "//mcp": "Auto-approve the angular-cli MCP server declared in .mcp.json so it loads without a",
+  "//mcp2": "trust prompt. This is the 'angular is already there' wiring the team relies on.",
+  "enableAllProjectMcpServers": false,
+  "enabledMcpjsonServers": ["angular-cli"],
+
+  "//hooks": "Deterministic automation — fires regardless of what the model remembers to do.",
+  "hooks": {
+    "//SessionStart": "Inject the operating rules + lessons-learned into every session/subagent context.",
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/inject-context.mjs\""
+          }
+        ]
+      }
+    ],
+
+    "//PostToolUse": "After each edit, remind which skill/MCP/verification applies to that layer.",
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/post-edit-guardrail.mjs\""
+          }
+        ]
+      }
+    ]
+  }
+}
