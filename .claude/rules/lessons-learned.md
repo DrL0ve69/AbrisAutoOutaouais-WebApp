@@ -11,6 +11,24 @@
 
 ---
 
+## L-005 · A regression guard only guards if CI actually runs it
+
+- **Symptom.** During the checkout/Ontario hardening, a new Playwright e2e
+  (`e2e/checkout-order.spec.ts`) was added to lock in that a non-QC (Ontario) delivery address
+  places an order successfully. The reviewer refused to take "I added a spec" on faith and made us
+  **prove** the pipeline executes it — because a spec file the workflow never invokes is
+  documentation, not enforcement, and gives false confidence. Verified-good here: CI was already
+  wired (this is the discipline, not a fix to a gap). See [[L-002]] for getting the *assertion*
+  right once it does run.
+- **Rule.** When you add a test as a regression guard, confirm it's in the CI-run set before calling
+  it done — read `.github/workflows/ci.yml`, don't assume. The runners: Playwright `e2e/*.spec.ts`
+  via **`npm run e2e`** (= `playwright test`), vitest+axe via **`npm test`**, typecheck via
+  **`npm run build`**, backend via **`dotnet test`**. If your new test lives outside those globs/steps
+  (or needs a new step), wire it in — otherwise the pipeline silently skips it.
+- **Refs.** `.github/workflows/ci.yml` (`npm run e2e` / `npm test` / `npm run build` steps),
+  `src/AbrisAutoOutaouais-WebApp.Client/e2e/checkout-order.spec.ts`,
+  `src/AbrisAutoOutaouais-WebApp.Client/package.json` (`e2e` → `playwright test`).
+
 ## L-004 · A value shared across screens needs ONE agreed format (client AND server)
 
 - **Symptom.** Fixing the profile postal code to the canonical « A1A 1A1 » (with space) and
