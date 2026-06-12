@@ -1,4 +1,5 @@
-﻿using AbrisAutoOutaouais_WebApp.Application.Common.Interfaces;
+﻿using AbrisAutoOutaouais_WebApp.Application.Bookings.Common;
+using AbrisAutoOutaouais_WebApp.Application.Common.Interfaces;
 using AbrisAutoOutaouais_WebApp.Application.Common.Mediator;
 using AbrisAutoOutaouais_WebApp.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -12,9 +13,10 @@ internal sealed class GetAvailableSlotsQueryHandler(
     IApplicationDbContext db,
     IDateTimeProvider clock) : IQueryHandler<GetAvailableSlotsQuery, IReadOnlyList<AvailableSlotDto>>
 {
-    private static readonly TimeSpan WorkStart = TimeSpan.FromHours(8);
-    private static readonly TimeSpan WorkEnd = TimeSpan.FromHours(17);
-    private static readonly TimeSpan SlotDuration = TimeSpan.FromHours(2);
+    // Horaires de la grille partagés avec la validation du report (voir SlotRules).
+    private static readonly TimeSpan WorkStart = SlotRules.WorkStart;
+    private static readonly TimeSpan WorkEnd = SlotRules.WorkEnd;
+    private static readonly TimeSpan SlotDuration = SlotRules.SlotDuration;
 
     public async Task<IReadOnlyList<AvailableSlotDto>> HandleAsync(
         GetAvailableSlotsQuery query, CancellationToken ct)

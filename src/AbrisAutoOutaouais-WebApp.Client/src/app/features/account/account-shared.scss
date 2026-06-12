@@ -113,13 +113,14 @@
   color: var(--color-text);
 }
 
-// Bouton « Annuler » d'une ligne — cible tactile ≥ 44px (WCAG 2.5.8).
-.account-list__cancel {
+// Bouton d'action d'une ligne (Reporter / Annuler) — cible tactile ≥ 44px (WCAG 2.5.8).
+.account-list__cancel,
+.account-list__action {
   min-height: 44px;
   flex-shrink: 0;
 }
 
-// ── Boîte de dialogue de confirmation d'annulation ────────────
+// ── Boîte de dialogue de confirmation (report / annulation) ───
 .account-overlay {
   position: fixed;
   inset: 0;
@@ -157,4 +158,38 @@
   flex-wrap: wrap;
   gap: var(--space-3);
   margin-top: var(--space-4);
+}
+
+// ── Sélecteur de créneaux (report) ────────────────────────────
+.reschedule__slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  max-height: 240px;
+  overflow-y: auto;
+  border: 0;
+  padding: 0;
+  margin: 0 0 var(--space-2);
+}
+
+.reschedule__slot {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+
+  // Focus visible quand le radio (sr-only) reçoit le focus clavier.
+  &:has(input:focus-visible) {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+.reschedule__slot--selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary-subtle, #fef2f2);
+  font-weight: var(--font-weight-bold);
 }

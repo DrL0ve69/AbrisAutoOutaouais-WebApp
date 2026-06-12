@@ -22,6 +22,11 @@ export interface CreateBookingRequest {
   readonly notes?: string | null;
 }
 
+/** Charge utile pour POST /bookings/{id}/reschedule — correspond au RescheduleBookingRequest C#. */
+export interface RescheduleBookingRequest {
+  readonly newSlotStart: string; // ISO 8601 (UTC) — la valeur `start` d'un AvailableSlotDto
+}
+
 /** Correspond au BookingSummaryDto C# (GET /bookings/mine). */
 export interface BookingSummaryDto {
   readonly id: string;

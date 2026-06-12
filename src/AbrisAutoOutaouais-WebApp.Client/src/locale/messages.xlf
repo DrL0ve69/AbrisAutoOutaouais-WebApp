@@ -198,6 +198,39 @@
           <context context-type="linenumber">70,71</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="account.reservations.reschedule" datatype="html">
+        <source>Reporter</source>
+      </trans-unit>
+      <trans-unit id="account.reservations.reschedule.aria" datatype="html">
+        <source>Reporter la réservation</source>
+      </trans-unit>
+      <trans-unit id="account.reservations.reschedule.title" datatype="html">
+        <source>Reporter la réservation</source>
+      </trans-unit>
+      <trans-unit id="account.reservations.reschedule.desc" datatype="html">
+        <source>Choisissez un nouveau créneau disponible.</source>
+      </trans-unit>
+      <trans-unit id="account.reservations.reschedule.loading" datatype="html">
+        <source>Chargement des créneaux…</source>
+      </trans-unit>
+      <trans-unit id="account.reservations.reschedule.legend" datatype="html">
+        <source>Créneaux disponibles</source>
+      </trans-unit>
+      <trans-unit id="account.reservations.reschedule.empty" datatype="html">
+        <source>Aucun créneau disponible pour le moment.</source>
+      </trans-unit>
+      <trans-unit id="account.reservations.reschedule.confirm" datatype="html">
+        <source>Confirmer le report</source>
+      </trans-unit>
+      <trans-unit id="account.reservations.reschedule.dismiss" datatype="html">
+        <source>Annuler</source>
+      </trans-unit>
+      <trans-unit id="account.reservations.reschedule.success" datatype="html">
+        <source>Réservation reportée.</source>
+      </trans-unit>
+      <trans-unit id="account.reservations.reschedule.error" datatype="html">
+        <source>Le report a échoué. Veuillez réessayer.</source>
+      </trans-unit>
       <trans-unit id="admin.eyebrow" datatype="html">
         <source>Espace réservé</source>
         <context-group purpose="location">
