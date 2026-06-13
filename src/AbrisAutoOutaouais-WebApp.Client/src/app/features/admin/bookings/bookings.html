@@ -88,7 +88,7 @@
 </section>
 
 @if (pending(); as p) {
-  <div class="admin-overlay" (click)="dismiss()">
+  <div class="admin-overlay" (click)="dismiss()" (keydown.escape)="dismiss()">
     <div
       #confirmDialog
       class="admin-dialog"

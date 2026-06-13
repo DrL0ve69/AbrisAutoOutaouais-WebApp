@@ -43,6 +43,22 @@ async function expectAxeClean(page: Page): Promise<void> {
   ).toEqual([]);
 }
 
+// Soumission robuste à l'hydratation SSR. `data-theme` (posé par ThemeService au
+// bootstrap APP) n'atteste PAS que la route auth PARESSEUSE a fini d'hydrater ses
+// écouteurs de formulaire réactif : sous charge CI, un fill/clic trop précoce est
+// perdu et la post-condition n'arrive jamais (vert en local rapide, rouge en CI).
+// On rejoue donc l'interaction jusqu'à ce qu'elle « prenne » — les gardes de
+// ré-entrée `loading()` et les mocks idempotents rendent le re-jeu sûr.
+async function submitUntil(
+  interact: () => Promise<void>,
+  settled: () => Promise<void>,
+): Promise<void> {
+  await expect(async () => {
+    await interact();
+    await settled();
+  }).toPass({ timeout: 15_000 });
+}
+
 for (const theme of themes) {
   test(`Demande de lien — confirmation neutre annoncée (${theme.libelle})`, async ({ page }) => {
     await forceTheme(page, theme.id);
@@ -56,14 +72,19 @@ for (const theme of themes) {
       page.getByRole('heading', { level: 1, name: /réinitialiser le mot de passe/i }),
     ).toBeVisible();
 
-    await page.locator('#reset-email').fill(EMAIL);
-    await page.getByRole('button', { name: /envoyer le lien/i }).click();
-
     // Confirmation neutre (role=status, aria-live polite) — le formulaire disparaît.
     // NB : la page porte aussi une région status globale (annonce de bascule de
     // langue, vide ici) → on cible la confirmation par son texte pour rester
     // sans ambiguïté (mode strict Playwright).
     const confirm = page.getByRole('status').filter({ hasText: /si un compte correspond/i });
+    await submitUntil(
+      async () => {
+        await page.locator('#reset-email').fill(EMAIL);
+        await page.getByRole('button', { name: /envoyer le lien/i }).click();
+      },
+      () => expect(confirm).toBeVisible({ timeout: 1500 }),
+    );
+
     await expect(confirm).toContainText(/si un compte correspond/i);
     await expect(page.locator('#reset-email')).toHaveCount(0);
 
@@ -86,13 +107,19 @@ for (const theme of themes) {
       page.getByRole('heading', { level: 1, name: /choisir un nouveau mot de passe/i }),
     ).toBeVisible();
 
-    await page.locator('#reset-new-password').fill('Nouveau@123');
-    await page.locator('#reset-confirm-password').fill('Nouveau@123');
-    await page.getByRole('button', { name: /réinitialiser le mot de passe/i }).click();
+    const successHeading = page.getByRole('heading', {
+      level: 2,
+      name: /mot de passe réinitialisé/i,
+    });
+    await submitUntil(
+      async () => {
+        await page.locator('#reset-new-password').fill('Nouveau@123');
+        await page.locator('#reset-confirm-password').fill('Nouveau@123');
+        await page.getByRole('button', { name: /réinitialiser le mot de passe/i }).click();
+      },
+      () => expect(successHeading).toBeVisible({ timeout: 1500 }),
+    );
 
-    await expect(
-      page.getByRole('heading', { level: 2, name: /mot de passe réinitialisé/i }),
-    ).toBeVisible();
     await expect(page.getByRole('link', { name: /se connecter/i })).toBeVisible();
 
     // Le jeton transmis au backend est la valeur décodée du paramètre d'URL.
@@ -117,16 +144,19 @@ test('Réinitialisation — jeton invalide → erreur annoncée, formulaire cons
   );
 
   await page.goto(RESET_URL);
-  // Attendre l'hydratation AVANT de remplir : data-theme est posé par
-  // ThemeService au bootstrap client — remplir le DOM SSR avant ce point
-  // perd les valeurs (le formulaire réactif n'a pas encore d'écouteurs).
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
-  await page.locator('#reset-new-password').fill('Nouveau@123');
-  await page.locator('#reset-confirm-password').fill('Nouveau@123');
-  await page.getByRole('button', { name: /réinitialiser le mot de passe/i }).click();
 
-  // Erreur annoncée (role=alert) et formulaire toujours présent pour réessayer.
-  await expect(page.getByRole('alert')).toContainText(serverMessage);
+  // Erreur annoncée (role=alert) et formulaire toujours conservé pour réessayer.
+  // submitUntil rejoue fill+clic jusqu'à ce que l'alerte paraisse (hydratation SSR).
+  const alert = page.getByRole('alert');
+  await submitUntil(
+    async () => {
+      await page.locator('#reset-new-password').fill('Nouveau@123');
+      await page.locator('#reset-confirm-password').fill('Nouveau@123');
+      await page.getByRole('button', { name: /réinitialiser le mot de passe/i }).click();
+    },
+    () => expect(alert).toContainText(serverMessage, { timeout: 1500 }),
+  );
   await expect(
     page.getByRole('button', { name: /réinitialiser le mot de passe/i }),
   ).toBeVisible();
