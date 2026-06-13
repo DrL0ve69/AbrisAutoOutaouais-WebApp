@@ -11,8 +11,10 @@
 
 ## Curseur courant
 
-- **Épic en cours :** **Épic D — Outil `/mesurer` parking + suggestions d'abri** (branche à créer : `feat/mesurer-parking`)
-- **Prochaine sous-tâche :** **D1 — Dimensions produit** (3 `int?` `WidthCm`/`LengthCm`/`HeightCm` sur `Product`, migration additive `AddProductDimensions`, seeder dims Tempo réelles, DTO + projection GetAll + Create/Update + champs admin). Voir le plan (Épic D) pour D2 (endpoint `suggest-shelters`) et D3 (feature `/mesurer` : Leaflet + turf + calculateur véhicule).
+- **Épic en cours :** **Épic D — Outil `/mesurer` parking + suggestions d'abri** (branche `feat/mesurer-parking` — créée, active)
+- **Prochaine sous-tâche :** **D2 — Endpoint `suggest-shelters`** (`APP/Products/Queries/SuggestShelters` — `GET api/v1/products/suggest-shelters?requiredWidthCm&requiredLengthCm` `[AllowAnonymous]` : dims non-null ∧ ≥ requis, trié plus-petit-suffisant d'abord, `IsTightFit` quand marge < 50 cm + marges dans le DTO). Voir le plan (Épic D) pour D3 (feature `/mesurer` : Leaflet + turf + calculateur véhicule).
+- **D1 — Dimensions produit : ✅ FAIT (commit local `a526d90`, non revu)** — 3 `int?` `WidthCm`/`LengthCm`/`HeightCm` sur `Product` (scalaires, pas de VO owned), migration additive `AddProductDimensions` (`20260613065137`, appliquée LocalDB), seeder dims Tempo par slug, `ProductDto` + **2 projections** (GetAll + GetBySlug), Create/Update + validateurs, `UpdateProductCommandValidator` **créé** (trou : l'Update n'était pas validé), constante partagée `Domain/Constants/ProductDimensions` (L-004), 3 champs admin a11y + i18n fr/en. Gates : `dotnet test` 186 UT + 70 IT ✅ · `npm test` 124 (zéro axe) ✅ · `build:prod` ✅.
+  - **À traiter à la frontière d'épic (D3) :** revue indépendante `code-reviewer` + `solid-review` sur le diff backend cumulé (reportées par économie crédits). **Candidat-leçon L-014** signalé par le dev (à confirmer par le `mentor`) : un tuple `readonly [value, validators]` *spread* dans `fb.control(...)` casse le typecheck Angular (`'nonNullable' is missing`) — déclarer `this.fb.control<number | null>(null, [validators])`.
 - **Pré-requis Épic D déjà satisfait :** l'autocomplétion C3 (rue + lat/lng dans `PlaceSuggestionDto`) est livrée et réutilisable par l'étape « Adresse » du `/mesurer`.
 - **Dernière mise à jour :** 2026-06-13
 
