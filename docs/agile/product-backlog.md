@@ -44,6 +44,8 @@ les critères a11y dans sa Definition of Done (voir `definition-of-done.md`).
 | US-2.5 | En tant que **client**, je veux **changer mon mot de passe** afin de sécuriser mon compte. | 3 | **Must** | ✅ Livré (onglet Sécurité) |
 | US-2.6 | En tant que **client**, je veux **réinitialiser un mot de passe oublié** afin de récupérer l'accès. | 5 | **Should** | 🟡 Partiel (page `/auth/reset` accessible ; endpoint backend à venir) |
 | US-2.7 | En tant qu'**équipe**, je veux **retirer les écrans d'auth legacy** (`login`, `register.component`) afin d'éliminer la dette et l'incohérence a11y. | 2 | **Should** | ✅ Livré (fichiers legacy supprimés) |
+| US-2.8 | En tant que **client**, je veux **saisir mon adresse en champs structurés (numéro civique / appartement / rue) avec autocomplétion accessible et code postal pré-rempli** afin de saisir vite et sans erreur (WCAG 1.3.5 / 4.1.2). | 8 | **Should** | ✅ Livré (Épic C : VO `Address` scindé, combobox APG `shared/.../autocomplete`, proxy Places Photon/Radar/Google, code postal éditable + `aria-live`) |
+| US-2.9 | En tant que **client**, je veux **indiquer la marque/modèle de mon abri à installer** afin que l'équipe sache quoi installer (autres marques acceptées sauf ShelterLogic). | 3 | **Should** | ✅ Livré (Épic C fold-in : `BookingSlot.Brand/Model`, exclusion canonique `ExcludedShelterBrands`) |
 
 **Critères d'acceptation — US-2.1 / 2.2**
 - Champ login `type="text"` sans `Validators.email` (accepte courriel ou username).

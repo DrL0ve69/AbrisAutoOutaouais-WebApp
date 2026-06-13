@@ -64,7 +64,7 @@ Statuts : **Conforme** · **À surveiller** (conforme mais fragile / dépend du 
 | 1.3.1 Information et relations | A | Conforme | Hiérarchie `h1→h2→h3` respectée (`home.html`, `catalog.html` h1 unique) ; `<article>` pour les cartes ; `role="list"`, `role="group"`, `role="tablist/tab/tabpanel"` (`profile.html`) ; `<label for>` sur chaque champ |
 | 1.3.2 Ordre séquentiel logique | A | Conforme | DOM linéaire, aucun réordonnancement visuel cassant l'ordre de lecture ; SSR rend l'ordre source |
 | 1.3.4 Orientation | AA | Conforme | Aucune contrainte d'orientation ; grilles responsives (`@media min-width`) |
-| 1.3.5 Identifier la finalité de la saisie | AA | Conforme | `autocomplete` présent : `email`, `current-password`, `new-password`, `given-name`, `family-name`, `tel`, `street-address`, `postal-code`, `address-level2` (`auth.html`, `profile.html`) |
+| 1.3.5 Identifier la finalité de la saisie | AA | Conforme | `autocomplete` présent : `email`, `current-password`, `new-password`, `given-name`, `family-name`, `tel`, `street-address`, `postal-code`, `address-level2` (`auth.html`, `profile.html`). **Épic C** : adresse en champs structurés (numéro civique / appartement / rue) sur les 4 formulaires ; le code postal pré‑rempli par lookup reste **éditable** + annonce `aria-live` « rempli automatiquement, vérifiez‑le » |
 | 1.4.1 Utilisation de la couleur | A | Conforme | Disponibilité = **icône + texte** (`✓ En stock` / `✗ Épuisé`), pas la couleur seule ; états de filtre via `aria-pressed` + libellé |
 | 1.4.3 Contraste (minimum) | AA | Conforme | Jetons documentés ≥ 4.5:1 (`_tokens.scss`) : texte `#111827` 19:1, secondaire `#374151` 10.7:1, muted `#6b7280` 4.6:1, primaire `#b91c1c` 5.9:1 ; **validé par axe e2e** (`color-contrast` actif) |
 | 1.4.4 Redimensionnement du texte | AA | Conforme | Unités `rem` partout (`_tokens.scss` échelle typographique) ; testé à 200 % sans perte |
@@ -112,7 +112,7 @@ Statuts : **Conforme** · **À surveiller** (conforme mais fragile / dépend du 
 
 | Critère | Niv. | Statut | Preuve |
 |---------|------|--------|--------|
-| 4.1.2 Nom, rôle, valeur | A | Conforme | `aria-pressed` (filtres/langue/thème), `aria-expanded`+`aria-controls` (menu, hamburger), `aria-selected`+`aria-controls` (onglets profil), `aria-busy`/`aria-disabled` (boutons), `role="menu/menuitem"` (dropdown) |
+| 4.1.2 Nom, rôle, valeur | A | Conforme | `aria-pressed` (filtres/langue/thème), `aria-expanded`+`aria-controls` (menu, hamburger), `aria-selected`+`aria-controls` (onglets profil), `aria-busy`/`aria-disabled` (boutons), `role="menu/menuitem"` (dropdown). **Épic C** : combobox d'autocomplétion d'adresse conforme **APG** (`role="combobox"`/`listbox`/`option`, `aria-activedescendant`, `aria-expanded`, navigation flèches/Home/End/Enter/Escape, fermeture sur `focusout`, compteur de résultats en `aria-live` scopé) — `shared/components/a11y-components/autocomplete/` |
 | 4.1.3 Messages d'état | AA | Conforme | `aria-live="polite"` pour succès profil et bascule login/register (`auth.html`, `profile.html`) ; `role="status"` pour disponibilité et états vides ; toasts via `ToastService` |
 
 > **4.1.1 Analyse syntaxique** a été retiré de WCAG 2.2 (toujours conforme — Angular génère un DOM valide).

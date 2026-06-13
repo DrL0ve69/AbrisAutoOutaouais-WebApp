@@ -230,6 +230,8 @@ AbrisAutoOutaouais-WebApp.slnx
 - [x] Backend e‑commerce : commandes **persistées** · CRUD admin (produits, **réservations, locations, utilisateurs**) — _paiement en mode démo (pas de Stripe)_
 - [x] Réservation d'installation (créneaux) & contrats de location de bout en bout
 - [x] Aide & UX : FAQ accessible (`/installation`, `/location`) · vérif. de disponibilité username/courriel · confirmation du changement de langue
+- [x] **Adresse structurée** (numéro civique / appartement / rue) + **autocomplétion accessible** (combobox APG, proxy Places Photon/Radar/Google, code postal pré‑rempli éditable) · marque/modèle d'abri à l'installation (autres marques sauf ShelterLogic)
+- [ ] Outil « mesurer mon stationnement » (carte satellite + calculateur) → suggestion d'abri
 - [ ] Déploiement (Vercel + Azure App Service) via GitHub Actions
 
 ## Compétences démontrées
