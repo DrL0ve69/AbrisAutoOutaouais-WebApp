@@ -82,18 +82,29 @@ test('parcours CLAVIER-ONLY (calculateur) → résultats + aucune violation axe'
 test('smoke CARTE : @defer charge Leaflet, conteneur visible, axe (hors .leaflet-container)', async ({
   page,
 }) => {
+  // Marge au-delà du défaut 30 s : 1re compilation à froid du chunk Leaflet/geoman en CI.
+  test.setTimeout(60000);
   await mockApi(page);
+
+  // Diagnostic : remonte toute erreur JS/console côté navigateur dans les logs CI (le chunk
+  // Leaflet/geoman est chargé dynamiquement ici pour la 1re fois — si l'import échoue, on veut
+  // la cause exacte plutôt qu'un simple timeout).
+  page.on('console', (msg) => {
+    if (msg.type() === 'error') console.log(`[browser:console.error] ${msg.text()}`);
+  });
+  page.on('pageerror', (err) => console.log(`[browser:pageerror] ${err.message}`));
+
   await completeAddress(page);
 
   // Bascule en mode carte → déclenche le `@defer (on immediate)` (chargement sans scroll).
   await page.getByRole('radio', { name: /mesurer sur la carte/i }).click();
 
   // BARRIÈRE déterministe (L-012) : on attend l'apparition du conteneur Leaflet, jamais un
-  // waitForTimeout. `@defer (on immediate)` + l'import dynamique + l'init asynchrone de la
-  // carte aboutissent à `.leaflet-container` une fois la carte montée — déclenchement fiable
-  // en CI headless (contrairement à `on viewport`, dont l'IntersectionObserver ne se
-  // déclenchait pas de façon déterministe).
-  await expect(page.locator('.leaflet-container')).toBeVisible({ timeout: 15000 });
+  // waitForTimeout. La carte + les tuiles sont créées AVANT geoman/turf (cf. `map-measure.ts`),
+  // donc `.leaflet-container` apparaît dès que le chunk Leaflet est prêt, indépendamment de
+  // geoman. Timeout large (30 s) : en CI, ce test est le 1er à charger le chunk Leaflet/geoman
+  // → compilation à la demande du dev-server à froid (contrairement au local « warm »).
+  await expect(page.locator('.leaflet-container')).toBeVisible({ timeout: 30000 });
 
   // axe : on EXCLUT uniquement `.leaflet-container` (widget tiers Leaflet/geoman, mode
   // pointer-only documenté ; l'équivalent clavier complet est le calculateur de véhicules).

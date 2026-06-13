@@ -70,14 +70,15 @@ export class MapMeasureComponent {
     // (angular.json) ajouté via un <link> au runtime → reste hors du bundle initial.
     ensureLeafletStyles();
 
-    // Imports dynamiques (navigateur uniquement) — aucun symbole au top-level (SSR-safe).
+    // Import dynamique de Leaflet (navigateur uniquement) — aucun symbole au top-level (SSR-safe).
     const L = await import('leaflet');
-    await import('@geoman-io/leaflet-geoman-free');
-    const area = (await import('@turf/area')).default;
-    const bbox = (await import('@turf/bbox')).default;
 
     const center: [number, number] = [this.lat() ?? 45.4765, this.lng() ?? -75.7013];
 
+    // On crée la carte + les tuiles EN PREMIER : `.leaflet-container` apparaît dès que le chunk
+    // Leaflet est prêt, INDÉPENDAMMENT de geoman/turf. C'est essentiel pour que la carte soit
+    // visible vite ET pour que l'e2e (qui attend `.leaflet-container`) soit déterministe : le
+    // chunk geoman (CommonJS, ~360 kB) ne doit pas bloquer l'apparition du conteneur.
     const map = L.map(this.mapHost().nativeElement, {
       center,
       zoom: 19,
@@ -89,7 +90,15 @@ export class MapMeasureComponent {
       attribution: SATELLITE_TILE_ATTRIBUTION,
     }).addTo(map);
 
-    // Outils de dessin geoman : rectangle + polygone, pas de marqueurs/lignes.
+    this.map = map;
+    this.ready.set(true);
+
+    // Outils de dessin geoman + mesure turf chargés APRÈS l'affichage de la carte.
+    await import('@geoman-io/leaflet-geoman-free'); // effet de bord : attache `pm` à L
+    const area = (await import('@turf/area')).default;
+    const bbox = (await import('@turf/bbox')).default;
+
+    // Rectangle + polygone uniquement (pas de marqueurs/lignes).
     const pm = (map as unknown as { pm: PmApi }).pm;
     pm.addControls({
       position: 'topright',
@@ -109,9 +118,6 @@ export class MapMeasureComponent {
       current = e.layer;
       this.handleShape(e.layer.toGeoJSON(), area, bbox);
     });
-
-    this.map = map;
-    this.ready.set(true);
   }
 
   /** Calcule largeur/longueur (cm) depuis le rectangle dessiné via turf area+bbox. */
