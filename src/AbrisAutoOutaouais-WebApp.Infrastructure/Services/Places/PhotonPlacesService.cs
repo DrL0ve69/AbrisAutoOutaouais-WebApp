@@ -92,7 +92,10 @@ internal sealed class PhotonPlacesService(
         var p = feature.Properties;
         var street = p?.Street ?? p?.Name ?? string.Empty;
         var city = p?.City ?? p?.County ?? string.Empty;
-        var province = p?.State ?? string.Empty;
+        // Photon renvoie la province en NOM COMPLET (« Québec »/« Ontario ») : on la normalise
+        // en code ISO à 2 lettres, sinon le submit autofill viole Province.MaximumLength(2) et
+        // produit un 422 silencieux (leçon L-004). Radar/Google renvoient déjà 2 lettres.
+        var province = CanadianProvinceCodes.Normalize(p?.State);
 
         // GeoJSON : coordinates = [longitude, latitude].
         double? lng = feature.Geometry?.Coordinates is { Length: >= 2 } c ? c[0] : null;

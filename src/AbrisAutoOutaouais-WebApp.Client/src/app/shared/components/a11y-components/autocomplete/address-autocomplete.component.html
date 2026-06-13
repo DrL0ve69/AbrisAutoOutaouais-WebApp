@@ -36,7 +36,7 @@
       i18n-aria-label="@@autocomplete.listbox.label"
       aria-label="Suggestions d'adresses"
     >
-      @for (s of suggestions(); track s.label; let i = $index) {
+      @for (s of suggestions(); track $index; let i = $index) {
         <li
           class="addr-ac__option"
           role="option"

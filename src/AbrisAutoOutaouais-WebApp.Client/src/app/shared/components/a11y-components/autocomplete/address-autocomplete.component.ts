@@ -39,11 +39,12 @@ import { PlaceSuggestionDto } from '../../../../core/models/place.model';
   // parent serait reflété SUR l'élément hôte EN PLUS de l'input interne → deux `#street`
   // dans le document, et `getElementById` (calcul du nom via `<label for>`) tomberait sur
   // l'hôte non étiquetable. On retire donc l'id de l'hôte : seul l'`<input>` le porte.
-  host: { '[attr.id]': 'null' },
+  host: { '[attr.id]': 'null', '(focusout)': 'onFocusOut($event)' },
 })
 export class AddressAutocompleteComponent {
   private readonly places = inject(PlacesService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly hostEl = inject<ElementRef<HTMLElement>>(ElementRef);
 
   // ── Entrées publiques (signaux) ─────────────────────────────────────────────
   /** Identifiant de l'input — reste « street » pour les locators et `<label for>`. */
@@ -221,6 +222,18 @@ export class AddressAutocompleteComponent {
   /** Re-ouvre la liste si on revient dans le champ avec des suggestions déjà chargées. */
   protected onFocus(): void {
     if (this.suggestions().length > 0) this.open.set(true);
+  }
+
+  /**
+   * APG « combobox » : ferme la listbox quand le focus QUITTE le composant (tabulation vers
+   * le champ suivant), sinon `aria-expanded` resterait `true` avec une popup orpheline.
+   * La sélection souris n'est PAS cassée : le `mousedown` des options fait `preventDefault`,
+   * donc l'input ne perd jamais le focus au clic → aucun `focusout` n'est émis avant `choose`.
+   * On ne ferme que si la cible du focus est HORS de l'hôte (déplacement interne ignoré).
+   */
+  protected onFocusOut(event: FocusEvent): void {
+    const next = event.relatedTarget as Node | null;
+    if (!this.hostEl.nativeElement.contains(next)) this.close();
   }
 
   private focusInput(): void {

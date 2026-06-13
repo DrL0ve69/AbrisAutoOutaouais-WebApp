@@ -60,12 +60,54 @@ public sealed class PhotonPlacesServiceTests
         dto.CivicNumber.Should().Be("25");
         dto.Street.Should().Be("Rue Laurier");
         dto.City.Should().Be("Gatineau");
-        dto.Province.Should().Be("Québec");
+        // Photon renvoie « Québec » (nom complet) ; le mapper le normalise en code à 2 lettres
+        // pour respecter Province.MaximumLength(2) côté validateur (L-004 / Finding C).
+        dto.Province.Should().Be("QC");
         dto.PostalCode.Should().Be("J8X 3W6");
         // GeoJSON : coordinates = [lng, lat] → Lat/Lng correctement inversés.
         dto.Lat.Should().Be(45.4215);
         dto.Lng.Should().Be(-75.7013);
         dto.Label.Should().Contain("25 Rue Laurier").And.Contain("Gatineau");
+    }
+
+    [Theory]
+    [InlineData("Québec", "QC")]
+    [InlineData("Ontario", "ON")]
+    [InlineData("British Columbia", "BC")]
+    [InlineData("Colombie-Britannique", "BC")]
+    public async Task SuggestAsync_NormalizesFullProvinceNameToTwoLetterCode(
+        string photonState, string expectedCode)
+    {
+        // Photon (provider par défaut) renvoie « state » en NOM COMPLET. Le mapper DOIT le
+        // ramener à un code à 2 lettres, sinon le submit autofill viole Province.MaximumLength(2)
+        // et produit un 422 silencieux sur le happy-path (L-004 / Finding C).
+        var payload = $$"""
+        {
+          "type": "FeatureCollection",
+          "features": [
+            {
+              "type": "Feature",
+              "geometry": { "type": "Point", "coordinates": [-75.7013, 45.4215] },
+              "properties": {
+                "housenumber": "25",
+                "street": "Rue Laurier",
+                "city": "Gatineau",
+                "state": "{{photonState}}",
+                "postcode": "J8X 3W6"
+              }
+            }
+          ]
+        }
+        """;
+        var handler = new StubHandler(payload);
+        var service = CreateService(handler);
+
+        var result = await service.SuggestAsync(
+            "Laurier", "Gatineau", null, TestContext.Current.CancellationToken);
+
+        result.Should().HaveCount(1);
+        result[0].Province.Should().Be(expectedCode);
+        result[0].Province.Length.Should().BeLessThanOrEqualTo(2);
     }
 
     [Fact]

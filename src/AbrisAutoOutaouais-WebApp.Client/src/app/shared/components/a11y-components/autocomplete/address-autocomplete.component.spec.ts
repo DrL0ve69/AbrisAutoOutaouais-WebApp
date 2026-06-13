@@ -55,6 +55,7 @@ function placesStub() {
       (valueChange)="value.set($event)"
       (suggestionSelected)="selected.set($event)"
     />
+    <button type="button" data-testid="next-field">Suivant</button>
   `,
 })
 class HostComponent {
@@ -147,6 +148,22 @@ describe('AddressAutocompleteComponent — combobox APG', () => {
     await user.keyboard('{Escape}');
     expect(input).toHaveAttribute('aria-expanded', 'false');
     expect(input).toHaveFocus();
+  });
+
+  it('ferme la listbox quand le focus quitte le composant (Tab vers le champ suivant)', async () => {
+    const user = userEvent.setup();
+    const { input, q } = await setup();
+
+    await user.click(input);
+    await user.keyboard('rue Well');
+    await q.findAllByRole('option');
+    expect(input).toHaveAttribute('aria-expanded', 'true');
+
+    // Tabulation vers le bouton suivant : le focus sort du composant → la popup doit fermer
+    // (APG combobox), sinon `aria-expanded` resterait true avec une listbox orpheline.
+    await user.tab();
+    expect(q.getByTestId('next-field')).toHaveFocus();
+    expect(input).toHaveAttribute('aria-expanded', 'false');
   });
 
   it('ne déclenche aucune requête sous 3 caractères', async () => {
