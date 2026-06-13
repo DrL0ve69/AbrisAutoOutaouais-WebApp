@@ -2,18 +2,20 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   ElementRef,
   inject,
   OnInit,
   signal,
   viewChildren,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { ProfileService } from '../../../core/services/profile.service';
-import { PlacesService } from '../../../core/services/places.service';
+import { AddressAutofillService } from '../../../core/services/address-autofill.service';
 import { LocaleService, AppLocale } from '../../../core/services/locale.service';
 import { environment } from '../../../../environments/environment';
 import { UserProfileDto, UpdateProfileRequest } from '../../../core/models/profile.model';
@@ -34,7 +36,8 @@ export class ProfileComponent implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly fb = inject(FormBuilder);
   private readonly profileStore = inject(ProfileService);
-  private readonly places = inject(PlacesService);
+  private readonly addressAutofill = inject(AddressAutofillService);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly locale = inject(LocaleService);
   protected readonly auth = inject(AuthService);
 
@@ -222,38 +225,22 @@ export class ProfileComponent implements OnInit {
 
   // ── Autocomplétion d'adresse ─────────────────────────────────
   /**
-   * Choix explicite d'une suggestion : patch civic/rue/ville/province INCONDITIONNEL
-   * (action utilisateur, hors garde pristine de L-002), puis résolution du code postal
-   * patché normalisé (« A1A 1A1 », L-004). Champ code postal éditable ; null → aucun patch.
+   * Choix explicite d'une suggestion — délègue à `AddressAutofillService` (logique partagée
+   * par les 4 formulaires). Patch civic/rue/ville/province INCONDITIONNEL (action utilisateur,
+   * hors garde pristine de L-002), code postal résolu/normalisé (L-004) et resté éditable ;
+   * null → aucun patch.
    */
   protected onSuggestionSelected(s: PlaceSuggestionDto): void {
     this.postalAutofilled.set(false);
-    this.addressForm.patchValue({
-      civicNumber: s.civicNumber ?? '',
-      street: s.street,
-      city: s.city,
-      province: s.province || 'QC',
-    });
-    this.addressForm.controls.street.markAsDirty();
-
-    this.places
-      .lookupPostalCode(s.civicNumber ?? '', s.street, s.city, s.province)
-      .subscribe({
-        next: ({ postalCode }) => {
-          if (!postalCode) return;
-          this.addressForm.controls.postalCode.setValue(normalizePostal(postalCode));
-          this.postalAutofilled.set(true);
-        },
-        error: () => {
-          /* silencieux : saisie manuelle possible */
-        },
-      });
+    this.addressAutofill
+      .applySuggestion(this.addressForm, s)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.postalAutofilled.set(true));
   }
 
   /** Frappe libre dans le combobox : synchronise le contrôle « rue ». */
   protected onStreetInput(value: string): void {
-    this.addressForm.controls.street.setValue(value);
-    this.addressForm.controls.street.markAsDirty();
+    this.addressAutofill.syncStreet(this.addressForm, value);
   }
 
   // ── Sauvegarde adresse ───────────────────────────────────────

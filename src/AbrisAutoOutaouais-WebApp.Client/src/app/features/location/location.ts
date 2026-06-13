@@ -1,12 +1,14 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   OnInit,
   computed,
   effect,
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CurrencyPipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -15,7 +17,7 @@ import { RentalService } from '../../core/services/rental.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { ProfileService } from '../../core/services/profile.service';
-import { PlacesService } from '../../core/services/places.service';
+import { AddressAutofillService } from '../../core/services/address-autofill.service';
 import { ProductSummaryDto } from '../../core/models/product.model';
 import { CreateRentalContractRequest } from '../../core/models/rental.model';
 import { PlaceSuggestionDto } from '../../core/models/place.model';
@@ -47,7 +49,8 @@ export class LocationComponent implements OnInit {
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
   private readonly profile = inject(ProfileService);
-  private readonly places = inject(PlacesService);
+  private readonly addressAutofill = inject(AddressAutofillService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(true);
   protected readonly submitting = signal(false);
@@ -96,39 +99,22 @@ export class LocationComponent implements OnInit {
   }
 
   /**
-   * Choix explicite d'une suggestion d'adresse : on patche civic/rue/ville/province
-   * INCONDITIONNELLEMENT (action utilisateur, donc PAS gardée par le pristine de L-002),
-   * puis on résout le code postal et on le patche normalisé (« A1A 1A1 », L-004). Le champ
-   * code postal RESTE éditable ; si le proxy renvoie null, on ne patche rien.
+   * Choix explicite d'une suggestion d'adresse — délègue à `AddressAutofillService` (logique
+   * partagée par les 4 formulaires). Patch civic/rue/ville/province INCONDITIONNEL (action
+   * utilisateur, hors garde pristine de L-002), code postal résolu/normalisé (L-004) et resté
+   * éditable ; si le proxy renvoie null, on ne patche rien.
    */
   protected onSuggestionSelected(s: PlaceSuggestionDto): void {
     this.postalAutofilled.set(false);
-    this.form.patchValue({
-      civicNumber: s.civicNumber ?? '',
-      street: s.street,
-      city: s.city,
-      province: s.province || 'QC',
-    });
-    this.form.controls.street.markAsDirty();
-
-    this.places
-      .lookupPostalCode(s.civicNumber ?? '', s.street, s.city, s.province)
-      .subscribe({
-        next: ({ postalCode }) => {
-          if (!postalCode) return;
-          this.form.controls.postalCode.setValue(normalizePostal(postalCode));
-          this.postalAutofilled.set(true);
-        },
-        error: () => {
-          /* silencieux : l'utilisateur peut saisir le code postal manuellement */
-        },
-      });
+    this.addressAutofill
+      .applySuggestion(this.form, s)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.postalAutofilled.set(true));
   }
 
   /** Frappe libre dans le combobox : synchronise le contrôle « rue ». */
   protected onStreetInput(value: string): void {
-    this.form.controls.street.setValue(value);
-    this.form.controls.street.markAsDirty();
+    this.addressAutofill.syncStreet(this.form, value);
   }
 
   protected confirm(): void {
