@@ -30,6 +30,12 @@ public sealed class WebAppFactory : WebApplicationFactory<Program>, IAsyncLifeti
     /// </summary>
     public IEmailService EmailService { get; } = Substitute.For<IEmailService>();
 
+    /// <summary>
+    /// Substitut PARTAGÉ du proxy Places : aucun appel réseau réel vers un fournisseur
+    /// externe en test. Les tests configurent ses réponses et inspectent les appels reçus.
+    /// </summary>
+    public IPlacesService PlacesService { get; } = Substitute.For<IPlacesService>();
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.ConfigureServices(services =>
@@ -55,6 +61,17 @@ public sealed class WebAppFactory : WebApplicationFactory<Program>, IAsyncLifeti
             // Remplacer le service email par le substitut partagé (pas d'envoi réel,
             // et les tests peuvent inspecter les appels reçus via factory.EmailService).
             services.AddScoped<IEmailService>(_ => EmailService);
+
+            // Remplacer le proxy Places (enregistré via AddHttpClient typé) par le substitut
+            // partagé : on retire d'abord TOUTES les inscriptions de IPlacesService (le
+            // typed-client en ajoute une) avant de réenregistrer l'instance contrôlée.
+            var placesToRemove = services
+                .Where(d => d.ServiceType == typeof(IPlacesService))
+                .ToList();
+            foreach (var d in placesToRemove)
+                services.Remove(d);
+
+            services.AddScoped<IPlacesService>(_ => PlacesService);
         });
 
         builder.UseEnvironment("Test");
