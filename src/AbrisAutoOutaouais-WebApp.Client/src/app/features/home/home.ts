@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { CurrencyPipe } from '@angular/common';
 import { ProductService } from '../../core/services/product.service';
 import { ProductDto, resolveProductImage } from '../../core/models/product.model';
+import { HeroStoryComponent } from './hero-story/hero-story';
 
 interface ServiceCard {
   icon: string;
@@ -23,7 +24,7 @@ interface WhyUsItem {
   templateUrl: './home.html',
   styleUrl: './home.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, CurrencyPipe],
+  imports: [RouterLink, CurrencyPipe, HeroStoryComponent],
 })
 export class HomeComponent implements OnInit {
   private readonly productService = inject(ProductService);

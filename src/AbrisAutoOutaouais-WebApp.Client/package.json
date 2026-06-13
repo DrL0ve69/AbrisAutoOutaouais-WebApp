@@ -32,6 +32,7 @@
     "@turf/area": "^7.3.5",
     "@turf/bbox": "^7.3.5",
     "@turf/helpers": "^7.3.5",
+    "gsap": "^3.15.0",
     "jest-editor-support": "*",
     "leaflet": "^1.9.4",
     "rxjs": "~7.8.0",

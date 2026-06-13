@@ -1,0 +1,188 @@
+// ============================================================
+// Hero scroll story — AbrisTempo Local (E2, Redesign v2)
+// Styles déplacés depuis home.scss (allège le budget ~12,5 kB).
+// CLS : on réserve min-height: 100dvh côté serveur SANS pré-réserver
+// les 300vh du pin (GSAP fait grandir le pin-spacer après hydratation).
+// AUCUN opacity:0 ici — frame 1 serveur = scène finale (toutes couches
+// visibles) ; GSAP pose l'état initial côté client uniquement.
+// ============================================================
+
+.hero-story {
+  position: relative;
+  // Pin-wrap : occupe le viewport. `100dvh` réservé dès le serveur (pas 300vh).
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  background: var(--gradient-navy);
+  overflow: hidden;
+  padding: calc(68px + var(--space-20)) 0 var(--space-20);
+
+  // Grain très subtil (décoratif).
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    background-size: 256px 256px;
+    pointer-events: none;
+  }
+}
+
+// ── Récit visuel décoratif (SVG plein cadre, aria-hidden) ────────────────────
+.hero-story__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  // Lueurs marque/focus (jetons E1) en arrière-plan diffus.
+  background:
+    var(--glow-brand) -20% -10% / 60% 60% no-repeat,
+    var(--glow-focus) 110% 120% / 50% 50% no-repeat;
+}
+
+// Couches révélées au scroll. Transition CSS de repli (le JS prend le relais
+// quand GSAP est présent). On consomme l'easing/durée emphatiques (jetons E1).
+[data-layer] {
+  transition:
+    opacity var(--duration-slower) var(--ease-emphasized),
+    var(--transition-transform);
+  transform-origin: center bottom;
+  will-change: opacity, transform;
+}
+
+// ── Légendes du récit (aria-hidden) ──────────────────────────────────────────
+.hero-story__beats {
+  position: absolute;
+  inset-inline: 0;
+  bottom: var(--space-12);
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.hero-story__beat {
+  // Les légendes se superposent : GSAP en révèle une à la fois au scroll.
+  grid-area: 1 / 1;
+  font-family: var(--font-display);
+  font-size: clamp(var(--font-size-lg), 3vw, var(--font-size-2xl));
+  font-weight: var(--font-weight-bold);
+  color: var(--color-on-dark);
+  letter-spacing: -0.01em;
+  text-align: center;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+}
+
+// ── Contenu sémantique (occupe sa boîte définitive dès le serveur) ───────────
+.hero-story__content {
+  position: relative;
+  z-index: 2;
+  max-width: 760px;
+}
+
+.hero-story__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: rgba(185, 28, 28, 0.18);
+  border: 1px solid rgba(220, 38, 38, 0.35);
+  border-radius: var(--radius-full);
+  color: var(--color-on-dark-muted);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--space-6);
+  letter-spacing: 0.01em;
+}
+
+.hero-story__title {
+  font-family: var(--font-display);
+  font-size: clamp(var(--font-size-3xl), 6vw, var(--font-size-6xl));
+  font-weight: var(--font-weight-extrabold);
+  color: var(--color-on-dark);
+  line-height: var(--line-height-tight);
+  margin-bottom: var(--space-6);
+  letter-spacing: -0.02em;
+}
+
+.hero-story__title-accent {
+  display: block;
+  color: var(--color-primary-light);
+  position: relative;
+
+  // Soulignement décoratif.
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 0;
+    width: 60%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--color-primary-light) 0%, transparent 100%);
+    border-radius: var(--radius-full);
+  }
+}
+
+.hero-story__subtitle {
+  font-size: clamp(var(--font-size-base), 2vw, var(--font-size-xl));
+  color: var(--color-on-dark-subtle);
+  line-height: var(--line-height-relaxed);
+  max-width: 560px;
+  margin-bottom: var(--space-10);
+}
+
+.hero-story__actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-bottom: var(--space-12);
+}
+
+.hero-story__stats {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-6);
+  padding-top: var(--space-8);
+  border-top: 1px solid var(--color-border-on-dark);
+}
+
+.hero-story__stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.hero-story__stat-number {
+  font-family: var(--font-display);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-extrabold);
+  color: var(--color-on-dark);
+  line-height: 1;
+}
+
+.hero-story__stat-label {
+  font-size: var(--font-size-sm);
+  // Libellé sous un grand chiffre (contexte) : -faint reste décoratif/secondaire ici.
+  color: var(--color-on-dark-faint);
+}
+
+.hero-story__stat-divider {
+  width: 1px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+// ── Repli mouvement réduit (ceinture + bretelles avec la branche JS) ─────────
+// Pas de pin/scrub côté JS ; ici on neutralise transitions et will-change et on
+// garantit la scène finale visible même si le JS ne s'exécute pas.
+@media (prefers-reduced-motion: reduce) {
+  [data-layer],
+  .hero-story__beat {
+    transition: none;
+    will-change: auto;
+  }
+}
