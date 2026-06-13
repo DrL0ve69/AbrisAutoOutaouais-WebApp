@@ -11,54 +11,41 @@
 
 ## Curseur courant
 
-- **Épic en cours :** **B — Sections manquantes** (branche `feat/missing-sections`)
-- **Prochaine sous-tâche :** **B4 — Heuristiques** (pas commencée)
-- **Dernière mise à jour :** 2026-06-12
+- **Épic en cours :** **B terminé ✅** → prochain : **mini-cycle « marque/modèle »**, puis **Épic C**
+- **Prochaine sous-tâche :** **Mini-cycle marque/modèle + exclusion ShelterLogic** (Domain + migration EF)
+- **Dernière mise à jour :** 2026-06-13
 
-## État détaillé de l'Épic B
+## Prochaine tâche — mini-cycle « marque/modèle » (règle métier reportée de B4)
+
+Le catalogue reste **100 % Tempo**, mais le **service d'installation accepte d'autres marques**.
+À livrer (son propre cycle, sa propre revue — c'est une modif Domain, « ne pas toucher Domain à la légère ») :
+1. **Champs marque/modèle** sur `BookingSlot` (`Brand`, `Model`) + sur `CreateBookingCommand` (DTO + validateur).
+2. **Exclusion ShelterLogic** appliquée **client ET serveur** (L-004 : un format/règle partagé = UNE définition).
+3. **Mini-migration EF** additive (champs nullables — respecter la nullabilité des owned, L-001) ;
+   eyeball `dotnet ef migrations script`.
+4. La ligne FAQ « on installe d'autres marques sauf ShelterLogic » existe déjà (texte, livré en B4) —
+   la relier au champ une fois capturé.
+> ⚠️ Si tu préfères, ce mini-cycle peut être **sauté** et fusionné dans l'Épic C — à confirmer.
+
+## Épic B — TERMINÉ (branche `feat/missing-sections`)
 
 | Sous-tâche | État | Notes |
 |-----------|------|-------|
-| B1 — Pages légales (`/conditions`, `/confidentialite`, `/accessibilite`) | ✅ committé | `47d306f` |
-| B2 — Réinitialisation mot de passe bout-en-bout | ✅ committé | `52a9064`, `c54782d` |
-| B3 — Admin réservations / locations / utilisateurs | ✅ committé | `3e4c174` `f43fbe4` `bcaa95e` `d268b82` |
-| **#11 — Correctifs de revue B1/B2** | ✅ **committé** (voir prochain commit) | minuscule mot de passe (client≡serveur, L-004), IT câblé dans CI (L-005), gardes de ré-entrée + focus sur erreur, focus-ring sombre, warning prod EmailService, commentaire canal temporel (L-007) |
-| **B4 — Heuristiques** | ❌ **À FAIRE — prochaine tâche** | voir ci-dessous |
+| B1 — Pages légales | ✅ | `47d306f` |
+| B2 — Réinitialisation mot de passe bout-en-bout | ✅ | `52a9064`, `c54782d` |
+| B3 — Admin réservations / locations / utilisateurs | ✅ | `3e4c174` `f43fbe4` `bcaa95e` `d268b82` |
+| #11 — Correctifs de revue B1/B2 | ✅ | `478a711` (parité mot de passe L-004, IT en CI L-005, a11y) |
+| B4 — Heuristiques (H1 langue, H5 disponibilité, FAQ) | ✅ | revue indépendante APPROVE WITH NITS ; leçon L-010 |
 
-## B4 — détail de ce qui reste (prochaine tâche)
+Docs retournées : README roadmap, `docs/agile/board.md` (section clôture Épic B),
+`docs/ux/heuristic-evaluation.md` (H1–H10 tous remédiés). **PR/merge vers `master` en cours.**
 
-1. **H5 — Vérification de disponibilité** : `GET api/v1/auth/availability?username=&email=`
-   (nouveau `APP/Auth/CheckAvailability/*` via `IIdentityService`) + validateurs asynchrones
-   *debounced* sur le formulaire d'inscription (`features/auth/auth.ts`).
-2. **H1 — Confirmation du changement de langue** : `aria-live` après rechargement via marqueur
-   `sessionStorage` (i18n = builds par locale).
-3. **FAQ** : accordéon a11y existant sur `/installation` + `/location` (`shared/content/faq.data.ts`).
-4. **Règle métier à intégrer (nouvelle, cf. handoff §4)** : le catalogue reste 100 % Tempo, mais le
-   **service d'installation accepte d'autres marques** → ajouter champs **marque/modèle** à
-   `BookingSlot` + `CreateBookingCommand` (mini-migration + DTO + validateur), avec **exclusion
-   ShelterLogic** côté client *et* serveur (L-004), et une ligne FAQ « on installe d'autres marques
-   sauf ShelterLogic ». *(Peut aussi être traité comme un mini-épic juste après B — à confirmer avec
-   l'utilisateur.)*
+## Suite du programme (après le mini-cycle)
 
-Docs à retourner en fin d'Épic B : README roadmap, `docs/agile/board.md`, `product-backlog.md`
-(H1/H5 → done), avant/après dans les audits.
-
-## Clôture de l'Épic B (quand B4 est fini)
-
-Suivre le workflow standard de fin de tâches liées (cf. `/next-task`) :
-1. Gates : `dotnet test`, `npm test`, `npm run e2e` (zéro violation axe).
-2. **`code-reviewer` indépendant** sur tout le diff `feat/missing-sections` (l'implémenteur ne valide
-   jamais son propre diff).
-3. **`mentor`** : capturer la leçon `scrollable-region-focusable` trouvée en B3.
-4. Retourner les statuts (board, backlog, README roadmap).
-5. **commit → PR → revue CI → merge/push vers `master`.**
-6. Mettre à jour ce pointeur : curseur → **Épic C**.
-
-## Suite du programme (après B)
-
-- **Épic C** — Adresse structurée + autocomplétion (`feat/address-split-autocomplete`)
-- **Épic D** — Outil `/mesurer` parking + suggestions (`feat/mesurer-parking`) — *après C*
-- **Épic E** — Redesign v2 (`feat/redesign-v2`) — *après D*
-- **Épic F** — Wrap-up docs/process (`docs/program-wrapup`)
+- **Épic C** — Adresse structurée (civic/apt/rue) + autocomplétion accessible (proxy Photon/Radar/Google) — `feat/address-split-autocomplete`
+- **Épic D** — Outil `/mesurer` parking + suggestions (Leaflet + turf) — `feat/mesurer-parking` — *après C*
+- **Épic E** — Redesign v2 (tokens v2, GSAP hero, three.js viewer) — `feat/redesign-v2` — *après D*
+- **Épic F** — Wrap-up docs/process — `docs/program-wrapup`
 
 Détail complet de chaque épic : voir le fichier de plan référencé en tête.
+Règle git de fin d'épic : revue → commit → PR → revue CI → merge/push `master`.

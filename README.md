@@ -192,11 +192,12 @@ AbrisAutoOutaouais-WebApp.slnx
 ## Feuille de route
 
 - [x] Catalogue + filtres + fiche produit · seeder
-- [x] Auth (JWT, courriel/nom d'utilisateur), profil, rôles
+- [x] Auth (JWT, courriel/nom d'utilisateur), profil, rôles · **réinitialisation du mot de passe** de bout en bout
 - [x] Accessibilité WCAG 2.2 AA + tests axe (unitaire & e2e) · thèmes clair/sombre · i18n fr/en
-- [x] Panier · pages compte · tableau de bord admin (coquilles accessibles)
-- [ ] Backend e‑commerce complet : commandes (persistées), paiement (Stripe), CRUD admin
-- [ ] Réservation d'installation (créneaux) & contrats de location de bout en bout
+- [x] Panier · pages compte · **pages légales** (conditions, confidentialité, déclaration d'accessibilité)
+- [x] Backend e‑commerce : commandes **persistées** · CRUD admin (produits, **réservations, locations, utilisateurs**) — _paiement en mode démo (pas de Stripe)_
+- [x] Réservation d'installation (créneaux) & contrats de location de bout en bout
+- [x] Aide & UX : FAQ accessible (`/installation`, `/location`) · vérif. de disponibilité username/courriel · confirmation du changement de langue
 - [ ] Déploiement (Vercel + Azure App Service) via GitHub Actions
 
 ## Compétences démontrées

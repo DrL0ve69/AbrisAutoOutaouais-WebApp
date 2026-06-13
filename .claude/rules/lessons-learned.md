@@ -11,6 +11,32 @@
 
 ---
 
+## L-010 · A new global ARIA landmark/live-region can break role locators in UNRELATED specs
+
+- **Symptom.** B4 added a **global** live region (`role="status"` / `aria-live="polite"`) to
+  `app.html` to announce the language switch after reload. That silently broke an unrelated spec,
+  `e2e/password-reset.spec.ts`, whose locator `getByRole('status')` was **unscoped**: with a second
+  `status` node now in the page, Playwright strict mode raised a « resolved to 2 elements » ambiguity
+  and the test failed — even though nothing about password-reset changed. A role-based locator picks
+  from a **page-global** namespace, so adding one shared landmark widens the match set of every such
+  locator in the suite, not just the file you edited.
+- **Rule.** When you add a **global** landmark/live-region/role node (`status`, `alert`,
+  `navigation`, `main`, `banner`…) in a shared shell like `app.html`, grep the whole test suite for
+  unscoped role locators that can now collide (`getByRole('status'|'alert'|…)` without a scope) and
+  re-anchor them to the **real post-condition** — scope by accessible name / text
+  (`getByRole('status').filter({ hasText: /si un compte correspond/i })` or `getByText(...)`), not by
+  bare role. Confirm by sweeping the suite, as B4 did (the only other `getByRole('status')` was a
+  component spec rendered in isolation without `app.html`, so unaffected). Same root as [[L-008]]:
+  after a change, hunt the tests it can knock over — but here the breakage is by **collision in a
+  global namespace**, not by pinning the old mechanism, and it hits specs with no topical link to the
+  change ([[L-002]]: assert the real post-condition, not a brittle proxy like a bare role).
+  Corollary (tooling hygiene): vitest browser mode writes failure screenshots to
+  `.vitest-attachments/`; these PNGs had been committed in an earlier session and polluted the diff —
+  keep `.vitest-attachments/` in the client `.gitignore` and never commit those artifacts.
+- **Refs.** `src/app/app.html` (global `role="status"` language-switch live region),
+  `e2e/password-reset.spec.ts` (locator re-scoped by text), `.gitignore` (client,
+  `.vitest-attachments/`).
+
 ## L-009 · Breakpoint-gated UI: pin the viewport in vitest browser specs, or assertions pass vacuously
 
 - **Symptom.** The navbar has two variants split at 1024px (desktop user-menu vs hamburger panel).
