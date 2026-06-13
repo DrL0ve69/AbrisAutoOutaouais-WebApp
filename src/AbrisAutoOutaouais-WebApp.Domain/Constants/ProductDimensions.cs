@@ -10,4 +10,11 @@ public static class ProductDimensions
 {
     public const int MinCm = 50;
     public const int MaxCm = 2000;
+
+    /// <summary>
+    /// Marge (en cm) sous laquelle un abri suggéré est considéré « ajusté serré »
+    /// (<c>IsTightFit</c>) par rapport aux dimensions requises. Source unique du seuil :
+    /// ne pas redéfinir 50 ailleurs (cf. L-004).
+    /// </summary>
+    public const int TightFitMarginCm = 50;
 }
