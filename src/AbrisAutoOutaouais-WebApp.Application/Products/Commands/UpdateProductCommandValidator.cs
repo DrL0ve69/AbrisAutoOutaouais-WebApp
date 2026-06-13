@@ -9,7 +9,7 @@ namespace AbrisAutoOutaouais_WebApp.Application.Products.Commands;
 /// plus les 3 dimensions optionnelles. Existe car l'Update n'était pas validé du tout
 /// auparavant — un trou silencieux que ce validator referme.
 /// </summary>
-public class UpdateProductCommandValidator : AbstractValidator<UpdateProductCommand>
+public sealed class UpdateProductCommandValidator : AbstractValidator<UpdateProductCommand>
 {
     public UpdateProductCommandValidator()
     {

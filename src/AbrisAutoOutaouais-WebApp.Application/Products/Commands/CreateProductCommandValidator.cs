@@ -3,7 +3,7 @@ using FluentValidation;
 
 namespace AbrisAutoOutaouais_WebApp.Application.Products.Commands;
 
-public class CreateProductCommandValidator : AbstractValidator<CreateProductCommand>
+public sealed class CreateProductCommandValidator : AbstractValidator<CreateProductCommand>
 {
     public CreateProductCommandValidator()
     {
