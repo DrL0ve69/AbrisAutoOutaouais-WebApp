@@ -1,0 +1,43 @@
+<div class="measure">
+  <!-- Choix de méthode : calculateur (clavier, défaut) ⇄ carte (pointer). -->
+  <div class="measure__methods" role="radiogroup" aria-label="Méthode de mesure" i18n-aria-label="@@mesurer.method.group">
+    <button
+      type="button"
+      class="measure__method"
+      [class.measure__method--active]="method() === 'calculator'"
+      role="radio"
+      [attr.aria-checked]="method() === 'calculator'"
+      (click)="setMethod('calculator')"
+      i18n="@@mesurer.method.calculator">
+      Calculateur de véhicules
+    </button>
+    <button
+      type="button"
+      class="measure__method"
+      [class.measure__method--active]="method() === 'map'"
+      role="radio"
+      [attr.aria-checked]="method() === 'map'"
+      (click)="setMethod('map')"
+      i18n="@@mesurer.method.map">
+      Mesurer sur la carte
+    </button>
+  </div>
+
+  @if (method() === 'calculator') {
+  <app-vehicle-calculator (footprintComputed)="onFootprint($event)" />
+  } @else {
+  <!-- Carte chargée à l'apparition (différée) : le poids Leaflet/geoman/turf reste dans
+       un chunk séparé qui n'est chargé que si l'utilisateur choisit ce mode. -->
+  @defer (on viewport) {
+  <app-map-measure [lat]="lat()" [lng]="lng()" (footprintComputed)="onFootprint($event)" />
+  } @placeholder {
+  <div class="measure__map-placeholder">
+    <p i18n="@@mesurer.method.mapPlaceholder">Faites défiler pour afficher la carte satellite.</p>
+  </div>
+  } @loading {
+  <div class="measure__map-loading" aria-busy="true">
+    <p i18n="@@mesurer.method.mapLoading">Chargement de la carte…</p>
+  </div>
+  }
+  }
+</div>

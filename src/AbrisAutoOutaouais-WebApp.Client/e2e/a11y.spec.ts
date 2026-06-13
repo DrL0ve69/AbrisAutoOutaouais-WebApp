@@ -83,6 +83,14 @@ async function mockApi(page: Page): Promise<void> {
   await page.route('**/api/v1/products/*', (route) => route.fulfill({ json: product }));
   // Liste paginée (ex. /products?page=1&pageSize=50)
   await page.route('**/api/v1/products*', (route) => route.fulfill({ json: productList }));
+  // Suggestion d'abris (/mesurer étape résultats) — enregistrée APRÈS les patterns produits
+  // pour gagner en priorité (Playwright privilégie la dernière route). L'étape 1 (Adresse)
+  // ne l'appelle pas, mais on la mocke par sûreté pour éviter toute requête réelle.
+  await page.route('**/api/v1/products/suggest-shelters*', (route) =>
+    route.fulfill({ json: [] }),
+  );
+  // Proxy d'adresses (combobox de /mesurer étape 1) — aucune suggestion par défaut.
+  await page.route('**/api/v1/places/suggest*', (route) => route.fulfill({ json: [] }));
 }
 
 // Tags WCAG validés (A + AA, 2.0 et 2.1). color-contrast N'EST PAS désactivé.
@@ -174,6 +182,15 @@ const routes = [
       expect(
         page.getByRole('heading', { level: 2, name: /foire aux questions/i }),
       ).toBeVisible(),
+  },
+  // Outil « Mesurer » — on atterrit sur l'étape 1 (Adresse) : AUCUNE carte n'est rendue
+  // (la carte vit derrière un `@defer (on viewport)` à l'étape 2), donc AUCUNE exclusion
+  // axe ici — la page entière est scannée.
+  {
+    nom: 'Mesurer (/mesurer) — étape adresse',
+    chemin: '/mesurer',
+    pret: (page: Page) =>
+      expect(page.getByRole('heading', { level: 2, name: /adresse/i })).toBeVisible(),
   },
 ] as const;
 

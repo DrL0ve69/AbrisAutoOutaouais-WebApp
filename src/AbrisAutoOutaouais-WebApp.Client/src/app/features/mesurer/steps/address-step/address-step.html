@@ -1,0 +1,66 @@
+<form class="addr" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <p class="addr__lead" i18n="@@mesurer.address.lead">
+    Indiquez l'adresse du stationnement à couvrir. Choisissez une suggestion pour situer la
+    carte satellite à l'étape suivante.
+  </p>
+
+  <div class="form-row form-row--two">
+    <div class="form-field">
+      <label for="mesurer-civic" i18n="@@mesurer.address.civic">Numéro civique</label>
+      <input
+        id="mesurer-civic"
+        type="text"
+        formControlName="civicNumber"
+        autocomplete="off"
+        inputmode="text"
+        placeholder="123"
+        [attr.aria-invalid]="f.civicNumber.touched && f.civicNumber.invalid"
+        aria-describedby="mesurer-civic-err" />
+      @if (f.civicNumber.touched && f.civicNumber.invalid) {
+      <p id="mesurer-civic-err" class="form-field__error" role="alert" i18n="@@mesurer.address.civicInvalid">
+        Numéro civique invalide (ex&nbsp;: 123 ou 123A).
+      </p>
+      }
+    </div>
+
+    <div class="form-field">
+      <app-address-autocomplete
+        id="mesurer-rue"
+        label="Rue"
+        i18n-label="@@mesurer.address.street"
+        [value]="f.street.value"
+        [cityHint]="f.city.value"
+        [provinceHint]="f.province.value"
+        [invalid]="f.street.touched && f.street.invalid"
+        describedBy="mesurer-street-err"
+        (valueChange)="onStreetInput($event)"
+        (suggestionSelected)="onSuggestionSelected($event)" />
+      @if (f.street.touched && f.street.invalid) {
+      <p id="mesurer-street-err" class="form-field__error" role="alert" i18n="@@mesurer.address.streetRequired">
+        L'adresse est requise.
+      </p>
+      }
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-field">
+      <label for="mesurer-city" i18n="@@mesurer.address.city">Ville</label>
+      <input id="mesurer-city" type="text" formControlName="city" autocomplete="address-level2" />
+      @if (f.city.touched && f.city.invalid) {
+      <p class="form-field__error" role="alert" i18n="@@mesurer.address.cityRequired">
+        La ville est requise.
+      </p>
+      }
+    </div>
+
+    <div class="form-field">
+      <label for="mesurer-province" i18n="@@mesurer.address.province">Province</label>
+      <input id="mesurer-province" type="text" formControlName="province" autocomplete="address-level1" />
+    </div>
+  </div>
+
+  <button type="submit" class="btn btn--primary addr__submit" i18n="@@mesurer.address.next">
+    Continuer vers la mesure
+  </button>
+</form>

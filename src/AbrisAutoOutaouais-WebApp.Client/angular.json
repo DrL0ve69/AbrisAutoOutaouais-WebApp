@@ -48,6 +48,10 @@
             ],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
+            "allowedCommonJsDependencies": [
+              "leaflet",
+              "@geoman-io/leaflet-geoman-free"
+            ],
             "assets": [
               {
                 "glob": "**/*",
@@ -55,7 +59,12 @@
               }
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              {
+                "input": "src/styles/leaflet-bundle.scss",
+                "bundleName": "leaflet",
+                "inject": false
+              }
             ],
             "scripts": []
           },

@@ -1,0 +1,31 @@
+<div class="map-measure">
+  <!-- Instructions visibles : la carte est pointer-only ; l'équivalent clavier est le
+       calculateur de véhicules (étape par défaut). Annonce du mode pour AT. -->
+  <p class="map-measure__instructions" id="map-instructions">
+    <ng-container i18n="@@mesurer.map.instructions">
+      La carte se manipule à la souris ou au tactile&nbsp;: utilisez l'outil rectangle (en haut
+      à droite) pour tracer votre stationnement. Pour un calcul entièrement au clavier, revenez
+      au calculateur de véhicules.
+    </ng-container>
+  </p>
+
+  <!-- role="application" : zone de dessin interactive tierce (Leaflet/geoman). axe exclut
+       `.leaflet-container` (internes du widget) — l'équivalent clavier couvre l'a11y. -->
+  <div
+    #mapHost
+    class="map-measure__canvas"
+    role="application"
+    aria-describedby="map-instructions"
+    aria-label="Carte satellite pour mesurer le stationnement"
+    i18n-aria-label="@@mesurer.map.canvasLabel"
+    [attr.aria-busy]="!ready()"></div>
+
+  <p class="map-measure__status" role="status" aria-live="polite" aria-atomic="true">
+    @if (outOfRange()) {
+    <ng-container i18n="@@mesurer.map.outOfRange">
+      La zone tracée est trop petite ou dépasse la plage prise en charge. Tracez un rectangle
+      réaliste de votre stationnement.
+    </ng-container>
+    }
+  </p>
+</div>

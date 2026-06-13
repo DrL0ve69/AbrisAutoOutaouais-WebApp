@@ -1,0 +1,87 @@
+.mesurer {
+  padding-block: var(--space-8);
+}
+
+.mesurer__head {
+  margin-bottom: var(--space-6);
+}
+
+.mesurer__eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.mesurer__lead {
+  margin: var(--space-2) 0 0;
+  color: var(--color-text-muted);
+  max-width: 48ch;
+}
+
+// ── Indicateur d'étapes ──────────────────────────────────────────
+.mesurer__steps {
+  list-style: none;
+  margin: 0 0 var(--space-6);
+  padding: 0;
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.mesurer__step {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+}
+
+.mesurer__step-num {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  border: 2px solid var(--color-border);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.mesurer__step--current {
+  color: var(--color-primary);
+  font-weight: 700;
+
+  .mesurer__step-num {
+    border-color: var(--color-primary);
+    background: var(--color-primary);
+    color: #fff;
+  }
+}
+
+.mesurer__step--done {
+  color: var(--color-text);
+
+  .mesurer__step-num {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+}
+
+.mesurer__step-heading {
+  margin: 0 0 var(--space-4);
+  // Le focus programmatique (tabindex=-1) ne doit pas afficher un anneau résiduel au survol,
+  // mais reste visible au clavier via le style global :focus-visible.
+  &:focus {
+    outline: none;
+  }
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 4px;
+  }
+}
+
+.mesurer__back {
+  margin-bottom: var(--space-4);
+}

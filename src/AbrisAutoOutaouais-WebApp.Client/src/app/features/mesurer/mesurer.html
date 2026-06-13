@@ -1,0 +1,55 @@
+<section class="mesurer" aria-labelledby="mesurer-heading">
+  <div class="container container--narrow">
+    <header class="mesurer__head">
+      <p class="mesurer__eyebrow" i18n="@@mesurer.eyebrow">Outil</p>
+      <h1 id="mesurer-heading" i18n="@@mesurer.title">Mesurer mon stationnement</h1>
+      <p class="mesurer__lead" i18n="@@mesurer.lead">
+        Trouvez l'abri Tempo adapté à votre espace en trois étapes&nbsp;: votre adresse, la
+        mesure de votre stationnement, puis nos abris compatibles.
+      </p>
+    </header>
+
+    <!-- Indicateur d'étapes accessible : liste ordonnée, étape courante marquée. -->
+    <ol class="mesurer__steps" aria-label="Progression" i18n-aria-label="@@mesurer.progressLabel">
+      @for (s of allSteps; track s) {
+      <li
+        class="mesurer__step"
+        [class.mesurer__step--current]="step() === s"
+        [class.mesurer__step--done]="step() > s"
+        [attr.aria-current]="step() === s ? 'step' : null">
+        <span class="mesurer__step-num" aria-hidden="true">{{ s }}</span>
+        <span class="mesurer__step-label">{{ stepTitles[s] }}</span>
+      </li>
+      }
+    </ol>
+
+    <!-- Annonce d'étape (scopée, ancrée par texte dans les tests — L-010). -->
+    <p class="sr-only" role="status" aria-live="polite" aria-atomic="true">{{ stepAnnouncement() }}</p>
+
+    <!-- Titre d'étape : cible du focus post-rendu (tabindex=-1), L-006. -->
+    <h2 #stepHeading tabindex="-1" class="mesurer__step-heading">
+      {{ currentTitle() }}
+    </h2>
+
+    @switch (step()) {
+      @case (1) {
+      <app-address-step (addressSelected)="onAddressSelected($event)" />
+      }
+      @case (2) {
+      <button type="button" class="mesurer__back btn btn--ghost btn--sm" (click)="goToStep(1)" i18n="@@mesurer.back">
+        ← Modifier l'adresse
+      </button>
+      <app-measure-step
+        [lat]="address()?.lat ?? null"
+        [lng]="address()?.lng ?? null"
+        (footprintComputed)="onFootprintComputed($event)" />
+      }
+      @case (3) {
+      <button type="button" class="mesurer__back btn btn--ghost btn--sm" (click)="goToStep(2)" i18n="@@mesurer.backMeasure">
+        ← Refaire la mesure
+      </button>
+      <app-results-step [footprint]="footprint()" />
+      }
+    }
+  </div>
+</section>
