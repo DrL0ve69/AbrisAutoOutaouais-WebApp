@@ -71,7 +71,11 @@ export class MapMeasureComponent {
     ensureLeafletStyles();
 
     // Import dynamique de Leaflet (navigateur uniquement) — aucun symbole au top-level (SSR-safe).
-    const L = await import('leaflet');
+    // Interop CJS↔ESM : selon le bundler (vite en dev vs esbuild en build/CI), l'API Leaflet est
+    // exposée soit sur le namespace, soit sous `.default`. On normalise pour éviter le
+    // « TypeError: L.map is not a function » observé en CI.
+    const leafletNs = await import('leaflet');
+    const L = leafletNs.default ?? leafletNs;
 
     const center: [number, number] = [this.lat() ?? 45.4765, this.lng() ?? -75.7013];
 
