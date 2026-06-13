@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect, type Page, type Locator } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
 // ── e2e : combobox d'autocomplétion d'adresse (ARIA APG), au CLAVIER seul.
@@ -7,6 +7,16 @@ import AxeBuilder from '@axe-core/playwright';
 // comme a11y.spec.ts. Le parcours est entièrement clavier ; axe scanne la page
 // ENTIÈRE (navbar incluse), sans exclusion (L-008 : pas de scope qui masque un bug).
 // Page testée : /location, dont le champ « Rue » porte id="street".
+//
+// DÉTERMINISME (anti-flake) : la listbox ne se peuple qu'APRÈS une requête réseau
+// `places/suggest` debouncée (300 ms) + réponse async. En suite complète, asserter
+// les options / naviguer aux flèches AVANT que la réponse mockée n'arrive donne 0
+// option (la frappe caractère-par-caractère re-arme le debounce, et `ArrowDown` ne
+// fait rien tant que `suggestions` est vide). On franchit donc explicitement une
+// barrière `waitForResponse('**/api/v1/places/suggest*')` autour de la frappe, puis
+// on attend l'état rendu (`toBeVisible`/`toHaveCount`) — jamais de `waitForTimeout`.
+// La couverture clavier APG (↓/↑/Entrée/Échap) reste intégralement exercée APRÈS la
+// barrière. Status ancré PAR TEXTE (L-010 : un role="status" global existe dans app.html).
 
 const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 
@@ -71,17 +81,47 @@ async function gotoLocation(page: Page): Promise<void> {
   await expect(page.locator('#street')).toBeVisible();
 }
 
+/**
+ * Frappe « rue Well » dans le combobox et attend DÉTERMINISTEMENT que la requête
+ * `places/suggest` mockée ait été servie avant de rendre la main.
+ *
+ * Garanties anti-flake :
+ *  1. On frappe via `combo.pressSequentially(...)` (et non `page.keyboard.type`) : le
+ *     locator AUTO-ATTEND que l'input soit actionnable et y porte le focus de façon
+ *     fiable, là où `page.keyboard.type` envoie au nœud actuellement focalisé.
+ *  2. La page est SSR + hydratée. Tant que l'hydratation Angular n'a pas (re)câblé le
+ *     listener `(input)` du combobox, la frappe pose la valeur native mais ne déclenche
+ *     NI `valueChange` NI le flux `suggest` debouncé → combobox « vide » côté Angular,
+ *     aucun appel réseau, et `waitForResponse` partait en timeout (le flake observé en
+ *     suite chargée). On enveloppe donc toute l'amorce (vider → frapper → réponse →
+ *     listbox peuplée) dans `expect(...).toPass()` : si une attente d'hydratation avale
+ *     la première tentative, Playwright la REJOUE jusqu'à ce que le pipeline complet
+ *     réussisse, de façon déterministe et sans `waitForTimeout` arbitraire. La barrière
+ *     `waitForResponse` est armée AVANT la frappe (la réponse, debouncée, arrive juste
+ *     après la dernière touche).
+ *
+ * `pressSequentially` émet un `input` par caractère : le chemin debounce/`switchMap`
+ * du composant reste exercé. Le focus DOM reste sur l'input (roving via
+ * `aria-activedescendant`), donc `page.keyboard.press(...)` pour ↓/↑/Entrée/Échap qui
+ * suit continue de cibler le combobox — la couverture clavier APG reste intacte.
+ */
+async function typeStreetAndAwaitSuggestions(page: Page, combo: Locator): Promise<void> {
+  await expect(async () => {
+    await combo.fill('');
+    const suggestResponse = page.waitForResponse('**/api/v1/places/suggest*', { timeout: 5000 });
+    await combo.pressSequentially('rue Well');
+    await suggestResponse;
+    await expect(combo).toHaveAttribute('aria-expanded', 'true', { timeout: 5000 });
+    await expect(page.getByRole('option')).toHaveCount(2, { timeout: 5000 });
+  }).toPass({ timeout: 25000 });
+}
+
 test('frappe → la listbox s’ouvre et le compteur est annoncé', async ({ page }) => {
   await mockPlaces(page, 'K1A 0A6');
   await gotoLocation(page);
 
   const combo = page.locator('#street');
-  await combo.focus();
-  await page.keyboard.type('rue Well');
-
-  // Listbox ouverte avec 2 options.
-  await expect(combo).toHaveAttribute('aria-expanded', 'true');
-  await expect(page.getByRole('option')).toHaveCount(2);
+  await typeStreetAndAwaitSuggestions(page, combo);
 
   // Compteur ANCRÉ PAR TEXTE (L-010 : un role="status" global existe dans app.html).
   await expect(
@@ -94,9 +134,7 @@ test('↓↓ déplace aria-activedescendant le long des options', async ({ page 
   await gotoLocation(page);
 
   const combo = page.locator('#street');
-  await combo.focus();
-  await page.keyboard.type('rue Well');
-  await expect(page.getByRole('option')).toHaveCount(2);
+  await typeStreetAndAwaitSuggestions(page, combo);
 
   await page.keyboard.press('ArrowDown');
   await expect(combo).toHaveAttribute('aria-activedescendant', 'street-option-0');
@@ -109,9 +147,7 @@ test('Entrée remplit les champs d’adresse et le code postal (éditable)', asy
   await gotoLocation(page);
 
   const combo = page.locator('#street');
-  await combo.focus();
-  await page.keyboard.type('rue Well');
-  await expect(page.getByRole('option')).toHaveCount(2);
+  await typeStreetAndAwaitSuggestions(page, combo);
 
   await page.keyboard.press('ArrowDown');
   await page.keyboard.press('Enter');
@@ -141,9 +177,7 @@ test('Échap ferme la liste et garde le focus sur l’input', async ({ page }) =
   await gotoLocation(page);
 
   const combo = page.locator('#street');
-  await combo.focus();
-  await page.keyboard.type('rue Well');
-  await expect(page.getByRole('option')).toHaveCount(2);
+  await typeStreetAndAwaitSuggestions(page, combo);
 
   await page.keyboard.press('Escape');
   await expect(combo).toHaveAttribute('aria-expanded', 'false');
@@ -155,9 +189,7 @@ test('lookup null → le code postal n’est pas patché et rien n’est annonc�
   await gotoLocation(page);
 
   const combo = page.locator('#street');
-  await combo.focus();
-  await page.keyboard.type('rue Well');
-  await expect(page.getByRole('option')).toHaveCount(2);
+  await typeStreetAndAwaitSuggestions(page, combo);
 
   await page.keyboard.press('ArrowDown');
   await page.keyboard.press('Enter');
@@ -176,9 +208,7 @@ test('aucune violation axe (page entière, listbox ouverte)', async ({ page }) =
   await gotoLocation(page);
 
   const combo = page.locator('#street');
-  await combo.focus();
-  await page.keyboard.type('rue Well');
-  await expect(page.getByRole('option')).toHaveCount(2);
+  await typeStreetAndAwaitSuggestions(page, combo);
 
   const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
   expect(results.violations).toEqual([]);
