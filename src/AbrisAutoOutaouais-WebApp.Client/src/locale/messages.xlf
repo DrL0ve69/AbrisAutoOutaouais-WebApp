@@ -3524,28 +3524,28 @@
         <source> Calculateur de véhicules </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/measure-step.html</context>
-          <context context-type="linenumber">12,15</context>
+          <context context-type="linenumber">15,18</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.method.map" datatype="html">
         <source> Mesurer sur la carte </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/measure-step.html</context>
-          <context context-type="linenumber">22,26</context>
+          <context context-type="linenumber">28,32</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.method.mapPlaceholder" datatype="html">
         <source>Faites défiler pour afficher la carte satellite.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/measure-step.html</context>
-          <context context-type="linenumber">35,38</context>
+          <context context-type="linenumber">41,44</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.method.mapLoading" datatype="html">
         <source>Chargement de la carte…</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/measure-step.html</context>
-          <context context-type="linenumber">39,44</context>
+          <context context-type="linenumber">45,50</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.calc.modeGroup" datatype="html">
@@ -3559,116 +3559,116 @@
         <source> Par véhicules </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.html</context>
-          <context context-type="linenumber">12,15</context>
+          <context context-type="linenumber">15,18</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.calc.modeManual" datatype="html">
         <source> Dimensions manuelles </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.html</context>
-          <context context-type="linenumber">22,26</context>
+          <context context-type="linenumber">28,32</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.calc.vehiclesLegend" datatype="html">
         <source> Combien de véhicules à abriter ? </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.html</context>
-          <context context-type="linenumber">30,32</context>
+          <context context-type="linenumber">36,38</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.calc.vehiclesHint" datatype="html">
         <source> Indiquez la quantité par type. Un dégagement est ajouté automatiquement pour ouvrir les portières et circuler. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.html</context>
-          <context context-type="linenumber">33,37</context>
+          <context context-type="linenumber">39,43</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.calc.compute" datatype="html">
         <source> Calculer le gabarit </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.html</context>
-          <context context-type="linenumber">53,56</context>
+          <context context-type="linenumber">59,62</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.html</context>
-          <context context-type="linenumber">103,108</context>
+          <context context-type="linenumber">109,114</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.calc.manualLegend" datatype="html">
         <source> Dimensions du stationnement (en pieds) </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.html</context>
-          <context context-type="linenumber">60,63</context>
+          <context context-type="linenumber">66,69</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.calc.width" datatype="html">
         <source>Largeur (pi)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.html</context>
-          <context context-type="linenumber">64,66</context>
+          <context context-type="linenumber">70,72</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.calc.widthErr" datatype="html">
         <source> Entrez une largeur entre 1 et 65 pieds. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.html</context>
-          <context context-type="linenumber">77,80</context>
+          <context context-type="linenumber">83,86</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.calc.length" datatype="html">
         <source>Longueur (pi)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.html</context>
-          <context context-type="linenumber">83,85</context>
+          <context context-type="linenumber">89,91</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.calc.lengthErr" datatype="html">
         <source> Entrez une longueur entre 1 et 65 pieds. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.html</context>
-          <context context-type="linenumber">96,99</context>
+          <context context-type="linenumber">102,105</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.calc.outOfRange" datatype="html">
-        <source> Le gabarit obtenu dépasse la plage prise en charge (1 à 65 pieds par côté). Réduisez le nombre de véhicules ou ajustez les dimensions. </source>
+        <source> Le gabarit obtenu dépasse la taille maximale prise en charge. Réduisez le nombre de véhicules ou ajustez les dimensions. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.html</context>
-          <context context-type="linenumber">112,116</context>
+          <context context-type="linenumber">118,122</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.vehicle.compact" datatype="html">
         <source>Compacte</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.ts</context>
-          <context context-type="linenumber">53</context>
+          <context context-type="linenumber">67</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.vehicle.berline" datatype="html">
         <source>Berline</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.ts</context>
-          <context context-type="linenumber">54</context>
+          <context context-type="linenumber">68</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.vehicle.vus" datatype="html">
         <source>VUS</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.ts</context>
-          <context context-type="linenumber">55</context>
+          <context context-type="linenumber">69</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.vehicle.pickup" datatype="html">
         <source>Camionnette</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.ts</context>
-          <context context-type="linenumber">56</context>
+          <context context-type="linenumber">70</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.vehicle.fourgonnette" datatype="html">
         <source>Fourgonnette</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.ts</context>
-          <context context-type="linenumber">59</context>
+          <context context-type="linenumber">73</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.results.footprint" datatype="html">

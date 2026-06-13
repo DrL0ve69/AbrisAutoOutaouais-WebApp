@@ -2481,8 +2481,8 @@
         <target> Enter a length between 1 and 65 feet. </target>
       </trans-unit>
       <trans-unit id="mesurer.calc.outOfRange" datatype="html">
-        <source> Le gabarit obtenu dépasse la plage prise en charge (1 à 65 pieds par côté). Réduisez le nombre de véhicules ou ajustez les dimensions. </source>
-        <target> The resulting footprint exceeds the supported range (1 to 65 feet per side). Reduce the number of vehicles or adjust the dimensions. </target>
+        <source> Le gabarit obtenu dépasse la taille maximale prise en charge. Réduisez le nombre de véhicules ou ajustez les dimensions. </source>
+        <target> The resulting footprint exceeds the maximum supported size. Reduce the number of vehicles or adjust the dimensions. </target>
       </trans-unit>
       <trans-unit id="mesurer.vehicle.compact" datatype="html">
         <source>Compacte</source>

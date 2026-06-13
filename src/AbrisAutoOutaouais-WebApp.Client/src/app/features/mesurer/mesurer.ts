@@ -20,8 +20,8 @@ type Step = 1 | 2 | 3;
  *
  * Accessibilité (CLAUDE.md + leçons) :
  *  - Focus inter-étapes (L-006) : à chaque changement d'étape, on déplace le focus sur le titre
- *    d'étape (`<h2 tabindex="-1">`) APRÈS le rendu (`afterNextRender`), jamais dans le même tick
- *    que le `set` (sinon le focus retombe sur `<body>`).
+ *    d'étape (`<h2 tabindex="-1">`) APRÈS le rendu (`setTimeout`, macrotâche post-détection),
+ *    jamais dans le même tick que le `set` (sinon le focus retombe sur `<body>`).
  *  - Annonce d'étape via un `role="status" aria-live="polite"` SCOPÉ (« Étape 2 sur 3 : … ») —
  *    les tests l'ancrent par TEXTE (L-010 : `app.html` porte déjà un status global).
  *  - Indicateur d'étapes accessible (liste ordonnée, état courant marqué `aria-current`).

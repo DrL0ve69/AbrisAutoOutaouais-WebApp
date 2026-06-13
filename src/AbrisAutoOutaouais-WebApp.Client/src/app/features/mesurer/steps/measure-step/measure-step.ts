@@ -1,5 +1,14 @@
-import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  input,
+  output,
+  signal,
+  viewChildren,
+} from '@angular/core';
 import { Footprint } from '../../util/footprint.util';
+import { isRadioNavKey, nextRadioIndex } from '../../util/radio-nav.util';
 import { VehicleCalculatorComponent } from './vehicle-calculator/vehicle-calculator';
 import { MapMeasureComponent } from './map-measure/map-measure';
 
@@ -28,8 +37,25 @@ export class MeasureStepComponent {
 
   protected readonly method = signal<'calculator' | 'map'>('calculator');
 
+  /** Ordre des options du radiogroup — sert au roving tabindex et à la navigation flèches. */
+  protected readonly methods = ['calculator', 'map'] as const;
+
+  /** Boutons radio (dans l'ordre du DOM) pour déplacer le focus au clavier (APG). */
+  private readonly radios = viewChildren<ElementRef<HTMLButtonElement>>('methodRadio');
+
   protected setMethod(method: 'calculator' | 'map'): void {
     this.method.set(method);
+  }
+
+  /** Navigation APG du radiogroup : flèches/Home/End déplacent ET sélectionnent. */
+  protected onMethodKeydown(event: KeyboardEvent): void {
+    if (!isRadioNavKey(event.key)) return;
+    event.preventDefault();
+    const current = this.methods.indexOf(this.method());
+    const next = nextRadioIndex(event.key, current, this.methods.length);
+    this.method.set(this.methods[next]);
+    // Les deux boutons existent toujours dans le DOM → focus synchrone sûr.
+    this.radios()[next]?.nativeElement.focus();
   }
 
   protected onFootprint(footprint: Footprint): void {

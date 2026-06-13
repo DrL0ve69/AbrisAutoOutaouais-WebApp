@@ -2,22 +2,28 @@
   <!-- Choix de méthode : calculateur (clavier, défaut) ⇄ carte (pointer). -->
   <div class="measure__methods" role="radiogroup" aria-label="Méthode de mesure" i18n-aria-label="@@mesurer.method.group">
     <button
+      #methodRadio
       type="button"
       class="measure__method"
       [class.measure__method--active]="method() === 'calculator'"
       role="radio"
       [attr.aria-checked]="method() === 'calculator'"
+      [attr.tabindex]="method() === 'calculator' ? 0 : -1"
       (click)="setMethod('calculator')"
+      (keydown)="onMethodKeydown($event)"
       i18n="@@mesurer.method.calculator">
       Calculateur de véhicules
     </button>
     <button
+      #methodRadio
       type="button"
       class="measure__method"
       [class.measure__method--active]="method() === 'map'"
       role="radio"
       [attr.aria-checked]="method() === 'map'"
+      [attr.tabindex]="method() === 'map' ? 0 : -1"
       (click)="setMethod('map')"
+      (keydown)="onMethodKeydown($event)"
       i18n="@@mesurer.method.map">
       Mesurer sur la carte
     </button>

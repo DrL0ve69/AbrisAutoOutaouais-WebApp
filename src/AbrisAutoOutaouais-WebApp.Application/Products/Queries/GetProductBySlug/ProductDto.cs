@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace AbrisAutoOutaouais_WebApp.Application.Products.Queries.GetProductBySlug;
+﻿namespace AbrisAutoOutaouais_WebApp.Application.Products.Queries.GetProductBySlug;
 
 public sealed record ProductDto(
     Guid Id,

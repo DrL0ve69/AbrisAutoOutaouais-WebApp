@@ -1,10 +1,18 @@
-import { ChangeDetectionStrategy, Component, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  output,
+  signal,
+  viewChildren,
+} from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   Footprint,
   footprintForVehicles,
   footprintFromManual,
 } from '../../../util/footprint.util';
+import { isRadioNavKey, nextRadioIndex } from '../../../util/radio-nav.util';
 import { feetToCm } from '../../../util/units.util';
 import { VehicleType } from '../../../util/vehicle-dims.const';
 
@@ -44,6 +52,12 @@ export class VehicleCalculatorComponent {
 
   /** Mode de saisie courant : par véhicules (défaut) ou manuel. */
   protected readonly mode = signal<'vehicles' | 'manual'>('vehicles');
+
+  /** Ordre des options du radiogroup (roving tabindex + navigation flèches, APG). */
+  protected readonly modes = ['vehicles', 'manual'] as const;
+
+  /** Boutons radio de mode (ordre DOM) pour déplacer le focus au clavier. */
+  private readonly modeRadios = viewChildren<ElementRef<HTMLButtonElement>>('modeRadio');
 
   /** Message « hors plage » à annoncer si le gabarit dépasse les bornes D2. */
   protected readonly outOfRange = signal(false);
@@ -93,6 +107,17 @@ export class VehicleCalculatorComponent {
   protected setMode(mode: 'vehicles' | 'manual'): void {
     this.mode.set(mode);
     this.outOfRange.set(false);
+  }
+
+  /** Navigation APG du radiogroup de mode : flèches/Home/End déplacent ET sélectionnent. */
+  protected onModeKeydown(event: KeyboardEvent): void {
+    if (!isRadioNavKey(event.key)) return;
+    event.preventDefault();
+    const current = this.modes.indexOf(this.mode());
+    const next = nextRadioIndex(event.key, current, this.modes.length);
+    this.setMode(this.modes[next]);
+    // Les deux boutons existent toujours dans le DOM → focus synchrone sûr.
+    this.modeRadios()[next]?.nativeElement.focus();
   }
 
   protected computeVehicles(): void {

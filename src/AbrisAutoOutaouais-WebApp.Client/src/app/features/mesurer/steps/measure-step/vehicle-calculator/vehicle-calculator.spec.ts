@@ -68,6 +68,30 @@ describe('VehicleCalculatorComponent', () => {
     expect(alert).toBeInTheDocument();
   });
 
+  it('radiogroup APG : flèche bascule le mode et déplace le focus (roving tabindex)', async () => {
+    const user = userEvent.setup();
+    const { q } = await setup();
+
+    const vehicles = q.getByRole('radio', { name: /par véhicules/i });
+    const manual = q.getByRole('radio', { name: /dimensions manuelles/i });
+
+    // État initial APG : seule l'option cochée est dans l'ordre de tabulation.
+    expect(vehicles).toHaveAttribute('aria-checked', 'true');
+    expect(vehicles).toHaveAttribute('tabindex', '0');
+    expect(manual).toHaveAttribute('tabindex', '-1');
+
+    // Flèche droite depuis l'option focalisée → sélectionne ET focalise l'autre option.
+    vehicles.focus();
+    await user.keyboard('{ArrowRight}');
+
+    expect(manual).toHaveAttribute('aria-checked', 'true');
+    expect(manual).toHaveFocus();
+    expect(manual).toHaveAttribute('tabindex', '0');
+    expect(vehicles).toHaveAttribute('tabindex', '-1');
+    // Le panneau manuel est bien affiché (assertion positive, pas seulement l'attribut).
+    expect(q.getByLabelText(/largeur/i)).toBeInTheDocument();
+  });
+
   it('ne présente aucune violation WCAG A/AA (mode véhicules puis manuel)', async () => {
     const user = userEvent.setup();
     const { container, q } = await setup();

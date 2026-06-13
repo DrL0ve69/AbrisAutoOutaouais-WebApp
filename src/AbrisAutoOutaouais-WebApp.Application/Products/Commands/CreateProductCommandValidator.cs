@@ -1,8 +1,5 @@
 ﻿using AbrisAutoOutaouais_WebApp.Domain.Constants;
 using FluentValidation;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace AbrisAutoOutaouais_WebApp.Application.Products.Commands;
 

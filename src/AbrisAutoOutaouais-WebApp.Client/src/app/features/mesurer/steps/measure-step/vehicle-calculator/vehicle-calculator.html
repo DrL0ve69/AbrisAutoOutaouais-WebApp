@@ -2,22 +2,28 @@
   <!-- Bascule de mode : groupe de boutons radio accessibles. -->
   <div class="calc__modes" role="radiogroup" aria-label="Méthode de calcul" i18n-aria-label="@@mesurer.calc.modeGroup">
     <button
+      #modeRadio
       type="button"
       class="calc__mode"
       [class.calc__mode--active]="mode() === 'vehicles'"
       role="radio"
       [attr.aria-checked]="mode() === 'vehicles'"
+      [attr.tabindex]="mode() === 'vehicles' ? 0 : -1"
       (click)="setMode('vehicles')"
+      (keydown)="onModeKeydown($event)"
       i18n="@@mesurer.calc.modeVehicles">
       Par véhicules
     </button>
     <button
+      #modeRadio
       type="button"
       class="calc__mode"
       [class.calc__mode--active]="mode() === 'manual'"
       role="radio"
       [attr.aria-checked]="mode() === 'manual'"
+      [attr.tabindex]="mode() === 'manual' ? 0 : -1"
       (click)="setMode('manual')"
+      (keydown)="onModeKeydown($event)"
       i18n="@@mesurer.calc.modeManual">
       Dimensions manuelles
     </button>
@@ -109,8 +115,8 @@
   <p class="calc__status" role="status" aria-live="polite" aria-atomic="true">
     @if (outOfRange()) {
     <ng-container i18n="@@mesurer.calc.outOfRange">
-      Le gabarit obtenu dépasse la plage prise en charge (1 à 65 pieds par côté). Réduisez le
-      nombre de véhicules ou ajustez les dimensions.
+      Le gabarit obtenu dépasse la taille maximale prise en charge. Réduisez le nombre de
+      véhicules ou ajustez les dimensions.
     </ng-container>
     }
   </p>
