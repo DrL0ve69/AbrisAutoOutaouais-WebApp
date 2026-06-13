@@ -70,10 +70,15 @@ export class AuthComponent {
         Validators.maxLength(30),
         Validators.pattern(/^[a-zA-Z0-9._-]+$/),
       ]],
+      // Parité STRICTE avec la politique serveur (Identity + RegisterCommand) :
+      // minuscule, majuscule, chiffre et caractère spécial. Sans la règle
+      // minuscule, un mot de passe tout en MAJUSCULES passait ici puis échouait
+      // en 422 côté serveur (L-004 : un format partagé = UNE définition).
       password: ['', [
         Validators.required,
         Validators.minLength(8),
         Validators.pattern(/[A-Z]/),      // au moins une majuscule
+        Validators.pattern(/[a-z]/),      // au moins une minuscule
         Validators.pattern(/[0-9]/),      // au moins un chiffre
         Validators.pattern(/[^a-zA-Z0-9]/), // au moins un caractère spécial
       ]],

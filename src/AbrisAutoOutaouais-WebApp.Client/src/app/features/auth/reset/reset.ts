@@ -73,14 +73,18 @@ export class ResetComponent {
   });
 
   // ── Formulaire « nouveau mot de passe » ─────────────────────
-  // Mêmes règles que l'inscription (auth.ts) et que le validateur serveur
-  // ResetPasswordCommandValidator — garder les trois alignés (L-004).
+  // Parité STRICTE avec la politique serveur : Identity exige minuscule,
+  // majuscule, chiffre et caractère spécial (DependencyInjection.cs) et
+  // ResetPasswordCommandValidator les rejoue. Une règle manquante ici laisserait
+  // passer un mot de passe (ex. tout en MAJUSCULES) que le serveur refuse en 422 —
+  // garder les trois validateurs alignés (L-004 : un format partagé = UNE définition).
   protected readonly resetForm = this.fb.nonNullable.group(
     {
       newPassword: ['', [
         Validators.required,
         Validators.minLength(8),
         Validators.pattern(/[A-Z]/),        // au moins une majuscule
+        Validators.pattern(/[a-z]/),        // au moins une minuscule
         Validators.pattern(/[0-9]/),        // au moins un chiffre
         Validators.pattern(/[^a-zA-Z0-9]/), // au moins un caractère spécial
       ]],
@@ -94,6 +98,11 @@ export class ResetComponent {
     viewChild<ElementRef<HTMLElement>>('requestConfirm');
   private readonly successHeading =
     viewChild<ElementRef<HTMLElement>>('successHeading');
+
+  // Bouton de soumission « nouveau mot de passe » : reste dans le DOM en cas
+  // d'erreur (le formulaire est réaffiché) → cible de renvoi du focus.
+  private readonly resetSubmitBtn =
+    viewChild<ElementRef<HTMLElement>>('resetSubmitBtn');
 
   constructor() {
     // L-006 : focus APRÈS le rendu — chaque effect se rejoue quand son
@@ -118,6 +127,11 @@ export class ResetComponent {
 
   // ── Mode demande ────────────────────────────────────────────
   protected submitRequest(): void {
+    // Garde de ré-entrée : l'appel est asynchrone et le bouton reste activé
+    // (aria-busy plutôt que [disabled], pour ne pas perdre le focus clavier).
+    // Sans cette garde, un double-déclenchement (Entrée + clic) enverrait deux
+    // requêtes.
+    if (this.loading()) return;
     if (this.requestForm.invalid) {
       this.requestForm.markAllAsTouched();
       return;
@@ -140,6 +154,8 @@ export class ResetComponent {
 
   // ── Mode réinitialisation ───────────────────────────────────
   protected submitReset(): void {
+    // Garde de ré-entrée (cf. submitRequest) : le bouton reste activé.
+    if (this.loading()) return;
     if (this.resetForm.invalid) {
       this.resetForm.markAllAsTouched();
       return;
@@ -169,6 +185,11 @@ export class ResetComponent {
               err.error?.detail ??
               $localize`:@@reset.errorGeneric:Le lien de réinitialisation est invalide ou expiré. Demandez un nouveau lien.`,
           );
+          // Le bouton reste dans le DOM et activé (aria-busy, pas [disabled]) :
+          // le message role="alert" est annoncé et on garde explicitement le focus
+          // sur le bouton pour qu'il ne retombe pas sur <body> (WCAG 2.4.3).
+          // setTimeout : APRÈS le rendu qui ré-affiche l'alerte (L-006).
+          setTimeout(() => this.resetSubmitBtn()?.nativeElement.focus());
         },
       });
   }

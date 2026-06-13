@@ -13,6 +13,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -24,7 +26,7 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure;
 public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(
-        this IServiceCollection services, IConfiguration config)
+        this IServiceCollection services, IConfiguration config, IHostEnvironment environment)
     {
         // ── DbContext unique (Identity + domaine) ─────────────────────────────
         services.AddDbContext<ApplicationDbContext>(opts =>
@@ -103,6 +105,23 @@ public static class DependencyInjection
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
         services.AddScoped<IFileStorageService, LocalFileStorageService>();
+
+        // EmailService est un STUB de développement : il journalise les courriels
+        // au lieu de les envoyer. En Production, ses LogInformation sont filtrés
+        // (niveau Warning par défaut) → l'utilisateur reçoit 202 mais AUCUN
+        // courriel, en silence. On préfère un Warning de démarrage TONITRUANT à un
+        // crash (un vrai déploiement peut légitimement remplacer ce service), mais
+        // l'absence d'un vrai fournisseur ne doit pas pouvoir passer inaperçue.
+        if (environment.IsProduction())
+        {
+            using var loggerFactory = LoggerFactory.Create(b => b.AddConsole());
+            loggerFactory.CreateLogger("AbrisAutoOutaouais.Infrastructure.Email").LogWarning(
+                "ATTENTION : EmailService est le STUB de développement (journalisation, " +
+                "aucun envoi réel). Brancher un fournisseur SMTP/SendGrid/SES avant la mise " +
+                "en production, sinon les courriels (réinitialisation, confirmations) sont " +
+                "silencieusement perdus.");
+        }
+
         services.AddScoped<IEmailService, EmailService>();
         // Instance EAGER : une clé « Client:BaseUrl » absente fait échouer le
         // démarrage (même idiome fail-fast que « Jwt:Key » ci-dessus), plutôt

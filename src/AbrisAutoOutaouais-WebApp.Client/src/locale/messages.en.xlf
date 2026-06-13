@@ -2081,8 +2081,8 @@
         <target> New password <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;required&quot; aria-hidden=&quot;true&quot;&gt;"/>*<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
       </trans-unit>
       <trans-unit id="reset.newPwdHint" datatype="html">
-        <source> Min. 8 caractères, avec majuscule, chiffre et caractère spécial. </source>
-        <target> Min. 8 characters, with an uppercase letter, a digit and a special character. </target>
+        <source> Min. 8 caractères, avec majuscule, minuscule, chiffre et caractère spécial. </source>
+        <target> Min. 8 characters, with an uppercase letter, a lowercase letter, a digit and a special character. </target>
       </trans-unit>
       <trans-unit id="reset.newPwdRequired" datatype="html">
         <source>Le nouveau mot de passe est requis.</source>

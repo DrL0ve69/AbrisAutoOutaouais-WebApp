@@ -112,10 +112,13 @@
               }
             </div>
 
+            <!-- aria-busy plutôt que [disabled] : un bouton désactivé perd le
+                 focus clavier → il retomberait sur <body> (WCAG 2.4.3). La garde
+                 de ré-entrée (submitRequest) empêche le double envoi. -->
             <button
               type="submit"
               class="btn btn--primary btn--full reset-submit"
-              [disabled]="loading()"
+              [attr.aria-busy]="loading()"
               i18n="@@reset.submit"
             >
               Envoyer le lien
@@ -192,7 +195,7 @@
                 placeholder="••••••••"
               />
               <span id="reset-new-pwd-hint" class="field__hint" i18n="@@reset.newPwdHint">
-                Min. 8 caractères, avec majuscule, chiffre et caractère spécial.
+                Min. 8 caractères, avec majuscule, minuscule, chiffre et caractère spécial.
               </span>
               @if (newPwd.invalid && newPwd.touched) {
                 <span id="reset-new-pwd-err" class="field__error" role="alert">
@@ -243,10 +246,13 @@
               }
             </div>
 
+            <!-- aria-busy (pas [disabled]) : conserve le focus pour le renvoyer
+                 ici si la réinitialisation échoue (submitReset). -->
             <button
+              #resetSubmitBtn
               type="submit"
               class="btn btn--primary btn--full reset-submit"
-              [disabled]="loading()"
+              [attr.aria-busy]="loading()"
               i18n="@@reset.newSubmit"
             >
               Réinitialiser le mot de passe

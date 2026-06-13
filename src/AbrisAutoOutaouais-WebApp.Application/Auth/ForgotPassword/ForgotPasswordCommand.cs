@@ -23,6 +23,17 @@ public sealed class ForgotPasswordCommandHandler(
     public async Task<Unit> HandleAsync(
         ForgotPasswordCommand command, CancellationToken cancellationToken = default)
     {
+        // ASSOMPTION DE SÉCURITÉ À ÉPINGLER (cf. L-007) : l'anti-énumération repose
+        // ici UNIQUEMENT sur un corps de réponse identique (toujours 202). Or le
+        // chemin « compte connu » fait génération de jeton + envoi de courriel de
+        // façon SYNCHRONE avant de répondre, tandis que le chemin « compte inconnu »
+        // sort tout de suite. Avec le stub actuel (journalisation ~instantanée)
+        // l'écart de temps est négligeable, mais dès qu'un VRAI fournisseur SMTP est
+        // branché, l'envoi (dizaines/centaines de ms) crée un oracle temporel : un
+        // attaquant déduit l'existence d'un compte en chronométrant la réponse.
+        // À ce moment-là, déplacer l'envoi HORS du chemin de requête (file d'attente
+        // / fire-and-forget) pour que le temps de réponse soit indépendant de
+        // l'existence du compte.
         var tokenResult = await identityService.GeneratePasswordResetTokenAsync(
             command.Email, cancellationToken);
 

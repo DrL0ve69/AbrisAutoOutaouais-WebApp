@@ -2,7 +2,7 @@ import { render, screen, waitFor } from '@testing-library/angular';
 import { userEvent } from '@testing-library/user-event';
 import { provideRouter } from '@angular/router';
 import { describe, it, expect, vi } from 'vitest';
-import { of, throwError } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { ResetComponent } from './reset';
 import { AuthService } from '../../../core/services/auth.service';
 import { expectNoA11yViolations } from '../../../../testing/axe-helper';
@@ -137,5 +137,46 @@ describe('ResetComponent — mode réinitialisation (jeton dans l’URL)', () =>
 
     expect(resetPassword).not.toHaveBeenCalled();
     expect(screen.getByRole('alert')).toHaveTextContent(/ne correspondent pas/i);
+  });
+
+  // Anti-vacuité (L-002) : « NOUVEAU@123 » respecte TOUTES les règles SAUF la
+  // minuscule (≥ 8, majuscule, chiffre, spécial). Sans Validators.pattern(/[a-z]/)
+  // côté client, il passait ici puis échouait en 422 côté serveur (parité L-004).
+  // Ce test isole la SEULE règle minuscule : il ne peut passer que si elle existe.
+  it('bloque un mot de passe SANS minuscule (parité avec la politique serveur)', async () => {
+    const user = userEvent.setup();
+    const { resetPassword } = await setup({ inputs });
+
+    await user.type(screen.getByLabelText(/nouveau mot de passe/i), 'NOUVEAU@123');
+    await user.type(screen.getByLabelText(/confirmer le mot de passe/i), 'NOUVEAU@123');
+    await user.click(screen.getByRole('button', { name: /réinitialiser le mot de passe/i }));
+
+    // Le formulaire reste invalide → aucune requête, et l'erreur d'exigences s'affiche.
+    expect(resetPassword).not.toHaveBeenCalled();
+    expect(screen.getByRole('alert')).toHaveTextContent(/ne respecte pas les exigences/i);
+  });
+
+  // 1C : sur erreur asynchrone, le bouton de soumission ne doit PAS perdre le focus
+  // (il reste activé via aria-busy, jamais [disabled] → pas de chute sur <body>).
+  // Le mock résout de façon ASYNCHRONE pour que loading() rende réellement true
+  // pendant l'appel (un mock synchrone masquerait le bug — reviewer L-002/L-006).
+  it('garde le focus sur le bouton quand la réinitialisation échoue (async)', async () => {
+    const user = userEvent.setup();
+    const resetPassword = vi.fn().mockReturnValue(
+      new Observable((sub) => {
+        setTimeout(() => sub.error({ status: 400, error: { error: 'Jeton invalide.' } }), 0);
+      }),
+    );
+    await setup({ inputs, resetPassword });
+
+    await user.type(screen.getByLabelText(/nouveau mot de passe/i), 'Nouveau@123');
+    await user.type(screen.getByLabelText(/confirmer le mot de passe/i), 'Nouveau@123');
+    const submit = screen.getByRole('button', { name: /réinitialiser le mot de passe/i });
+    await user.click(submit);
+
+    // L'erreur est annoncée…
+    expect(await screen.findByRole('alert')).toHaveTextContent(/jeton invalide/i);
+    // …et le focus reste sur le bouton (jamais retombé sur <body>).
+    await waitFor(() => expect(submit).toHaveFocus());
   });
 });

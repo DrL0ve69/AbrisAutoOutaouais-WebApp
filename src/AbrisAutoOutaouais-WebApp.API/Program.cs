@@ -9,7 +9,7 @@ using AbrisAutoOutaouais_WebApp.Infrastructure.Persistence;
 var builder = WebApplication.CreateBuilder(args);
 
 // ── Infrastructure (DbContext, Identity, JWT, services) ───────────────────────
-builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddInfrastructure(builder.Configuration, builder.Environment);
 
 // ── Mediator Dispatcher ───────────────────────────────────────────────────────
 builder.Services.AddScoped<IDispatcher, Dispatcher>();

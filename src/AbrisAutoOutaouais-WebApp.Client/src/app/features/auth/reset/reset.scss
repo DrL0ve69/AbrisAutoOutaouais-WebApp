@@ -146,6 +146,16 @@
     flex-shrink: 0;
     margin-top: 2px;
   }
+
+  // Anneau de focus pour la confirmation neutre (#requestConfirm, tabindex=-1).
+  // MÊME raison que les textes foncés ci-dessus : le fond d'alerte reste CLAIR
+  // (#f0fdf4) dans les deux thèmes, mais dark-theme surcharge --color-focus en
+  // #60a5fa (~2.4:1 sur ce fond clair → échec 1.4.11). On fixe donc un bleu
+  // foncé constant (#1d4ed8 ≈ 4.7:1) au lieu de la variable thématisée.
+  &:focus-visible {
+    outline: 3px solid #1d4ed8;
+    outline-offset: 3px;
+  }
 }
 
 // ── Bloc de succès (mode réinitialisation) ───────────────────
@@ -166,8 +176,11 @@
   color: inherit;
 
   // Cible de focus programmatique (L-006) — anneau visible (WCAG 2.4.7).
+  // Bleu foncé CONSTANT (pas var(--color-focus), surchargé en #60a5fa par
+  // dark-theme) : le titre est sur le fond menthe clair de l'alerte (constant
+  // entre thèmes), où #60a5fa ne ferait que ~2.4:1 (échec 1.4.11). #1d4ed8 ≈ 4.7:1.
   &:focus-visible {
-    outline: 3px solid var(--color-focus, #1d4ed8);
+    outline: 3px solid #1d4ed8;
     outline-offset: 3px;
   }
 }

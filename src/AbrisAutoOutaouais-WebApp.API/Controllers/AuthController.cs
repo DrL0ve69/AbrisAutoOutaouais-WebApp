@@ -68,6 +68,8 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>Demande l'envoi d'un lien de réinitialisation du mot de passe.</summary>
+    // TODO(Epic C): rate-limit — endpoint anonyme et coûteux (génération de jeton +
+    // envoi de courriel), à protéger contre l'abus quand le limiteur d'Epic C arrive.
     [HttpPost("forgot-password")]
     [AllowAnonymous]
     public async Task<IActionResult> ForgotPassword(
