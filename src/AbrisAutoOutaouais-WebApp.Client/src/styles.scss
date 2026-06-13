@@ -283,14 +283,15 @@ select {
   background: transparent;
   // Bouton conçu pour les surfaces SOMBRES (hero, bandeau CTA) : le texte doit
   // rester clair dans les DEUX thèmes. --color-text-inverse bascule à #0f1923
-  // en dark → texte foncé invisible sur fond sombre. On fige donc le blanc.
-  color: var(--color-white);
+  // en dark → texte foncé invisible sur fond sombre. On utilise donc la couche
+  // « sur sombre » (blanc fixe, non surchargée en sombre).
+  color: var(--color-on-dark);
   border-color: rgba(255, 255, 255, 0.5);
 
   &:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: white;
-    color: white;
+    background: var(--color-surface-on-dark-hover);
+    border-color: var(--color-on-dark);
+    color: var(--color-on-dark);
   }
 }
 
@@ -327,7 +328,7 @@ select {
   border-color: transparent;
 
   &:hover:not(:disabled) {
-    background: #f3f4f6; // ≈7.5:1 avec le texte #991b1b ✅
+    background: var(--color-surface-on-brand-hover); // ≈7.5:1 avec le texte #991b1b ✅
     color: var(--color-text-on-brand-inverse);
     transform: translateY(-1px);
     box-shadow: var(--shadow-md);
