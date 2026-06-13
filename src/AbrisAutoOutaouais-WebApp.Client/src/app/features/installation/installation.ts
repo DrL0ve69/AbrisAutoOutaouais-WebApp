@@ -14,12 +14,15 @@ import { BookingService } from '../../core/services/booking.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { ProfileService } from '../../core/services/profile.service';
+import { PlacesService } from '../../core/services/places.service';
 import {
   AvailableSlotDto,
   BookingType,
   CreateBookingRequest,
 } from '../../core/models/booking.model';
+import { PlaceSuggestionDto } from '../../core/models/place.model';
 import { FaqComponent } from '../../shared/components/faq/faq.component';
+import { AddressAutocompleteComponent } from '../../shared/components/a11y-components/autocomplete/address-autocomplete.component';
 import { INSTALLATION_FAQ } from '../../shared/content/faq.data';
 import { CIVIC_PATTERN, POSTAL_PATTERN, normalizePostal } from '../../core/validators/address.validators';
 
@@ -38,7 +41,7 @@ interface SlotGroup {
 @Component({
   selector: 'app-installation',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, DatePipe, FaqComponent],
+  imports: [ReactiveFormsModule, DatePipe, FaqComponent, AddressAutocompleteComponent],
   templateUrl: './installation.html',
   styleUrl: './installation.scss',
 })
@@ -52,9 +55,12 @@ export class InstallationComponent implements OnInit {
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
   private readonly profile = inject(ProfileService);
+  private readonly places = inject(PlacesService);
 
   protected readonly loading = signal(true);
   protected readonly submitting = signal(false);
+  /** Annonce (aria-live) : le code postal vient d'être rempli automatiquement. */
+  protected readonly postalAutofilled = signal(false);
   protected readonly groups = signal<readonly SlotGroup[]>([]);
   protected readonly selectedSlot = signal<string | null>(null);
   protected readonly hasSlots = computed(() => this.groups().length > 0);
@@ -102,6 +108,42 @@ export class InstallationComponent implements OnInit {
 
   protected selectSlot(start: string): void {
     this.selectedSlot.set(start);
+  }
+
+  /**
+   * Choix explicite d'une suggestion d'adresse : patch civic/rue/ville/province
+   * INCONDITIONNEL (action utilisateur, hors garde pristine de L-002), puis résolution du
+   * code postal patché normalisé (« A1A 1A1 », L-004). Champ code postal éditable ; si le
+   * proxy renvoie null, on ne patche rien.
+   */
+  protected onSuggestionSelected(s: PlaceSuggestionDto): void {
+    this.postalAutofilled.set(false);
+    this.form.patchValue({
+      civicNumber: s.civicNumber ?? '',
+      street: s.street,
+      city: s.city,
+      province: s.province || 'QC',
+    });
+    this.form.controls.street.markAsDirty();
+
+    this.places
+      .lookupPostalCode(s.civicNumber ?? '', s.street, s.city, s.province)
+      .subscribe({
+        next: ({ postalCode }) => {
+          if (!postalCode) return;
+          this.form.controls.postalCode.setValue(normalizePostal(postalCode));
+          this.postalAutofilled.set(true);
+        },
+        error: () => {
+          /* silencieux : saisie manuelle possible */
+        },
+      });
+  }
+
+  /** Frappe libre dans le combobox : synchronise le contrôle « rue ». */
+  protected onStreetInput(value: string): void {
+    this.form.controls.street.setValue(value);
+    this.form.controls.street.markAsDirty();
   }
 
   protected confirm(): void {

@@ -89,10 +89,19 @@
           </div>
 
           <div class="form-field">
-            <label for="street" i18n="@@installation.field.street">Rue</label>
-            <input id="street" type="text" formControlName="street" autocomplete="address-line1" />
+            <app-address-autocomplete
+              id="street"
+              label="Rue"
+              i18n-label="@@installation.field.street"
+              [value]="f.street.value"
+              [cityHint]="f.city.value"
+              [provinceHint]="f.province.value"
+              [invalid]="f.street.touched && f.street.invalid"
+              describedBy="inst-street-err"
+              (valueChange)="onStreetInput($event)"
+              (suggestionSelected)="onSuggestionSelected($event)" />
             @if (f.street.touched && f.street.invalid) {
-            <p class="form-field__error" role="alert" i18n="@@installation.field.streetRequired">
+            <p id="inst-street-err" class="form-field__error" role="alert" i18n="@@installation.field.streetRequired">
               L'adresse est requise.
             </p>
             }
@@ -133,6 +142,12 @@
               Code postal invalide (ex&nbsp;: J8X 1A1).
             </p>
             }
+            <!-- Annonce locale (scopée) du remplissage auto du code postal — L-010. -->
+            <p class="sr-only" role="status" aria-live="polite" aria-atomic="true">
+              @if (postalAutofilled()) {
+              <ng-container i18n="@@address.postalAutofilled">Code postal rempli automatiquement — vérifiez-le.</ng-container>
+              }
+            </p>
           </div>
         </div>
 

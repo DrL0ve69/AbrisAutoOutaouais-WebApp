@@ -54,9 +54,15 @@
               }
             </div>
             <div class="field">
-              <label class="field__label" for="co-street" i18n="@@checkout.address.street">Rue</label>
-              <input id="co-street" class="field__input" type="text" formControlName="street"
-                     autocomplete="address-line1" />
+              <app-address-autocomplete
+                id="co-street"
+                label="Rue"
+                i18n-label="@@checkout.address.street"
+                [value]="f.street.value"
+                [cityHint]="f.city.value"
+                [provinceHint]="f.province.value"
+                (valueChange)="onStreetInput($event)"
+                (suggestionSelected)="onSuggestionSelected($event)" />
             </div>
           </div>
           <div class="field">
@@ -79,6 +85,12 @@
               <label class="field__label" for="co-postal" i18n="@@checkout.address.postal">Code postal</label>
               <input id="co-postal" class="field__input" type="text" formControlName="postalCode"
                      autocomplete="postal-code" />
+              <!-- Annonce locale (scopée) du remplissage auto du code postal — L-010. -->
+              <p class="sr-only" role="status" aria-live="polite" aria-atomic="true">
+                @if (postalAutofilled()) {
+                <ng-container i18n="@@address.postalAutofilled">Code postal rempli automatiquement — vérifiez-le.</ng-container>
+                }
+              </p>
             </div>
           </div>
           @if (form.hasError('addressRequired') && form.touched) {

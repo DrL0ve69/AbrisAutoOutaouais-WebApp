@@ -13,9 +13,12 @@ import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { ProfileService } from '../../../core/services/profile.service';
+import { PlacesService } from '../../../core/services/places.service';
 import { LocaleService, AppLocale } from '../../../core/services/locale.service';
 import { environment } from '../../../../environments/environment';
 import { UserProfileDto, UpdateProfileRequest } from '../../../core/models/profile.model';
+import { PlaceSuggestionDto } from '../../../core/models/place.model';
+import { AddressAutocompleteComponent } from '../../../shared/components/a11y-components/autocomplete/address-autocomplete.component';
 import { CIVIC_PATTERN, POSTAL_PATTERN, normalizePostal } from '../../../core/validators/address.validators';
 
 type ActiveTab = 'info' | 'address' | 'security';
@@ -25,12 +28,13 @@ type ActiveTab = 'info' | 'address' | 'security';
   templateUrl: './profile.html',
   styleUrl: './profile.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, AddressAutocompleteComponent],
 })
 export class ProfileComponent implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly fb = inject(FormBuilder);
   private readonly profileStore = inject(ProfileService);
+  private readonly places = inject(PlacesService);
   private readonly locale = inject(LocaleService);
   protected readonly auth = inject(AuthService);
 
@@ -41,6 +45,8 @@ export class ProfileComponent implements OnInit {
   protected readonly activeTab = signal<ActiveTab>('info');
   protected readonly saveSuccess = signal(false);
   protected readonly saveError = signal<string | null>(null);
+  /** Annonce (aria-live) : le code postal vient d'être rempli automatiquement. */
+  protected readonly postalAutofilled = signal(false);
 
   // ── Avatar (photo de profil) ─────────────────────────────────
   protected readonly avatarUploading = signal(false);
@@ -212,6 +218,42 @@ export class ProfileComponent implements OnInit {
       return;
     }
     this.save({ ...this.infoForm.getRawValue(), phoneNumber: this.fPhone.value || null });
+  }
+
+  // ── Autocomplétion d'adresse ─────────────────────────────────
+  /**
+   * Choix explicite d'une suggestion : patch civic/rue/ville/province INCONDITIONNEL
+   * (action utilisateur, hors garde pristine de L-002), puis résolution du code postal
+   * patché normalisé (« A1A 1A1 », L-004). Champ code postal éditable ; null → aucun patch.
+   */
+  protected onSuggestionSelected(s: PlaceSuggestionDto): void {
+    this.postalAutofilled.set(false);
+    this.addressForm.patchValue({
+      civicNumber: s.civicNumber ?? '',
+      street: s.street,
+      city: s.city,
+      province: s.province || 'QC',
+    });
+    this.addressForm.controls.street.markAsDirty();
+
+    this.places
+      .lookupPostalCode(s.civicNumber ?? '', s.street, s.city, s.province)
+      .subscribe({
+        next: ({ postalCode }) => {
+          if (!postalCode) return;
+          this.addressForm.controls.postalCode.setValue(normalizePostal(postalCode));
+          this.postalAutofilled.set(true);
+        },
+        error: () => {
+          /* silencieux : saisie manuelle possible */
+        },
+      });
+  }
+
+  /** Frappe libre dans le combobox : synchronise le contrôle « rue ». */
+  protected onStreetInput(value: string): void {
+    this.addressForm.controls.street.setValue(value);
+    this.addressForm.controls.street.markAsDirty();
   }
 
   // ── Sauvegarde adresse ───────────────────────────────────────

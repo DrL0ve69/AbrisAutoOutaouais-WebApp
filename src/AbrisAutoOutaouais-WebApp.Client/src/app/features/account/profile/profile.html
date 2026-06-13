@@ -406,14 +406,14 @@
                     }
                   </div>
                   <div class="field">
-                    <label class="field__label" for="addr-street">Rue</label>
-                    <input
+                    <app-address-autocomplete
                       id="addr-street"
-                      type="text"
-                      class="field__input"
-                      formControlName="street"
-                      autocomplete="address-line1"
-                      placeholder="rue des Érables"
+                      label="Rue"
+                      [value]="addressForm.controls.street.value"
+                      [cityHint]="addressForm.controls.city.value"
+                      [provinceHint]="addressForm.controls.province.value"
+                      (valueChange)="onStreetInput($event)"
+                      (suggestionSelected)="onSuggestionSelected($event)"
                     />
                   </div>
                 </div>
@@ -483,6 +483,12 @@
                         Format de code postal invalide.
                       </span>
                     }
+                    <!-- Annonce locale (scopée) du remplissage auto du code postal — L-010. -->
+                    <p class="sr-only" role="status" aria-live="polite" aria-atomic="true">
+                      @if (postalAutofilled()) {
+                        Code postal rempli automatiquement — vérifiez-le.
+                      }
+                    </p>
                   </div>
 
                   <div class="field">

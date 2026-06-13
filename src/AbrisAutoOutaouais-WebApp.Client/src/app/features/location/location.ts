@@ -15,9 +15,12 @@ import { RentalService } from '../../core/services/rental.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { ProfileService } from '../../core/services/profile.service';
+import { PlacesService } from '../../core/services/places.service';
 import { ProductSummaryDto } from '../../core/models/product.model';
 import { CreateRentalContractRequest } from '../../core/models/rental.model';
+import { PlaceSuggestionDto } from '../../core/models/place.model';
 import { FaqComponent } from '../../shared/components/faq/faq.component';
+import { AddressAutocompleteComponent } from '../../shared/components/a11y-components/autocomplete/address-autocomplete.component';
 import { LOCATION_FAQ } from '../../shared/content/faq.data';
 import { CIVIC_PATTERN, POSTAL_PATTERN, normalizePostal } from '../../core/validators/address.validators';
 
@@ -29,7 +32,7 @@ import { CIVIC_PATTERN, POSTAL_PATTERN, normalizePostal } from '../../core/valid
 @Component({
   selector: 'app-location',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, CurrencyPipe, FaqComponent],
+  imports: [ReactiveFormsModule, CurrencyPipe, FaqComponent, AddressAutocompleteComponent],
   templateUrl: './location.html',
   styleUrl: './location.scss',
 })
@@ -44,9 +47,12 @@ export class LocationComponent implements OnInit {
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
   private readonly profile = inject(ProfileService);
+  private readonly places = inject(PlacesService);
 
   protected readonly loading = signal(true);
   protected readonly submitting = signal(false);
+  /** Annonce (aria-live) : le code postal vient d'être rempli automatiquement. */
+  protected readonly postalAutofilled = signal(false);
   protected readonly rentable = signal<readonly ProductSummaryDto[]>([]);
   protected readonly selectedId = signal<string | null>(null);
   protected readonly hasProducts = computed(() => this.rentable().length > 0);
@@ -87,6 +93,42 @@ export class LocationComponent implements OnInit {
 
   protected selectProduct(id: string): void {
     this.selectedId.set(id);
+  }
+
+  /**
+   * Choix explicite d'une suggestion d'adresse : on patche civic/rue/ville/province
+   * INCONDITIONNELLEMENT (action utilisateur, donc PAS gardée par le pristine de L-002),
+   * puis on résout le code postal et on le patche normalisé (« A1A 1A1 », L-004). Le champ
+   * code postal RESTE éditable ; si le proxy renvoie null, on ne patche rien.
+   */
+  protected onSuggestionSelected(s: PlaceSuggestionDto): void {
+    this.postalAutofilled.set(false);
+    this.form.patchValue({
+      civicNumber: s.civicNumber ?? '',
+      street: s.street,
+      city: s.city,
+      province: s.province || 'QC',
+    });
+    this.form.controls.street.markAsDirty();
+
+    this.places
+      .lookupPostalCode(s.civicNumber ?? '', s.street, s.city, s.province)
+      .subscribe({
+        next: ({ postalCode }) => {
+          if (!postalCode) return;
+          this.form.controls.postalCode.setValue(normalizePostal(postalCode));
+          this.postalAutofilled.set(true);
+        },
+        error: () => {
+          /* silencieux : l'utilisateur peut saisir le code postal manuellement */
+        },
+      });
+  }
+
+  /** Frappe libre dans le combobox : synchronise le contrôle « rue ». */
+  protected onStreetInput(value: string): void {
+    this.form.controls.street.setValue(value);
+    this.form.controls.street.markAsDirty();
   }
 
   protected confirm(): void {

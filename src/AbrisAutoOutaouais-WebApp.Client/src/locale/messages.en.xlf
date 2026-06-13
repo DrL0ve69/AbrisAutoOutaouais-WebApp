@@ -2,6 +2,26 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="fr" target-language="en" datatype="plaintext" original="ng2.template">
     <body>
+      <trans-unit id="address.postalAutofilled" datatype="html">
+        <source>Code postal rempli automatiquement — vérifiez-le.</source>
+        <target>Postal code filled in automatically — please verify it.</target>
+      </trans-unit>
+      <trans-unit id="autocomplete.listbox.label" datatype="html">
+        <source>Suggestions d&apos;adresses</source>
+        <target>Address suggestions</target>
+      </trans-unit>
+      <trans-unit id="autocomplete.status.loading" datatype="html">
+        <source>Recherche d&apos;adresses en cours…</source>
+        <target>Searching for addresses…</target>
+      </trans-unit>
+      <trans-unit id="autocomplete.status.none" datatype="html">
+        <source>Aucune adresse trouvée.</source>
+        <target>No address found.</target>
+      </trans-unit>
+      <trans-unit id="autocomplete.status.count" datatype="html">
+        <source><x id="count" equiv-text="n"/> adresse(s) trouvée(s). Utilisez les flèches pour parcourir.</source>
+        <target><x id="count" equiv-text="n"/> address(es) found. Use the arrow keys to browse.</target>
+      </trans-unit>
       <trans-unit id="account.back" datatype="html">
         <source> ← Mon compte </source>
         <target> ← My account </target>

@@ -1964,133 +1964,148 @@
         <source>Rue</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.html</context>
-          <context context-type="linenumber">57,58</context>
+          <context context-type="linenumber">60</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.address.apartment" datatype="html">
         <source>Appartement / unité (optionnel)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.html</context>
-          <context context-type="linenumber">63,64</context>
+          <context context-type="linenumber">69,70</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.address.city" datatype="html">
         <source>Ville</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.html</context>
-          <context context-type="linenumber">68,69</context>
+          <context context-type="linenumber">74,75</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.address.province" datatype="html">
         <source>Province</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.html</context>
-          <context context-type="linenumber">74,75</context>
+          <context context-type="linenumber">80,81</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.address.postal" datatype="html">
         <source>Code postal</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.html</context>
-          <context context-type="linenumber">79,80</context>
+          <context context-type="linenumber">85,86</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="address.postalAutofilled" datatype="html">
+        <source>Code postal rempli automatiquement — vérifiez-le.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/checkout/checkout.html</context>
+          <context context-type="linenumber">91,93</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/installation/installation.html</context>
+          <context context-type="linenumber">148,150</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/location/location.html</context>
+          <context context-type="linenumber">150,152</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.address.required" datatype="html">
         <source> Veuillez remplir la rue, la ville et le code postal pour la livraison. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.html</context>
-          <context context-type="linenumber">86,88</context>
+          <context context-type="linenumber">98,100</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.payment.legend" datatype="html">
         <source>Carte de paiement (démo)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.html</context>
-          <context context-type="linenumber">94,96</context>
+          <context context-type="linenumber">106,108</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.card.name" datatype="html">
         <source>Nom sur la carte</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.html</context>
-          <context context-type="linenumber">97,98</context>
+          <context context-type="linenumber">109,110</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.card.number" datatype="html">
         <source>Numéro de carte</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.html</context>
-          <context context-type="linenumber">104,105</context>
+          <context context-type="linenumber">116,117</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.card.expiry" datatype="html">
         <source>Expiration (MM/AA)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.html</context>
-          <context context-type="linenumber">112,113</context>
+          <context context-type="linenumber">124,125</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.card.cvc" datatype="html">
         <source>CVC</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.html</context>
-          <context context-type="linenumber">118,119</context>
+          <context context-type="linenumber">130,131</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.card.invalid" datatype="html">
         <source> Vérifiez les informations de carte (numéro, expiration MM/AA, CVC). </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.html</context>
-          <context context-type="linenumber">127,129</context>
+          <context context-type="linenumber">139,141</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.processing" datatype="html">
         <source>Traitement du paiement…</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.html</context>
-          <context context-type="linenumber">135,137</context>
+          <context context-type="linenumber">147,149</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.pay" datatype="html">
         <source>Payer</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.html</context>
-          <context context-type="linenumber">137,138</context>
+          <context context-type="linenumber">149,150</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.back" datatype="html">
         <source>← Retour au panier</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.html</context>
-          <context context-type="linenumber">142,145</context>
+          <context context-type="linenumber">154,157</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.summary.title" datatype="html">
         <source>Récapitulatif</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.html</context>
-          <context context-type="linenumber">147,148</context>
+          <context context-type="linenumber">159,160</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.summary.total" datatype="html">
         <source>Total</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.html</context>
-          <context context-type="linenumber">157,158</context>
+          <context context-type="linenumber">169,170</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.success" datatype="html">
         <source>Paiement (démo) accepté — commande confirmée !</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.ts</context>
-          <context context-type="linenumber">126</context>
+          <context context-type="linenumber">169</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.error" datatype="html">
         <source>Le paiement a échoué. Veuillez réessayer.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.ts</context>
-          <context context-type="linenumber">134</context>
+          <context context-type="linenumber">177</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.hero.badge" datatype="html">
@@ -2524,105 +2539,105 @@
         <source>Rue</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">92,93</context>
+          <context context-type="linenumber">95</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.field.streetRequired" datatype="html">
         <source> L&apos;adresse est requise. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">96,98</context>
+          <context context-type="linenumber">105,107</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.field.apartment" datatype="html">
         <source>Appartement / unité (optionnel)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">103,104</context>
+          <context context-type="linenumber">112,113</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.field.city" datatype="html">
         <source>Ville</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">110,111</context>
+          <context context-type="linenumber">119,120</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.field.cityRequired" datatype="html">
         <source> La ville est requise. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">114,116</context>
+          <context context-type="linenumber">123,125</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.field.province" datatype="html">
         <source>Province</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">120,121</context>
+          <context context-type="linenumber">129,130</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.field.postalCode" datatype="html">
         <source>Code postal</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">125,126</context>
+          <context context-type="linenumber">134,135</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.field.postalHint" datatype="html">
         <source>Format : A1A 1A1</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">130,131</context>
+          <context context-type="linenumber">139,140</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.field.postalCodeInvalid" datatype="html">
         <source> Code postal invalide (ex : J8X 1A1). </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">133,135</context>
+          <context context-type="linenumber">142,144</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.field.notes" datatype="html">
         <source>Notes (optionnel)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">140,141</context>
+          <context context-type="linenumber">155,156</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.submit" datatype="html">
         <source> Confirmer la réservation </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">150,152</context>
+          <context context-type="linenumber">165,167</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.authRequired" datatype="html">
         <source>Connectez-vous pour réserver une installation.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.ts</context>
-          <context context-type="linenumber">112</context>
+          <context context-type="linenumber">154</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.noSlot" datatype="html">
         <source>Veuillez choisir un créneau.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.ts</context>
-          <context context-type="linenumber">122</context>
+          <context context-type="linenumber">164</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.success" datatype="html">
         <source>Réservation confirmée !</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.ts</context>
-          <context context-type="linenumber">154</context>
+          <context context-type="linenumber">196</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.error" datatype="html">
         <source>La réservation a échoué. Veuillez réessayer.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.ts</context>
-          <context context-type="linenumber">162</context>
+          <context context-type="linenumber">204</context>
         </context-group>
       </trans-unit>
       <trans-unit id="legal.eyebrow" datatype="html">
@@ -3143,105 +3158,105 @@
         <source>Rue</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.html</context>
-          <context context-type="linenumber">94,95</context>
+          <context context-type="linenumber">97</context>
         </context-group>
       </trans-unit>
       <trans-unit id="location.field.streetRequired" datatype="html">
         <source> L&apos;adresse est requise. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.html</context>
-          <context context-type="linenumber">98,100</context>
+          <context context-type="linenumber">107,109</context>
         </context-group>
       </trans-unit>
       <trans-unit id="location.field.apartment" datatype="html">
         <source>Appartement / unité (optionnel)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.html</context>
-          <context context-type="linenumber">105,106</context>
+          <context context-type="linenumber">114,115</context>
         </context-group>
       </trans-unit>
       <trans-unit id="location.field.city" datatype="html">
         <source>Ville</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.html</context>
-          <context context-type="linenumber">112,113</context>
+          <context context-type="linenumber">121,122</context>
         </context-group>
       </trans-unit>
       <trans-unit id="location.field.cityRequired" datatype="html">
         <source> La ville est requise. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.html</context>
-          <context context-type="linenumber">116,118</context>
+          <context context-type="linenumber">125,127</context>
         </context-group>
       </trans-unit>
       <trans-unit id="location.field.province" datatype="html">
         <source>Province</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.html</context>
-          <context context-type="linenumber">122,123</context>
+          <context context-type="linenumber">131,132</context>
         </context-group>
       </trans-unit>
       <trans-unit id="location.field.postalCode" datatype="html">
         <source>Code postal</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.html</context>
-          <context context-type="linenumber">127,128</context>
+          <context context-type="linenumber">136,137</context>
         </context-group>
       </trans-unit>
       <trans-unit id="location.field.postalHint" datatype="html">
         <source>Format : A1A 1A1</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.html</context>
-          <context context-type="linenumber">132,133</context>
+          <context context-type="linenumber">141,142</context>
         </context-group>
       </trans-unit>
       <trans-unit id="location.field.postalCodeInvalid" datatype="html">
         <source> Code postal invalide (ex : J8X 1A1). </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.html</context>
-          <context context-type="linenumber">135,137</context>
+          <context context-type="linenumber">144,146</context>
         </context-group>
       </trans-unit>
       <trans-unit id="location.submit" datatype="html">
         <source> Confirmer la location </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.html</context>
-          <context context-type="linenumber">147,149</context>
+          <context context-type="linenumber">162,164</context>
         </context-group>
       </trans-unit>
       <trans-unit id="location.authRequired" datatype="html">
         <source>Connectez-vous pour louer un abri.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.ts</context>
-          <context context-type="linenumber">97</context>
+          <context context-type="linenumber">139</context>
         </context-group>
       </trans-unit>
       <trans-unit id="location.noProduct" datatype="html">
         <source>Veuillez choisir un abri à louer.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.ts</context>
-          <context context-type="linenumber">107</context>
+          <context context-type="linenumber">149</context>
         </context-group>
       </trans-unit>
       <trans-unit id="location.badDates" datatype="html">
         <source>La date de fin doit être après la date de début.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.ts</context>
-          <context context-type="linenumber">121</context>
+          <context context-type="linenumber">163</context>
         </context-group>
       </trans-unit>
       <trans-unit id="location.success" datatype="html">
         <source>Location confirmée !</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.ts</context>
-          <context context-type="linenumber">147</context>
+          <context context-type="linenumber">189</context>
         </context-group>
       </trans-unit>
       <trans-unit id="location.error" datatype="html">
         <source>La location a échoué. Veuillez réessayer.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.ts</context>
-          <context context-type="linenumber">155</context>
+          <context context-type="linenumber">197</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.catalog.eyebrow" datatype="html">
@@ -3487,6 +3502,34 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.ts</context>
           <context context-type="linenumber">70</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="autocomplete.listbox.label" datatype="html">
+        <source>Suggestions d&apos;adresses</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/a11y-components/autocomplete/address-autocomplete.component.html</context>
+          <context context-type="linenumber">37,39</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="autocomplete.status.loading" datatype="html">
+        <source>Recherche d&apos;adresses en cours…</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/a11y-components/autocomplete/address-autocomplete.component.ts</context>
+          <context context-type="linenumber">83</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="autocomplete.status.none" datatype="html">
+        <source>Aucune adresse trouvée.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/a11y-components/autocomplete/address-autocomplete.component.ts</context>
+          <context context-type="linenumber">88</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="autocomplete.status.count" datatype="html">
+        <source><x id="count" equiv-text="n"/> adresse(s) trouvée(s). Utilisez les flèches pour parcourir.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/a11y-components/autocomplete/address-autocomplete.component.ts</context>
+          <context context-type="linenumber">90</context>
         </context-group>
       </trans-unit>
       <trans-unit id="faq.title" datatype="html">

@@ -1,0 +1,90 @@
+// Combobox d'autocomplétion d'adresse (ARIA APG). Cibles ≥ 44px, focus visible,
+// respect de prefers-reduced-motion. Les couleurs s'appuient sur les design tokens
+// globaux (contrastes AA garantis là — voir axe-helper).
+
+.addr-ac {
+  display: block;
+}
+
+.addr-ac__label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-weight: 600;
+}
+
+.addr-ac__field {
+  position: relative;
+}
+
+.addr-ac__input {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 44px;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-focus, #1a73e8);
+    outline-offset: 2px;
+  }
+}
+
+.addr-ac__spinner {
+  position: absolute;
+  top: 50%;
+  inset-inline-end: 0.75rem;
+  width: 1rem;
+  height: 1rem;
+  margin-top: -0.5rem;
+  border: 2px solid var(--color-border, #cbd5e1);
+  border-top-color: var(--color-primary, #1a73e8);
+  border-radius: 50%;
+  animation: addr-ac-spin 0.7s linear infinite;
+  pointer-events: none;
+}
+
+.addr-ac__listbox {
+  position: absolute;
+  z-index: 20;
+  inset-inline: 0;
+  top: calc(100% + 2px);
+  margin: 0;
+  padding: 0.25rem 0;
+  list-style: none;
+  max-height: 16rem;
+  overflow-y: auto;
+  background: var(--color-surface, #fff);
+  border: 1px solid var(--color-border, #cbd5e1);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.addr-ac__option {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.5rem 0.875rem;
+  cursor: pointer;
+  color: var(--color-text, #1f2937);
+
+  // L'option « active » suit aria-activedescendant (clavier) ou le survol (souris).
+  &--active {
+    background: var(--color-primary-soft, #e8f0fe);
+    color: var(--color-primary-strong, #174ea6);
+  }
+}
+
+@keyframes addr-ac-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Respect des préférences de mouvement réduit (WCAG 2.3.3).
+@media (prefers-reduced-motion: reduce) {
+  .addr-ac__spinner {
+    animation: none;
+  }
+}
