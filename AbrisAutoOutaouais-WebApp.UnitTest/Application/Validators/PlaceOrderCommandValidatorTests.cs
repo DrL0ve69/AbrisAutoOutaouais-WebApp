@@ -16,12 +16,12 @@ public sealed class PlaceOrderCommandValidatorTests
     private static PlaceOrderCommand DeliveryWithPostal(string postalCode) => new(
         Lines: [new OrderLineRequest(Guid.NewGuid(), 1)],
         DeliveryType: DeliveryType.Delivery,
-        ShippingAddress: new AddressDto("123 rue des Abris", "Gatineau", "QC", postalCode, "Canada"));
+        ShippingAddress: new AddressDto("123", "rue des Abris", null, "Gatineau", "QC", postalCode, "Canada"));
 
     private static PlaceOrderCommand DeliveryWithProvince(string province, string postalCode) => new(
         Lines: [new OrderLineRequest(Guid.NewGuid(), 1)],
         DeliveryType: DeliveryType.Delivery,
-        ShippingAddress: new AddressDto("111 rue Wellington", "Ottawa", province, postalCode, "Canada"));
+        ShippingAddress: new AddressDto("111", "rue Wellington", null, "Ottawa", province, postalCode, "Canada"));
 
     [Theory]
     [InlineData("J8X 1A1")] // format canonique avec espace (profil + autofill)
