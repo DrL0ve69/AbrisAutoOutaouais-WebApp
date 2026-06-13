@@ -38,6 +38,9 @@ public interface IIdentityService
     /// <summary>Profil complet d'un utilisateur (null si introuvable).</summary>
     Task<UserProfileDto?> GetProfileAsync(Guid userId, CancellationToken cancellationToken = default);
 
+    /// <summary>Tous les utilisateurs (réservé à l'administration), du plus récent au plus ancien.</summary>
+    Task<IReadOnlyList<AdminUserDto>> GetAllUsersAsync(CancellationToken cancellationToken = default);
+
     /// <summary>Met à jour les informations de profil.</summary>
     Task<Result> UpdateProfileAsync(Guid userId, UpdateProfileRequest request, CancellationToken cancellationToken = default);
 

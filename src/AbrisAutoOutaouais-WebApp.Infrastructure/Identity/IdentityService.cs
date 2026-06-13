@@ -3,6 +3,7 @@ using AbrisAutoOutaouais_WebApp.Application.Common.Interfaces;
 using AbrisAutoOutaouais_WebApp.Application.Common.Models;
 using Domain.ValueObjects;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace AbrisAutoOutaouais_WebApp.Infrastructure.Identity;
 
@@ -127,6 +128,30 @@ public sealed class IdentityService : IIdentityService
         return new UserProfileDto(
             user.Id, user.Email!, user.UserName!, user.FirstName, user.LastName,
             user.PhoneNumber, user.Avatar, user.PreferredLanguage, address, user.CreatedAt, roles);
+    }
+
+    public async Task<IReadOnlyList<AdminUserDto>> GetAllUsersAsync(CancellationToken cancellationToken = default)
+    {
+        var users = await _userManager.Users
+            .AsNoTracking()
+            .OrderByDescending(u => u.CreatedAt)
+            .ToListAsync(cancellationToken);
+
+        var result = new List<AdminUserDto>(users.Count);
+        foreach (var user in users)
+        {
+            var roles = (await _userManager.GetRolesAsync(user)).ToList().AsReadOnly();
+            result.Add(new AdminUserDto(
+                user.Id,
+                user.Email ?? "—",
+                user.UserName ?? "—",
+                user.FullName,
+                roles,
+                user.CreatedAt,
+                await _userManager.IsLockedOutAsync(user)));
+        }
+
+        return result;
     }
 
     public async Task<Result> UpdateProfileAsync(
