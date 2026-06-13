@@ -22,6 +22,7 @@ internal sealed class GetAllBookingsQueryHandler(
                 b.DurationMin,
                 b.Type,
                 b.Status,
+                b.Address.CivicNumber,
                 b.Address.Street,
                 b.Address.City,
                 b.CreatedAt,
@@ -47,7 +48,7 @@ internal sealed class GetAllBookingsQueryHandler(
                 b.SlotStart.AddMinutes(b.DurationMin),
                 b.Type.ToString(),
                 b.Status.ToString(),
-                $"{b.Street}, {b.City}",
+                $"{b.CivicNumber} {b.Street}, {b.City}",
                 b.CreatedAt))
             .ToList();
     }

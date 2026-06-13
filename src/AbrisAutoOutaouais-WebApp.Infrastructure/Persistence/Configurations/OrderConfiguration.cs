@@ -33,6 +33,10 @@ internal sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
         // Colonnes : ShippingAddress_Street, ShippingAddress_City, etc.
         builder.OwnsOne(o => o.ShippingAddress, addr =>
         {
+            addr.Property(a => a.CivicNumber)
+                .HasColumnName("ShippingAddress_CivicNumber").HasMaxLength(10);
+            addr.Property(a => a.Apartment)
+                .HasColumnName("ShippingAddress_Apartment").HasMaxLength(20);
             addr.Property(a => a.Street)
                 .HasColumnName("ShippingAddress_Street").HasMaxLength(200);
             addr.Property(a => a.City)

@@ -25,7 +25,9 @@ internal sealed class CreateRentalContractCommandHandler(
             ?? throw new NotFoundException(nameof(Product), cmd.ProductId);
 
         var address = Address.Create(
+            cmd.Address.CivicNumber,
             cmd.Address.Street,
+            cmd.Address.Apartment,
             cmd.Address.City,
             string.IsNullOrWhiteSpace(cmd.Address.Province) ? "QC" : cmd.Address.Province,
             cmd.Address.PostalCode,

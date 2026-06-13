@@ -20,6 +20,8 @@ internal sealed class BookingSlotConfiguration : IEntityTypeConfiguration<Bookin
 
         builder.OwnsOne(b => b.Address, addr =>
         {
+            addr.Property(a => a.CivicNumber).HasColumnName("Address_CivicNumber").HasMaxLength(10);
+            addr.Property(a => a.Apartment).HasColumnName("Address_Apartment").HasMaxLength(20);
             addr.Property(a => a.Street).HasColumnName("Address_Street").HasMaxLength(200);
             addr.Property(a => a.City).HasColumnName("Address_City").HasMaxLength(100);
             addr.Property(a => a.Province).HasColumnName("Address_Province").HasMaxLength(2);

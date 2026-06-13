@@ -20,7 +20,9 @@ internal sealed class CreateBookingCommandHandler(
         var userId = currentUser.UserId ?? Guid.Empty;
 
         var address = Address.Create(
+            cmd.Address.CivicNumber,
             cmd.Address.Street,
+            cmd.Address.Apartment,
             cmd.Address.City,
             string.IsNullOrWhiteSpace(cmd.Address.Province) ? "QC" : cmd.Address.Province,
             cmd.Address.PostalCode,

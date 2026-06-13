@@ -14,7 +14,7 @@ public sealed class OrderTests
         => Product.Create("Abri", "abri", price, stock, Guid.NewGuid());
 
     private static Address MakeAddress()
-        => Address.Create("123 rue des Érables", "Saint-Jérôme", "QC", "J7Z1A1");
+        => Address.Create("123", "rue des Érables", null, "Saint-Jérôme", "QC", "J7Z1A1");
 
     // ── Create ────────────────────────────────────────────────────────────────
 

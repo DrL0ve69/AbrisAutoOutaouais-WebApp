@@ -122,7 +122,7 @@ public sealed class IdentityService : IIdentityService
         var roles = (await _userManager.GetRolesAsync(user)).ToList().AsReadOnly();
 
         AddressDto? address = user.DefaultDeliveryAddress is { } a
-            ? new AddressDto(a.Street, a.City, a.Province, a.PostalCode, a.Country)
+            ? new AddressDto(a.CivicNumber, a.Street, a.Apartment, a.City, a.Province, a.PostalCode, a.Country)
             : null;
 
         return new UserProfileDto(
@@ -171,11 +171,12 @@ public sealed class IdentityService : IIdentityService
         var d = request.DefaultDeliveryAddress;
         user.DefaultDeliveryAddress =
             d is not null
+            && !string.IsNullOrWhiteSpace(d.CivicNumber)
             && !string.IsNullOrWhiteSpace(d.Street)
             && !string.IsNullOrWhiteSpace(d.City)
             && !string.IsNullOrWhiteSpace(d.PostalCode)
                 ? Address.Create(
-                    d.Street, d.City,
+                    d.CivicNumber, d.Street, d.Apartment, d.City,
                     string.IsNullOrWhiteSpace(d.Province) ? "QC" : d.Province,
                     d.PostalCode,
                     string.IsNullOrWhiteSpace(d.Country) ? "Canada" : d.Country)

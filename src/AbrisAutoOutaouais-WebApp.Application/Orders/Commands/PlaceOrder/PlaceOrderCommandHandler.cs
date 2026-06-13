@@ -36,7 +36,7 @@ internal sealed class PlaceOrderCommandHandler(
 
         Address? address = cmd.ShippingAddress is { } a && !string.IsNullOrWhiteSpace(a.Street)
             ? Address.Create(
-                a.Street, a.City,
+                a.CivicNumber, a.Street, a.Apartment, a.City,
                 string.IsNullOrWhiteSpace(a.Province) ? "QC" : a.Province,
                 a.PostalCode,
                 string.IsNullOrWhiteSpace(a.Country) ? "Canada" : a.Country)

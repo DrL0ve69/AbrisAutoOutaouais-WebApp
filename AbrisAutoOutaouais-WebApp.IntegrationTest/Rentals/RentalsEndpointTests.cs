@@ -67,7 +67,7 @@ public sealed class RentalsEndpointTests : IClassFixture<WebAppFactory>
             599m, 10, Guid.NewGuid(), "Abri saisonnier.", 49m);
         var rental = RentalContract.Create(customerId, product,
             new DateOnly(2026, 7, 1), new DateOnly(2026, 10, 1),
-            Address.Create("123 rue des Érables", "Gatineau", "QC", "J8X1A1"));
+            Address.Create("123", "rue des Érables", null, "Gatineau", "QC", "J8X1A1"));
 
         db.Products.Add(product);
         db.RentalContracts.Add(rental);

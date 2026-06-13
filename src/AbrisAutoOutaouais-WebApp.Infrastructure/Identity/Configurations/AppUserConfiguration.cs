@@ -34,6 +34,10 @@ internal sealed class AppUserConfiguration : IEntityTypeConfiguration<AppUser>
         // Stockée dans AspNetUsers avec colonnes préfixées "DefaultAddress_"
         builder.OwnsOne(u => u.DefaultDeliveryAddress, addr =>
         {
+            addr.Property(a => a.CivicNumber)
+                .HasColumnName("DefaultAddress_CivicNumber").HasMaxLength(10);
+            addr.Property(a => a.Apartment)
+                .HasColumnName("DefaultAddress_Apartment").HasMaxLength(20);
             addr.Property(a => a.Street)
                 .HasColumnName("DefaultAddress_Street").HasMaxLength(200);
             addr.Property(a => a.City)
