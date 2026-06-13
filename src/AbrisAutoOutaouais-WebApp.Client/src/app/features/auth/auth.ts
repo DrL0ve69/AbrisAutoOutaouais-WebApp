@@ -10,9 +10,12 @@ import {
   ReactiveFormsModule,
   Validators,
   AbstractControl,
+  AsyncValidatorFn,
   ValidationErrors,
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { Observable, of, timer } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
 
 // ── Validateur cross-field ────────────────────────────────────
@@ -20,6 +23,37 @@ function passwordsMatch(ctrl: AbstractControl): ValidationErrors | null {
   const pw = ctrl.get('password')?.value;
   const cpw = ctrl.get('confirmPassword')?.value;
   return pw && cpw && pw !== cpw ? { passwordMismatch: true } : null;
+}
+
+/** Délai (ms) avant l'appel réseau de vérification de disponibilité (anti-rafale). */
+const AVAILABILITY_DEBOUNCE = 400;
+
+/**
+ * Construit un validateur ASYNCHRONE debounced qui vérifie la disponibilité d'un
+ * identifiant (H5). Il ne s'active QUE si les validateurs synchrones passent
+ * déjà (`control.errors === null` à l'entrée) — inutile d'interroger le serveur
+ * pour une valeur vide ou mal formée, et on évite d'écraser une erreur de format.
+ * Retourne `{ taken: true }` quand l'identifiant est déjà pris ; un échec réseau
+ * est silencieux (null) pour ne pas bloquer l'inscription sur un faux négatif.
+ *
+ * @param check  appel HTTP renvoyant la disponibilité du seul champ passé.
+ */
+function availabilityValidator(
+  check: (value: string) => Observable<boolean | null>,
+): AsyncValidatorFn {
+  return (control: AbstractControl): Observable<ValidationErrors | null> => {
+    const value: string = (control.value ?? '').trim();
+    // N'interroge pas le serveur si un validateur synchrone a déjà échoué, ou si vide.
+    if (!value || control.errors) return of(null);
+
+    // timer() (re)démarre à chaque frappe → debounce ; switchMap annule l'appel
+    // précédent encore en vol, donc seule la dernière saisie compte.
+    return timer(AVAILABILITY_DEBOUNCE).pipe(
+      switchMap(() => check(value)),
+      map(available => (available === false ? { taken: true } : null)),
+      catchError(() => of(null)),
+    );
+  };
 }
 
 // ── Types ─────────────────────────────────────────────────────
@@ -63,13 +97,23 @@ export class AuthComponent {
     {
       firstName: ['', [Validators.required, Validators.maxLength(100)]],
       lastName: ['', [Validators.required, Validators.maxLength(100)]],
-      email: ['', [Validators.required, Validators.email]],
-      username: ['', [
-        Validators.required,
-        Validators.minLength(3),
-        Validators.maxLength(30),
-        Validators.pattern(/^[a-zA-Z0-9._-]+$/),
-      ]],
+      email: ['',
+        [Validators.required, Validators.email],
+        // Vérification asynchrone debounced de la disponibilité du courriel (H5).
+        [availabilityValidator(value =>
+          this.auth.checkAvailability({ email: value }).pipe(map(r => r.emailAvailable)))],
+      ],
+      username: ['',
+        [
+          Validators.required,
+          Validators.minLength(3),
+          Validators.maxLength(30),
+          Validators.pattern(/^[a-zA-Z0-9._-]+$/),
+        ],
+        // Vérification asynchrone debounced de la disponibilité du nom d'utilisateur (H5).
+        [availabilityValidator(value =>
+          this.auth.checkAvailability({ username: value }).pipe(map(r => r.usernameAvailable)))],
+      ],
       // Parité STRICTE avec la politique serveur (Identity + RegisterCommand) :
       // minuscule, majuscule, chiffre et caractère spécial. Sans la règle
       // minuscule, un mot de passe tout en MAJUSCULES passait ici puis échouait

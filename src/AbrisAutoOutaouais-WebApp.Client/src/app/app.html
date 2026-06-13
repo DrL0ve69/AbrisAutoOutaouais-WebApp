@@ -16,3 +16,10 @@
 <footer role="contentinfo">
   <app-footer />
 </footer>
+
+<!-- Région live globale : confirme le changement de langue après rechargement
+     (H1). Présente dès le chargement (vide) puis renseignée une fois → annonce
+     polie par les lecteurs d'écran. -->
+<div class="sr-only" role="status" aria-live="polite" aria-atomic="true">
+  {{ locale.switchAnnouncement() }}
+</div>

@@ -59,6 +59,16 @@ public interface IIdentityService
 
     /// <summary>Réinitialise le mot de passe à partir d'un jeton de réinitialisation valide.</summary>
     Task<Result> ResetPasswordAsync(string email, string token, string newPassword, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Indique si un nom d'utilisateur est déjà pris (aide à l'inscription, H5).
+    /// </summary>
+    Task<bool> IsUsernameTakenAsync(string username, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Indique si un courriel est déjà associé à un compte (aide à l'inscription, H5).
+    /// </summary>
+    Task<bool> IsEmailTakenAsync(string email, CancellationToken cancellationToken = default);
 }
 
 /// <summary>

@@ -2,6 +2,13 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="fr" datatype="plaintext" original="ng2.template">
     <body>
+      <trans-unit id="locale.switched" datatype="html">
+        <source>Langue changée : <x id="label" equiv-text="label"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/services/locale.service.ts</context>
+          <context context-type="linenumber">124</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="account.back" datatype="html">
         <source> ← Mon compte </source>
         <context-group purpose="location">
@@ -1532,6 +1539,48 @@
           <context context-type="linenumber">60</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="auth.email.checking" datatype="html">
+        <source>Vérification de la disponibilité…</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/auth.html</context>
+          <context context-type="linenumber">232,233</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.email.available" datatype="html">
+        <source>Courriel disponible.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/auth.html</context>
+          <context context-type="linenumber">234,236</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.email.taken" datatype="html">
+        <source>Un compte existe déjà avec ce courriel.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/auth.html</context>
+          <context context-type="linenumber">242,243</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.username.checking" datatype="html">
+        <source>Vérification de la disponibilité…</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/auth.html</context>
+          <context context-type="linenumber">268,269</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.username.available" datatype="html">
+        <source>Nom d&apos;utilisateur disponible.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/auth.html</context>
+          <context context-type="linenumber">270,272</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.username.taken" datatype="html">
+        <source>Ce nom d&apos;utilisateur est déjà pris.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/auth.html</context>
+          <context context-type="linenumber">278,280</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="reset.logoAria" datatype="html">
         <source>AbrisTempo Local — Retour à l&apos;accueil</source>
         <context-group purpose="location">
@@ -1585,14 +1634,14 @@
         <source> Envoyer le lien </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
-          <context context-type="linenumber">121,122</context>
+          <context context-type="linenumber">124,125</context>
         </context-group>
       </trans-unit>
       <trans-unit id="reset.newTitle" datatype="html">
         <source>Choisir un nouveau mot de passe</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
-          <context context-type="linenumber">128,129</context>
+          <context context-type="linenumber">131,132</context>
         </context-group>
       </trans-unit>
       <trans-unit id="reset.newSubtitle" datatype="html">
@@ -1600,98 +1649,98 @@
               &gt;"/>. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
-          <context context-type="linenumber">131,135</context>
+          <context context-type="linenumber">134,138</context>
         </context-group>
       </trans-unit>
       <trans-unit id="reset.successTitle" datatype="html">
         <source> Mot de passe réinitialisé </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
-          <context context-type="linenumber">147,149</context>
+          <context context-type="linenumber">150,152</context>
         </context-group>
       </trans-unit>
       <trans-unit id="reset.successBody" datatype="html">
         <source> Votre mot de passe a été mis à jour. Vous pouvez maintenant vous connecter avec votre nouveau mot de passe. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
-          <context context-type="linenumber">150,152</context>
+          <context context-type="linenumber">153,155</context>
         </context-group>
       </trans-unit>
       <trans-unit id="reset.successLogin" datatype="html">
         <source> Se connecter </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
-          <context context-type="linenumber">154,156</context>
+          <context context-type="linenumber">157,159</context>
         </context-group>
       </trans-unit>
       <trans-unit id="reset.newPwdLabel" datatype="html">
         <source> Nouveau mot de passe <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;required&quot; aria-hidden=&quot;true&quot;&gt;"/>*<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
-          <context context-type="linenumber">181,182</context>
+          <context context-type="linenumber">184,185</context>
         </context-group>
       </trans-unit>
       <trans-unit id="reset.newPwdHint" datatype="html">
-        <source> Min. 8 caractères, avec majuscule, chiffre et caractère spécial. </source>
+        <source> Min. 8 caractères, avec majuscule, minuscule, chiffre et caractère spécial. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
-          <context context-type="linenumber">195,196</context>
+          <context context-type="linenumber">198,199</context>
         </context-group>
       </trans-unit>
       <trans-unit id="reset.newPwdRequired" datatype="html">
         <source>Le nouveau mot de passe est requis.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
-          <context context-type="linenumber">201,202</context>
+          <context context-type="linenumber">204,205</context>
         </context-group>
       </trans-unit>
       <trans-unit id="reset.newPwdWeak" datatype="html">
         <source>Le mot de passe ne respecte pas les exigences ci-dessus.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
-          <context context-type="linenumber">205,206</context>
+          <context context-type="linenumber">208,209</context>
         </context-group>
       </trans-unit>
       <trans-unit id="reset.confirmPwdLabel" datatype="html">
         <source> Confirmer le mot de passe <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;required&quot; aria-hidden=&quot;true&quot;&gt;"/>*<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
-          <context context-type="linenumber">218,219</context>
+          <context context-type="linenumber">221,222</context>
         </context-group>
       </trans-unit>
       <trans-unit id="reset.confirmPwdRequired" datatype="html">
         <source>La confirmation est requise.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
-          <context context-type="linenumber">235,237</context>
+          <context context-type="linenumber">238,240</context>
         </context-group>
       </trans-unit>
       <trans-unit id="reset.confirmPwdMismatch" datatype="html">
         <source>Les mots de passe ne correspondent pas.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
-          <context context-type="linenumber">239,241</context>
+          <context context-type="linenumber">242,244</context>
         </context-group>
       </trans-unit>
       <trans-unit id="reset.newSubmit" datatype="html">
         <source> Réinitialiser le mot de passe </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
-          <context context-type="linenumber">252,253</context>
+          <context context-type="linenumber">258,259</context>
         </context-group>
       </trans-unit>
       <trans-unit id="reset.backToLogin" datatype="html">
         <source>← Retour à la connexion</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
-          <context context-type="linenumber">259,262</context>
+          <context context-type="linenumber">265,268</context>
         </context-group>
       </trans-unit>
       <trans-unit id="reset.errorGeneric" datatype="html">
         <source>Le lien de réinitialisation est invalide ou expiré. Demandez un nouveau lien.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/auth/reset/reset.ts</context>
-          <context context-type="linenumber">170</context>
+          <context context-type="linenumber">186</context>
         </context-group>
       </trans-unit>
       <trans-unit id="cart.eyebrow" datatype="html">
@@ -2503,28 +2552,28 @@
         <source>Connectez-vous pour réserver une installation.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.ts</context>
-          <context context-type="linenumber">104</context>
+          <context context-type="linenumber">109</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.noSlot" datatype="html">
         <source>Veuillez choisir un créneau.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.ts</context>
-          <context context-type="linenumber">114</context>
+          <context context-type="linenumber">119</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.success" datatype="html">
         <source>Réservation confirmée !</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.ts</context>
-          <context context-type="linenumber">144</context>
+          <context context-type="linenumber">149</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.error" datatype="html">
         <source>La réservation a échoué. Veuillez réessayer.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.ts</context>
-          <context context-type="linenumber">152</context>
+          <context context-type="linenumber">157</context>
         </context-group>
       </trans-unit>
       <trans-unit id="legal.eyebrow" datatype="html">
@@ -3087,35 +3136,35 @@
         <source>Connectez-vous pour louer un abri.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.ts</context>
-          <context context-type="linenumber">89</context>
+          <context context-type="linenumber">94</context>
         </context-group>
       </trans-unit>
       <trans-unit id="location.noProduct" datatype="html">
         <source>Veuillez choisir un abri à louer.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.ts</context>
-          <context context-type="linenumber">99</context>
+          <context context-type="linenumber">104</context>
         </context-group>
       </trans-unit>
       <trans-unit id="location.badDates" datatype="html">
         <source>La date de fin doit être après la date de début.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.ts</context>
-          <context context-type="linenumber">113</context>
+          <context context-type="linenumber">118</context>
         </context-group>
       </trans-unit>
       <trans-unit id="location.success" datatype="html">
         <source>Location confirmée !</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.ts</context>
-          <context context-type="linenumber">137</context>
+          <context context-type="linenumber">142</context>
         </context-group>
       </trans-unit>
       <trans-unit id="location.error" datatype="html">
         <source>La location a échoué. Veuillez réessayer.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.ts</context>
-          <context context-type="linenumber">145</context>
+          <context context-type="linenumber">150</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.catalog.eyebrow" datatype="html">
@@ -3361,6 +3410,125 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.ts</context>
           <context context-type="linenumber">70</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="faq.title" datatype="html">
+        <source>Foire aux questions</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/faq/faq.component.ts</context>
+          <context context-type="linenumber">28,30</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="faq.install.delais.q" datatype="html">
+        <source>Quels sont les délais pour une installation ?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/faq/faq.component.ts</context>
+          <context context-type="linenumber">74</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="faq.install.delais.a" datatype="html">
+        <source>Après confirmation du rendez-vous, l&apos;installation a généralement lieu sous une à deux semaines selon la saison et la disponibilité des créneaux. Les périodes de fin d&apos;automne sont les plus demandées : réservez tôt.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/faq/faq.component.ts</context>
+          <context context-type="linenumber">75</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="faq.install.marques.q" datatype="html">
+        <source>Installez-vous d&apos;autres marques d&apos;abris que Abris Tempo ?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/faq/faq.component.ts</context>
+          <context context-type="linenumber">78</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="faq.install.marques.a" datatype="html">
+        <source>Oui. On installe aussi d&apos;autres marques d&apos;abris, à l&apos;exception de ShelterLogic. Contactez-nous avec le modèle et les dimensions pour confirmer la faisabilité avant de réserver.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/faq/faq.component.ts</context>
+          <context context-type="linenumber">79</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="faq.install.garantie.q" datatype="html">
+        <source>L&apos;installation est-elle garantie ?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/faq/faq.component.ts</context>
+          <context context-type="linenumber">82</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="faq.install.garantie.a" datatype="html">
+        <source>Le travail d&apos;installation est garanti contre les défauts de montage. La garantie du produit lui-même reste celle du fabricant de l&apos;abri.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/faq/faq.component.ts</context>
+          <context context-type="linenumber">83</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="faq.install.terrain.q" datatype="html">
+        <source>Dois-je préparer le terrain avant votre venue ?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/faq/faq.component.ts</context>
+          <context context-type="linenumber">86</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="faq.install.terrain.a" datatype="html">
+        <source>Dégagez la surface (neige, véhicules, obstacles) et assurez-vous que le sol est raisonnablement de niveau. Notre équipe s&apos;occupe de l&apos;ancrage adapté à votre surface (asphalte, gravier ou gazon).</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/faq/faq.component.ts</context>
+          <context context-type="linenumber">87</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="faq.location.duree.q" datatype="html">
+        <source>Quelle est la durée minimale d&apos;une location ?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/faq/faq.component.ts</context>
+          <context context-type="linenumber">90</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="faq.location.duree.a" datatype="html">
+        <source>Les abris se louent à la saison. Indiquez vos dates de début et de fin au moment de la réservation ; la facturation est mensuelle.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/faq/faq.component.ts</context>
+          <context context-type="linenumber">91</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="faq.location.depot.q" datatype="html">
+        <source>Un dépôt est-il exigé ?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/faq/faq.component.ts</context>
+          <context context-type="linenumber">94</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="faq.location.depot.a" datatype="html">
+        <source>Un dépôt de garantie peut être demandé à la signature du contrat. Il est remboursé à la fin de la location si l&apos;abri est rendu en bon état.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/faq/faq.component.ts</context>
+          <context context-type="linenumber">95</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="faq.location.annulation.q" datatype="html">
+        <source>Puis-je annuler ma location ?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/faq/faq.component.ts</context>
+          <context context-type="linenumber">98</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="faq.location.annulation.a" datatype="html">
+        <source>Vous pouvez annuler depuis « Mes locations » dans votre compte. Les conditions d&apos;annulation dépendent du moment de la demande par rapport à la date de début prévue.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/faq/faq.component.ts</context>
+          <context context-type="linenumber">99</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="faq.location.installation.q" datatype="html">
+        <source>L&apos;installation est-elle incluse dans la location ?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/faq/faq.component.ts</context>
+          <context context-type="linenumber">102</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="faq.location.installation.a" datatype="html">
+        <source>L&apos;adresse d&apos;installation est demandée à la réservation. Selon l&apos;entente, le montage peut être inclus ou facturé séparément — précisez votre besoin dans la demande.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/faq/faq.component.ts</context>
+          <context context-type="linenumber">103</context>
         </context-group>
       </trans-unit>
       <trans-unit id="product.available" datatype="html">

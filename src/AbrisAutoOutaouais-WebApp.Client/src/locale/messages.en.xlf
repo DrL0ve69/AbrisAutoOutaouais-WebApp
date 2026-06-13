@@ -2112,6 +2112,102 @@
         <source>Le lien de réinitialisation est invalide ou expiré. Demandez un nouveau lien.</source>
         <target>The reset link is invalid or has expired. Request a new link.</target>
       </trans-unit>
+      <trans-unit id="locale.switched" datatype="html">
+        <source>Langue changée : <x id="label" equiv-text="label"/></source>
+        <target>Language changed: <x id="label" equiv-text="label"/></target>
+      </trans-unit>
+      <trans-unit id="auth.email.checking" datatype="html">
+        <source>Vérification de la disponibilité…</source>
+        <target>Checking availability…</target>
+      </trans-unit>
+      <trans-unit id="auth.email.available" datatype="html">
+        <source>Courriel disponible.</source>
+        <target>Email available.</target>
+      </trans-unit>
+      <trans-unit id="auth.email.taken" datatype="html">
+        <source>Un compte existe déjà avec ce courriel.</source>
+        <target>An account already exists with this email.</target>
+      </trans-unit>
+      <trans-unit id="auth.username.checking" datatype="html">
+        <source>Vérification de la disponibilité…</source>
+        <target>Checking availability…</target>
+      </trans-unit>
+      <trans-unit id="auth.username.available" datatype="html">
+        <source>Nom d'utilisateur disponible.</source>
+        <target>Username available.</target>
+      </trans-unit>
+      <trans-unit id="auth.username.taken" datatype="html">
+        <source>Ce nom d'utilisateur est déjà pris.</source>
+        <target>This username is already taken.</target>
+      </trans-unit>
+      <trans-unit id="faq.title" datatype="html">
+        <source>Foire aux questions</source>
+        <target>Frequently asked questions</target>
+      </trans-unit>
+      <trans-unit id="faq.install.delais.q" datatype="html">
+        <source>Quels sont les délais pour une installation ?</source>
+        <target>What is the lead time for an installation?</target>
+      </trans-unit>
+      <trans-unit id="faq.install.delais.a" datatype="html">
+        <source>Après confirmation du rendez-vous, l'installation a généralement lieu sous une à deux semaines selon la saison et la disponibilité des créneaux. Les périodes de fin d'automne sont les plus demandées : réservez tôt.</source>
+        <target>Once the appointment is confirmed, installation usually takes place within one to two weeks depending on the season and slot availability. Late autumn is the busiest period, so book early.</target>
+      </trans-unit>
+      <trans-unit id="faq.install.marques.q" datatype="html">
+        <source>Installez-vous d'autres marques d'abris que Abris Tempo ?</source>
+        <target>Do you install shelter brands other than Abris Tempo?</target>
+      </trans-unit>
+      <trans-unit id="faq.install.marques.a" datatype="html">
+        <source>Oui. On installe aussi d'autres marques d'abris, à l'exception de ShelterLogic. Contactez-nous avec le modèle et les dimensions pour confirmer la faisabilité avant de réserver.</source>
+        <target>Yes. We also install other shelter brands, except for ShelterLogic. Contact us with the model and dimensions to confirm feasibility before booking.</target>
+      </trans-unit>
+      <trans-unit id="faq.install.garantie.q" datatype="html">
+        <source>L'installation est-elle garantie ?</source>
+        <target>Is the installation guaranteed?</target>
+      </trans-unit>
+      <trans-unit id="faq.install.garantie.a" datatype="html">
+        <source>Le travail d'installation est garanti contre les défauts de montage. La garantie du produit lui-même reste celle du fabricant de l'abri.</source>
+        <target>The installation work is guaranteed against assembly defects. The warranty on the product itself remains that of the shelter manufacturer.</target>
+      </trans-unit>
+      <trans-unit id="faq.install.terrain.q" datatype="html">
+        <source>Dois-je préparer le terrain avant votre venue ?</source>
+        <target>Do I need to prepare the ground before you arrive?</target>
+      </trans-unit>
+      <trans-unit id="faq.install.terrain.a" datatype="html">
+        <source>Dégagez la surface (neige, véhicules, obstacles) et assurez-vous que le sol est raisonnablement de niveau. Notre équipe s'occupe de l'ancrage adapté à votre surface (asphalte, gravier ou gazon).</source>
+        <target>Clear the surface (snow, vehicles, obstacles) and make sure the ground is reasonably level. Our team handles anchoring suited to your surface (asphalt, gravel or grass).</target>
+      </trans-unit>
+      <trans-unit id="faq.location.duree.q" datatype="html">
+        <source>Quelle est la durée minimale d'une location ?</source>
+        <target>What is the minimum rental duration?</target>
+      </trans-unit>
+      <trans-unit id="faq.location.duree.a" datatype="html">
+        <source>Les abris se louent à la saison. Indiquez vos dates de début et de fin au moment de la réservation ; la facturation est mensuelle.</source>
+        <target>Shelters are rented by the season. Provide your start and end dates when booking; billing is monthly.</target>
+      </trans-unit>
+      <trans-unit id="faq.location.depot.q" datatype="html">
+        <source>Un dépôt est-il exigé ?</source>
+        <target>Is a deposit required?</target>
+      </trans-unit>
+      <trans-unit id="faq.location.depot.a" datatype="html">
+        <source>Un dépôt de garantie peut être demandé à la signature du contrat. Il est remboursé à la fin de la location si l'abri est rendu en bon état.</source>
+        <target>A security deposit may be required when signing the contract. It is refunded at the end of the rental if the shelter is returned in good condition.</target>
+      </trans-unit>
+      <trans-unit id="faq.location.annulation.q" datatype="html">
+        <source>Puis-je annuler ma location ?</source>
+        <target>Can I cancel my rental?</target>
+      </trans-unit>
+      <trans-unit id="faq.location.annulation.a" datatype="html">
+        <source>Vous pouvez annuler depuis « Mes locations » dans votre compte. Les conditions d'annulation dépendent du moment de la demande par rapport à la date de début prévue.</source>
+        <target>You can cancel from “My rentals” in your account. Cancellation terms depend on when the request is made relative to the planned start date.</target>
+      </trans-unit>
+      <trans-unit id="faq.location.installation.q" datatype="html">
+        <source>L'installation est-elle incluse dans la location ?</source>
+        <target>Is installation included in the rental?</target>
+      </trans-unit>
+      <trans-unit id="faq.location.installation.a" datatype="html">
+        <source>L'adresse d'installation est demandée à la réservation. Selon l'entente, le montage peut être inclus ou facturé séparément — précisez votre besoin dans la demande.</source>
+        <target>The installation address is requested at booking. Depending on the agreement, assembly may be included or billed separately — specify your needs in the request.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

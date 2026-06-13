@@ -60,7 +60,10 @@ for (const theme of themes) {
     await page.getByRole('button', { name: /envoyer le lien/i }).click();
 
     // Confirmation neutre (role=status, aria-live polite) — le formulaire disparaît.
-    const confirm = page.getByRole('status');
+    // NB : la page porte aussi une région status globale (annonce de bascule de
+    // langue, vide ici) → on cible la confirmation par son texte pour rester
+    // sans ambiguïté (mode strict Playwright).
+    const confirm = page.getByRole('status').filter({ hasText: /si un compte correspond/i });
     await expect(confirm).toContainText(/si un compte correspond/i);
     await expect(page.locator('#reset-email')).toHaveCount(0);
 

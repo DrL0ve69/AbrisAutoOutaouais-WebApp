@@ -1,0 +1,77 @@
+.faq {
+  margin-top: var(--space-12);
+}
+
+.faq__title {
+  font-size: var(--font-size-xl);
+  margin-bottom: var(--space-5);
+}
+
+.faq__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.faq__item {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+.faq__question {
+  // Réinitialise le marqueur natif des <summary>, remplacé par notre icône.
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  // Cible tactile confortable (≥ 44px, WCAG 2.5.8).
+  min-height: 44px;
+  padding: var(--space-4) var(--space-5);
+  cursor: pointer;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+}
+
+.faq__question::-webkit-details-marker {
+  display: none; // Safari/anciens Chrome
+}
+
+.faq__question:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+.faq__question-text {
+  flex: 1;
+}
+
+// Chevron purement décoratif (aria-hidden) qui pivote à l'ouverture.
+.faq__icon {
+  flex-shrink: 0;
+  width: 0.6em;
+  height: 0.6em;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform var(--transition-fast, 150ms) ease;
+}
+
+.faq__item[open] .faq__icon {
+  transform: rotate(-135deg);
+}
+
+.faq__answer {
+  padding: 0 var(--space-5) var(--space-4);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+}
+
+// Respecte la préférence « mouvement réduit » (WCAG 2.3.3).
+@media (prefers-reduced-motion: reduce) {
+  .faq__icon {
+    transition: none;
+  }
+}

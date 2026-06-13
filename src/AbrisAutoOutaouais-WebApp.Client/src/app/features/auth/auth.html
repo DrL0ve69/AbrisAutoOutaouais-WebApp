@@ -223,12 +223,24 @@
                    autocomplete="email"
                    inputmode="email"
                    [attr.aria-invalid]="rEmail.invalid && rEmail.touched"
-                   aria-describedby="reg-email-err"
+                   [attr.aria-busy]="rEmail.pending"
+                   aria-describedby="reg-email-status reg-email-err"
                    placeholder="votre@courriel.com" />
+            <!-- État asynchrone de disponibilité, annoncé poliment (H5). -->
+            <span id="reg-email-status" class="field__hint" aria-live="polite">
+              @if (rEmail.pending) {
+                <ng-container i18n="@@auth.email.checking">Vérification de la disponibilité…</ng-container>
+              } @else if (rEmail.valid && rEmail.dirty) {
+                <ng-container i18n="@@auth.email.available">Courriel disponible.</ng-container>
+              }
+            </span>
             @if (rEmail.invalid && rEmail.touched) {
             <span id="reg-email-err" class="field__error" role="alert">
               @if (rEmail.hasError('required')) { L'adresse courriel est requise. }
               @else if (rEmail.hasError('email')) { Format de courriel invalide. }
+              @else if (rEmail.hasError('taken')) {
+                <ng-container i18n="@@auth.email.taken">Un compte existe déjà avec ce courriel.</ng-container>
+              }
             </span>
             }
           </div>
@@ -244,15 +256,27 @@
                    formControlName="username"
                    autocomplete="username"
                    [attr.aria-invalid]="rUsername.invalid && rUsername.touched"
-                   aria-describedby="reg-username-hint reg-username-err"
+                   [attr.aria-busy]="rUsername.pending"
+                   aria-describedby="reg-username-hint reg-username-status reg-username-err"
                    placeholder="jean.tremblay" />
             <span id="reg-username-hint" class="field__hint">
               3 à 30 caractères (lettres, chiffres, « . », « _ », « - »). Sert aussi à vous connecter.
+            </span>
+            <!-- État asynchrone de disponibilité, annoncé poliment (H5). -->
+            <span id="reg-username-status" class="field__hint" aria-live="polite">
+              @if (rUsername.pending) {
+                <ng-container i18n="@@auth.username.checking">Vérification de la disponibilité…</ng-container>
+              } @else if (rUsername.valid && rUsername.dirty) {
+                <ng-container i18n="@@auth.username.available">Nom d'utilisateur disponible.</ng-container>
+              }
             </span>
             @if (rUsername.invalid && rUsername.touched) {
             <span id="reg-username-err" class="field__error" role="alert">
               @if (rUsername.hasError('required')) { Le nom d'utilisateur est requis. }
               @else if (rUsername.hasError('minlength')) { Minimum 3 caractères. }
+              @else if (rUsername.hasError('taken')) {
+                <ng-container i18n="@@auth.username.taken">Ce nom d'utilisateur est déjà pris.</ng-container>
+              }
               @else { Caractères autorisés : lettres, chiffres, . _ - }
             </span>
             }

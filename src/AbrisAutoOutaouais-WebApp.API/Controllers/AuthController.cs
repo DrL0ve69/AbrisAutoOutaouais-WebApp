@@ -1,3 +1,4 @@
+using AbrisAutoOutaouais_WebApp.Application.Auth.CheckAvailability;
 using AbrisAutoOutaouais_WebApp.Application.Auth.DTOs;
 using AbrisAutoOutaouais_WebApp.Application.Auth.ForgotPassword;
 using AbrisAutoOutaouais_WebApp.Application.Auth.Login;
@@ -91,6 +92,26 @@ public class AuthController : ControllerBase
         return result.IsSuccess
             ? NoContent()
             : BadRequest(new { error = result.Error });
+    }
+
+    /// <summary>
+    /// Vérifie la disponibilité d'un nom d'utilisateur et/ou d'un courriel à
+    /// l'inscription (aide UX, H5). Au moins un des deux paramètres doit être
+    /// fourni ; la disponibilité d'un paramètre absent reste null.
+    /// </summary>
+    // TODO(Epic C): rate-limit — endpoint anonyme interrogeable en boucle
+    // (oracle d'existence assumé pour l'UX), à protéger contre l'abus quand le
+    // limiteur d'Epic C arrive (même garde que forgot-password).
+    [HttpGet("availability")]
+    [AllowAnonymous]
+    public async Task<IActionResult> CheckAvailability(
+        [FromQuery] string? username,
+        [FromQuery] string? email,
+        CancellationToken cancellationToken)
+    {
+        var result = await _dispatcher.DispatchAsync(
+            new CheckAvailabilityQuery(username, email), cancellationToken);
+        return Ok(result);
     }
 
     /// <summary>Profil complet de l'utilisateur connecté.</summary>

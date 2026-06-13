@@ -65,9 +65,19 @@ const productList = {
   hasPrev: false,
 };
 
+// Créneaux d'installation simulés (deux créneaux le même jour) pour /installation.
+const availableSlots = [
+  { start: '2026-07-01T13:00:00', end: '2026-07-01T15:00:00' },
+  { start: '2026-07-01T15:00:00', end: '2026-07-01T17:00:00' },
+];
+
 async function mockApi(page: Page): Promise<void> {
   // Catégories
   await page.route('**/api/v1/categories', (route) => route.fulfill({ json: categories }));
+  // Créneaux disponibles pour la réservation d'installation.
+  await page.route('**/api/v1/bookings/available-slots*', (route) =>
+    route.fulfill({ json: availableSlots }),
+  );
   // Produit unique par slug (ex. /products/abri-simple).
   // Enregistré AVANT le pattern de liste pour matcher en priorité.
   await page.route('**/api/v1/products/*', (route) => route.fulfill({ json: product }));
@@ -145,6 +155,24 @@ const routes = [
     pret: (page: Page) =>
       expect(
         page.getByRole('heading', { level: 1, name: /déclaration d'accessibilité/i }),
+      ).toBeVisible(),
+  },
+  // Pages porteuses de la FAQ accordéon (H-FAQ) — on attend l'apparition de la
+  // section FAQ pour garantir que l'accordéon natif <details> est dans le scan axe.
+  {
+    nom: 'Installation (/installation) — avec FAQ',
+    chemin: '/installation',
+    pret: (page: Page) =>
+      expect(
+        page.getByRole('heading', { level: 2, name: /foire aux questions/i }),
+      ).toBeVisible(),
+  },
+  {
+    nom: 'Location (/location) — avec FAQ',
+    chemin: '/location',
+    pret: (page: Page) =>
+      expect(
+        page.getByRole('heading', { level: 2, name: /foire aux questions/i }),
       ).toBeVisible(),
   },
 ] as const;

@@ -245,6 +245,14 @@ public sealed class IdentityService : IIdentityService
             : Result.Failure(string.Join(", ", result.Errors.Select(e => e.Description)));
     }
 
+    public async Task<bool> IsUsernameTakenAsync(
+        string username, CancellationToken cancellationToken = default)
+        => await _userManager.FindByNameAsync(username) is not null;
+
+    public async Task<bool> IsEmailTakenAsync(
+        string email, CancellationToken cancellationToken = default)
+        => await _userManager.FindByEmailAsync(email) is not null;
+
     private async Task<AuthResponse> BuildAuthResponseAsync(AppUser user)
     {
         var roles = (await _userManager.GetRolesAsync(user)).ToList().AsReadOnly();

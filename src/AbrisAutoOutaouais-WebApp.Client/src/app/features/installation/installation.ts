@@ -19,6 +19,8 @@ import {
   BookingType,
   CreateBookingRequest,
 } from '../../core/models/booking.model';
+import { FaqComponent } from '../../shared/components/faq/faq.component';
+import { INSTALLATION_FAQ } from '../../shared/content/faq.data';
 
 /** Créneaux regroupés par jour pour l'affichage. */
 interface SlotGroup {
@@ -35,11 +37,14 @@ interface SlotGroup {
 @Component({
   selector: 'app-installation',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, DatePipe],
+  imports: [ReactiveFormsModule, DatePipe, FaqComponent],
   templateUrl: './installation.html',
   styleUrl: './installation.scss',
 })
 export class InstallationComponent implements OnInit {
+  /** Entrées FAQ de la page (délais, marques, garantie, terrain). */
+  protected readonly faq = INSTALLATION_FAQ;
+
   private readonly fb = inject(FormBuilder);
   private readonly bookings = inject(BookingService);
   private readonly auth = inject(AuthService);
