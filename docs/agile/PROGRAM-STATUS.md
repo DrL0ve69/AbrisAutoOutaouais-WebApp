@@ -12,7 +12,7 @@
 ## Curseur courant
 
 - **Épic en cours :** **Épic C — Adresse structurée + autocomplétion accessible** (branche `feat/address-split-autocomplete`)
-- **Prochaine sous-tâche :** **C3 — Autocomplete accessible (APG combobox) + `core/services/places.service.ts` + intégration aux 4 formulaires (street → autocomplete, lookup code postal éditable + aria-live)**
+- **Prochaine sous-tâche :** **Fold-in marque/modèle + exclusion ShelterLogic** (dernière tâche d'implémentation de l'Épic C, voir section dédiée plus bas) — **puis frontière d'épic : revue indépendante complète → commit/PR/CI → merge `master`**.
 - **Décision (2026-06-12) :** le mini-cycle « marque/modèle + exclusion ShelterLogic » est **fusionné dans l'Épic C** (pas de cycle séparé) — à intégrer au flux réservation pendant C.
 - **Dernière mise à jour :** 2026-06-13
 
@@ -22,15 +22,16 @@
 |-----------|------|------------------------------------------------------------|
 | C1 — Split Address VO + migration + validateur canonique | ✅ (gates vertes, **non revu**) | `5e97441` (VO+DTO+configs+migration), `983ed1f` (validateur canonique + 2 validateurs création), `d37556a` (front : 4 formulaires + validators partagés) |
 | C2 — Proxy Places | ✅ (gates vertes : build + 200/200 tests, **non revu**) | `53175c3` (IPlacesService + DTO canonique + 2 queries CQRS, Photon/Radar/Google, 1er `AddHttpClient` typé, rate limiter 30/10s, `PlacesController` `[AllowAnonymous]`, README) |
-| C3 — Autocomplete accessible (APG combobox) + lien aux 4 formulaires | ⬜ à faire | — |
+| C3 — Autocomplete accessible (APG combobox) + lien aux 4 formulaires | ✅ (gates vertes, **non revu**) | `8183d46` (combobox APG `shared/.../autocomplete`, `places.service.ts` + `place.model.ts`, 4 formulaires câblés rue→autocomplete + lookup code postal éditable + aria-live, e2e clavier-seul + axe, i18n fr/en) |
 | Fold-in marque/modèle + exclusion ShelterLogic (client+serveur, L-004) | ⬜ à faire | — |
 
 **À traiter à la frontière d'épic (avant PR/merge) :**
 - **Revue indépendante `code-reviewer`** du diff complet C (l'implémenteur n'a PAS revu son propre diff ; seul un `solid-review` auto est passé — propre).
 - **Déviation au plan à valider :** C1 n'applique **pas** la liste blanche de provinces que le plan prescrivait — l'appliquer ré-introduirait la régression **L-004** (Ontario → 400) verrouillée par `PlaceOrderCommandValidatorTests`. `Province` validé en `NotEmpty + MaxLength(2)`. Décision correcte (la leçon gagne sur le plan), à confirmer en revue.
-- **Candidats leçon à soumettre au `mentor` à la clôture d'épic (2 en attente) :**
+- **Candidats leçon à soumettre au `mentor` à la clôture d'épic (3 en attente) :**
   - (C1) « un plan d'architecte validé ne périme pas `lessons-learned` — grep les `*ValidatorTests`/commentaires citant une leçon avant d'implémenter une règle de validation "partagée". »
   - (C2) « toute nouvelle classe de test d'intégration sur la `WebAppFactory` mutualisée doit rester dans `[Collection("Integration")]` — base InMemory nommée + `IdentitySeeder` partagés ; une classe hors collection s'exécute en parallèle → course au seeder (`IsInRoleAsync` "single result") → fait échouer ~63 tests sans rapport au démarrage de l'hôte (même classe que L-010 : état global partagé). `IClassFixture` isole déjà le rate limiter par classe ; la collection ne sert qu'à sérialiser le seeder. »
+  - (C3) « nommer un `input()` d'après un attribut DOM global (`id`, `class`, `role`…) sur un composant le **reflète sur l'élément hôte EN PLUS** de son usage interne → id dupliqué (hôte + input interne) et calcul du nom accessible cassé : `getByRole(..., { name })` échoue car `getElementById`/`<label for>` résout le 1er `#id` (l'hôte, non étiquetable). Règle : neutraliser l'attribut sur l'hôte (`host: { '[attr.id]': 'null' }`) pour qu'un seul élément le porte. Corollaire (proche L-010) : en vitest browser le `document` est partagé entre rendus → scoper par `within(container)`, jamais d'id en double. »
 - Migration `SplitAddressCivicNumber` (`20260613033910`) déjà appliquée sur LocalDB réelle ; eyeball du script fait (add-nullable → backfill T-SQL → NOT NULL seulement Rental/Booking).
 
 ## Prochaine tâche — mini-cycle « marque/modèle » (règle métier reportée de B4)
