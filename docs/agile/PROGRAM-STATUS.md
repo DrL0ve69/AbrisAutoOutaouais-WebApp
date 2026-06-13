@@ -11,9 +11,25 @@
 
 ## Curseur courant
 
-- **Épic en cours :** **B terminé ✅** → prochain : **mini-cycle « marque/modèle »**, puis **Épic C**
-- **Prochaine sous-tâche :** **Mini-cycle marque/modèle + exclusion ShelterLogic** (Domain + migration EF)
-- **Dernière mise à jour :** 2026-06-13
+- **Épic en cours :** **Épic C — Adresse structurée + autocomplétion accessible** (branche `feat/address-split-autocomplete`)
+- **Prochaine sous-tâche :** **C2 — Proxy Places (`IPlacesService` + Photon/Radar/Google, premier `AddHttpClient`, rate limiter, `PlacesController`)**
+- **Décision (2026-06-12) :** le mini-cycle « marque/modèle + exclusion ShelterLogic » est **fusionné dans l'Épic C** (pas de cycle séparé) — à intégrer au flux réservation pendant C.
+- **Dernière mise à jour :** 2026-06-12
+
+### Épic C — progression
+
+| Sous-tâche | État | Commits locaux (branche `feat/address-split-autocomplete`) |
+|-----------|------|------------------------------------------------------------|
+| C1 — Split Address VO + migration + validateur canonique | ✅ (gates vertes, **non revu**) | `5e97441` (VO+DTO+configs+migration), `983ed1f` (validateur canonique + 2 validateurs création), `d37556a` (front : 4 formulaires + validators partagés) |
+| C2 — Proxy Places | ⬜ à faire | — |
+| C3 — Autocomplete accessible (APG combobox) + lien aux 4 formulaires | ⬜ à faire | — |
+| Fold-in marque/modèle + exclusion ShelterLogic (client+serveur, L-004) | ⬜ à faire | — |
+
+**À traiter à la frontière d'épic (avant PR/merge) :**
+- **Revue indépendante `code-reviewer`** du diff complet C (l'implémenteur n'a PAS revu son propre diff ; seul un `solid-review` auto est passé — propre).
+- **Déviation au plan à valider :** C1 n'applique **pas** la liste blanche de provinces que le plan prescrivait — l'appliquer ré-introduirait la régression **L-004** (Ontario → 400) verrouillée par `PlaceOrderCommandValidatorTests`. `Province` validé en `NotEmpty + MaxLength(2)`. Décision correcte (la leçon gagne sur le plan), à confirmer en revue.
+- **Candidat leçon L-011** (proposé par le developer) : « un plan d'architecte validé ne périme pas `lessons-learned` — grep les `*ValidatorTests`/commentaires citant une leçon avant d'implémenter une règle de validation "partagée". » → soumettre au `mentor` à la clôture.
+- Migration `SplitAddressCivicNumber` (`20260613033910`) déjà appliquée sur LocalDB réelle ; eyeball du script fait (add-nullable → backfill T-SQL → NOT NULL seulement Rental/Booking).
 
 ## Prochaine tâche — mini-cycle « marque/modèle » (règle métier reportée de B4)
 
@@ -38,7 +54,7 @@ Le catalogue reste **100 % Tempo**, mais le **service d'installation accepte d'a
 | B4 — Heuristiques (H1 langue, H5 disponibilité, FAQ) | ✅ | revue indépendante APPROVE WITH NITS ; leçon L-010 |
 
 Docs retournées : README roadmap, `docs/agile/board.md` (section clôture Épic B),
-`docs/ux/heuristic-evaluation.md` (H1–H10 tous remédiés). **PR/merge vers `master` en cours.**
+`docs/ux/heuristic-evaluation.md` (H1–H10 tous remédiés). **PR #15 mergée vers `master` ✅ (`7ccec41`).**
 
 ## Suite du programme (après le mini-cycle)
 
