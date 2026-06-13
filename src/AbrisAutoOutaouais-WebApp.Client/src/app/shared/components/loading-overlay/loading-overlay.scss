@@ -1,0 +1,61 @@
+// ============================================================
+// loading-overlay — indicateur global de navigation (E3)
+// ============================================================
+
+.loading-overlay {
+  // Bandeau fin et discret en haut de la fenêtre. NON modal : pointer-events:none
+  // pour ne jamais intercepter les clics ni piéger l'interaction.
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-toast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3);
+  pointer-events: none;
+}
+
+.loading-overlay__spinner {
+  color: var(--color-primary);
+  animation: loading-overlay-spin var(--duration-slower) var(--ease-in-out) infinite;
+  transform-origin: center;
+}
+
+.loading-overlay__arch {
+  // L'arche se dessine puis s'efface en boucle (effet « tracé »).
+  stroke-dasharray: 120;
+  stroke-dashoffset: 120;
+  animation: loading-overlay-draw 1.4s var(--ease-in-out) infinite;
+}
+
+@keyframes loading-overlay-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes loading-overlay-draw {
+  0% {
+    stroke-dashoffset: 120;
+  }
+  50% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -120;
+  }
+}
+
+// Mouvement réduit : on fige l'animation (arche dessinée, statique).
+@media (prefers-reduced-motion: reduce) {
+  .loading-overlay__spinner {
+    animation: none;
+  }
+
+  .loading-overlay__arch {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}

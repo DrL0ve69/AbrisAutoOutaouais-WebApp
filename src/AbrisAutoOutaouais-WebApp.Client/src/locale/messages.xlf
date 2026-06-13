@@ -4154,6 +4154,13 @@
           <context context-type="linenumber">103</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="loadingOverlay.label" datatype="html">
+        <source>Chargement de la page…</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/loading-overlay/loading-overlay.html</context>
+          <context context-type="linenumber">3,4</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="product.available" datatype="html">
         <source>En stock</source>
         <context-group purpose="location">

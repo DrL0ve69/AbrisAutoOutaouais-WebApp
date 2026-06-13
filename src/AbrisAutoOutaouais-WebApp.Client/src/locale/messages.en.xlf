@@ -6,6 +6,10 @@
         <source>Code postal rempli automatiquement — vérifiez-le.</source>
         <target>Postal code filled in automatically — please verify it.</target>
       </trans-unit>
+      <trans-unit id="loadingOverlay.label" datatype="html">
+        <source>Chargement de la page…</source>
+        <target>Loading page…</target>
+      </trans-unit>
       <trans-unit id="autocomplete.listbox.label" datatype="html">
         <source>Suggestions d&apos;adresses</source>
         <target>Address suggestions</target>
