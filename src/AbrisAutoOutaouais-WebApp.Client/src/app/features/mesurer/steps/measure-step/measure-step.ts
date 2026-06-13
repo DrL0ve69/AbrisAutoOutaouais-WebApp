@@ -49,6 +49,8 @@ export class MeasureStepComponent {
 
   /** Navigation APG du radiogroup : flèches/Home/End déplacent ET sélectionnent. */
   protected onMethodKeydown(event: KeyboardEvent): void {
+    // Ne pas détourner les raccourcis navigateur (Ctrl/Alt/Meta + flèche).
+    if (event.ctrlKey || event.altKey || event.metaKey) return;
     if (!isRadioNavKey(event.key)) return;
     event.preventDefault();
     const current = this.methods.indexOf(this.method());

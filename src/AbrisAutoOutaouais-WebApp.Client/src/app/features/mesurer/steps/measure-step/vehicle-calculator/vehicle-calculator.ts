@@ -111,6 +111,8 @@ export class VehicleCalculatorComponent {
 
   /** Navigation APG du radiogroup de mode : flèches/Home/End déplacent ET sélectionnent. */
   protected onModeKeydown(event: KeyboardEvent): void {
+    // Ne pas détourner les raccourcis navigateur (Ctrl/Alt/Meta + flèche).
+    if (event.ctrlKey || event.altKey || event.metaKey) return;
     if (!isRadioNavKey(event.key)) return;
     event.preventDefault();
     const current = this.modes.indexOf(this.mode());
