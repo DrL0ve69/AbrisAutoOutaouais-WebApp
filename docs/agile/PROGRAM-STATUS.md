@@ -11,8 +11,9 @@
 
 ## Curseur courant
 
-- **Épic en cours :** **Épic E — Redesign v2** (tokens v2, hero scroll GSAP, viewer 3D three.js, micro-interactions) — **prochain**, branche `feat/redesign-v2` à créer depuis `master` une fois la PR D mergée. Voir le plan (Épic E) : E1 tokens v2 (absorbe le bloc A) → E2 hero scroll story (GSAP, `gsap.matchMedia` reduced-motion, SSR frame 1) → E3 micro-interactions (directives reveal/magnetic/count-up, loading-overlay, cursor-ring) → E4 viewer 3D (`three`, builder paramétrique dimensionné depuis les dims produit D1, `@defer (on interaction)`) → E5 perf gates (bundle initial figé, `e2e/motion-a11y.spec.ts`, Lighthouse). **Contrainte : E4 dépend de D1 (✅ livré).**
-- **Prochaine action concrète :** **Épic D entièrement implémenté + revu sur `feat/mesurer-parking` — reste : PR → CI verte → merge `master`** (frontière d'épic, cf. `[[program-git-flow]]`). Si la session reprend ici : vérifier l'état de la PR (`gh pr view`), attendre/relire la CI, merger vers `master`, supprimer la branche, puis créer `feat/redesign-v2` et démarrer E1.
+- **Épic en cours :** **Épic E — Redesign v2** (branche `feat/redesign-v2` — créée depuis `master` post-merge D, active). Voir le plan (Épic E) : E1 tokens v2 (absorbe le bloc A) → E2 hero scroll story (GSAP, `gsap.matchMedia` reduced-motion, SSR frame 1) → E3 micro-interactions (directives reveal/magnetic/count-up, loading-overlay, cursor-ring) → E4 viewer 3D (`three`, builder paramétrique dimensionné depuis les dims produit D1, `@defer (on interaction)`) → E5 perf gates (bundle initial figé, `e2e/motion-a11y.spec.ts`, Lighthouse). **Contrainte : E4 dépend de D1 (✅ livré).**
+- **Prochaine sous-tâche :** **E1 — Tokens v2** (`CLIENT/src/.../_tokens.scss`) : absorber le bloc « Tokens v2 (préfiguration) » posé par l'Épic A (ne jamais le révertir), ajouter l'échelle navy + rampe rouge affinée + neutres chauds + couche sémantique on-dark/on-brand (élimine les hacks de bouton dépendants du contexte) + tokens d'élévation/gradient/glow + **tokens de motion** ; balayer les composants vers les sémantiques ; garder Sora/DM Sans. **Gate = le sweep axe dual-theme reste à zéro.**
+- **Épic D : ✅ TERMINÉ ET MERGÉ vers `master`** — **PR #17 mergée (`fa8852b`)**, branche `feat/mesurer-parking` supprimée, CI verte (Frontend/Backend/Build&Deploy/Sonar). Détail ci-dessous.
 
 ### Épic D — ✅ TERMINÉ (revu, branche `feat/mesurer-parking`)
 
@@ -27,9 +28,9 @@
 **Gates finales** : `npm test` **161** (zéro axe) ✅ · `npm run build:prod` (fr+en, i18n OK, chunk `/mesurer` ~28 kB gz) ✅ · `npm run e2e` `/mesurer` (clavier + smoke carte) + sweep dual-theme ✅ · `dotnet test` **274** ✅. *(Flake connu : 1er run e2e à froid → `vite-error-overlay` transitoire du dev-server ; vert au re-run warm + retries CI.)*
 **Décision produit pliée** : **cm-canonique + affichage en pieds** — tout le calcul/API en cm ; les pieds ne servent qu'à la saisie (`feetToCm`) et à l'affichage (`cmToFeet`, « pi »/« ft », 1 décimale). Saisie manuelle en pieds (1–65 pi).
 **Docs retournées** : `board.md` (clôture Épic D), `product-backlog.md` (US-1.7), README roadmap, `wcag-2.2-audit.md` (4.1.2 radiogroup APG).
-**Statut git** : commits locaux sur `feat/mesurer-parking` ; **PR vers `master` à créer/finaliser → CI → merge**.
+**Statut git** : **PR #17 mergée vers `master` ✅ (`fa8852b`)**, branche supprimée. CI verte (4 correctifs e2e/CI après la 1re revue : APG, `@defer on immediate`, carte avant geoman, **interop CJS/ESM Leaflet `L.map`**).
 
-- **Dernière mise à jour :** 2026-06-13 (Épic D terminé + revu — `bd8381d` ; PR/CI/merge en cours)
+- **Dernière mise à jour :** 2026-06-13 (Épic D mergé — `fa8852b` ; curseur → Épic E / E1 tokens v2)
 
 ### Épic C — ✅ TERMINÉ (branche `feat/address-split-autocomplete`)
 
