@@ -22,6 +22,10 @@ export interface CreateBookingRequest {
   readonly type: BookingType;
   readonly address: AddressDto;
   readonly notes?: string | null;
+  /** Marque de l'abri à installer (optionnel ; ShelterLogic exclue côté serveur). */
+  readonly brand?: string | null;
+  /** Modèle de l'abri (optionnel). */
+  readonly model?: string | null;
 }
 
 /** Charge utile pour POST /bookings/{id}/reschedule — correspond au RescheduleBookingRequest C#. */

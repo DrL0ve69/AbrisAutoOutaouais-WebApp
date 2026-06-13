@@ -9,4 +9,6 @@ public sealed record CreateBookingCommand(
     DateTime SlotStart,
     BookingType Type,
     AddressDto Address,
-    string? Notes) : ICommand<Guid>;
+    string? Notes,
+    string? Brand = null,
+    string? Model = null) : ICommand<Guid>;

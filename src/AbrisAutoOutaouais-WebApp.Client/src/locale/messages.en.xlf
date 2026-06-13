@@ -642,6 +642,22 @@
         <source>Appartement / unité (optionnel)</source>
         <target>Apartment / unit (optional)</target>
       </trans-unit>
+      <trans-unit id="installation.field.brand" datatype="html">
+        <source>Marque de l&apos;abri (optionnel)</source>
+        <target>Shelter brand (optional)</target>
+      </trans-unit>
+      <trans-unit id="installation.field.brandHint" datatype="html">
+        <source> On installe d&apos;autres marques, sauf ShelterLogic. <x id="START_LINK" ctype="x-a" equiv-text="&lt;a href=&quot;#installation-faq-title&quot;&gt;"/>Voir la FAQ « marques ».<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/></source>
+        <target> We install other brands, except ShelterLogic. <x id="START_LINK" ctype="x-a" equiv-text="&lt;a href=&quot;#installation-faq-title&quot;&gt;"/>See the “brands” FAQ.<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/></target>
+      </trans-unit>
+      <trans-unit id="installation.field.brandExcluded" datatype="html">
+        <source> Nous n&apos;installons pas la marque ShelterLogic. </source>
+        <target> We do not install the ShelterLogic brand. </target>
+      </trans-unit>
+      <trans-unit id="installation.field.model" datatype="html">
+        <source>Modèle (optionnel)</source>
+        <target>Model (optional)</target>
+      </trans-unit>
       <trans-unit id="installation.field.city" datatype="html">
         <source>Ville</source>
         <target>City</target>

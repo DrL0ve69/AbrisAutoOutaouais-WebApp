@@ -76,6 +76,30 @@
 
         <div class="form-row form-row--two">
           <div class="form-field">
+            <label for="brand" i18n="@@installation.field.brand">Marque de l'abri (optionnel)</label>
+            <input id="brand" type="text" formControlName="brand"
+                   autocomplete="off" placeholder="Abris Tempo, Abri Plus…"
+                   [attr.aria-invalid]="f.brand.touched && f.brand.invalid"
+                   aria-describedby="inst-brand-hint inst-brand-err" />
+            <span id="inst-brand-hint" class="form-field__hint" i18n="@@installation.field.brandHint">
+              On installe d'autres marques, sauf ShelterLogic. <a href="#installation-faq-title">Voir la FAQ « marques ».</a>
+            </span>
+            @if (f.brand.touched && f.brand.hasError('excludedBrand')) {
+            <p id="inst-brand-err" class="form-field__error" role="alert" i18n="@@installation.field.brandExcluded">
+              Nous n'installons pas la marque ShelterLogic.
+            </p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="model" i18n="@@installation.field.model">Modèle (optionnel)</label>
+            <input id="model" type="text" formControlName="model"
+                   autocomplete="off" placeholder="Garage 12x20" />
+          </div>
+        </div>
+
+        <div class="form-row form-row--two">
+          <div class="form-field">
             <label for="civicNumber" i18n="@@installation.field.civic">Numéro civique</label>
             <input id="civicNumber" type="text" formControlName="civicNumber"
                    autocomplete="off" inputmode="text" placeholder="123"

@@ -25,6 +25,7 @@ import { FaqComponent } from '../../shared/components/faq/faq.component';
 import { AddressAutocompleteComponent } from '../../shared/components/a11y-components/autocomplete/address-autocomplete.component';
 import { INSTALLATION_FAQ } from '../../shared/content/faq.data';
 import { CIVIC_PATTERN, POSTAL_PATTERN, normalizePostal } from '../../core/validators/address.validators';
+import { excludedBrandValidator } from '../../core/validators/brand.validators';
 
 /** Créneaux regroupés par jour pour l'affichage. */
 interface SlotGroup {
@@ -79,6 +80,8 @@ export class InstallationComponent implements OnInit {
     city: ['', Validators.required],
     province: ['QC', Validators.required],
     postalCode: ['', [Validators.required, Validators.pattern(POSTAL_PATTERN)]],
+    brand: ['', [excludedBrandValidator, Validators.maxLength(100)]],
+    model: ['', Validators.maxLength(100)],
     notes: [''],
   });
 
@@ -187,6 +190,8 @@ export class InstallationComponent implements OnInit {
         country: 'Canada',
       },
       notes: v.notes.trim() || null,
+      brand: v.brand?.trim() || null,
+      model: v.model?.trim() || null,
     };
 
     this.bookings.createBooking(request).subscribe({
