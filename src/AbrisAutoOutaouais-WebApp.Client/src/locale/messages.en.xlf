@@ -2429,8 +2429,8 @@
         <target> Measure on the map </target>
       </trans-unit>
       <trans-unit id="mesurer.method.mapPlaceholder" datatype="html">
-        <source>Faites défiler pour afficher la carte satellite.</source>
-        <target>Scroll to display the satellite map.</target>
+        <source>Préparation de la carte satellite…</source>
+        <target>Preparing the satellite map…</target>
       </trans-unit>
       <trans-unit id="mesurer.method.mapLoading" datatype="html">
         <source>Chargement de la carte…</source>

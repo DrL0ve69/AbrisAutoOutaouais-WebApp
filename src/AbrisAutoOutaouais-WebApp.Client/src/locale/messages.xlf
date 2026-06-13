@@ -3535,17 +3535,17 @@
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.method.mapPlaceholder" datatype="html">
-        <source>Faites défiler pour afficher la carte satellite.</source>
+        <source>Préparation de la carte satellite…</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/measure-step.html</context>
-          <context context-type="linenumber">41,44</context>
+          <context context-type="linenumber">44,47</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.method.mapLoading" datatype="html">
         <source>Chargement de la carte…</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/measure-step.html</context>
-          <context context-type="linenumber">45,50</context>
+          <context context-type="linenumber">48,53</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.calc.modeGroup" datatype="html">

@@ -85,12 +85,14 @@ test('smoke CARTE : @defer charge Leaflet, conteneur visible, axe (hors .leaflet
   await mockApi(page);
   await completeAddress(page);
 
-  // Bascule en mode carte → déclenche le `@defer (on viewport)`.
+  // Bascule en mode carte → déclenche le `@defer (on immediate)` (chargement sans scroll).
   await page.getByRole('radio', { name: /mesurer sur la carte/i }).click();
 
   // BARRIÈRE déterministe (L-012) : on attend l'apparition du conteneur Leaflet, jamais un
-  // waitForTimeout. Le `@defer (on viewport)` + l'import dynamique + l'init asynchrone de la
-  // carte aboutissent à `.leaflet-container` une fois la carte montée.
+  // waitForTimeout. `@defer (on immediate)` + l'import dynamique + l'init asynchrone de la
+  // carte aboutissent à `.leaflet-container` une fois la carte montée — déclenchement fiable
+  // en CI headless (contrairement à `on viewport`, dont l'IntersectionObserver ne se
+  // déclenchait pas de façon déterministe).
   await expect(page.locator('.leaflet-container')).toBeVisible({ timeout: 15000 });
 
   // axe : on EXCLUT uniquement `.leaflet-container` (widget tiers Leaflet/geoman, mode

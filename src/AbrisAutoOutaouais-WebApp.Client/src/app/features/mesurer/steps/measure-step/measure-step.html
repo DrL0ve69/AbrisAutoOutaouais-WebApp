@@ -32,13 +32,16 @@
   @if (method() === 'calculator') {
   <app-vehicle-calculator (footprintComputed)="onFootprint($event)" />
   } @else {
-  <!-- Carte chargée à l'apparition (différée) : le poids Leaflet/geoman/turf reste dans
-       un chunk séparé qui n'est chargé que si l'utilisateur choisit ce mode. -->
-  @defer (on viewport) {
+  <!-- L'utilisateur a explicitement choisi le mode carte → on charge immédiatement le chunk
+       différé (Leaflet/geoman/turf reste hors du bundle initial, SSR-safe). `on immediate`
+       (et non `on viewport`) : pas de scroll requis après la sélection, et déclenchement
+       déterministe pour l'e2e (l'IntersectionObserver de `on viewport` ne se déclenchait pas
+       de façon fiable en CI headless). -->
+  @defer (on immediate) {
   <app-map-measure [lat]="lat()" [lng]="lng()" (footprintComputed)="onFootprint($event)" />
   } @placeholder {
   <div class="measure__map-placeholder">
-    <p i18n="@@mesurer.method.mapPlaceholder">Faites défiler pour afficher la carte satellite.</p>
+    <p i18n="@@mesurer.method.mapPlaceholder">Préparation de la carte satellite…</p>
   </div>
   } @loading {
   <div class="measure__map-loading" aria-busy="true">
