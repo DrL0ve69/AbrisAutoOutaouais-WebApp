@@ -19,6 +19,24 @@ export const ADMIN_ROUTES: Routes = [
       import('./orders/orders').then(m => m.AdminOrdersComponent),
     title: 'AbrisTempo Local — Gestion des commandes',
   },
+  {
+    path: 'reservations',
+    loadComponent: () =>
+      import('./bookings/bookings').then(m => m.AdminBookingsComponent),
+    title: 'AbrisTempo Local — Gestion des réservations',
+  },
+  {
+    path: 'locations',
+    loadComponent: () =>
+      import('./rentals/rentals').then(m => m.AdminRentalsComponent),
+    title: 'AbrisTempo Local — Gestion des locations',
+  },
+  {
+    path: 'utilisateurs',
+    loadComponent: () =>
+      import('./users/users').then(m => m.AdminUsersComponent),
+    title: 'AbrisTempo Local — Liste des utilisateurs',
+  },
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   { path: '**', redirectTo: 'dashboard' },
 ];

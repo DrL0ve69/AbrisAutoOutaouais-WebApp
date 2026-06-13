@@ -185,8 +185,8 @@
         <target>Administrator dashboard</target>
       </trans-unit>
       <trans-unit id="admin.lead" datatype="html">
-        <source> Gérez le catalogue, les commandes et les utilisateurs d&apos;AbrisTempo Local. Les modules ci-dessous arrivent prochainement. </source>
-        <target> Manage the catalogue, orders and users of AbrisTempo Local. The modules below are coming soon. </target>
+        <source> Gérez le catalogue, les commandes, les réservations, les locations et les utilisateurs d&apos;AbrisTempo Local. </source>
+        <target> Manage the catalogue, orders, bookings, rentals and users of AbrisTempo Local. </target>
       </trans-unit>
       <trans-unit id="admin.sectionsLabel" datatype="html">
         <source>Sections d&apos;administration</source>
@@ -229,8 +229,16 @@
         <target>Bookings</target>
       </trans-unit>
       <trans-unit id="admin.section.reservationsDesc" datatype="html">
-        <source>Planifier les installations et les locations d&apos;abris.</source>
-        <target>Schedule shelter installations and rentals.</target>
+        <source>Confirmer, compléter ou annuler les créneaux d&apos;installation.</source>
+        <target>Confirm, complete or cancel installation time slots.</target>
+      </trans-unit>
+      <trans-unit id="admin.section.rentals" datatype="html">
+        <source>Locations</source>
+        <target>Rentals</target>
+      </trans-unit>
+      <trans-unit id="admin.section.rentalsDesc" datatype="html">
+        <source>Consulter et annuler les contrats de location saisonnière.</source>
+        <target>Review and cancel seasonal rental contracts.</target>
       </trans-unit>
 
       <!-- ===== PANIER ===== -->
@@ -1513,6 +1521,344 @@
       <trans-unit id="admin.orders.toast.updateError" datatype="html">
         <source>La mise à jour du statut a échoué.</source>
         <target>Status update failed.</target>
+      </trans-unit>
+
+      <!-- ===== ADMIN — RÉSERVATIONS ===== -->
+      <trans-unit id="admin.bookings.eyebrow" datatype="html">
+        <source>Réservations</source>
+        <target>Bookings</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.title" datatype="html">
+        <source> Gestion des réservations </source>
+        <target> Booking management </target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.lead" datatype="html">
+        <source> Confirmez, complétez ou annulez les créneaux d&apos;installation, de livraison et de démontage. </source>
+        <target> Confirm, complete or cancel installation, delivery and removal time slots. </target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.back" datatype="html">
+        <source> ← Retour au tableau de bord </source>
+        <target> ← Back to dashboard </target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.list.heading" datatype="html">
+        <source>Toutes les réservations</source>
+        <target>All bookings</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.list.loading" datatype="html">
+        <source>Chargement…</source>
+        <target>Loading…</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.list.error" datatype="html">
+        <source> Impossible de charger les réservations. </source>
+        <target> Unable to load the bookings. </target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.list.empty" datatype="html">
+        <source> Aucune réservation pour le moment. </source>
+        <target> No bookings yet. </target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.table.caption" datatype="html">
+        <source> Liste des réservations avec client, créneau, type, adresse, statut et actions. </source>
+        <target> List of bookings with customer, time slot, type, address, status and actions. </target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.table.customer" datatype="html">
+        <source>Client</source>
+        <target>Customer</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.table.slot" datatype="html">
+        <source>Créneau</source>
+        <target>Time slot</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.table.type" datatype="html">
+        <source>Type</source>
+        <target>Type</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.table.address" datatype="html">
+        <source>Adresse</source>
+        <target>Address</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.table.status" datatype="html">
+        <source>Statut</source>
+        <target>Status</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.table.actions" datatype="html">
+        <source>Actions</source>
+        <target>Actions</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.status.pending" datatype="html">
+        <source>En attente</source>
+        <target>Pending</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.status.confirmed" datatype="html">
+        <source>Confirmée</source>
+        <target>Confirmed</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.status.completed" datatype="html">
+        <source>Complétée</source>
+        <target>Completed</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.status.cancelled" datatype="html">
+        <source>Annulée</source>
+        <target>Cancelled</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.type.installation" datatype="html">
+        <source>Installation</source>
+        <target>Installation</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.type.delivery" datatype="html">
+        <source>Livraison</source>
+        <target>Delivery</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.type.removal" datatype="html">
+        <source>Démontage</source>
+        <target>Removal</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.action.confirm" datatype="html">
+        <source>Confirmer</source>
+        <target>Confirm</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.action.complete" datatype="html">
+        <source>Marquer complétée</source>
+        <target>Mark as completed</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.action.cancel" datatype="html">
+        <source>Annuler</source>
+        <target>Cancel</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.dialog.confirmTitle" datatype="html">
+        <source>Confirmer cette réservation ?</source>
+        <target>Confirm this booking?</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.dialog.completeTitle" datatype="html">
+        <source>Marquer cette réservation comme complétée ?</source>
+        <target>Mark this booking as completed?</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.dialog.cancelTitle" datatype="html">
+        <source>Annuler cette réservation ?</source>
+        <target>Cancel this booking?</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.dialog.desc" datatype="html">
+        <source>Réservation de</source>
+        <target>Booking for</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.dialog.confirm" datatype="html">
+        <source> Confirmer l&apos;action </source>
+        <target> Confirm action </target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.dialog.dismiss" datatype="html">
+        <source> Retour à la liste </source>
+        <target> Back to the list </target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.toast.loadError" datatype="html">
+        <source>Échec du chargement des réservations.</source>
+        <target>Failed to load bookings.</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.toast.updated" datatype="html">
+        <source>Statut de la réservation mis à jour.</source>
+        <target>Booking status updated.</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.toast.updateError" datatype="html">
+        <source>La mise à jour du statut a échoué.</source>
+        <target>Status update failed.</target>
+      </trans-unit>
+
+      <!-- ===== ADMIN — LOCATIONS ===== -->
+      <trans-unit id="admin.rentals.eyebrow" datatype="html">
+        <source>Locations</source>
+        <target>Rentals</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.title" datatype="html">
+        <source> Gestion des locations </source>
+        <target> Rental management </target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.lead" datatype="html">
+        <source> Consultez les contrats de location saisonnière et annulez-les au besoin. </source>
+        <target> Review seasonal rental contracts and cancel them if needed. </target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.back" datatype="html">
+        <source> ← Retour au tableau de bord </source>
+        <target> ← Back to dashboard </target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.list.heading" datatype="html">
+        <source>Tous les contrats</source>
+        <target>All contracts</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.list.loading" datatype="html">
+        <source>Chargement…</source>
+        <target>Loading…</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.list.error" datatype="html">
+        <source> Impossible de charger les locations. </source>
+        <target> Unable to load the rentals. </target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.list.empty" datatype="html">
+        <source> Aucune location pour le moment. </source>
+        <target> No rentals yet. </target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.table.caption" datatype="html">
+        <source> Liste des contrats de location avec client, abri, période, tarif mensuel, statut et actions. </source>
+        <target> List of rental contracts with customer, shelter, period, monthly rate, status and actions. </target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.table.customer" datatype="html">
+        <source>Client</source>
+        <target>Customer</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.table.product" datatype="html">
+        <source>Abri</source>
+        <target>Shelter</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.table.period" datatype="html">
+        <source>Période</source>
+        <target>Period</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.table.rate" datatype="html">
+        <source>Tarif mensuel</source>
+        <target>Monthly rate</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.table.status" datatype="html">
+        <source>Statut</source>
+        <target>Status</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.table.actions" datatype="html">
+        <source>Actions</source>
+        <target>Actions</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.status.active" datatype="html">
+        <source>Active</source>
+        <target>Active</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.status.expired" datatype="html">
+        <source>Expirée</source>
+        <target>Expired</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.status.cancelled" datatype="html">
+        <source>Annulée</source>
+        <target>Cancelled</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.action.cancel" datatype="html">
+        <source> Annuler </source>
+        <target> Cancel </target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.cancel.aria" datatype="html">
+        <source>Annuler la location</source>
+        <target>Cancel the rental</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.dialog.title" datatype="html">
+        <source>Annuler cette location ?</source>
+        <target>Cancel this rental?</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.dialog.desc" datatype="html">
+        <source>Location</source>
+        <target>Rental</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.dialog.desc2" datatype="html">
+        <source>Cette action est définitive.</source>
+        <target>This action is permanent.</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.dialog.confirm" datatype="html">
+        <source> Confirmer l&apos;annulation </source>
+        <target> Confirm cancellation </target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.dialog.dismiss" datatype="html">
+        <source> Garder la location </source>
+        <target> Keep the rental </target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.toast.loadError" datatype="html">
+        <source>Échec du chargement des locations.</source>
+        <target>Failed to load rentals.</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.toast.cancelled" datatype="html">
+        <source>Location annulée.</source>
+        <target>Rental cancelled.</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.toast.cancelError" datatype="html">
+        <source>L&apos;annulation a échoué. Veuillez réessayer.</source>
+        <target>The cancellation failed. Please try again.</target>
+      </trans-unit>
+
+      <!-- ===== ADMIN — UTILISATEURS ===== -->
+      <trans-unit id="admin.users.eyebrow" datatype="html">
+        <source>Utilisateurs</source>
+        <target>Users</target>
+      </trans-unit>
+      <trans-unit id="admin.users.title" datatype="html">
+        <source> Liste des utilisateurs </source>
+        <target> User list </target>
+      </trans-unit>
+      <trans-unit id="admin.users.lead" datatype="html">
+        <source> Consultez les comptes, leurs rôles et leur état de verrouillage (lecture seule). </source>
+        <target> Review accounts, their roles and their lockout state (read-only). </target>
+      </trans-unit>
+      <trans-unit id="admin.users.back" datatype="html">
+        <source> ← Retour au tableau de bord </source>
+        <target> ← Back to dashboard </target>
+      </trans-unit>
+      <trans-unit id="admin.users.list.heading" datatype="html">
+        <source>Tous les comptes</source>
+        <target>All accounts</target>
+      </trans-unit>
+      <trans-unit id="admin.users.list.loading" datatype="html">
+        <source>Chargement…</source>
+        <target>Loading…</target>
+      </trans-unit>
+      <trans-unit id="admin.users.list.error" datatype="html">
+        <source> Impossible de charger les utilisateurs. </source>
+        <target> Unable to load the users. </target>
+      </trans-unit>
+      <trans-unit id="admin.users.list.empty" datatype="html">
+        <source> Aucun utilisateur pour le moment. </source>
+        <target> No users yet. </target>
+      </trans-unit>
+      <trans-unit id="admin.users.table.caption" datatype="html">
+        <source> Liste des utilisateurs avec nom, courriel, nom d&apos;utilisateur, rôles, date d&apos;inscription et état du compte. </source>
+        <target> List of users with name, email, username, roles, registration date and account state. </target>
+      </trans-unit>
+      <trans-unit id="admin.users.table.name" datatype="html">
+        <source>Nom</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="admin.users.table.email" datatype="html">
+        <source>Courriel</source>
+        <target>Email</target>
+      </trans-unit>
+      <trans-unit id="admin.users.table.username" datatype="html">
+        <source>Nom d&apos;utilisateur</source>
+        <target>Username</target>
+      </trans-unit>
+      <trans-unit id="admin.users.table.roles" datatype="html">
+        <source>Rôles</source>
+        <target>Roles</target>
+      </trans-unit>
+      <trans-unit id="admin.users.table.createdAt" datatype="html">
+        <source>Inscrit le</source>
+        <target>Registered on</target>
+      </trans-unit>
+      <trans-unit id="admin.users.table.state" datatype="html">
+        <source>État</source>
+        <target>State</target>
+      </trans-unit>
+      <trans-unit id="admin.users.state.locked" datatype="html">
+        <source> Verrouillé </source>
+        <target> Locked </target>
+      </trans-unit>
+      <trans-unit id="admin.users.state.active" datatype="html">
+        <source> Actif </source>
+        <target> Active </target>
+      </trans-unit>
+      <trans-unit id="admin.users.role.admin" datatype="html">
+        <source>Administrateur</source>
+        <target>Administrator</target>
+      </trans-unit>
+      <trans-unit id="admin.users.role.staff" datatype="html">
+        <source>Personnel</source>
+        <target>Staff</target>
+      </trans-unit>
+      <trans-unit id="admin.users.role.customer" datatype="html">
+        <source>Client</source>
+        <target>Customer</target>
+      </trans-unit>
+      <trans-unit id="admin.users.toast.loadError" datatype="html">
+        <source>Échec du chargement des utilisateurs.</source>
+        <target>Failed to load users.</target>
       </trans-unit>
       <trans-unit id="navbar.shop" datatype="html">
         <source>Boutique</source>
