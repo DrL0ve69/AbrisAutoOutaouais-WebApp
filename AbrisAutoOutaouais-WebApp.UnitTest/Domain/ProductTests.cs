@@ -69,6 +69,46 @@ public sealed class ProductTests
     }
 
     [Fact]
+    public void Create_WithDimensions_SetsThem()
+    {
+        var product = Product.Create(
+            "Abri", "abri", 100m, 5, Guid.NewGuid(),
+            widthCm: 335, lengthCm: 488, heightCm: 244);
+
+        product.WidthCm.Should().Be(335);
+        product.LengthCm.Should().Be(488);
+        product.HeightCm.Should().Be(244);
+    }
+
+    [Fact]
+    public void Create_WithoutDimensions_AreNull()
+    {
+        var product = Product.Create("Abri", "abri", 100m, 5, Guid.NewGuid());
+
+        product.WidthCm.Should().BeNull();
+        product.LengthCm.Should().BeNull();
+        product.HeightCm.Should().BeNull();
+    }
+
+    [Fact]
+    public void SetDimensions_OverwritesAndCanClearToNull()
+    {
+        var product = Product.Create(
+            "Abri", "abri", 100m, 5, Guid.NewGuid(),
+            widthCm: 335, lengthCm: 488, heightCm: 244);
+
+        product.SetDimensions(610, 610, 305);
+        product.WidthCm.Should().Be(610);
+        product.LengthCm.Should().Be(610);
+        product.HeightCm.Should().Be(305);
+
+        product.SetDimensions(null, null, null);
+        product.WidthCm.Should().BeNull();
+        product.LengthCm.Should().BeNull();
+        product.HeightCm.Should().BeNull();
+    }
+
+    [Fact]
     public void Create_SlugIsNormalizedToLowercase()
     {
         var product = Product.Create("Abri", "ABRI-SIMPLE", 100m, 5, Guid.NewGuid());

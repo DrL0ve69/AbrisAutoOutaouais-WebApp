@@ -1,0 +1,123 @@
+<div class="calc">
+  <!-- Bascule de mode : groupe de boutons radio accessibles. -->
+  <div class="calc__modes" role="radiogroup" aria-label="Méthode de calcul" i18n-aria-label="@@mesurer.calc.modeGroup">
+    <button
+      #modeRadio
+      type="button"
+      class="calc__mode"
+      [class.calc__mode--active]="mode() === 'vehicles'"
+      role="radio"
+      [attr.aria-checked]="mode() === 'vehicles'"
+      [attr.tabindex]="mode() === 'vehicles' ? 0 : -1"
+      (click)="setMode('vehicles')"
+      (keydown)="onModeKeydown($event)"
+      i18n="@@mesurer.calc.modeVehicles">
+      Par véhicules
+    </button>
+    <button
+      #modeRadio
+      type="button"
+      class="calc__mode"
+      [class.calc__mode--active]="mode() === 'manual'"
+      role="radio"
+      [attr.aria-checked]="mode() === 'manual'"
+      [attr.tabindex]="mode() === 'manual' ? 0 : -1"
+      (click)="setMode('manual')"
+      (keydown)="onModeKeydown($event)"
+      i18n="@@mesurer.calc.modeManual">
+      Dimensions manuelles
+    </button>
+  </div>
+
+  @if (mode() === 'vehicles') {
+  <form class="calc__form" [formGroup]="vehiclesForm" (ngSubmit)="computeVehicles()">
+    <fieldset class="calc__fieldset">
+      <legend class="calc__legend" i18n="@@mesurer.calc.vehiclesLegend">
+        Combien de véhicules à abriter&nbsp;?
+      </legend>
+      <p class="calc__hint" i18n="@@mesurer.calc.vehiclesHint">
+        Indiquez la quantité par type. Un dégagement est ajouté automatiquement pour ouvrir
+        les portières et circuler.
+      </p>
+
+      @for (row of vehicleRows; track row.type) {
+      <div class="calc__row">
+        <label [attr.for]="'veh-' + row.type">{{ row.label }}</label>
+        <input
+          [id]="'veh-' + row.type"
+          type="number"
+          inputmode="numeric"
+          min="0"
+          max="6"
+          step="1"
+          [formControlName]="row.type" />
+      </div>
+      }
+    </fieldset>
+
+    <button type="submit" class="btn btn--primary calc__submit" i18n="@@mesurer.calc.compute">
+      Calculer le gabarit
+    </button>
+  </form>
+  } @else {
+  <form class="calc__form" [formGroup]="manualForm" (ngSubmit)="computeManual()" novalidate>
+    <fieldset class="calc__fieldset">
+      <legend class="calc__legend" i18n="@@mesurer.calc.manualLegend">
+        Dimensions du stationnement (en pieds)
+      </legend>
+
+      <div class="calc__row">
+        <label for="manual-width" i18n="@@mesurer.calc.width">Largeur (pi)</label>
+        <input
+          id="manual-width"
+          type="number"
+          inputmode="decimal"
+          min="1"
+          max="65"
+          step="0.5"
+          formControlName="widthFt"
+          [attr.aria-invalid]="mf.widthFt.touched && mf.widthFt.invalid"
+          aria-describedby="manual-width-err" />
+        @if (mf.widthFt.touched && mf.widthFt.invalid) {
+        <p id="manual-width-err" class="calc__error" role="alert" i18n="@@mesurer.calc.widthErr">
+          Entrez une largeur entre 1 et 65 pieds.
+        </p>
+        }
+      </div>
+
+      <div class="calc__row">
+        <label for="manual-length" i18n="@@mesurer.calc.length">Longueur (pi)</label>
+        <input
+          id="manual-length"
+          type="number"
+          inputmode="decimal"
+          min="1"
+          max="65"
+          step="0.5"
+          formControlName="lengthFt"
+          [attr.aria-invalid]="mf.lengthFt.touched && mf.lengthFt.invalid"
+          aria-describedby="manual-length-err" />
+        @if (mf.lengthFt.touched && mf.lengthFt.invalid) {
+        <p id="manual-length-err" class="calc__error" role="alert" i18n="@@mesurer.calc.lengthErr">
+          Entrez une longueur entre 1 et 65 pieds.
+        </p>
+        }
+      </div>
+    </fieldset>
+
+    <button type="submit" class="btn btn--primary calc__submit" i18n="@@mesurer.calc.compute">
+      Calculer le gabarit
+    </button>
+  </form>
+  }
+
+  <!-- Annonce « hors plage » (scopée, ancrée par texte — L-010). -->
+  <p class="calc__status" role="status" aria-live="polite" aria-atomic="true">
+    @if (outOfRange()) {
+    <ng-container i18n="@@mesurer.calc.outOfRange">
+      Le gabarit obtenu dépasse la taille maximale prise en charge. Réduisez le nombre de
+      véhicules ou ajustez les dimensions.
+    </ng-container>
+    }
+  </p>
+</div>

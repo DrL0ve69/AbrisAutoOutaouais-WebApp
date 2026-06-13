@@ -1,11 +1,9 @@
-﻿using FluentValidation;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using AbrisAutoOutaouais_WebApp.Domain.Constants;
+using FluentValidation;
 
 namespace AbrisAutoOutaouais_WebApp.Application.Products.Commands;
 
-public class CreateProductCommandValidator : AbstractValidator<CreateProductCommand>
+public sealed class CreateProductCommandValidator : AbstractValidator<CreateProductCommand>
 {
     public CreateProductCommandValidator()
     {
@@ -21,5 +19,18 @@ public class CreateProductCommandValidator : AbstractValidator<CreateProductComm
             .GreaterThanOrEqualTo(0);
         RuleFor(x => x.CategoryId)
             .NotEmpty();
+
+        // Dimensions optionnelles : null accepté, mais si fournie elle doit tenir
+        // dans la plage métier [MinCm, MaxCm]. On NE met PAS InclusiveBetween seul
+        // (il rejetterait null) — on le garde sous .When(HasValue).
+        RuleFor(x => x.WidthCm)
+            .InclusiveBetween(ProductDimensions.MinCm, ProductDimensions.MaxCm)
+            .When(x => x.WidthCm.HasValue);
+        RuleFor(x => x.LengthCm)
+            .InclusiveBetween(ProductDimensions.MinCm, ProductDimensions.MaxCm)
+            .When(x => x.LengthCm.HasValue);
+        RuleFor(x => x.HeightCm)
+            .InclusiveBetween(ProductDimensions.MinCm, ProductDimensions.MaxCm)
+            .When(x => x.HeightCm.HasValue);
     }
 }

@@ -54,6 +54,13 @@ export class HomeComponent implements OnInit {
       link: '/installation',
       linkLabel: $localize`:@@home.services.install.link:Réserver maintenant`,
     },
+    {
+      icon: '📐',
+      title: $localize`:@@home.services.measure.title:Mesurer mon stationnement`,
+      description: $localize`:@@home.services.measure.desc:Mesurez votre espace sur une carte satellite ou avec notre calculateur, et trouvez l'abri adapté.`,
+      link: '/mesurer',
+      linkLabel: $localize`:@@home.services.measure.link:Mesurer mon espace`,
+    },
   ];
 
   protected readonly whyUs: WhyUsItem[] = [

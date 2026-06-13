@@ -33,7 +33,10 @@ public sealed class CreateProductCommandHandler(IApplicationDbContext db)
             price: command.Price,
             stock: command.StockQuantity,
             categoryId: command.CategoryId,
-            description: command.Description);
+            description: command.Description,
+            widthCm: command.WidthCm,
+            lengthCm: command.LengthCm,
+            heightCm: command.HeightCm);
 
         db.Products.Add(product);
         await db.SaveChangesAsync(ct);

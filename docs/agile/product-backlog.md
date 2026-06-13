@@ -20,6 +20,7 @@ les critères a11y dans sa Definition of Done (voir `definition-of-done.md`).
 | US-1.4 | En tant qu'**administrateur**, je veux **alimenter le catalogue** (seed de produits/catégories) afin que la boutique ne soit pas vide. | 5 | **Must** | ✅ Livré (seed backend) |
 | US-1.5 | En tant que **visiteur**, je veux **rechercher et trier** les produits afin de filtrer au-delà des catégories. | 5 | **Should** | ✅ Livré (recherche `role="search"` + tri) |
 | US-1.6 | En tant que **visiteur**, je veux une **page panier** révisable afin de vérifier ma commande avant paiement. | 8 | **Should** | ⛔ À faire |
+| US-1.7 | En tant que **visiteur**, je veux **mesurer mon stationnement** (carte satellite à dessiner **ou** calculateur de véhicules au clavier) afin que l'app me **suggère un abri qui rentre** et que je choisisse la bonne taille sans erreur. | 13 | **Should** | ✅ Livré (Épic D : dimensions produit `WidthCm/LengthCm/HeightCm` (D1), endpoint `GET /products/suggest-shelters` (D2), feature `/mesurer` stepper Adresse→Mesure→Résultats (D3) — **cm-canonique + affichage en pieds**, radiogroups **APG** (roving tabindex + flèches, L-015), Leaflet+geoman+turf chargés en `@defer`/SSR-safe, badge « Ajusté serré ») |
 
 **Critères d'acceptation — US-1.1**
 - `h1` unique sur la page boutique ; chips de catégorie en `<button>` avec `aria-pressed`.

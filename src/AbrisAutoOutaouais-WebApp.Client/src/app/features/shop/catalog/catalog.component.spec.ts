@@ -30,6 +30,9 @@ const products: ProductDto[] = [
     isAvailable: true,
     categoryName: 'Abris simples',
     imageUrls: [],
+    widthCm: null,
+    lengthCm: null,
+    heightCm: null,
   },
 ];
 

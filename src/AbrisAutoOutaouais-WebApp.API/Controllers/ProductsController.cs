@@ -3,6 +3,7 @@ using AbrisAutoOutaouais_WebApp.Application.Common.Models;
 using AbrisAutoOutaouais_WebApp.Application.Products.Commands;
 using AbrisAutoOutaouais_WebApp.Application.Products.Queries.GetAllProducts;
 using AbrisAutoOutaouais_WebApp.Application.Products.Queries.GetProductBySlug;
+using AbrisAutoOutaouais_WebApp.Application.Products.Queries.SuggestShelters;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -24,6 +25,21 @@ public sealed class ProductsController(IDispatcher dispatcher) : ControllerBase
         [FromQuery] string? category = null, [FromQuery] string? search = null,
         CancellationToken ct = default)
         => Ok(await dispatcher.DispatchAsync(new GetAllProductsQuery(page, pageSize, category, search), ct));
+
+    /// <summary>
+    /// Suggère les abris dont l'empreinte couvre les dimensions requises (largeur/longueur
+    /// en cm), du plus petit suffisant au plus grand. Route littérale placée AVANT le
+    /// paramètre <c>{slug}</c> : ASP.NET privilégie la route littérale, un test IT le verrouille.
+    /// </summary>
+    [HttpGet("suggest-shelters")]
+    [AllowAnonymous]
+    [ProducesResponseType<IReadOnlyList<ShelterSuggestionDto>>(200)]
+    [ProducesResponseType<ProblemDetails>(422)]
+    public async Task<IActionResult> SuggestShelters(
+        [FromQuery] int requiredWidthCm, [FromQuery] int requiredLengthCm,
+        CancellationToken ct = default)
+        => Ok(await dispatcher.DispatchAsync(
+            new SuggestSheltersQuery(requiredWidthCm, requiredLengthCm), ct));
 
     /// <summary>Détail par slug (URL SEO-friendly).</summary>
     [HttpGet("{slug}")]

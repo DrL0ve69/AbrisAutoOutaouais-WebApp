@@ -87,6 +87,77 @@
             </div>
           </div>
 
+          <div class="adminp__row adminp__row--dims">
+            <div class="adminp__field">
+              <label for="p-width" i18n="@@admin.products.form.width">Largeur (cm)</label>
+              <input
+                id="p-width"
+                type="number"
+                step="1"
+                min="50"
+                max="2000"
+                inputmode="numeric"
+                formControlName="widthCm"
+                [attr.aria-invalid]="widthCtrl.touched && widthCtrl.invalid ? 'true' : null"
+                aria-describedby="p-width-hint p-width-err"
+              />
+              <p id="p-width-hint" class="adminp__hint" i18n="@@admin.products.form.dimHint">
+                optionnel · 50–2000 cm
+              </p>
+              @if (widthCtrl.touched && widthCtrl.invalid) {
+                <p id="p-width-err" class="adminp__err" role="alert" i18n="@@admin.products.form.dimError">
+                  La dimension doit être comprise entre 50 et 2000 cm.
+                </p>
+              }
+            </div>
+
+            <div class="adminp__field">
+              <label for="p-length" i18n="@@admin.products.form.length">Longueur (cm)</label>
+              <input
+                id="p-length"
+                type="number"
+                step="1"
+                min="50"
+                max="2000"
+                inputmode="numeric"
+                formControlName="lengthCm"
+                [attr.aria-invalid]="lengthCtrl.touched && lengthCtrl.invalid ? 'true' : null"
+                aria-describedby="p-length-hint p-length-err"
+              />
+              <p id="p-length-hint" class="adminp__hint" i18n="@@admin.products.form.dimHint">
+                optionnel · 50–2000 cm
+              </p>
+              @if (lengthCtrl.touched && lengthCtrl.invalid) {
+                <p id="p-length-err" class="adminp__err" role="alert" i18n="@@admin.products.form.dimError">
+                  La dimension doit être comprise entre 50 et 2000 cm.
+                </p>
+              }
+            </div>
+
+            <div class="adminp__field">
+              <label for="p-height" i18n="@@admin.products.form.height">Hauteur (cm)</label>
+              <input
+                id="p-height"
+                type="number"
+                step="1"
+                min="50"
+                max="2000"
+                inputmode="numeric"
+                formControlName="heightCm"
+                [attr.aria-invalid]="heightCtrl.touched && heightCtrl.invalid ? 'true' : null"
+                aria-describedby="p-height-hint p-height-err"
+              />
+              <p id="p-height-hint" class="adminp__hint" i18n="@@admin.products.form.dimHint">
+                optionnel · 50–2000 cm
+              </p>
+              @if (heightCtrl.touched && heightCtrl.invalid) {
+                <p id="p-height-err" class="adminp__err" role="alert" i18n="@@admin.products.form.dimError">
+                  La dimension doit être comprise entre 50 et 2000 cm.
+                </p>
+              }
+            </div>
+          </div>
+
           <div class="adminp__field">
             <label for="p-category" i18n="@@admin.products.form.category">Catégorie</label>
             <select

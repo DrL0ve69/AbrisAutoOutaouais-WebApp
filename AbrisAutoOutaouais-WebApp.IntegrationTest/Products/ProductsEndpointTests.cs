@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using AbrisAutoOutaouais_WebApp.Application.Common.Models;
+using AbrisAutoOutaouais_WebApp.Application.Products.Queries.SuggestShelters;
+using AbrisAutoOutaouais_WebApp.Domain.Entities;
 
 namespace AbrisAutoOutaouais_WebApp.IntegrationTest.Products;
 
@@ -123,6 +125,166 @@ public sealed class ProductsEndpointTests : IClassFixture<WebAppFactory>
     }
 
     [Fact]
+    public async Task Create_AsAdmin_WithDimensions_PersistsAndGetBySlugReadsThemBack()
+    {
+        // Round-trip dimensions (analogue L-001 via la stack HTTP réelle) : POST avec
+        // dims → GET /{slug} relit les 3 valeurs.
+        var token = await AuthHelper.LoginAsAdminAsync(_client);
+        _client.SetBearerToken(token);
+
+        await DbHelper.SeedProductAsync(_factory.Services, slug: "categorie-seed-dims");
+        var db = _factory.Services.CreateScope().ServiceProvider
+            .GetRequiredService<ApplicationDbContext>();
+        var catId = await db.ProductCategories.Select(c => c.Id).FirstAsync();
+
+        var create = await _client.PostAsJsonAsync("/api/v1/products", new
+        {
+            name = "Abri Dimensionne",
+            price = 499.99,
+            stockQuantity = 3,
+            categoryId = catId,
+            description = "Abri avec dimensions hors-tout",
+            widthCm = 335,
+            lengthCm = 488,
+            heightCm = 244,
+        });
+        create.StatusCode.Should().Be(HttpStatusCode.Created);
+
+        var get = await _client.GetAsync("/api/v1/products/abri-dimensionne");
+        get.StatusCode.Should().Be(HttpStatusCode.OK);
+        var dto = await get.Content.ReadFromJsonAsync<ProductDto>();
+        dto!.WidthCm.Should().Be(335);
+        dto.LengthCm.Should().Be(488);
+        dto.HeightCm.Should().Be(244);
+
+        _client.DefaultRequestHeaders.Authorization = null;
+    }
+
+    [Fact]
+    public async Task Create_AsAdmin_WithoutDimensions_GetBySlugReadsNull()
+    {
+        var token = await AuthHelper.LoginAsAdminAsync(_client);
+        _client.SetBearerToken(token);
+
+        await DbHelper.SeedProductAsync(_factory.Services, slug: "categorie-seed-nodim");
+        var db = _factory.Services.CreateScope().ServiceProvider
+            .GetRequiredService<ApplicationDbContext>();
+        var catId = await db.ProductCategories.Select(c => c.Id).FirstAsync();
+
+        var create = await _client.PostAsJsonAsync("/api/v1/products", new
+        {
+            name = "Abri Sans Dimensions",
+            price = 99.99,
+            stockQuantity = 7,
+            categoryId = catId,
+            description = "Accessoire sans dimensions hors-tout",
+        });
+        create.StatusCode.Should().Be(HttpStatusCode.Created);
+
+        var get = await _client.GetAsync("/api/v1/products/abri-sans-dimensions");
+        var dto = await get.Content.ReadFromJsonAsync<ProductDto>();
+        dto!.WidthCm.Should().BeNull();
+        dto.LengthCm.Should().BeNull();
+        dto.HeightCm.Should().BeNull();
+
+        _client.DefaultRequestHeaders.Authorization = null;
+    }
+
+    [Fact]
+    public async Task Create_AsAdmin_WithOutOfRangeDimension_Returns422()
+    {
+        var token = await AuthHelper.LoginAsAdminAsync(_client);
+        _client.SetBearerToken(token);
+
+        await DbHelper.SeedProductAsync(_factory.Services, slug: "categorie-seed-badim");
+        var db = _factory.Services.CreateScope().ServiceProvider
+            .GetRequiredService<ApplicationDbContext>();
+        var catId = await db.ProductCategories.Select(c => c.Id).FirstAsync();
+
+        var response = await _client.PostAsJsonAsync("/api/v1/products", new
+        {
+            name = "Abri Trop Petit",
+            price = 199.99,
+            stockQuantity = 1,
+            categoryId = catId,
+            description = "Largeur sous la borne minimale",
+            widthCm = 10,  // < 50 → invalide
+        });
+
+        response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+
+        _client.DefaultRequestHeaders.Authorization = null;
+    }
+
+    [Fact]
+    public async Task Update_AsAdmin_TogglesDimensionsBothWays()
+    {
+        // Round-trip PUT (L-001) : null → valeur, puis valeur → null.
+        var token = await AuthHelper.LoginAsAdminAsync(_client);
+        _client.SetBearerToken(token);
+
+        await DbHelper.SeedProductAsync(_factory.Services, slug: "categorie-seed-putdim");
+        var db = _factory.Services.CreateScope().ServiceProvider
+            .GetRequiredService<ApplicationDbContext>();
+        var catId = await db.ProductCategories.Select(c => c.Id).FirstAsync();
+
+        var create = await _client.PostAsJsonAsync("/api/v1/products", new
+        {
+            name = "Abri A Mesurer",
+            price = 299.99,
+            stockQuantity = 5,
+            categoryId = catId,
+            description = "Dimensions ajoutées plus tard",
+        });
+        create.StatusCode.Should().Be(HttpStatusCode.Created);
+        var created = await _client.GetAsync("/api/v1/products/abri-a-mesurer");
+        var initial = await created.Content.ReadFromJsonAsync<ProductDto>();
+        initial!.WidthCm.Should().BeNull();
+        var id = initial.Id;
+
+        // null → valeur
+        var put1 = await _client.PutAsJsonAsync($"/api/v1/products/{id}", new
+        {
+            id,
+            name = "Abri A Mesurer",
+            description = "Maintenant dimensionné",
+            price = 299.99,
+            stock = 5,
+            categoryId = catId,
+            widthCm = 335,
+            lengthCm = 488,
+            heightCm = 244,
+        });
+        put1.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        var afterSet = await (await _client.GetAsync("/api/v1/products/abri-a-mesurer"))
+            .Content.ReadFromJsonAsync<ProductDto>();
+        afterSet!.WidthCm.Should().Be(335);
+        afterSet.LengthCm.Should().Be(488);
+        afterSet.HeightCm.Should().Be(244);
+
+        // valeur → null
+        var put2 = await _client.PutAsJsonAsync($"/api/v1/products/{id}", new
+        {
+            id,
+            name = "Abri A Mesurer",
+            description = "Dimensions effacées",
+            price = 299.99,
+            stock = 5,
+            categoryId = catId,
+        });
+        put2.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        var afterClear = await (await _client.GetAsync("/api/v1/products/abri-a-mesurer"))
+            .Content.ReadFromJsonAsync<ProductDto>();
+        afterClear!.WidthCm.Should().BeNull();
+        afterClear.LengthCm.Should().BeNull();
+        afterClear.HeightCm.Should().BeNull();
+
+        _client.DefaultRequestHeaders.Authorization = null;
+    }
+
+    [Fact]
     public async Task Create_AsAdmin_WithInvalidData_Returns422()
     {
         var token = await AuthHelper.LoginAsAdminAsync(_client);
@@ -144,5 +306,55 @@ public sealed class ProductsEndpointTests : IClassFixture<WebAppFactory>
         problem!.Status.Should().Be(422);
 
         _client.DefaultRequestHeaders.Authorization = null;
+    }
+
+    // ── GET /api/v1/products/suggest-shelters ────────────────────────────────
+
+    /// <summary>Seed direct avec dimensions (DbHelper.SeedProductAsync n'expose pas les dims).</summary>
+    private async Task SeedShelterAsync(string name, string slug, int widthCm, int lengthCm)
+    {
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var category = ProductCategory.Create($"Cat {slug}", $"cat-{slug}");
+        var product = Product.Create(
+            name, slug, 199.99m, 5, category.Id, widthCm: widthCm, lengthCm: lengthCm);
+        db.ProductCategories.Add(category);
+        db.Products.Add(product);
+        await db.SaveChangesAsync();
+    }
+
+    [Fact]
+    public async Task SuggestShelters_Anonymous_Returns200WithFilteredSortedList()
+    {
+        await SeedShelterAsync("Suggest Grand", "suggest-grand", widthCm: 600, lengthCm: 600);
+        await SeedShelterAsync("Suggest Petit", "suggest-petit", widthCm: 400, lengthCm: 500);
+        await SeedShelterAsync("Suggest Trop Petit", "suggest-trop-petit", widthCm: 200, lengthCm: 200);
+
+        var response = await _client.GetAsync(
+            "/api/v1/products/suggest-shelters?requiredWidthCm=300&requiredLengthCm=400");
+
+        // La route littérale prime sur {slug} : on obtient bien une LISTE (200), pas un 404 GetBySlug.
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var body = await response.Content.ReadFromJsonAsync<List<ShelterSuggestionDto>>();
+        body.Should().NotBeNull();
+
+        var slugs = body!.Select(s => s.Slug).ToList();
+        slugs.Should().Contain(new[] { "suggest-petit", "suggest-grand" });
+        slugs.Should().NotContain("suggest-trop-petit");  // exclu : dimensions < requis
+        // Empreinte croissante : petit (200000) avant grand (360000)
+        slugs.IndexOf("suggest-petit").Should().BeLessThan(slugs.IndexOf("suggest-grand"));
+    }
+
+    [Fact]
+    public async Task SuggestShelters_WithInvalidRequired_Returns422()
+    {
+        // requiredWidthCm=0 viole GreaterThan(0) → confirme que le validator de query
+        // est bien exécuté par le pipeline avant le handler.
+        var response = await _client.GetAsync(
+            "/api/v1/products/suggest-shelters?requiredWidthCm=0&requiredLengthCm=400");
+
+        response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>();
+        problem!.Status.Should().Be(422);
     }
 }

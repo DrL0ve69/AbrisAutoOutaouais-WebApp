@@ -1,0 +1,9 @@
+// Bundle CSS Leaflet + geoman — chargé À LA DEMANDE (angular.json : `inject: false`,
+// bundleName "leaflet"). Le composant `map-measure` injecte un <link rel="stylesheet"
+// href="leaflet.css"> au runtime (dans afterNextRender), donc ce CSS reste HORS du bundle
+// initial et n'est récupéré que lorsque l'utilisateur ouvre la carte.
+//
+// Le pipeline de styles globaux d'@angular/build sait résoudre les `url(images/*.png)`
+// des CSS tierces (il les copie dans le dossier media/), contrairement à un `import()` JS.
+@use 'leaflet/dist/leaflet.css';
+@use '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';

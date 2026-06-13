@@ -1374,6 +1374,26 @@
         <source> Le stock doit être un nombre positif ou nul. </source>
         <target> Stock must be zero or a positive number. </target>
       </trans-unit>
+      <trans-unit id="admin.products.form.width" datatype="html">
+        <source>Largeur (cm)</source>
+        <target>Width (cm)</target>
+      </trans-unit>
+      <trans-unit id="admin.products.form.length" datatype="html">
+        <source>Longueur (cm)</source>
+        <target>Length (cm)</target>
+      </trans-unit>
+      <trans-unit id="admin.products.form.height" datatype="html">
+        <source>Hauteur (cm)</source>
+        <target>Height (cm)</target>
+      </trans-unit>
+      <trans-unit id="admin.products.form.dimHint" datatype="html">
+        <source> optionnel · 50–2000 cm </source>
+        <target> optional · 50–2000 cm </target>
+      </trans-unit>
+      <trans-unit id="admin.products.form.dimError" datatype="html">
+        <source> La dimension doit être comprise entre 50 et 2000 cm. </source>
+        <target> The dimension must be between 50 and 2000 cm. </target>
+      </trans-unit>
       <trans-unit id="admin.products.form.category" datatype="html">
         <source>Catégorie</source>
         <target>Category</target>
@@ -2295,6 +2315,234 @@
       <trans-unit id="faq.location.installation.a" datatype="html">
         <source>L'adresse d'installation est demandée à la réservation. Selon l'entente, le montage peut être inclus ou facturé séparément — précisez votre besoin dans la demande.</source>
         <target>The installation address is requested at booking. Depending on the agreement, assembly may be included or billed separately — specify your needs in the request.</target>
+      </trans-unit>
+      <trans-unit id="home.services.measure.title" datatype="html">
+        <source>Mesurer mon stationnement</source>
+        <target>Measure my driveway</target>
+      </trans-unit>
+      <trans-unit id="home.services.measure.desc" datatype="html">
+        <source>Mesurez votre espace sur une carte satellite ou avec notre calculateur, et trouvez l&apos;abri adapté.</source>
+        <target>Measure your space on a satellite map or with our calculator, and find the right shelter.</target>
+      </trans-unit>
+      <trans-unit id="home.services.measure.link" datatype="html">
+        <source>Mesurer mon espace</source>
+        <target>Measure my space</target>
+      </trans-unit>
+      <trans-unit id="mesurer.eyebrow" datatype="html">
+        <source>Outil</source>
+        <target>Tool</target>
+      </trans-unit>
+      <trans-unit id="mesurer.title" datatype="html">
+        <source>Mesurer mon stationnement</source>
+        <target>Measure my driveway</target>
+      </trans-unit>
+      <trans-unit id="mesurer.lead" datatype="html">
+        <source> Trouvez l&apos;abri Tempo adapté à votre espace en trois étapes : votre adresse, la mesure de votre stationnement, puis nos abris compatibles. </source>
+        <target> Find the Tempo shelter that fits your space in three steps: your address, the measurement of your driveway, then our compatible shelters. </target>
+      </trans-unit>
+      <trans-unit id="mesurer.progressLabel" datatype="html">
+        <source>Progression</source>
+        <target>Progress</target>
+      </trans-unit>
+      <trans-unit id="mesurer.back" datatype="html">
+        <source> ← Modifier l&apos;adresse </source>
+        <target> ← Edit the address </target>
+      </trans-unit>
+      <trans-unit id="mesurer.backMeasure" datatype="html">
+        <source> ← Refaire la mesure </source>
+        <target> ← Measure again </target>
+      </trans-unit>
+      <trans-unit id="mesurer.step.address" datatype="html">
+        <source>Adresse</source>
+        <target>Address</target>
+      </trans-unit>
+      <trans-unit id="mesurer.step.measure" datatype="html">
+        <source>Mesure</source>
+        <target>Measurement</target>
+      </trans-unit>
+      <trans-unit id="mesurer.step.results" datatype="html">
+        <source>Résultats</source>
+        <target>Results</target>
+      </trans-unit>
+      <trans-unit id="mesurer.step.announce" datatype="html">
+        <source>Étape <x id="step" equiv-text="this.step()"/> sur 3 : <x id="title" equiv-text="this.currentTitle()"/></source>
+        <target>Step <x id="step" equiv-text="this.step()"/> of 3: <x id="title" equiv-text="this.currentTitle()"/></target>
+      </trans-unit>
+      <trans-unit id="mesurer.address.lead" datatype="html">
+        <source> Indiquez l&apos;adresse du stationnement à couvrir. Choisissez une suggestion pour situer la carte satellite à l&apos;étape suivante. </source>
+        <target> Enter the address of the driveway to cover. Choose a suggestion to locate the satellite map in the next step. </target>
+      </trans-unit>
+      <trans-unit id="mesurer.address.civic" datatype="html">
+        <source>Numéro civique</source>
+        <target>Street number</target>
+      </trans-unit>
+      <trans-unit id="mesurer.address.civicInvalid" datatype="html">
+        <source> Numéro civique invalide (ex : 123 ou 123A). </source>
+        <target> Invalid street number (e.g.: 123 or 123A). </target>
+      </trans-unit>
+      <trans-unit id="mesurer.address.street" datatype="html">
+        <source>Rue</source>
+        <target>Street</target>
+      </trans-unit>
+      <trans-unit id="mesurer.address.streetRequired" datatype="html">
+        <source> L&apos;adresse est requise. </source>
+        <target> The address is required. </target>
+      </trans-unit>
+      <trans-unit id="mesurer.address.city" datatype="html">
+        <source>Ville</source>
+        <target>City</target>
+      </trans-unit>
+      <trans-unit id="mesurer.address.cityRequired" datatype="html">
+        <source> La ville est requise. </source>
+        <target> The city is required. </target>
+      </trans-unit>
+      <trans-unit id="mesurer.address.province" datatype="html">
+        <source>Province</source>
+        <target>Province</target>
+      </trans-unit>
+      <trans-unit id="mesurer.address.next" datatype="html">
+        <source> Continuer vers la mesure </source>
+        <target> Continue to measurement </target>
+      </trans-unit>
+      <trans-unit id="mesurer.map.instructions" datatype="html">
+        <source> La carte se manipule à la souris ou au tactile : utilisez l&apos;outil rectangle (en haut à droite) pour tracer votre stationnement. Pour un calcul entièrement au clavier, revenez au calculateur de véhicules. </source>
+        <target> The map is operated with the mouse or by touch: use the rectangle tool (top right) to draw your driveway. For a fully keyboard-based calculation, return to the vehicle calculator. </target>
+      </trans-unit>
+      <trans-unit id="mesurer.map.canvasLabel" datatype="html">
+        <source>Carte satellite pour mesurer le stationnement</source>
+        <target>Satellite map to measure the driveway</target>
+      </trans-unit>
+      <trans-unit id="mesurer.map.outOfRange" datatype="html">
+        <source> La zone tracée est trop petite ou dépasse la plage prise en charge. Tracez un rectangle réaliste de votre stationnement. </source>
+        <target> The drawn area is too small or exceeds the supported range. Draw a realistic rectangle of your driveway. </target>
+      </trans-unit>
+      <trans-unit id="mesurer.method.group" datatype="html">
+        <source>Méthode de mesure</source>
+        <target>Measurement method</target>
+      </trans-unit>
+      <trans-unit id="mesurer.method.calculator" datatype="html">
+        <source> Calculateur de véhicules </source>
+        <target> Vehicle calculator </target>
+      </trans-unit>
+      <trans-unit id="mesurer.method.map" datatype="html">
+        <source> Mesurer sur la carte </source>
+        <target> Measure on the map </target>
+      </trans-unit>
+      <trans-unit id="mesurer.method.mapPlaceholder" datatype="html">
+        <source>Préparation de la carte satellite…</source>
+        <target>Preparing the satellite map…</target>
+      </trans-unit>
+      <trans-unit id="mesurer.method.mapLoading" datatype="html">
+        <source>Chargement de la carte…</source>
+        <target>Loading the map…</target>
+      </trans-unit>
+      <trans-unit id="mesurer.calc.modeGroup" datatype="html">
+        <source>Méthode de calcul</source>
+        <target>Calculation method</target>
+      </trans-unit>
+      <trans-unit id="mesurer.calc.modeVehicles" datatype="html">
+        <source> Par véhicules </source>
+        <target> By vehicles </target>
+      </trans-unit>
+      <trans-unit id="mesurer.calc.modeManual" datatype="html">
+        <source> Dimensions manuelles </source>
+        <target> Manual dimensions </target>
+      </trans-unit>
+      <trans-unit id="mesurer.calc.vehiclesLegend" datatype="html">
+        <source> Combien de véhicules à abriter ? </source>
+        <target> How many vehicles to shelter? </target>
+      </trans-unit>
+      <trans-unit id="mesurer.calc.vehiclesHint" datatype="html">
+        <source> Indiquez la quantité par type. Un dégagement est ajouté automatiquement pour ouvrir les portières et circuler. </source>
+        <target> Enter the quantity per type. Clearance is added automatically to open the doors and move around. </target>
+      </trans-unit>
+      <trans-unit id="mesurer.calc.compute" datatype="html">
+        <source> Calculer le gabarit </source>
+        <target> Calculate the footprint </target>
+      </trans-unit>
+      <trans-unit id="mesurer.calc.manualLegend" datatype="html">
+        <source> Dimensions du stationnement (en pieds) </source>
+        <target> Driveway dimensions (in feet) </target>
+      </trans-unit>
+      <trans-unit id="mesurer.calc.width" datatype="html">
+        <source>Largeur (pi)</source>
+        <target>Width (ft)</target>
+      </trans-unit>
+      <trans-unit id="mesurer.calc.widthErr" datatype="html">
+        <source> Entrez une largeur entre 1 et 65 pieds. </source>
+        <target> Enter a width between 1 and 65 feet. </target>
+      </trans-unit>
+      <trans-unit id="mesurer.calc.length" datatype="html">
+        <source>Longueur (pi)</source>
+        <target>Length (ft)</target>
+      </trans-unit>
+      <trans-unit id="mesurer.calc.lengthErr" datatype="html">
+        <source> Entrez une longueur entre 1 et 65 pieds. </source>
+        <target> Enter a length between 1 and 65 feet. </target>
+      </trans-unit>
+      <trans-unit id="mesurer.calc.outOfRange" datatype="html">
+        <source> Le gabarit obtenu dépasse la taille maximale prise en charge. Réduisez le nombre de véhicules ou ajustez les dimensions. </source>
+        <target> The resulting footprint exceeds the maximum supported size. Reduce the number of vehicles or adjust the dimensions. </target>
+      </trans-unit>
+      <trans-unit id="mesurer.vehicle.compact" datatype="html">
+        <source>Compacte</source>
+        <target>Compact</target>
+      </trans-unit>
+      <trans-unit id="mesurer.vehicle.berline" datatype="html">
+        <source>Berline</source>
+        <target>Sedan</target>
+      </trans-unit>
+      <trans-unit id="mesurer.vehicle.vus" datatype="html">
+        <source>VUS</source>
+        <target>SUV</target>
+      </trans-unit>
+      <trans-unit id="mesurer.vehicle.pickup" datatype="html">
+        <source>Camionnette</source>
+        <target>Pickup truck</target>
+      </trans-unit>
+      <trans-unit id="mesurer.vehicle.fourgonnette" datatype="html">
+        <source>Fourgonnette</source>
+        <target>Minivan</target>
+      </trans-unit>
+      <trans-unit id="mesurer.results.footprint" datatype="html">
+        <source> Gabarit requis : <x id="INTERPOLATION" equiv-text="{{ toFeet(fp.widthCm) | number: &apos;1.1-1&apos; }}"/> pi de largeur × <x id="INTERPOLATION_1" equiv-text="{{ toFeet(fp.lengthCm) | number: &apos;1.1-1&apos; }}"/> pi de longueur. </source>
+        <target> Required footprint: <x id="INTERPOLATION" equiv-text="{{ toFeet(fp.widthCm) | number: &apos;1.1-1&apos; }}"/> ft wide × <x id="INTERPOLATION_1" equiv-text="{{ toFeet(fp.lengthCm) | number: &apos;1.1-1&apos; }}"/> ft long. </target>
+      </trans-unit>
+      <trans-unit id="mesurer.results.loading" datatype="html">
+        <source> Recherche des abris adaptés… </source>
+        <target> Searching for suitable shelters… </target>
+      </trans-unit>
+      <trans-unit id="mesurer.results.error" datatype="html">
+        <source> La recherche d&apos;abris a échoué. Veuillez réessayer. </source>
+        <target> The shelter search failed. Please try again. </target>
+      </trans-unit>
+      <trans-unit id="mesurer.results.empty" datatype="html">
+        <source> Aucun abri ne convient à ce gabarit pour le moment. Essayez un stationnement plus petit ou contactez-nous pour une solution sur mesure. </source>
+        <target> No shelter fits this footprint at the moment. Try a smaller driveway or contact us for a custom solution. </target>
+      </trans-unit>
+      <trans-unit id="mesurer.results.tightFit" datatype="html">
+        <source>Ajusté serré</source>
+        <target>Tight fit</target>
+      </trans-unit>
+      <trans-unit id="mesurer.results.dims" datatype="html">
+        <source> Dimensions : <x id="INTERPOLATION" equiv-text="{{ toFeet(shelter.widthCm) | number: &apos;1.1-1&apos; }}"/> × <x id="INTERPOLATION_1" equiv-text="{{ toFeet(shelter.lengthCm) | number: &apos;1.1-1&apos; }}"/> pi </source>
+        <target> Dimensions: <x id="INTERPOLATION" equiv-text="{{ toFeet(shelter.widthCm) | number: &apos;1.1-1&apos; }}"/> × <x id="INTERPOLATION_1" equiv-text="{{ toFeet(shelter.lengthCm) | number: &apos;1.1-1&apos; }}"/> ft </target>
+      </trans-unit>
+      <trans-unit id="mesurer.results.rent" datatype="html">
+        <source>Location</source>
+        <target>Rental</target>
+      </trans-unit>
+      <trans-unit id="mesurer.results.month" datatype="html">
+        <source>mois</source>
+        <target>month</target>
+      </trans-unit>
+      <trans-unit id="mesurer.results.view" datatype="html">
+        <source>Voir l&apos;abri</source>
+        <target>View the shelter</target>
+      </trans-unit>
+      <trans-unit id="navbar.measure" datatype="html">
+        <source>Mesurer</source>
+        <target>Measure</target>
       </trans-unit>
     </body>
   </file>

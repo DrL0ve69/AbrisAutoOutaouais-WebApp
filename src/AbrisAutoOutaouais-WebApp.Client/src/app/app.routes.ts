@@ -48,6 +48,11 @@ export const routes: Routes = [
       import('./features/installation/installation').then(m => m.InstallationComponent),
     title: 'Réservation d’installation — AbrisTempo Local',
   },
+  {
+    path: 'mesurer',
+    loadComponent: () => import('./features/mesurer/mesurer').then(m => m.MesurerComponent),
+    title: 'Mesurer mon stationnement — AbrisTempo Local',
+  },
   // ── Pages légales (contenu statique, liées depuis le footer et /auth) ──
   {
     path: 'conditions',

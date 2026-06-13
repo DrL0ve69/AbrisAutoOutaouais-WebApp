@@ -10,5 +10,8 @@ public sealed record CreateProductCommand(
     string Description,
     decimal Price,
     int StockQuantity,
-    Guid CategoryId
+    Guid CategoryId,
+    int? WidthCm = null,
+    int? LengthCm = null,
+    int? HeightCm = null
 ) : ICommand<Guid>;

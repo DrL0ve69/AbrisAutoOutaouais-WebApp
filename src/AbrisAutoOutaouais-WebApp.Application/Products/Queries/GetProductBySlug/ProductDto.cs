@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace AbrisAutoOutaouais_WebApp.Application.Products.Queries.GetProductBySlug;
+﻿namespace AbrisAutoOutaouais_WebApp.Application.Products.Queries.GetProductBySlug;
 
 public sealed record ProductDto(
     Guid Id,
@@ -14,5 +10,8 @@ public sealed record ProductDto(
     int Stock,
     bool IsAvailable,
     string CategoryName,
-    IReadOnlyList<string> ImageUrls);
+    IReadOnlyList<string> ImageUrls,
+    int? WidthCm,
+    int? LengthCm,
+    int? HeightCm);
 

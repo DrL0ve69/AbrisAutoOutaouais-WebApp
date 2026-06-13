@@ -118,6 +118,11 @@
   gap: var(--space-3);
 }
 
+// Ligne des 3 dimensions : 3 colonnes qui se replient automatiquement sous ~360px.
+.adminp__row--dims {
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+}
+
 .adminp__hint {
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);

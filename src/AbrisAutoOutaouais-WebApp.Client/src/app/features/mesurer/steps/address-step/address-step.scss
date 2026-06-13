@@ -1,0 +1,15 @@
+.addr {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.addr__lead {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.addr__submit {
+  align-self: flex-start;
+  min-height: 44px;
+}

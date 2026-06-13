@@ -231,7 +231,7 @@ AbrisAutoOutaouais-WebApp.slnx
 - [x] Réservation d'installation (créneaux) & contrats de location de bout en bout
 - [x] Aide & UX : FAQ accessible (`/installation`, `/location`) · vérif. de disponibilité username/courriel · confirmation du changement de langue
 - [x] **Adresse structurée** (numéro civique / appartement / rue) + **autocomplétion accessible** (combobox APG, proxy Places Photon/Radar/Google, code postal pré‑rempli éditable) · marque/modèle d'abri à l'installation (autres marques sauf ShelterLogic)
-- [ ] Outil « mesurer mon stationnement » (carte satellite + calculateur) → suggestion d'abri
+- [x] Outil **« mesurer mon stationnement »** (carte satellite Leaflet à dessiner **ou** calculateur de véhicules au clavier) → **suggestion d'abri adapté** (mesures en pieds, calcul interne en cm, badge « ajusté serré »)
 - [ ] Déploiement (Vercel + Azure App Service) via GitHub Actions
 
 ## Compétences démontrées

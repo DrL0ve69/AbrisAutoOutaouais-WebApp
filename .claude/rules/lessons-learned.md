@@ -11,6 +11,45 @@
 
 ---
 
+## L-015 · `role="radio"`/`radiogroup` without roving `tabindex` + arrow keys is keyboard-broken — and AXE passes anyway
+
+- **Symptom.** Two mode toggles (`features/mesurer/steps/measure-step` calculateur⇄carte and
+  `.../vehicle-calculator` véhicules⇄manuel) declared `role="radiogroup"` + `role="radio"` +
+  `[attr.aria-checked]` but **none of the APG interaction contract**: no roving `tabindex` (each
+  option was its own Tab stop instead of one group stop), no arrow/Home/End handling. **AXE went
+  green** — it only checks *static* ARIA attributes, not the keyboard contract — so the e2e axe sweep
+  gave false confidence ([[L-009]]). The independent `code-reviewer` caught it (Major); neither the
+  author nor the automated tests did.
+- **Rule.** A composite widget (`radiogroup`/`tablist`/`menu`/`listbox`…) is **not** done when its
+  roles/`aria-checked` are present and AXE is green — AXE does not exercise the APG keyboard contract.
+  Implement it: **roving `tabindex`** (`[attr.tabindex]="selected ? 0 : -1"` — one group Tab stop) and
+  a `(keydown)` handler for arrows + Home/End that **moves selection AND focus together**; factor the
+  index math into a pure, unit-tested util (`features/mesurer/util/radio-nav.util.ts`:
+  `isRadioNavKey`/`nextRadioIndex`). Keep the real ARIA `role` so e2e role locators stay valid
+  ([[L-008]]: assert behaviour, not the attribute). **Add a keyboard test** that presses an arrow and
+  asserts both the selection flip and `toHaveFocus()` on the newly-selected option — a status/role-only
+  test never catches a missing-contract bug ([[L-006]]).
+  **Focus nuance vs [[L-006]].** Here the handler does `signal.set(...)` then `.focus()` **synchronously**
+  and that is **safe**, because both radios are **static** template elements — only `tabindex`/class
+  toggle, no element is added/removed (`tabindex="-1"` does not block programmatic `.focus()`). [[L-006]]
+  (focus *after* render) applies only when the focus target **appears/disappears in the same tick** as
+  the signal write; when the target stays mounted, synchronous focus right after `set()` is correct.
+- **Refs.** `features/mesurer/util/radio-nav.util.ts` (`isRadioNavKey`/`nextRadioIndex` + spec),
+  `features/mesurer/steps/measure-step/measure-step.html`,
+  `features/mesurer/steps/vehicle-calculator/vehicle-calculator.html`, commit `53d99fd`.
+
+## L-014 · Build a typed reactive control explicitly — never spread a `readonly [value, validators]` tuple into `fb.control(...)`
+
+- **Symptom.** In an Angular reactive form, creating a numeric control by **spreading** a
+  `readonly [value, validators]` tuple into `fb.control(...)` breaks the typecheck
+  (`'nonNullable' is missing in type …`): the tuple's second element is read as the
+  `AbstractControlOptions` argument, which `FormBuilder` then expects to carry `nonNullable`.
+- **Rule.** Declare the control explicitly with its type parameter:
+  `this.fb.control<number | null>(null, [Validators.min(...), Validators.max(...)])` — never a tuple
+  spread. Pass `value` and `validators` as separate positional arguments so the overload resolves.
+- **Refs.** `features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.ts`
+  (`manualForm`, `vehiclesForm`); first flagged by the dev in D1 (admin product form), reapplied in D3.
+
 ## L-013 · A component `input()` named after a global DOM attribute (`id`, `class`, `role`) reflects onto the host AND breaks the accessible name
 
 - **Symptom.** `app-address-autocomplete` declared `id = input.required<string>()` and was used as

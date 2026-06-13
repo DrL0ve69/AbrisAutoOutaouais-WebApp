@@ -23,6 +23,12 @@ public sealed class Product : ISoftDeletable, IAuditableEntity
     public bool IsAvailable { get; private set; }
     public Guid CategoryId { get; private set; }
 
+    // Dimensions hors-tout en centimètres — nullables (toiles, accessoires, petits
+    // formats n'en ont pas). Plage métier 50–2000 cm validée dans les validators.
+    public int? WidthCm { get; private set; }   // largeur
+    public int? LengthCm { get; private set; }  // longueur (profondeur)
+    public int? HeightCm { get; private set; }  // hauteur
+
     public ProductCategory Category { get; private set; } = null!;
     public IReadOnlyList<ProductImage> Images => _images.AsReadOnly();
 
@@ -40,7 +46,8 @@ public sealed class Product : ISoftDeletable, IAuditableEntity
 
     public static Product Create(
         string name, string slug, decimal price, int stock,
-        Guid categoryId, string? description = null, decimal? rentalPrice = null)
+        Guid categoryId, string? description = null, decimal? rentalPrice = null,
+        int? widthCm = null, int? lengthCm = null, int? heightCm = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         ArgumentException.ThrowIfNullOrWhiteSpace(slug);
@@ -58,6 +65,9 @@ public sealed class Product : ISoftDeletable, IAuditableEntity
             IsAvailable = stock > 0,
             CategoryId = categoryId,
             Description = description?.Trim(),
+            WidthCm = widthCm,
+            LengthCm = lengthCm,
+            HeightCm = heightCm,
         };
     }
 
@@ -66,6 +76,14 @@ public sealed class Product : ISoftDeletable, IAuditableEntity
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         if (price <= 0) throw new ArgumentException("Prix doit être positif.");
         Name = name.Trim(); Description = description?.Trim(); Price = price;
+    }
+
+    /// <summary>Renseigne (ou efface, si null) les dimensions hors-tout en centimètres.</summary>
+    public void SetDimensions(int? widthCm, int? lengthCm, int? heightCm)
+    {
+        WidthCm = widthCm;
+        LengthCm = lengthCm;
+        HeightCm = heightCm;
     }
 
     public void AdjustStock(int delta)
