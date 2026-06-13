@@ -1,3 +1,4 @@
+using AbrisAutoOutaouais_WebApp.Domain.Constants;
 using AbrisAutoOutaouais_WebApp.Domain.Enums;
 using AbrisAutoOutaouais_WebApp.Domain.Exceptions;
 using AbrisAutoOutaouais_WebApp.Domain.Interfaces;
@@ -21,6 +22,12 @@ public sealed class BookingSlot : ISoftDeletable, IAuditableEntity
     public Address Address { get; private set; } = null!;
     public string? Notes { get; private set; }
 
+    /// <summary>Marque de l'abri à installer (optionnel ; null pour un Tempo ou une résa sans marque).</summary>
+    public string? Brand { get; private set; }
+
+    /// <summary>Modèle de l'abri (optionnel).</summary>
+    public string? Model { get; private set; }
+
     public bool IsDeleted { get; set; }
     public DateTime? DeletedAt { get; set; }
     public DateTime CreatedAt { get; set; }
@@ -33,12 +40,20 @@ public sealed class BookingSlot : ISoftDeletable, IAuditableEntity
     public static BookingSlot Create(
         Guid customerId, DateTime slotStart, int durationMin,
         BookingType type, Address address,
-        Guid? orderId = null, string? notes = null)
+        Guid? orderId = null, string? notes = null,
+        string? brand = null, string? model = null)
     {
         if (slotStart <= DateTime.UtcNow)
             throw new BusinessRuleException("Le créneau doit être dans le futur.");
         if (durationMin <= 0)
             throw new ArgumentException("Durée doit être positive.");
+
+        var trimmedBrand = string.IsNullOrWhiteSpace(brand) ? null : brand.Trim();
+        var trimmedModel = string.IsNullOrWhiteSpace(model) ? null : model.Trim();
+
+        // Invariant agrégat : le service d'installation refuse ShelterLogic (leçon L-004).
+        if (ExcludedShelterBrands.IsExcluded(trimmedBrand))
+            throw new BusinessRuleException("Nous n'installons pas la marque ShelterLogic.");
 
         return new BookingSlot
         {
@@ -51,6 +66,8 @@ public sealed class BookingSlot : ISoftDeletable, IAuditableEntity
             Status = BookingStatus.Pending,
             Address = address,
             Notes = notes?.Trim(),
+            Brand = trimmedBrand,
+            Model = trimmedModel,
         };
     }
 

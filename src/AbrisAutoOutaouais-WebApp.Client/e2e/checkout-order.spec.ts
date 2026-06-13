@@ -13,7 +13,9 @@ import { test, expect, type Page, type Request } from '@playwright/test';
 // L'API est simulée via page.route (aucun backend requis), comme a11y.spec.ts.
 
 const SAVED_ADDRESS = {
-  street: '111 rue Wellington',
+  civicNumber: '111',
+  street: 'rue Wellington',
+  apartment: '4B',
   city: 'Ottawa',
   province: 'ON', // ≠ défaut « QC » du formulaire de caisse
   postalCode: 'K1A 0A6',
@@ -105,7 +107,9 @@ test('Caisse (/panier/caisse) — commande Livraison avec adresse Ontario pré-r
   // Choisir « Livraison » → la section adresse s'affiche, pré-remplie depuis le profil.
   await page.getByRole('radio', { name: /livraison/i }).check();
 
+  await expect(page.locator('#co-civic')).toHaveValue(SAVED_ADDRESS.civicNumber);
   await expect(page.locator('#co-street')).toHaveValue(SAVED_ADDRESS.street);
+  await expect(page.locator('#co-apartment')).toHaveValue(SAVED_ADDRESS.apartment);
   await expect(page.locator('#co-city')).toHaveValue(SAVED_ADDRESS.city);
   await expect(page.locator('#co-province')).toHaveValue(SAVED_ADDRESS.province);
   await expect(page.locator('#co-postal')).toHaveValue(SAVED_ADDRESS.postalCode);
@@ -128,6 +132,9 @@ test('Caisse (/panier/caisse) — commande Livraison avec adresse Ontario pré-r
 
   const body = (await orderRequest).postDataJSON();
   expect(body.deliveryType).toBe('Delivery');
+  expect(body.shippingAddress.civicNumber).toBe('111');
+  expect(body.shippingAddress.street).toBe('rue Wellington');
+  expect(body.shippingAddress.apartment).toBe('4B');
   expect(body.shippingAddress.province).toBe('ON');
   expect(body.shippingAddress.postalCode).toBe('K1A 0A6');
   expect(body.shippingAddress.city).toBe('Ottawa');

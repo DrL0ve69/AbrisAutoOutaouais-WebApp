@@ -2,20 +2,26 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   ElementRef,
   inject,
   OnInit,
   signal,
   viewChildren,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { ProfileService } from '../../../core/services/profile.service';
+import { AddressAutofillService } from '../../../core/services/address-autofill.service';
 import { LocaleService, AppLocale } from '../../../core/services/locale.service';
 import { environment } from '../../../../environments/environment';
 import { UserProfileDto, UpdateProfileRequest } from '../../../core/models/profile.model';
+import { PlaceSuggestionDto } from '../../../core/models/place.model';
+import { AddressAutocompleteComponent } from '../../../shared/components/a11y-components/autocomplete/address-autocomplete.component';
+import { CIVIC_PATTERN, POSTAL_PATTERN, normalizePostal } from '../../../core/validators/address.validators';
 
 type ActiveTab = 'info' | 'address' | 'security';
 
@@ -24,12 +30,14 @@ type ActiveTab = 'info' | 'address' | 'security';
   templateUrl: './profile.html',
   styleUrl: './profile.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, AddressAutocompleteComponent],
 })
 export class ProfileComponent implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly fb = inject(FormBuilder);
   private readonly profileStore = inject(ProfileService);
+  private readonly addressAutofill = inject(AddressAutofillService);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly locale = inject(LocaleService);
   protected readonly auth = inject(AuthService);
 
@@ -40,6 +48,8 @@ export class ProfileComponent implements OnInit {
   protected readonly activeTab = signal<ActiveTab>('info');
   protected readonly saveSuccess = signal(false);
   protected readonly saveError = signal<string | null>(null);
+  /** Annonce (aria-live) : le code postal vient d'être rempli automatiquement. */
+  protected readonly postalAutofilled = signal(false);
 
   // ── Avatar (photo de profil) ─────────────────────────────────
   protected readonly avatarUploading = signal(false);
@@ -78,14 +88,17 @@ export class ProfileComponent implements OnInit {
 
   // ── Formulaire adresse ───────────────────────────────────────
   protected readonly addressForm = this.fb.nonNullable.group({
+    civicNumber: ['', [Validators.maxLength(10), Validators.pattern(CIVIC_PATTERN)]],
     street: ['', Validators.maxLength(200)],
+    apartment: ['', Validators.maxLength(20)],
     city: ['', Validators.maxLength(100)],
     province: ['QC'],
     // Accepte le format canadien avec OU sans espace (« A1A 1A1 » ou « A1A1A1 »),
     // exactement comme l'indice du champ l'affiche. Sans le « espace optionnel »,
     // saisir « J8X 1A1 » échouait silencieusement la validation → l'adresse ne se
-    // sauvegardait jamais (leçon L-001). Normalisée à l'enregistrement.
-    postalCode: ['', Validators.pattern(/^[A-Za-z]\d[A-Za-z] ?\d[A-Za-z]\d$/)],
+    // sauvegardait jamais (leçon L-001). Normalisée à l'enregistrement. Motif partagé
+    // avec le serveur via address.validators (L-004).
+    postalCode: ['', Validators.pattern(POSTAL_PATTERN)],
     country: ['Canada'],
   });
 
@@ -119,6 +132,9 @@ export class ProfileComponent implements OnInit {
     return this.infoForm.controls.preferredLanguage;
   }
 
+  protected get aCivic() {
+    return this.addressForm.controls.civicNumber;
+  }
   protected get aPostal() {
     return this.addressForm.controls.postalCode;
   }
@@ -207,6 +223,26 @@ export class ProfileComponent implements OnInit {
     this.save({ ...this.infoForm.getRawValue(), phoneNumber: this.fPhone.value || null });
   }
 
+  // ── Autocomplétion d'adresse ─────────────────────────────────
+  /**
+   * Choix explicite d'une suggestion — délègue à `AddressAutofillService` (logique partagée
+   * par les 4 formulaires). Patch civic/rue/ville/province INCONDITIONNEL (action utilisateur,
+   * hors garde pristine de L-002), code postal résolu/normalisé (L-004) et resté éditable ;
+   * null → aucun patch.
+   */
+  protected onSuggestionSelected(s: PlaceSuggestionDto): void {
+    this.postalAutofilled.set(false);
+    this.addressAutofill
+      .applySuggestion(this.addressForm, s)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.postalAutofilled.set(true));
+  }
+
+  /** Frappe libre dans le combobox : synchronise le contrôle « rue ». */
+  protected onStreetInput(value: string): void {
+    this.addressAutofill.syncStreet(this.addressForm, value);
+  }
+
   // ── Sauvegarde adresse ───────────────────────────────────────
   protected saveAddress(): void {
     if (this.addressForm.invalid) {
@@ -215,8 +251,14 @@ export class ProfileComponent implements OnInit {
     }
 
     const raw = this.addressForm.getRawValue();
-    const addr = { ...raw, postalCode: this.normalizePostal(raw.postalCode) };
-    const hasAddress = addr.street || addr.city || addr.postalCode;
+    const addr = {
+      ...raw,
+      apartment: raw.apartment.trim() || null,
+      postalCode: normalizePostal(raw.postalCode),
+    };
+    // Le serveur exige n° civique + rue + ville + code postal pour considérer une
+    // adresse « présente » : on n'envoie un objet que si ces champs sont remplis.
+    const hasAddress = addr.civicNumber && addr.street && addr.city && addr.postalCode;
 
     this.save({
       firstName: this.fFirst.value,
@@ -358,12 +400,6 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  /** Normalise un code postal canadien en « A1A 1A1 » (majuscules, espace unique). */
-  private normalizePostal(value: string): string {
-    const compact = (value ?? '').replace(/\s+/g, '').toUpperCase();
-    return compact.length === 6 ? `${compact.slice(0, 3)} ${compact.slice(3)}` : value.trim();
-  }
-
   private patchForms(p: UserProfileDto): void {
     this.infoForm.patchValue({
       firstName: p.firstName,
@@ -372,8 +408,17 @@ export class ProfileComponent implements OnInit {
       preferredLanguage: p.preferredLanguage ?? 'fr',
     });
 
-    if (p.defaultDeliveryAddress) {
-      this.addressForm.patchValue(p.defaultDeliveryAddress);
+    const a = p.defaultDeliveryAddress;
+    if (a) {
+      this.addressForm.patchValue({
+        civicNumber: a.civicNumber,
+        street: a.street,
+        apartment: a.apartment ?? '',
+        city: a.city,
+        province: a.province,
+        postalCode: a.postalCode,
+        country: a.country,
+      });
     }
   }
 }

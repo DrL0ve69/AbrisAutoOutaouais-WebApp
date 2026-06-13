@@ -128,3 +128,28 @@ Branche `feat/missing-sections`. Boucle *architecte → développeur → revue i
 > (zéro violation axe) ✅, `npm run e2e` 48 ✅.
 > **Suite immédiate** : mini-cycle « marque/modèle sur `BookingSlot` + exclusion ShelterLogic »
 > (Domain + migration EF), puis Épic C (adresse structurée + autocomplétion).
+
+---
+
+## Mise à jour — clôture de l'Épic C « Adresse structurée + autocomplétion accessible » (2026-06-13)
+
+Branche `feat/address-split-autocomplete`. Boucle *architecte → développeur → revue indépendante → mentor*.
+
+| ID | Titre | Critère / Heuristique | Correctif | Statut |
+|----|-------|-----------------------|-----------|--------|
+| C1 | Adresse structurée (numéro civique / appartement / rue) | WCAG 3.3.7 / 1.3.5 | Split du VO `Address` (`CivicNumber`/`Street`/`Apartment`), 4 owned-configs EF, migration `SplitAddressCivicNumber` (add-nullable → backfill T-SQL → NOT NULL sur owners requis, `Down()` re-concatène), `AddressDtoValidator` canonique unique appliqué aux 4 formulaires (code postal validé partout) | ✅ Terminé |
+| C2 | Proxy Places (backend, provider-agnostique) | — | `IPlacesService` + `PlaceSuggestionDto` + queries CQRS `SuggestAddresses`/`LookupPostalCode` ; adaptateurs Photon (défaut, sans clé) / Radar / Google ; 1er `AddHttpClient` typé ; `PlacesController [AllowAnonymous]` + rate limiter `places` (30/10 s, prouvé 200+429) ; URL-encoding + base addresses épinglées (anti-SSRF), clés jamais exposées | ✅ Terminé |
+| C3 | Autocomplétion accessible (APG combobox) | WCAG 1.3.1 / 2.1.1 / 4.1.2 | `shared/.../autocomplete` (role=combobox/listbox, `aria-activedescendant`, clavier flèches/Home/End/Enter/Escape, fermeture sur `focusout`, debounce 300 ms, `aria-live` résultats+chargement scopé, ≥44px, SSR-safe) ; `places.service.ts` ; câblé rue→autocomplete dans les 4 formulaires + lookup code postal **éditable** + `aria-live` « rempli automatiquement, vérifiez-le » | ✅ Terminé |
+| C-fold | Marque/modèle d'abri + exclusion ShelterLogic | Règle métier (installation accepte d'autres marques) | `BookingSlot.Brand/Model` (nullables) + invariant `Create()` ; source canonique `Domain/Constants/ExcludedShelterBrands` (OrdinalIgnoreCase+trim) consommée par le validateur (422) **et** reflétée client (`brand.validators.ts`, test d'épinglage L-004) ; migration additive `AddBookingBrandModel` (nullable, `BookingSlots` seul) ; champ relié à la FAQ `install.marques` | ✅ Terminé |
+
+> **Revue indépendante** : **REQUEST CHANGES** → corrigée. 1 bloquant : Photon (provider par défaut)
+> renvoyait la province en nom complet (« Québec ») → 422 silencieux à la soumission (`AddressDtoValidator`
+> `MaximumLength(2)`) ; corrigé par `CanadianProvinceCodes.Normalize` (nom FR/EN → code 2 lettres) +
+> test de régression. 2 mineurs corrigés (fermeture combobox sur `focusout`, `track $index`). Le mock
+> e2e masquait le décalage (forme déjà-conforme). **Leçons capturées : L-011** (adaptateurs d'un port
+> doivent tous émettre le format canonique ; le mock imite le provider *par défaut*), **L-012** (e2e
+> SSR+hydratation : `pressSequentially` + barrière `waitForResponse`), **L-013** (`input()` nommé
+> d'après un attribut DOM global se reflète sur l'hôte) ; **L-004/L-010** affûtées.
+> **Vérification** : `dotnet test` 226 ✅, `npm test` 115 (zéro violation axe) ✅, `npm run e2e` 56
+> (0 flake, relancé 3×) ✅, `npm run build:prod` ✅, migrations eyeballées (L-001).
+> **Suite** : Épic D — outil `/mesurer` parking (Leaflet + turf), réutilise l'autocomplétion C3 + lat/lng.

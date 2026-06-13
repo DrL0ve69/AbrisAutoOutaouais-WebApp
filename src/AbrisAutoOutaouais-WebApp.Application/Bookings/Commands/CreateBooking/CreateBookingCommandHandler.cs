@@ -20,14 +20,18 @@ internal sealed class CreateBookingCommandHandler(
         var userId = currentUser.UserId ?? Guid.Empty;
 
         var address = Address.Create(
+            cmd.Address.CivicNumber,
             cmd.Address.Street,
+            cmd.Address.Apartment,
             cmd.Address.City,
             string.IsNullOrWhiteSpace(cmd.Address.Province) ? "QC" : cmd.Address.Province,
             cmd.Address.PostalCode,
             string.IsNullOrWhiteSpace(cmd.Address.Country) ? "Canada" : cmd.Address.Country);
 
-        // Règles métier (créneau futur, durée positive) dans BookingSlot.Create()
-        var booking = BookingSlot.Create(userId, cmd.SlotStart, DurationMin, cmd.Type, address, notes: cmd.Notes);
+        // Règles métier (créneau futur, durée positive, exclusion ShelterLogic) dans BookingSlot.Create()
+        var booking = BookingSlot.Create(
+            userId, cmd.SlotStart, DurationMin, cmd.Type, address,
+            notes: cmd.Notes, brand: cmd.Brand, model: cmd.Model);
 
         db.BookingSlots.Add(booking);
         await db.SaveChangesAsync(ct);

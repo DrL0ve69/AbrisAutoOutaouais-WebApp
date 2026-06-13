@@ -100,6 +100,38 @@ Le code est revu selon les **principes SOLID** — voir le skill [`/solid-review
 - **Gestion d'erreurs RFC 9457** : `GlobalExceptionHandler` mappe les exceptions en *Problem Details*.
 - **Soft‑delete** (aucune suppression physique par défaut) et **audit** automatique.
 - **Secrets** hors du code en production (user‑secrets / Key Vault) ; CORS restreint aux origines connues.
+- **Proxy d'adresses rate‑limité** : les endpoints publics `/api/v1/places/*` sont protégés par une
+  politique de limite de débit (*fixed window*, 30 requêtes / 10 s par IP → `429`).
+
+## Proxy d'adresses (Places)
+
+L'autocomplétion d'adresse et la résolution de code postal passent par un **proxy serveur**
+(`/api/v1/places/suggest`, `/api/v1/places/lookup-postal-code`) plutôt que d'appeler un service
+tiers depuis le navigateur : la clé API reste côté serveur, le débit est limité, et le fournisseur
+est **interchangeable par configuration seule**.
+
+Le port `IPlacesService` (couche Application) a trois implémentations dans l'Infrastructure ;
+l'active est choisie par `Places:Provider` dans `appsettings.json` :
+
+| Provider | `Places:Provider` | Clé requise | Notes |
+|----------|-------------------|-------------|-------|
+| **Photon** (défaut) | `photon` | aucune | Service public OpenStreetMap (komoot), sans clé. |
+| **Radar** | `radar` | `Places:Radar:ApiKey` | Clé envoyée dans l'en‑tête `Authorization`. |
+| **Google** | `google` | `Places:Google:ApiKey` | Clé envoyée en paramètre de requête `key`. |
+
+Pour permuter de fournisseur, **aucun changement de code** : il suffit de modifier la configuration.
+Exemple — passer à Radar :
+
+```jsonc
+"Places": {
+  "Provider": "radar",
+  "BiasLat": 45.483, "BiasLng": -75.650,        // biais géographique (Gatineau)
+  "Radar": { "BaseUrl": "https://api.radar.io/", "ApiKey": "<clé Radar>" }
+}
+```
+
+> En production, placez les clés (`Places:Radar:ApiKey`, `Places:Google:ApiKey`) dans
+> les *user‑secrets* / Key Vault plutôt que dans `appsettings.json`.
 
 ## Accessibilité & UX
 
@@ -198,6 +230,8 @@ AbrisAutoOutaouais-WebApp.slnx
 - [x] Backend e‑commerce : commandes **persistées** · CRUD admin (produits, **réservations, locations, utilisateurs**) — _paiement en mode démo (pas de Stripe)_
 - [x] Réservation d'installation (créneaux) & contrats de location de bout en bout
 - [x] Aide & UX : FAQ accessible (`/installation`, `/location`) · vérif. de disponibilité username/courriel · confirmation du changement de langue
+- [x] **Adresse structurée** (numéro civique / appartement / rue) + **autocomplétion accessible** (combobox APG, proxy Places Photon/Radar/Google, code postal pré‑rempli éditable) · marque/modèle d'abri à l'installation (autres marques sauf ShelterLogic)
+- [ ] Outil « mesurer mon stationnement » (carte satellite + calculateur) → suggestion d'abri
 - [ ] Déploiement (Vercel + Azure App Service) via GitHub Actions
 
 ## Compétences démontrées

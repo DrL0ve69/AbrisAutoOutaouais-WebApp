@@ -67,7 +67,7 @@ public sealed class AdminRentalsEndpointTests : IClassFixture<WebAppFactory>
         var contract = RentalContract.Create(
             customerId, product,
             new DateOnly(2026, 7, 1), new DateOnly(2026, 10, 1),
-            Address.Create("123 rue des Érables", "Gatineau", "QC", "J8X1A1"));
+            Address.Create("123", "rue des Érables", null, "Gatineau", "QC", "J8X1A1"));
         if (status == RentalStatus.Cancelled)
             contract.Cancel();
 

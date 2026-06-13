@@ -10,7 +10,9 @@ import { test, expect, type Page } from '@playwright/test';
 // valeur par défaut du formulaire est « QC ») est bien remplie depuis le profil.
 
 const SAVED_ADDRESS = {
-  street: '111 rue Wellington',
+  civicNumber: '111',
+  street: 'rue Wellington',
+  apartment: '4B',
   city: 'Ottawa',
   province: 'ON', // ≠ défaut « QC » du formulaire
   postalCode: 'K1A 0A6',
@@ -85,8 +87,11 @@ async function signInWithSavedAddress(page: Page): Promise<void> {
 
 async function expectAddressPrefilled(page: Page): Promise<void> {
   // toHaveValue ré-essaie jusqu'au timeout → attend que l'autofill (asynchrone,
-  // après le chargement de /auth/me) ait rempli les champs.
+  // après le chargement de /auth/me) ait rempli les champs. Le numéro civique et la
+  // rue sont désormais des champs distincts (C1 — split de l'adresse).
+  await expect(page.locator('#civicNumber')).toHaveValue(SAVED_ADDRESS.civicNumber);
   await expect(page.locator('#street')).toHaveValue(SAVED_ADDRESS.street);
+  await expect(page.locator('#apartment')).toHaveValue(SAVED_ADDRESS.apartment);
   await expect(page.locator('#city')).toHaveValue(SAVED_ADDRESS.city);
   await expect(page.locator('#province')).toHaveValue(SAVED_ADDRESS.province);
   await expect(page.locator('#postalCode')).toHaveValue(SAVED_ADDRESS.postalCode);

@@ -108,6 +108,70 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Migrations
                     b.ToTable("OrderLines");
                 });
 
+            modelBuilder.Entity("AbrisAutoOutaouais_WebApp.Domain.Entities.Product", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<bool>("IsAvailable")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("RentalPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("Stock")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("Products");
+                });
+
             modelBuilder.Entity("AbrisAutoOutaouais_WebApp.Domain.Entities.ProductCategory", b =>
                 {
                     b.Property<Guid>("Id")
@@ -332,6 +396,10 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Brand")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -349,6 +417,10 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
+
+                    b.Property<string>("Model")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Notes")
                         .HasMaxLength(500)
@@ -383,70 +455,6 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Migrations
                     b.HasIndex("SlotStart", "Status");
 
                     b.ToTable("BookingSlots");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Product", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CategoryId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
-
-                    b.Property<bool>("IsAvailable")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("RentalPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Slug")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<int>("Stock")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CategoryId");
-
-                    b.HasIndex("Slug")
-                        .IsUnique()
-                        .HasFilter("[IsDeleted] = 0");
-
-                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -565,11 +573,22 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Migrations
                             b1.Property<Guid>("OrderId")
                                 .HasColumnType("uniqueidentifier");
 
+                            b1.Property<string>("Apartment")
+                                .HasMaxLength(20)
+                                .HasColumnType("nvarchar(20)")
+                                .HasColumnName("ShippingAddress_Apartment");
+
                             b1.Property<string>("City")
                                 .IsRequired()
                                 .HasMaxLength(100)
                                 .HasColumnType("nvarchar(100)")
                                 .HasColumnName("ShippingAddress_City");
+
+                            b1.Property<string>("CivicNumber")
+                                .IsRequired()
+                                .HasMaxLength(10)
+                                .HasColumnType("nvarchar(10)")
+                                .HasColumnName("ShippingAddress_CivicNumber");
 
                             b1.Property<string>("Country")
                                 .IsRequired()
@@ -615,6 +634,48 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("AbrisAutoOutaouais_WebApp.Domain.Entities.Product", b =>
+                {
+                    b.HasOne("AbrisAutoOutaouais_WebApp.Domain.Entities.ProductCategory", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.OwnsMany("AbrisAutoOutaouais_WebApp.Domain.Entities.ProductImage", "Images", b1 =>
+                        {
+                            b1.Property<Guid>("ProductId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<Guid>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("AltText")
+                                .HasMaxLength(200)
+                                .HasColumnType("nvarchar(200)");
+
+                            b1.Property<int>("SortOrder")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("Url")
+                                .IsRequired()
+                                .HasMaxLength(500)
+                                .HasColumnType("nvarchar(500)");
+
+                            b1.HasKey("ProductId", "Id");
+
+                            b1.ToTable("ProductImage");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ProductId");
+                        });
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Images");
+                });
+
             modelBuilder.Entity("AbrisAutoOutaouais_WebApp.Domain.Entities.RentalContract", b =>
                 {
                     b.HasOne("AbrisAutoOutaouais_WebApp.Infrastructure.Identity.AppUser", null)
@@ -628,11 +689,22 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Migrations
                             b1.Property<Guid>("RentalContractId")
                                 .HasColumnType("uniqueidentifier");
 
+                            b1.Property<string>("Apartment")
+                                .HasMaxLength(20)
+                                .HasColumnType("nvarchar(20)")
+                                .HasColumnName("Address_Apartment");
+
                             b1.Property<string>("City")
                                 .IsRequired()
                                 .HasMaxLength(100)
                                 .HasColumnType("nvarchar(100)")
                                 .HasColumnName("Address_City");
+
+                            b1.Property<string>("CivicNumber")
+                                .IsRequired()
+                                .HasMaxLength(10)
+                                .HasColumnType("nvarchar(10)")
+                                .HasColumnName("Address_CivicNumber");
 
                             b1.Property<string>("Country")
                                 .IsRequired()
@@ -677,11 +749,22 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Migrations
                             b1.Property<Guid>("AppUserId")
                                 .HasColumnType("uniqueidentifier");
 
+                            b1.Property<string>("Apartment")
+                                .HasMaxLength(20)
+                                .HasColumnType("nvarchar(20)")
+                                .HasColumnName("DefaultAddress_Apartment");
+
                             b1.Property<string>("City")
                                 .IsRequired()
                                 .HasMaxLength(100)
                                 .HasColumnType("nvarchar(100)")
                                 .HasColumnName("DefaultAddress_City");
+
+                            b1.Property<string>("CivicNumber")
+                                .IsRequired()
+                                .HasMaxLength(10)
+                                .HasColumnType("nvarchar(10)")
+                                .HasColumnName("DefaultAddress_CivicNumber");
 
                             b1.Property<string>("Country")
                                 .IsRequired()
@@ -735,11 +818,22 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Migrations
                             b1.Property<Guid>("BookingSlotId")
                                 .HasColumnType("uniqueidentifier");
 
+                            b1.Property<string>("Apartment")
+                                .HasMaxLength(20)
+                                .HasColumnType("nvarchar(20)")
+                                .HasColumnName("Address_Apartment");
+
                             b1.Property<string>("City")
                                 .IsRequired()
                                 .HasMaxLength(100)
                                 .HasColumnType("nvarchar(100)")
                                 .HasColumnName("Address_City");
+
+                            b1.Property<string>("CivicNumber")
+                                .IsRequired()
+                                .HasMaxLength(10)
+                                .HasColumnType("nvarchar(10)")
+                                .HasColumnName("Address_CivicNumber");
 
                             b1.Property<string>("Country")
                                 .IsRequired()
@@ -775,48 +869,6 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Migrations
 
                     b.Navigation("Address")
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Domain.Entities.Product", b =>
-                {
-                    b.HasOne("AbrisAutoOutaouais_WebApp.Domain.Entities.ProductCategory", "Category")
-                        .WithMany()
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.OwnsMany("AbrisAutoOutaouais_WebApp.Domain.Entities.ProductImage", "Images", b1 =>
-                        {
-                            b1.Property<Guid>("ProductId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<Guid>("Id")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<string>("AltText")
-                                .HasMaxLength(200)
-                                .HasColumnType("nvarchar(200)");
-
-                            b1.Property<int>("SortOrder")
-                                .HasColumnType("int");
-
-                            b1.Property<string>("Url")
-                                .IsRequired()
-                                .HasMaxLength(500)
-                                .HasColumnType("nvarchar(500)");
-
-                            b1.HasKey("ProductId", "Id");
-
-                            b1.ToTable("ProductImage");
-
-                            b1.WithOwner()
-                                .HasForeignKey("ProductId");
-                        });
-
-                    b.Navigation("Category");
-
-                    b.Navigation("Images");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>

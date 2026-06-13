@@ -40,10 +40,35 @@
         @if (f.deliveryType.value === 'Delivery') {
         <fieldset class="checkout__group">
           <legend i18n="@@checkout.address.legend">Adresse de livraison</legend>
+          <div class="field-row">
+            <div class="field">
+              <label class="field__label" for="co-civic" i18n="@@checkout.address.civic">Numéro civique</label>
+              <input id="co-civic" class="field__input" type="text" formControlName="civicNumber"
+                     autocomplete="off" inputmode="text" placeholder="123"
+                     [attr.aria-invalid]="f.civicNumber.invalid && f.civicNumber.touched"
+                     aria-describedby="co-civic-err" />
+              @if (f.civicNumber.invalid && f.civicNumber.touched) {
+              <p id="co-civic-err" class="field__error" role="alert" i18n="@@checkout.address.civicInvalid">
+                Numéro civique invalide (ex&nbsp;: 123 ou 123A).
+              </p>
+              }
+            </div>
+            <div class="field">
+              <app-address-autocomplete
+                id="co-street"
+                label="Rue"
+                i18n-label="@@checkout.address.street"
+                [value]="f.street.value"
+                [cityHint]="f.city.value"
+                [provinceHint]="f.province.value"
+                (valueChange)="onStreetInput($event)"
+                (suggestionSelected)="onSuggestionSelected($event)" />
+            </div>
+          </div>
           <div class="field">
-            <label class="field__label" for="co-street" i18n="@@checkout.address.street">Rue</label>
-            <input id="co-street" class="field__input" type="text" formControlName="street"
-                   autocomplete="address-line1" />
+            <label class="field__label" for="co-apartment" i18n="@@checkout.address.apartment">Appartement / unité (optionnel)</label>
+            <input id="co-apartment" class="field__input" type="text" formControlName="apartment"
+                   autocomplete="address-line2" placeholder="4B" />
           </div>
           <div class="field">
             <label class="field__label" for="co-city" i18n="@@checkout.address.city">Ville</label>
@@ -60,6 +85,12 @@
               <label class="field__label" for="co-postal" i18n="@@checkout.address.postal">Code postal</label>
               <input id="co-postal" class="field__input" type="text" formControlName="postalCode"
                      autocomplete="postal-code" />
+              <!-- Annonce locale (scopée) du remplissage auto du code postal — L-010. -->
+              <p class="sr-only" role="status" aria-live="polite" aria-atomic="true">
+                @if (postalAutofilled()) {
+                <ng-container i18n="@@address.postalAutofilled">Code postal rempli automatiquement — vérifiez-le.</ng-container>
+                }
+              </p>
             </div>
           </div>
           @if (form.hasError('addressRequired') && form.touched) {

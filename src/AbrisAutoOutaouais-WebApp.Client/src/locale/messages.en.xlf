@@ -2,6 +2,26 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="fr" target-language="en" datatype="plaintext" original="ng2.template">
     <body>
+      <trans-unit id="address.postalAutofilled" datatype="html">
+        <source>Code postal rempli automatiquement — vérifiez-le.</source>
+        <target>Postal code filled in automatically — please verify it.</target>
+      </trans-unit>
+      <trans-unit id="autocomplete.listbox.label" datatype="html">
+        <source>Suggestions d&apos;adresses</source>
+        <target>Address suggestions</target>
+      </trans-unit>
+      <trans-unit id="autocomplete.status.loading" datatype="html">
+        <source>Recherche d&apos;adresses en cours…</source>
+        <target>Searching for addresses…</target>
+      </trans-unit>
+      <trans-unit id="autocomplete.status.none" datatype="html">
+        <source>Aucune adresse trouvée.</source>
+        <target>No address found.</target>
+      </trans-unit>
+      <trans-unit id="autocomplete.status.count" datatype="html">
+        <source><x id="count" equiv-text="n"/> adresse(s) trouvée(s). Utilisez les flèches pour parcourir.</source>
+        <target><x id="count" equiv-text="n"/> address(es) found. Use the arrow keys to browse.</target>
+      </trans-unit>
       <trans-unit id="account.back" datatype="html">
         <source> ← Mon compte </source>
         <target> ← My account </target>
@@ -602,13 +622,41 @@
         <source>Type d&apos;intervention</source>
         <target>Service type</target>
       </trans-unit>
+      <trans-unit id="installation.field.civic" datatype="html">
+        <source>Numéro civique</source>
+        <target>Street number</target>
+      </trans-unit>
+      <trans-unit id="installation.field.civicInvalid" datatype="html">
+        <source> Numéro civique invalide (ex&nbsp;: 123 ou 123A). </source>
+        <target> Invalid street number (e.g. 123 or 123A). </target>
+      </trans-unit>
       <trans-unit id="installation.field.street" datatype="html">
-        <source>Adresse</source>
-        <target>Address</target>
+        <source>Rue</source>
+        <target>Street</target>
       </trans-unit>
       <trans-unit id="installation.field.streetRequired" datatype="html">
         <source> L&apos;adresse est requise. </source>
         <target> The address is required. </target>
+      </trans-unit>
+      <trans-unit id="installation.field.apartment" datatype="html">
+        <source>Appartement / unité (optionnel)</source>
+        <target>Apartment / unit (optional)</target>
+      </trans-unit>
+      <trans-unit id="installation.field.brand" datatype="html">
+        <source>Marque de l&apos;abri (optionnel)</source>
+        <target>Shelter brand (optional)</target>
+      </trans-unit>
+      <trans-unit id="installation.field.brandHint" datatype="html">
+        <source> On installe d&apos;autres marques, sauf ShelterLogic. <x id="START_LINK" ctype="x-a" equiv-text="&lt;a href=&quot;#installation-faq-title&quot;&gt;"/>Voir la FAQ « marques ».<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/></source>
+        <target> We install other brands, except ShelterLogic. <x id="START_LINK" ctype="x-a" equiv-text="&lt;a href=&quot;#installation-faq-title&quot;&gt;"/>See the “brands” FAQ.<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/></target>
+      </trans-unit>
+      <trans-unit id="installation.field.brandExcluded" datatype="html">
+        <source> Nous n&apos;installons pas la marque ShelterLogic. </source>
+        <target> We do not install the ShelterLogic brand. </target>
+      </trans-unit>
+      <trans-unit id="installation.field.model" datatype="html">
+        <source>Modèle (optionnel)</source>
+        <target>Model (optional)</target>
       </trans-unit>
       <trans-unit id="installation.field.city" datatype="html">
         <source>Ville</source>
@@ -625,6 +673,14 @@
       <trans-unit id="installation.field.postalCode" datatype="html">
         <source>Code postal</source>
         <target>Postal code</target>
+      </trans-unit>
+      <trans-unit id="installation.field.postalHint" datatype="html">
+        <source>Format&nbsp;: A1A 1A1</source>
+        <target>Format: A1A 1A1</target>
+      </trans-unit>
+      <trans-unit id="installation.field.postalCodeInvalid" datatype="html">
+        <source> Code postal invalide (ex&nbsp;: J8X 1A1). </source>
+        <target> Invalid postal code (e.g. J8X 1A1). </target>
       </trans-unit>
       <trans-unit id="installation.field.postalCodeRequired" datatype="html">
         <source> Le code postal est requis. </source>
@@ -938,13 +994,25 @@
         <source> La date de fin est requise. </source>
         <target> The end date is required. </target>
       </trans-unit>
+      <trans-unit id="location.field.civic" datatype="html">
+        <source>Numéro civique</source>
+        <target>Street number</target>
+      </trans-unit>
+      <trans-unit id="location.field.civicInvalid" datatype="html">
+        <source> Numéro civique invalide (ex&nbsp;: 123 ou 123A). </source>
+        <target> Invalid street number (e.g. 123 or 123A). </target>
+      </trans-unit>
       <trans-unit id="location.field.street" datatype="html">
-        <source>Adresse</source>
-        <target>Address</target>
+        <source>Rue</source>
+        <target>Street</target>
       </trans-unit>
       <trans-unit id="location.field.streetRequired" datatype="html">
         <source> L&apos;adresse est requise. </source>
         <target> The address is required. </target>
+      </trans-unit>
+      <trans-unit id="location.field.apartment" datatype="html">
+        <source>Appartement / unité (optionnel)</source>
+        <target>Apartment / unit (optional)</target>
       </trans-unit>
       <trans-unit id="location.field.city" datatype="html">
         <source>Ville</source>
@@ -961,6 +1029,14 @@
       <trans-unit id="location.field.postalCode" datatype="html">
         <source>Code postal</source>
         <target>Postal code</target>
+      </trans-unit>
+      <trans-unit id="location.field.postalHint" datatype="html">
+        <source>Format&nbsp;: A1A 1A1</source>
+        <target>Format: A1A 1A1</target>
+      </trans-unit>
+      <trans-unit id="location.field.postalCodeInvalid" datatype="html">
+        <source> Code postal invalide (ex&nbsp;: J8X 1A1). </source>
+        <target> Invalid postal code (e.g. J8X 1A1). </target>
       </trans-unit>
       <trans-unit id="location.field.postalCodeRequired" datatype="html">
         <source> Le code postal est requis. </source>
@@ -1156,9 +1232,21 @@
         <source>Adresse de livraison</source>
         <target>Delivery address</target>
       </trans-unit>
+      <trans-unit id="checkout.address.civic" datatype="html">
+        <source>Numéro civique</source>
+        <target>Street number</target>
+      </trans-unit>
+      <trans-unit id="checkout.address.civicInvalid" datatype="html">
+        <source>Numéro civique invalide (ex&nbsp;: 123 ou 123A).</source>
+        <target>Invalid street number (e.g. 123 or 123A).</target>
+      </trans-unit>
       <trans-unit id="checkout.address.street" datatype="html">
         <source>Rue</source>
         <target>Street</target>
+      </trans-unit>
+      <trans-unit id="checkout.address.apartment" datatype="html">
+        <source>Appartement / unité (optionnel)</source>
+        <target>Apartment / unit (optional)</target>
       </trans-unit>
       <trans-unit id="checkout.address.city" datatype="html">
         <source>Ville</source>

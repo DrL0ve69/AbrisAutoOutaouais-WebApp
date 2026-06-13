@@ -69,7 +69,7 @@ public sealed class BookingsEndpointTests : IClassFixture<WebAppFactory>
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
         var booking = BookingSlot.Create(customerId, slotStart, 120, BookingType.Installation,
-            Address.Create("123 rue des Érables", "Gatineau", "QC", "J8X1A1"));
+            Address.Create("123", "rue des Érables", null, "Gatineau", "QC", "J8X1A1"));
         db.BookingSlots.Add(booking);
         await db.SaveChangesAsync();
         return booking.Id;

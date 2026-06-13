@@ -17,9 +17,13 @@ internal sealed class BookingSlotConfiguration : IEntityTypeConfiguration<Bookin
         builder.Property(b => b.Status).HasConversion<string>().HasMaxLength(20);
         builder.Property(b => b.Type).HasConversion<string>().HasMaxLength(20);
         builder.Property(b => b.Notes).HasMaxLength(500);
+        builder.Property(b => b.Brand).HasMaxLength(100);
+        builder.Property(b => b.Model).HasMaxLength(100);
 
         builder.OwnsOne(b => b.Address, addr =>
         {
+            addr.Property(a => a.CivicNumber).HasColumnName("Address_CivicNumber").HasMaxLength(10);
+            addr.Property(a => a.Apartment).HasColumnName("Address_Apartment").HasMaxLength(20);
             addr.Property(a => a.Street).HasColumnName("Address_Street").HasMaxLength(200);
             addr.Property(a => a.City).HasColumnName("Address_City").HasMaxLength(100);
             addr.Property(a => a.Province).HasColumnName("Address_Province").HasMaxLength(2);

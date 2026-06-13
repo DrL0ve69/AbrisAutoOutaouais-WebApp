@@ -13,7 +13,7 @@ namespace AbrisAutoOutaouais_WebApp.UnitTest.Domain;
 public sealed class BookingSlotTests
 {
     private static Address MakeAddress()
-        => Address.Create("123 rue des Érables", "Gatineau", "QC", "J8X1A1");
+        => Address.Create("123", "rue des Érables", null, "Gatineau", "QC", "J8X1A1");
 
     // Create exige un créneau futur (DateTime.UtcNow réel) → on part loin dans le futur.
     private static BookingSlot MakeBooking()

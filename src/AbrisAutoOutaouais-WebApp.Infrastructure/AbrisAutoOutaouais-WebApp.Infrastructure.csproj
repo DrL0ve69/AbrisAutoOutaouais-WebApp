@@ -11,6 +11,12 @@
     <ProjectReference Include="..\AbrisAutoOutaouais-WebApp.Application\AbrisAutoOutaouais-WebApp.Application.csproj" />
   </ItemGroup>
 
+  <!-- Expose les types internal (ex. les services Places et leurs records de réponse) au
+       projet de tests unitaires, sans les rendre publics pour l'Application / l'API. -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="AbrisAutoOutaouais-WebApp.UnitTest" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="FluentValidation" Version="12.1.1" />
 	<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.*" />
@@ -19,6 +25,8 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.8" />
     <PackageReference Include="Scrutor.AspNetCore" Version="3.3.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.1" />
   </ItemGroup>

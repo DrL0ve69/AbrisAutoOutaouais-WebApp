@@ -23,6 +23,7 @@ internal sealed class GetAllRentalsQueryHandler(
                 r.StartDate,
                 r.EndDate,
                 r.Status,
+                r.Address.CivicNumber,
                 r.Address.Street,
                 r.Address.City,
                 r.CreatedAt,
@@ -49,7 +50,7 @@ internal sealed class GetAllRentalsQueryHandler(
                 r.StartDate,
                 r.EndDate,
                 r.Status.ToString(),
-                $"{r.Street}, {r.City}",
+                $"{r.CivicNumber} {r.Street}, {r.City}",
                 r.CreatedAt))
             .ToList();
     }

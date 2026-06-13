@@ -16,7 +16,7 @@ public sealed class RentalContractTests
             "Abri saisonnier.", rentalPrice);
 
     private static Address MakeAddress()
-        => Address.Create("123 rue des Érables", "Gatineau", "QC", "J8X1A1");
+        => Address.Create("123", "rue des Érables", null, "Gatineau", "QC", "J8X1A1");
 
     private static RentalContract MakeActiveContract()
         => RentalContract.Create(

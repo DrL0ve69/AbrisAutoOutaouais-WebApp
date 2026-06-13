@@ -1,0 +1,59 @@
+<div class="addr-ac">
+  @if (label()) {
+    <label class="addr-ac__label" [attr.for]="id()">{{ label() }}</label>
+  }
+
+  <div class="addr-ac__field">
+    <input
+      #inputEl
+      class="addr-ac__input"
+      type="text"
+      role="combobox"
+      autocomplete="off"
+      [id]="id()"
+      [value]="value()"
+      [attr.aria-expanded]="open()"
+      [attr.aria-controls]="listboxId()"
+      aria-autocomplete="list"
+      [attr.aria-activedescendant]="activeOptionId() || null"
+      [attr.aria-describedby]="describedBy() || null"
+      [attr.aria-invalid]="invalid() || null"
+      [attr.aria-busy]="loading() || null"
+      (input)="onInput($event)"
+      (keydown)="onKeydown($event)"
+      (focus)="onFocus()"
+    />
+
+    @if (loading()) {
+      <span class="addr-ac__spinner" aria-hidden="true"></span>
+    }
+
+    <ul
+      class="addr-ac__listbox"
+      role="listbox"
+      [id]="listboxId()"
+      [hidden]="!open()"
+      i18n-aria-label="@@autocomplete.listbox.label"
+      aria-label="Suggestions d'adresses"
+    >
+      @for (s of suggestions(); track $index; let i = $index) {
+        <li
+          class="addr-ac__option"
+          role="option"
+          [id]="optionId(i)"
+          [class.addr-ac__option--active]="activeIndex() === i"
+          [attr.aria-selected]="activeIndex() === i"
+          (mousedown)="$event.preventDefault(); choose(s)"
+          (mouseenter)="onOptionHover(i)"
+        >
+          {{ s.label }}
+        </li>
+      }
+    </ul>
+  </div>
+
+  <!-- Compteur de résultats — SCOPÉ au composant (L-010). À ancrer par texte dans les tests. -->
+  <p class="sr-only" role="status" aria-live="polite" aria-atomic="true">
+    {{ statusMessage() }}
+  </p>
+</div>

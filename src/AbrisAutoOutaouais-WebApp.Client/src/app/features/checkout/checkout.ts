@@ -1,11 +1,13 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   computed,
   effect,
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   AbstractControl,
   FormBuilder,
@@ -19,12 +21,16 @@ import { CartService } from '../../core/services/cart.service';
 import { OrderService } from '../../core/services/order.service';
 import { ToastService } from '../../core/services/toast.service';
 import { ProfileService } from '../../core/services/profile.service';
+import { AddressAutofillService } from '../../core/services/address-autofill.service';
 import { DeliveryType } from '../../core/models/order.model';
+import { PlaceSuggestionDto } from '../../core/models/place.model';
+import { AddressAutocompleteComponent } from '../../shared/components/a11y-components/autocomplete/address-autocomplete.component';
+import { CIVIC_PATTERN, POSTAL_PATTERN, normalizePostal } from '../../core/validators/address.validators';
 
 /** Adresse requise uniquement si le mode de réception est « Livraison ». */
 function addressRequiredIfDelivery(g: AbstractControl): ValidationErrors | null {
   if (g.get('deliveryType')?.value !== 'Delivery') return null;
-  const missing = ['street', 'city', 'postalCode'].some(
+  const missing = ['civicNumber', 'street', 'city', 'postalCode'].some(
     k => !(g.get(k)?.value ?? '').trim(),
   );
   return missing ? { addressRequired: true } : null;
@@ -43,7 +49,7 @@ function addressRequiredIfDelivery(g: AbstractControl): ValidationErrors | null 
   templateUrl: './checkout.html',
   styleUrl: './checkout.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, CurrencyPipe, RouterLink],
+  imports: [ReactiveFormsModule, CurrencyPipe, RouterLink, AddressAutocompleteComponent],
 })
 export class CheckoutComponent {
   private readonly fb = inject(FormBuilder);
@@ -52,20 +58,26 @@ export class CheckoutComponent {
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
   private readonly profile = inject(ProfileService);
+  private readonly addressAutofill = inject(AddressAutofillService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly items = this.cart.items;
   protected readonly subtotal = this.cart.subtotal;
   protected readonly count = this.cart.count;
   protected readonly isEmpty = computed(() => this.items().length === 0);
   protected readonly processing = signal(false);
+  /** Annonce (aria-live) : le code postal vient d'être rempli automatiquement. */
+  protected readonly postalAutofilled = signal(false);
 
   protected readonly form = this.fb.nonNullable.group(
     {
       deliveryType: ['Pickup' as DeliveryType, Validators.required],
+      civicNumber: ['', Validators.pattern(CIVIC_PATTERN)],
       street: [''],
+      apartment: [''],
       city: [''],
       province: ['QC'],
-      postalCode: [''],
+      postalCode: ['', Validators.pattern(POSTAL_PATTERN)],
       cardName: ['', Validators.required],
       cardNumber: ['', [Validators.required, Validators.pattern(/^\d{13,19}$/)]],
       expiry: ['', [Validators.required, Validators.pattern(/^(0[1-9]|1[0-2])\/\d{2}$/)]],
@@ -85,6 +97,25 @@ export class CheckoutComponent {
     return this.form.controls;
   }
 
+  /**
+   * Choix explicite d'une suggestion d'adresse — délègue à `AddressAutofillService` (logique
+   * partagée par les 4 formulaires). Patch civic/rue/ville/province INCONDITIONNEL (action
+   * utilisateur, hors garde pristine de L-002), code postal résolu/normalisé (L-004) et resté
+   * éditable. `patchValue` re-déclenche le validateur de groupe `addressRequiredIfDelivery`.
+   */
+  protected onSuggestionSelected(s: PlaceSuggestionDto): void {
+    this.postalAutofilled.set(false);
+    this.addressAutofill
+      .applySuggestion(this.form, s)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.postalAutofilled.set(true));
+  }
+
+  /** Frappe libre dans le combobox : synchronise le contrôle « rue ». */
+  protected onStreetInput(value: string): void {
+    this.addressAutofill.syncStreet(this.form, value);
+  }
+
   protected pay(): void {
     if (this.isEmpty() || this.processing()) return;
     if (this.form.invalid) {
@@ -101,10 +132,12 @@ export class CheckoutComponent {
     const shippingAddress =
       v.deliveryType === 'Delivery'
         ? {
+            civicNumber: v.civicNumber,
             street: v.street,
+            apartment: v.apartment.trim() || null,
             city: v.city,
             province: v.province || 'QC',
-            postalCode: v.postalCode,
+            postalCode: normalizePostal(v.postalCode),
             country: 'Canada',
           }
         : null;

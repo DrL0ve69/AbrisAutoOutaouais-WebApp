@@ -127,10 +127,20 @@
   font-size: var(--font-size-sm);
 }
 
+.form-field__hint {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted, #555);
+}
+
 .form-row {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr;
   gap: var(--space-4);
+
+  // Variante deux colonnes (numéro civique + rue) : le n° civique reste étroit.
+  &--two {
+    grid-template-columns: 1fr 3fr;
+  }
 
   @media (max-width: 640px) {
     grid-template-columns: 1fr;

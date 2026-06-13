@@ -11,21 +11,24 @@
 
 ## Curseur courant
 
-- **Épic en cours :** **B terminé ✅** → prochain : **mini-cycle « marque/modèle »**, puis **Épic C**
-- **Prochaine sous-tâche :** **Mini-cycle marque/modèle + exclusion ShelterLogic** (Domain + migration EF)
+- **Épic en cours :** **Épic D — Outil `/mesurer` parking + suggestions d'abri** (branche à créer : `feat/mesurer-parking`)
+- **Prochaine sous-tâche :** **D1 — Dimensions produit** (3 `int?` `WidthCm`/`LengthCm`/`HeightCm` sur `Product`, migration additive `AddProductDimensions`, seeder dims Tempo réelles, DTO + projection GetAll + Create/Update + champs admin). Voir le plan (Épic D) pour D2 (endpoint `suggest-shelters`) et D3 (feature `/mesurer` : Leaflet + turf + calculateur véhicule).
+- **Pré-requis Épic D déjà satisfait :** l'autocomplétion C3 (rue + lat/lng dans `PlaceSuggestionDto`) est livrée et réutilisable par l'étape « Adresse » du `/mesurer`.
 - **Dernière mise à jour :** 2026-06-13
 
-## Prochaine tâche — mini-cycle « marque/modèle » (règle métier reportée de B4)
+### Épic C — ✅ TERMINÉ (branche `feat/address-split-autocomplete`)
 
-Le catalogue reste **100 % Tempo**, mais le **service d'installation accepte d'autres marques**.
-À livrer (son propre cycle, sa propre revue — c'est une modif Domain, « ne pas toucher Domain à la légère ») :
-1. **Champs marque/modèle** sur `BookingSlot` (`Brand`, `Model`) + sur `CreateBookingCommand` (DTO + validateur).
-2. **Exclusion ShelterLogic** appliquée **client ET serveur** (L-004 : un format/règle partagé = UNE définition).
-3. **Mini-migration EF** additive (champs nullables — respecter la nullabilité des owned, L-001) ;
-   eyeball `dotnet ef migrations script`.
-4. La ligne FAQ « on installe d'autres marques sauf ShelterLogic » existe déjà (texte, livré en B4) —
-   la relier au champ une fois capturé.
-> ⚠️ Si tu préfères, ce mini-cycle peut être **sauté** et fusionné dans l'Épic C — à confirmer.
+| Sous-tâche | État | Commits |
+|-----------|------|---------|
+| C1 — Split Address VO + migration + validateur canonique | ✅ revu | `5e97441`, `983ed1f`, `d37556a` |
+| C2 — Proxy Places (Photon/Radar/Google + rate limiter) | ✅ revu | `53175c3` |
+| C3 — Autocomplete accessible (APG combobox) + 4 formulaires | ✅ revu | `8183d46`, flake fix `6e23b48` |
+| Fold-in marque/modèle + exclusion ShelterLogic | ✅ revu | `80b0c37` |
+| Correctifs de revue indépendante (Photon province, focusout, track) | ✅ | `2c963f7` |
+
+**Revue indépendante** : REQUEST CHANGES → corrigée (1 bloquant Photon province nom→code 2 lettres + 2 mineurs). **Leçons capturées par le `mentor` : L-011, L-012, L-013** (+ L-004/L-010 affûtées). Migrations `SplitAddressCivicNumber` (`20260613033910`) et `AddBookingBrandModel` (`20260613051112`) appliquées sur LocalDB + eyeballées (L-001).
+**Gates finales** : `dotnet test` 226 ✅ · `npm test` 115 (zéro axe) ✅ · `npm run e2e` 56 (0 flake, ×3) ✅ · `build:prod` ✅.
+**Statut git :** _(à compléter)_ PR créée → CI → merge `master`. Docs retournées : `board.md`, `product-backlog.md` (US-2.8/2.9), README roadmap, `wcag-2.2-audit.md` (1.3.5 / 4.1.2).
 
 ## Épic B — TERMINÉ (branche `feat/missing-sections`)
 
@@ -38,12 +41,12 @@ Le catalogue reste **100 % Tempo**, mais le **service d'installation accepte d'a
 | B4 — Heuristiques (H1 langue, H5 disponibilité, FAQ) | ✅ | revue indépendante APPROVE WITH NITS ; leçon L-010 |
 
 Docs retournées : README roadmap, `docs/agile/board.md` (section clôture Épic B),
-`docs/ux/heuristic-evaluation.md` (H1–H10 tous remédiés). **PR/merge vers `master` en cours.**
+`docs/ux/heuristic-evaluation.md` (H1–H10 tous remédiés). **PR #15 mergée vers `master` ✅ (`7ccec41`).**
 
-## Suite du programme (après le mini-cycle)
+## Suite du programme
 
-- **Épic C** — Adresse structurée (civic/apt/rue) + autocomplétion accessible (proxy Photon/Radar/Google) — `feat/address-split-autocomplete`
-- **Épic D** — Outil `/mesurer` parking + suggestions (Leaflet + turf) — `feat/mesurer-parking` — *après C*
+- **Épic C** — ✅ TERMINÉ — Adresse structurée + autocomplétion accessible (proxy Photon/Radar/Google) — `feat/address-split-autocomplete`
+- **Épic D** — Outil `/mesurer` parking + suggestions (Leaflet + turf) — `feat/mesurer-parking` — **← prochain**
 - **Épic E** — Redesign v2 (tokens v2, GSAP hero, three.js viewer) — `feat/redesign-v2` — *après D*
 - **Épic F** — Wrap-up docs/process — `docs/program-wrapup`
 

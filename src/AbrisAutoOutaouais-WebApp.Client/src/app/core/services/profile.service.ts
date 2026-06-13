@@ -73,7 +73,9 @@ export class ProfileService {
   ): void {
     if (!address) return;
     const values: Record<string, string> = {
+      civicNumber: address.civicNumber,
       street: address.street,
+      apartment: address.apartment ?? '',
       city: address.city,
       province: address.province,
       postalCode: address.postalCode,

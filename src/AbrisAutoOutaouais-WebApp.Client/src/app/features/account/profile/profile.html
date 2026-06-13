@@ -385,15 +385,48 @@
                 novalidate
                 class="profile-form"
               >
+                <div class="field-row">
+                  <div class="field field--civic">
+                    <label class="field__label" for="addr-civic">Numéro civique</label>
+                    <input
+                      id="addr-civic"
+                      type="text"
+                      class="field__input"
+                      formControlName="civicNumber"
+                      autocomplete="off"
+                      inputmode="text"
+                      placeholder="123"
+                      [attr.aria-invalid]="aCivic.invalid && aCivic.touched"
+                      aria-describedby="addr-civic-err"
+                    />
+                    @if (aCivic.invalid && aCivic.touched) {
+                      <span id="addr-civic-err" class="field__error" role="alert">
+                        Numéro civique invalide (ex&nbsp;: 123 ou 123A).
+                      </span>
+                    }
+                  </div>
+                  <div class="field">
+                    <app-address-autocomplete
+                      id="addr-street"
+                      label="Rue"
+                      [value]="addressForm.controls.street.value"
+                      [cityHint]="addressForm.controls.city.value"
+                      [provinceHint]="addressForm.controls.province.value"
+                      (valueChange)="onStreetInput($event)"
+                      (suggestionSelected)="onSuggestionSelected($event)"
+                    />
+                  </div>
+                </div>
+
                 <div class="field">
-                  <label class="field__label" for="addr-street">Rue et numéro civique</label>
+                  <label class="field__label" for="addr-apartment">Appartement / unité (optionnel)</label>
                   <input
-                    id="addr-street"
+                    id="addr-apartment"
                     type="text"
                     class="field__input"
-                    formControlName="street"
-                    autocomplete="street-address"
-                    placeholder="123 rue des Érables"
+                    formControlName="apartment"
+                    autocomplete="address-line2"
+                    placeholder="4B"
                   />
                 </div>
 
@@ -450,6 +483,12 @@
                         Format de code postal invalide.
                       </span>
                     }
+                    <!-- Annonce locale (scopée) du remplissage auto du code postal — L-010. -->
+                    <p class="sr-only" role="status" aria-live="polite" aria-atomic="true">
+                      @if (postalAutofilled()) {
+                        Code postal rempli automatiquement — vérifiez-le.
+                      }
+                    </p>
                   </div>
 
                   <div class="field">

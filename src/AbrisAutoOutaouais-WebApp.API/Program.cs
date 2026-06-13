@@ -5,6 +5,7 @@ using Asp.Versioning;
 using AbrisAutoOutaouais_WebApp.API.Middlewares;
 using AbrisAutoOutaouais_WebApp.Infrastructure.Identity;
 using AbrisAutoOutaouais_WebApp.Infrastructure.Persistence;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,6 +38,23 @@ builder.Services.AddCors(opts => opts.AddPolicy("Frontend", policy =>
           .AllowAnyHeader()
           .AllowAnyMethod()));
 
+// ── Rate limiting (proxy Places) ──────────────────────────────────────────────
+// Politique nommée « places » : fenêtre fixe de 30 requêtes / 10 s, partitionnée par IP
+// cliente, qui protège le fournisseur d'adresses externe. Dépassement → 429.
+builder.Services.AddRateLimiter(opts =>
+{
+    opts.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    opts.AddPolicy("places", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 30,
+                Window = TimeSpan.FromSeconds(10),
+                QueueLimit = 0,
+            }));
+});
+
 // ── OpenAPI / Scalar avec support Bearer ──────────────────────────────────────
 builder.Services.AddOpenApi();
 
@@ -57,6 +75,7 @@ app.UseStaticFiles();            // 3. wwwroot (uploads)
 app.UseCors("Frontend");         // 4. CORS avant auth
 app.UseAuthentication();         // 5. Valide le JWT Bearer
 app.UseAuthorization();          // 6. Applique [Authorize]
+app.UseRateLimiter();            // 6.5 Limite de débit (politique « places ») avant le routage
 app.MapControllers();            // 7. Route vers les controllers
 
 if (app.Environment.IsDevelopment())

@@ -11,6 +11,61 @@
 
 ---
 
+## L-013 · A component `input()` named after a global DOM attribute (`id`, `class`, `role`) reflects onto the host AND breaks the accessible name
+
+- **Symptom.** `app-address-autocomplete` declared `id = input.required<string>()` and was used as
+  `<app-address-autocomplete id="street">`. Because `id` is a **global DOM attribute**, Angular
+  reflected `id="street"` onto the component **host element** as well as the inner `<input>` that the
+  component bound it to → **two `#street` nodes**. The `<label for="street">` accessible-name
+  computation resolves via `getElementById`, which returned the *non-labelable host* first, so the
+  real `<input>` got no accessible name and `getByRole('combobox', { name })` failed.
+- **Rule.** When a component forwards a value to an inner element under a name that collides with a
+  **global DOM attribute** (`id`, `class`, `role`, `title`, `style`…), neutralise it on the host so a
+  single element carries it: `host: { '[attr.id]': 'null' }` (or rename the input to a non-reflecting
+  name like `inputId`). Verify there's exactly one node with that id in the rendered tree. Corollary
+  (vitest browser, sibling of [[L-010]]): the browser runner shares one `document` across renders, so
+  duplicate ids leak between cases — scope every query with `within(container)` and never assert on a
+  bare `getElementById`/`#id`.
+- **Refs.** `shared/components/a11y-components/autocomplete/address-autocomplete.component.ts`
+  (`host: { '[attr.id]': 'null' }`), commit `8183d46`.
+
+## L-012 · SSR+hydration e2e: drive typing through the locator and gate on a network barrier, never `keyboard.type` + fixed waits
+
+- **Symptom.** `e2e/address-autocomplete.spec.ts` was flaky **only in the full suite** (green in
+  isolation). Root cause: the app is SSR + hydration — `page.keyboard.type(...)` dispatches native
+  keystrokes to whatever node has focus, but until Angular re-wires the `(input)` listener *after
+  hydration*, those native keystrokes fire **no Angular event** → no `places/suggest` call → nothing
+  renders. Under suite load hydration lands later, so the race flipped run-to-run.
+- **Rule.** In an SSR+hydration app, type through the **locator** (`locator.pressSequentially(...)`,
+  which auto-focuses and waits for actionability), not `page.keyboard.type`. Wrap any
+  « type → debounced request → rendered result » sequence so the hydration race self-heals: clear the
+  field first (so `distinctUntilChanged` re-emits), then `await page.waitForResponse(/places\/suggest/)`
+  as a **network barrier** before asserting the rendered suggestions — never a fixed `waitForTimeout`.
+  Same vacuity/flake family as [[L-009]] (assertions made meaningless by environment timing), but the
+  trigger here is hydration latency, not a CSS breakpoint.
+- **Refs.** `e2e/address-autocomplete.spec.ts` (`pressSequentially` + `waitForResponse` barrier),
+  commit `6e23b48`.
+
+## L-011 · Interchangeable port implementations must each emit the CANONICAL format — and the test mock must mimic the DEFAULT provider, not a conformant one
+
+- **Symptom.** `IPlacesService` has three adapters (Photon — default, keyless; Radar; Google).
+  `AddressDtoValidator` requires `Province.MaximumLength(2)` (2-letter canonical code, per [[L-004]]).
+  Radar (`StateCode ?? State`) and Google (`ComponentShort`) return 2 letters — but **Photon, the
+  provider actually active by default, returned the full name** (« Québec »/« Ontario »). The client
+  patched `province` raw from the suggestion → submit → **silent 422 on the autofill happy-path**.
+  Worse, the e2e mock returned `province: 'ON'` (the Radar/Google already-conformant shape), so it
+  **masked** the mismatch entirely.
+- **Rule.** When several implementations of one port feed a shared validator/format, **every** adapter
+  must emit the **canonical** value — normalise inside the Infrastructure adapter (e.g.
+  `CanadianProvinceCodes` maps full name → 2-letter), never downstream in the client. And the test
+  double **must reproduce the real shape of the *default* provider** (the one most likely live), not a
+  pre-conformed shape that hides the gap — pick mock fixtures that *differ* from the canonical form so
+  the assertion can actually fail ([[L-002]]). Extends [[L-004]] across the *adapter* axis: one agreed
+  format isn't enough if only some producers honour it.
+- **Refs.** `Infrastructure/Services/Places/{PhotonPlacesService,CanadianProvinceCodes}.cs`,
+  `Application/Common/Validators/AddressDtoValidator.cs`, `e2e/address-autocomplete.spec.ts`
+  (mock now returns Photon's full-name shape), commit `2c963f7`.
+
 ## L-010 · A new global ARIA landmark/live-region can break role locators in UNRELATED specs
 
 - **Symptom.** B4 added a **global** live region (`role="status"` / `aria-live="polite"`) to
@@ -33,9 +88,18 @@
   Corollary (tooling hygiene): vitest browser mode writes failure screenshots to
   `.vitest-attachments/`; these PNGs had been committed in an earlier session and polluted the diff —
   keep `.vitest-attachments/` in the client `.gitignore` and never commit those artifacts.
+  **Backend analogue (shared test-host global state, C2).** The same "one global namespace,
+  many tests" hazard exists in the integration suite: every IT class runs against the shared
+  `WebAppFactory` (a single **named** InMemory database + an `IdentitySeeder` run at host start).
+  A new IT class declared **outside** `[Collection("Integration")]` runs in a *parallel* xUnit
+  collection, so two hosts seed the same identity store at once → `IsInRoleAsync` hits a « sequence
+  contains more than one element » race and **~63 unrelated tests fail at host startup**. Rule:
+  every class touching `WebAppFactory` must carry `[Collection("Integration")]` so they share one
+  serialized context — never let a new IT class default into its own parallel collection.
 - **Refs.** `src/app/app.html` (global `role="status"` language-switch live region),
   `e2e/password-reset.spec.ts` (locator re-scoped by text), `.gitignore` (client,
-  `.vitest-attachments/`).
+  `.vitest-attachments/`), `IntegrationTest/Common/WebAppFactory.cs` +
+  `IntegrationTest/Common/IntegrationCollection.cs` (`[Collection("Integration")]`).
 
 ## L-009 · Breakpoint-gated UI: pin the viewport in vitest browser specs, or assertions pass vacuously
 
@@ -145,7 +209,14 @@
   validator agree on it; normalize at the boundary you control. When you change a shared value's
   format, grep for **all** producers/consumers (here: profile, checkout, location, installation, and
   every server-side validator) before calling it done. Pin the agreement with a test at the boundary.
+  **A validated architect plan does NOT override this lesson or its regression tests (C1).** The
+  Epic-C plan prescribed a province *whitelist* in `AddressDtoValidator`; implementing it as written
+  would have re-introduced exactly this regression (Ontario → 400) that `PlaceOrderCommandValidatorTests`
+  exists to lock down. The developer correctly **deviated from the plan** and flagged it in review.
+  Before coding any "shared validation rule" a plan dictates, grep `*ValidatorTests` and comments
+  citing a lesson ID — the lesson/test wins over the plan, and the deviation gets called out in review.
 - **Refs.** `Application/Orders/Commands/PlaceOrder/PlaceOrderCommandValidator.cs`,
+  `Application/Common/Validators/AddressDtoValidator.cs`,
   `Client/.../features/{account/profile,checkout}`, `UnitTest/.../PlaceOrderCommandValidatorTests.cs`.
 
 ## L-003 · The cached `AuthUser` does NOT carry the saved address

@@ -6,6 +6,7 @@ using AbrisAutoOutaouais_WebApp.Infrastructure.Identity;
 using AbrisAutoOutaouais_WebApp.Infrastructure.Persistence;
 using AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Interceptors;
 using AbrisAutoOutaouais_WebApp.Infrastructure.Services;
+using AbrisAutoOutaouais_WebApp.Infrastructure.Services.Places;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
@@ -127,6 +128,29 @@ public static class DependencyInjection
         // démarrage (même idiome fail-fast que « Jwt:Key » ci-dessus), plutôt
         // que la première demande de réinitialisation.
         services.AddSingleton<IClientUrlProvider>(new ClientUrlProvider(config));
+
+        // ── Proxy Places (autocomplétion d'adresse) ───────────────────────────
+        // Premier AddHttpClient TYPÉ du dépôt. Le fournisseur est choisi par config
+        // (« Places:Provider ») : permuter Photon → Radar → Google se fait sans toucher au
+        // code (changer la clé + le provider). La BaseAddress est épinglée ici depuis la
+        // config et n'est jamais concaténée depuis une entrée utilisateur (cf. les services).
+        services.AddOptions<PlacesOptions>().Bind(config.GetSection("Places"));
+        var placesOptions = config.GetSection("Places").Get<PlacesOptions>() ?? new PlacesOptions();
+        switch (placesOptions.Provider?.Trim().ToLowerInvariant())
+        {
+            case "radar":
+                services.AddHttpClient<IPlacesService, RadarPlacesService>(
+                    c => c.BaseAddress = new Uri(placesOptions.Radar.BaseUrl));
+                break;
+            case "google":
+                services.AddHttpClient<IPlacesService, GooglePlacesService>(
+                    c => c.BaseAddress = new Uri(placesOptions.Google.BaseUrl));
+                break;
+            default: // « photon » par défaut (sans clé)
+                services.AddHttpClient<IPlacesService, PhotonPlacesService>(
+                    c => c.BaseAddress = new Uri(placesOptions.Photon.BaseUrl));
+                break;
+        }
 
         // ── Auto-enregistrement des handlers CQRS via Scrutor ─────────────────
         services.Scan(scan => scan

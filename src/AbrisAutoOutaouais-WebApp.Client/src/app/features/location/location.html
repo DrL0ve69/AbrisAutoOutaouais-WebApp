@@ -76,14 +76,44 @@
           </div>
         </div>
 
+        <div class="form-row form-row--two">
+          <div class="form-field">
+            <label for="civicNumber" i18n="@@location.field.civic">Numéro civique</label>
+            <input id="civicNumber" type="text" formControlName="civicNumber"
+                   autocomplete="off" inputmode="text" placeholder="123"
+                   [attr.aria-invalid]="f.civicNumber.touched && f.civicNumber.invalid"
+                   aria-describedby="civic-err" />
+            @if (f.civicNumber.touched && f.civicNumber.invalid) {
+            <p id="civic-err" class="form-field__error" role="alert" i18n="@@location.field.civicInvalid">
+              Numéro civique invalide (ex&nbsp;: 123 ou 123A).
+            </p>
+            }
+          </div>
+
+          <div class="form-field">
+            <app-address-autocomplete
+              id="street"
+              label="Rue"
+              i18n-label="@@location.field.street"
+              [value]="f.street.value"
+              [cityHint]="f.city.value"
+              [provinceHint]="f.province.value"
+              [invalid]="f.street.touched && f.street.invalid"
+              describedBy="loc-street-err"
+              (valueChange)="onStreetInput($event)"
+              (suggestionSelected)="onSuggestionSelected($event)" />
+            @if (f.street.touched && f.street.invalid) {
+            <p id="loc-street-err" class="form-field__error" role="alert" i18n="@@location.field.streetRequired">
+              L'adresse est requise.
+            </p>
+            }
+          </div>
+        </div>
+
         <div class="form-field">
-          <label for="street" i18n="@@location.field.street">Adresse</label>
-          <input id="street" type="text" formControlName="street" autocomplete="address-line1" />
-          @if (f.street.touched && f.street.invalid) {
-          <p class="form-field__error" role="alert" i18n="@@location.field.streetRequired">
-            L'adresse est requise.
-          </p>
-          }
+          <label for="apartment" i18n="@@location.field.apartment">Appartement / unité (optionnel)</label>
+          <input id="apartment" type="text" formControlName="apartment"
+                 autocomplete="address-line2" placeholder="4B" />
         </div>
 
         <div class="form-row">
@@ -104,12 +134,22 @@
 
           <div class="form-field">
             <label for="postalCode" i18n="@@location.field.postalCode">Code postal</label>
-            <input id="postalCode" type="text" formControlName="postalCode" autocomplete="postal-code" />
+            <input id="postalCode" type="text" formControlName="postalCode" autocomplete="postal-code"
+                   placeholder="J8X 1A1"
+                   [attr.aria-invalid]="f.postalCode.touched && f.postalCode.invalid"
+                   aria-describedby="loc-postal-hint loc-postal-err" />
+            <span id="loc-postal-hint" class="form-field__hint" i18n="@@location.field.postalHint">Format&nbsp;: A1A 1A1</span>
             @if (f.postalCode.touched && f.postalCode.invalid) {
-            <p class="form-field__error" role="alert" i18n="@@location.field.postalCodeRequired">
-              Le code postal est requis.
+            <p id="loc-postal-err" class="form-field__error" role="alert" i18n="@@location.field.postalCodeInvalid">
+              Code postal invalide (ex&nbsp;: J8X 1A1).
             </p>
             }
+            <!-- Annonce locale (scopée) du remplissage auto du code postal — L-010. -->
+            <p class="sr-only" role="status" aria-live="polite" aria-atomic="true">
+              @if (postalAutofilled()) {
+              <ng-container i18n="@@address.postalAutofilled">Code postal rempli automatiquement — vérifiez-le.</ng-container>
+              }
+            </p>
           </div>
         </div>
       </fieldset>
