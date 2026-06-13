@@ -36,3 +36,19 @@ export interface BookingSummaryDto {
   readonly status: string;
   readonly city: string;
 }
+
+/** Action de transition de statut acceptée par POST /bookings/{id}/status. */
+export type BookingStatusAction = 'confirm' | 'complete' | 'cancel';
+
+/** Réservation telle que vue par l'administration (GET /bookings/all). */
+export interface AdminBookingDto {
+  readonly id: string;
+  readonly customerName: string;
+  readonly customerEmail: string;
+  readonly slotStart: string;
+  readonly slotEnd: string;
+  readonly type: BookingType;
+  readonly status: BookingStatus;
+  readonly addressSummary: string;
+  readonly createdAt: string;
+}
