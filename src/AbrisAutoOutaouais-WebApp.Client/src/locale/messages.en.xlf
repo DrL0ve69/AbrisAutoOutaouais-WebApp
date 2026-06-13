@@ -1374,6 +1374,26 @@
         <source> Le stock doit être un nombre positif ou nul. </source>
         <target> Stock must be zero or a positive number. </target>
       </trans-unit>
+      <trans-unit id="admin.products.form.width" datatype="html">
+        <source>Largeur (cm)</source>
+        <target>Width (cm)</target>
+      </trans-unit>
+      <trans-unit id="admin.products.form.length" datatype="html">
+        <source>Longueur (cm)</source>
+        <target>Length (cm)</target>
+      </trans-unit>
+      <trans-unit id="admin.products.form.height" datatype="html">
+        <source>Hauteur (cm)</source>
+        <target>Height (cm)</target>
+      </trans-unit>
+      <trans-unit id="admin.products.form.dimHint" datatype="html">
+        <source> optionnel · 50–2000 cm </source>
+        <target> optional · 50–2000 cm </target>
+      </trans-unit>
+      <trans-unit id="admin.products.form.dimError" datatype="html">
+        <source> La dimension doit être comprise entre 50 et 2000 cm. </source>
+        <target> The dimension must be between 50 and 2000 cm. </target>
+      </trans-unit>
       <trans-unit id="admin.products.form.category" datatype="html">
         <source>Catégorie</source>
         <target>Category</target>

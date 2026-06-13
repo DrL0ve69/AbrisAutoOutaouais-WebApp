@@ -22,6 +22,7 @@ public sealed class UpdateProductCommandHandler(IApplicationDbContext db)
 
         product.UpdateDetails(command.Name, command.Description, command.Price);
         product.AdjustStock(command.Stock - product.Stock);
+        product.SetDimensions(command.WidthCm, command.LengthCm, command.HeightCm);
 
         // Changement de catégorie (validé) — possible via Product.ChangeCategory().
         if (command.CategoryId != Guid.Empty && command.CategoryId != product.CategoryId)

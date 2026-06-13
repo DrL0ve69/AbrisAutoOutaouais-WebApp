@@ -27,6 +27,9 @@ const product: ProductDto = {
   isAvailable: true,
   categoryName: 'Abris simples',
   imageUrls: [],
+  widthCm: 335,
+  lengthCm: 488,
+  heightCm: 244,
 };
 
 async function setup() {

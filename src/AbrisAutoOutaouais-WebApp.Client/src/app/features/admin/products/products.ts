@@ -42,18 +42,30 @@ export class AdminProductsComponent {
 
   protected readonly isEditing = computed(() => this.mode() === 'edit');
 
-  protected readonly form = this.fb.nonNullable.group({
-    name: ['', [Validators.required, Validators.minLength(2)]],
-    description: [''],
-    price: [0, [Validators.required, Validators.min(0.01)]],
-    stock: [0, [Validators.required, Validators.min(0)]],
-    categoryId: ['', [Validators.required]],
+  // Dimensions optionnelles (cm) : nullables, mais si renseignées → bornes 50–2000
+  // (calque exact des validators serveur Create/Update — cf. ProductDimensions).
+  private dimensionControl() {
+    return this.fb.control<number | null>(null, [Validators.min(50), Validators.max(2000)]);
+  }
+
+  protected readonly form = this.fb.group({
+    name: this.fb.nonNullable.control('', [Validators.required, Validators.minLength(2)]),
+    description: this.fb.nonNullable.control(''),
+    price: this.fb.nonNullable.control(0, [Validators.required, Validators.min(0.01)]),
+    stock: this.fb.nonNullable.control(0, [Validators.required, Validators.min(0)]),
+    categoryId: this.fb.nonNullable.control('', [Validators.required]),
+    widthCm: this.dimensionControl(),
+    lengthCm: this.dimensionControl(),
+    heightCm: this.dimensionControl(),
   });
 
   protected get nameCtrl() { return this.form.controls.name; }
   protected get priceCtrl() { return this.form.controls.price; }
   protected get stockCtrl() { return this.form.controls.stock; }
   protected get categoryCtrl() { return this.form.controls.categoryId; }
+  protected get widthCtrl() { return this.form.controls.widthCm; }
+  protected get lengthCtrl() { return this.form.controls.lengthCm; }
+  protected get heightCtrl() { return this.form.controls.heightCm; }
 
   constructor() {
     this.loadCategories();
@@ -91,7 +103,10 @@ export class AdminProductsComponent {
     this.mode.set('create');
     this.editingId.set(null);
     this.formError.set(null);
-    this.form.reset({ name: '', description: '', price: 0, stock: 0, categoryId: '' });
+    this.form.reset({
+      name: '', description: '', price: 0, stock: 0, categoryId: '',
+      widthCm: null, lengthCm: null, heightCm: null,
+    });
     this.categoryCtrl.enable();
   }
 
@@ -105,6 +120,9 @@ export class AdminProductsComponent {
       price: product.price,
       stock: product.stock,
       categoryId: this.categoryIdForName(product.categoryName),
+      widthCm: product.widthCm,
+      lengthCm: product.lengthCm,
+      heightCm: product.heightCm,
     });
     // La catégorie est modifiable : PUT /products applique le changement.
     this.categoryCtrl.enable();
@@ -122,6 +140,12 @@ export class AdminProductsComponent {
     this.saving.set(true);
     this.formError.set(null);
     const v = this.form.getRawValue();
+    // Champ vide → null (pas 0) : une dimension non renseignée doit rester absente.
+    const dims = {
+      widthCm: this.toDimension(v.widthCm),
+      lengthCm: this.toDimension(v.lengthCm),
+      heightCm: this.toDimension(v.heightCm),
+    };
 
     if (this.isEditing()) {
       const id = this.editingId()!;
@@ -132,6 +156,7 @@ export class AdminProductsComponent {
           price: v.price,
           stock: v.stock,
           categoryId: v.categoryId,
+          ...dims,
         })
         .subscribe({
           next: () => this.onSaved($localize`:@@admin.products.toast.updated:Produit mis à jour.`),
@@ -145,12 +170,18 @@ export class AdminProductsComponent {
           price: v.price,
           stockQuantity: v.stock,
           categoryId: v.categoryId,
+          ...dims,
         })
         .subscribe({
           next: () => this.onSaved($localize`:@@admin.products.toast.created:Produit créé.`),
           error: err => this.onError(err),
         });
     }
+  }
+
+  /** Normalise une valeur de champ dimension : vide / NaN → null, sinon le nombre. */
+  private toDimension(value: number | null): number | null {
+    return value === null || Number.isNaN(value) ? null : value;
   }
 
   private onSaved(message: string): void {

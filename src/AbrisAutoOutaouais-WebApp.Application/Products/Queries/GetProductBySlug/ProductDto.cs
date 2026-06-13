@@ -14,5 +14,8 @@ public sealed record ProductDto(
     int Stock,
     bool IsAvailable,
     string CategoryName,
-    IReadOnlyList<string> ImageUrls);
+    IReadOnlyList<string> ImageUrls,
+    int? WidthCm,
+    int? LengthCm,
+    int? HeightCm);
 

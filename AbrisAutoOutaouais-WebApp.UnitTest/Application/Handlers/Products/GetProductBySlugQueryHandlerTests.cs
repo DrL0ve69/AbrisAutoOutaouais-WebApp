@@ -12,10 +12,14 @@ public sealed class GetProductBySlugQueryHandlerTests : IDisposable
 {
     private readonly ApplicationDbContext _db = TestDbContextFactory.Create();
 
-    private async Task<Product> SeedProductAsync(string slug = "abri-test")
+    private async Task<Product> SeedProductAsync(
+        string slug = "abri-test",
+        int? widthCm = null, int? lengthCm = null, int? heightCm = null)
     {
         var cat = ProductCategory.Create("Abris", "abris");
-        var product = Product.Create("Abri Test", slug, 150m, 3, cat.Id);
+        var product = Product.Create(
+            "Abri Test", slug, 150m, 3, cat.Id,
+            widthCm: widthCm, lengthCm: lengthCm, heightCm: heightCm);
         _db.ProductCategories.Add(cat);
         _db.Products.Add(product);
         await _db.SaveChangesAsync();
@@ -35,6 +39,34 @@ public sealed class GetProductBySlugQueryHandlerTests : IDisposable
         result.Slug.Should().Be("mon-abri");
         result.Name.Should().Be("Abri Test");
         result.Price.Should().Be(150m);
+    }
+
+    [Fact]
+    public async Task Handle_WithDimensions_ProjectsThem()
+    {
+        await SeedProductAsync("abri-dimensionne", widthCm: 335, lengthCm: 488, heightCm: 244);
+        var handler = new GetProductBySlugQueryHandler(_db);
+
+        var result = await handler.Handle(
+            new GetProductBySlugQuery("abri-dimensionne"), CancellationToken.None);
+
+        result.WidthCm.Should().Be(335);
+        result.LengthCm.Should().Be(488);
+        result.HeightCm.Should().Be(244);
+    }
+
+    [Fact]
+    public async Task Handle_WithoutDimensions_ProjectsNull()
+    {
+        await SeedProductAsync("abri-sans-dim");
+        var handler = new GetProductBySlugQueryHandler(_db);
+
+        var result = await handler.Handle(
+            new GetProductBySlugQuery("abri-sans-dim"), CancellationToken.None);
+
+        result.WidthCm.Should().BeNull();
+        result.LengthCm.Should().BeNull();
+        result.HeightCm.Should().BeNull();
     }
 
     [Fact]

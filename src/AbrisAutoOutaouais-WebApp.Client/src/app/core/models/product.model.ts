@@ -13,6 +13,10 @@ export interface ProductDto extends ProductSummaryDto {
   readonly description: string | null;
   readonly stock: number;
   readonly imageUrls: readonly string[];
+  /** Dimensions hors-tout en centimètres — null si non renseignées. */
+  readonly widthCm: number | null;
+  readonly lengthCm: number | null;
+  readonly heightCm: number | null;
 }
 
 export interface PaginatedList<T> {
@@ -46,6 +50,10 @@ export interface CreateProductRequest {
   readonly price: number;
   readonly stockQuantity: number;
   readonly categoryId: string;
+  /** Dimensions hors-tout en centimètres — null si non renseignées. */
+  readonly widthCm: number | null;
+  readonly lengthCm: number | null;
+  readonly heightCm: number | null;
 }
 
 /** Charge utile pour mettre à jour un produit (PUT /products/{id}). */
@@ -55,6 +63,10 @@ export interface UpdateProductRequest {
   readonly price: number;
   readonly stock: number;
   readonly categoryId: string;
+  /** Dimensions hors-tout en centimètres — null si non renseignées. */
+  readonly widthCm: number | null;
+  readonly lengthCm: number | null;
+  readonly heightCm: number | null;
 }
 
 /**

@@ -982,218 +982,269 @@
           <context context-type="linenumber">84,86</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="admin.products.form.width" datatype="html">
+        <source>Largeur (cm)</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
+          <context context-type="linenumber">92,94</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.products.form.dimHint" datatype="html">
+        <source> optionnel · 50–2000 cm </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
+          <context context-type="linenumber">105,107</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
+          <context context-type="linenumber">128,130</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
+          <context context-type="linenumber">151,153</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.products.form.dimError" datatype="html">
+        <source> La dimension doit être comprise entre 50 et 2000 cm. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
+          <context context-type="linenumber">109,111</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
+          <context context-type="linenumber">132,134</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
+          <context context-type="linenumber">155,157</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.products.form.length" datatype="html">
+        <source>Longueur (cm)</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
+          <context context-type="linenumber">115,117</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.products.form.height" datatype="html">
+        <source>Hauteur (cm)</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
+          <context context-type="linenumber">138,140</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="admin.products.form.category" datatype="html">
         <source>Catégorie</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
-          <context context-type="linenumber">91,93</context>
+          <context context-type="linenumber">162,164</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.form.categoryPlaceholder" datatype="html">
         <source> — Choisir une catégorie — </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
-          <context context-type="linenumber">99,101</context>
+          <context context-type="linenumber">170,172</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.form.categoryError" datatype="html">
         <source> Veuillez choisir une catégorie. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
-          <context context-type="linenumber">107,109</context>
+          <context context-type="linenumber">178,180</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.form.save" datatype="html">
         <source>Enregistrer</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
-          <context context-type="linenumber">115,117</context>
+          <context context-type="linenumber">186,188</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.form.create" datatype="html">
         <source>Créer le produit</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
-          <context context-type="linenumber">117,119</context>
+          <context context-type="linenumber">188,190</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.form.cancel" datatype="html">
         <source> Annuler </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
-          <context context-type="linenumber">122,123</context>
+          <context context-type="linenumber">193,194</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.list.heading" datatype="html">
         <source>Produits du catalogue</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
-          <context context-type="linenumber">131,134</context>
+          <context context-type="linenumber">202,205</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.list.loading" datatype="html">
         <source>Chargement…</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
-          <context context-type="linenumber">134,135</context>
+          <context context-type="linenumber">205,206</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.list.empty" datatype="html">
         <source> Aucun produit dans le catalogue. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
-          <context context-type="linenumber">137,139</context>
+          <context context-type="linenumber">208,210</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.table.caption" datatype="html">
         <source> Liste des produits avec nom, catégorie, prix, stock et disponibilité. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
-          <context context-type="linenumber">143,144</context>
+          <context context-type="linenumber">214,215</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.table.name" datatype="html">
         <source>Nom</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
-          <context context-type="linenumber">147,148</context>
+          <context context-type="linenumber">218,219</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.table.category" datatype="html">
         <source>Catégorie</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
-          <context context-type="linenumber">148,149</context>
+          <context context-type="linenumber">219,220</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.table.price" datatype="html">
         <source>Prix</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
-          <context context-type="linenumber">149,150</context>
+          <context context-type="linenumber">220,221</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.table.stock" datatype="html">
         <source>Stock</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
-          <context context-type="linenumber">150,151</context>
+          <context context-type="linenumber">221,222</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.table.availability" datatype="html">
         <source>Disponibilité</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
-          <context context-type="linenumber">151,152</context>
+          <context context-type="linenumber">222,223</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.table.actions" datatype="html">
         <source>Actions</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
-          <context context-type="linenumber">152,154</context>
+          <context context-type="linenumber">223,225</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.table.available" datatype="html">
         <source>Disponible</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
-          <context context-type="linenumber">164,166</context>
+          <context context-type="linenumber">235,237</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.table.unavailable" datatype="html">
         <source>Indisponible</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
-          <context context-type="linenumber">166,168</context>
+          <context context-type="linenumber">237,239</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.table.edit" datatype="html">
         <source>Modifier</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
-          <context context-type="linenumber">176,177</context>
+          <context context-type="linenumber">247,248</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.table.delete" datatype="html">
         <source>Supprimer</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
-          <context context-type="linenumber">184,186</context>
+          <context context-type="linenumber">255,257</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.delete.title" datatype="html">
         <source>Confirmer la suppression</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
-          <context context-type="linenumber">210,212</context>
+          <context context-type="linenumber">281,283</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.delete.message" datatype="html">
         <source>Voulez-vous vraiment supprimer ce produit ?</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
-          <context context-type="linenumber">212,213</context>
+          <context context-type="linenumber">283,284</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.delete.confirm" datatype="html">
         <source> Supprimer </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
-          <context context-type="linenumber">217,219</context>
+          <context context-type="linenumber">288,290</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.delete.cancel" datatype="html">
         <source> Annuler </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
-          <context context-type="linenumber">220,222</context>
+          <context context-type="linenumber">291,293</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.toast.loadError" datatype="html">
         <source>Échec du chargement.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.ts</context>
-          <context context-type="linenumber">67</context>
+          <context context-type="linenumber">79</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.ts</context>
-          <context context-type="linenumber">80</context>
+          <context context-type="linenumber">92</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.toast.updated" datatype="html">
         <source>Produit mis à jour.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.ts</context>
-          <context context-type="linenumber">137</context>
+          <context context-type="linenumber">162</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.toast.created" datatype="html">
         <source>Produit créé.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.ts</context>
-          <context context-type="linenumber">150</context>
+          <context context-type="linenumber">176</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.toast.saveError" datatype="html">
         <source>Une erreur est survenue. Veuillez réessayer.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.ts</context>
-          <context context-type="linenumber">167</context>
+          <context context-type="linenumber">198</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.toast.deleted" datatype="html">
         <source>Produit supprimé.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.ts</context>
-          <context context-type="linenumber">187</context>
+          <context context-type="linenumber">218</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.toast.deleteError" datatype="html">
         <source>La suppression a échoué.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.ts</context>
-          <context context-type="linenumber">196</context>
+          <context context-type="linenumber">227</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.rentals.eyebrow" datatype="html">
@@ -2098,14 +2149,14 @@
         <source>Paiement (démo) accepté — commande confirmée !</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.ts</context>
-          <context context-type="linenumber">169</context>
+          <context context-type="linenumber">154</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.error" datatype="html">
         <source>Le paiement a échoué. Veuillez réessayer.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.ts</context>
-          <context context-type="linenumber">177</context>
+          <context context-type="linenumber">162</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.hero.badge" datatype="html">
@@ -2644,28 +2695,28 @@
         <source>Connectez-vous pour réserver une installation.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.ts</context>
-          <context context-type="linenumber">157</context>
+          <context context-type="linenumber">143</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.noSlot" datatype="html">
         <source>Veuillez choisir un créneau.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.ts</context>
-          <context context-type="linenumber">167</context>
+          <context context-type="linenumber">153</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.success" datatype="html">
         <source>Réservation confirmée !</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.ts</context>
-          <context context-type="linenumber">201</context>
+          <context context-type="linenumber">187</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.error" datatype="html">
         <source>La réservation a échoué. Veuillez réessayer.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.ts</context>
-          <context context-type="linenumber">209</context>
+          <context context-type="linenumber">195</context>
         </context-group>
       </trans-unit>
       <trans-unit id="legal.eyebrow" datatype="html">
@@ -3256,35 +3307,35 @@
         <source>Connectez-vous pour louer un abri.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.ts</context>
-          <context context-type="linenumber">139</context>
+          <context context-type="linenumber">125</context>
         </context-group>
       </trans-unit>
       <trans-unit id="location.noProduct" datatype="html">
         <source>Veuillez choisir un abri à louer.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.ts</context>
-          <context context-type="linenumber">149</context>
+          <context context-type="linenumber">135</context>
         </context-group>
       </trans-unit>
       <trans-unit id="location.badDates" datatype="html">
         <source>La date de fin doit être après la date de début.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.ts</context>
-          <context context-type="linenumber">163</context>
+          <context context-type="linenumber">149</context>
         </context-group>
       </trans-unit>
       <trans-unit id="location.success" datatype="html">
         <source>Location confirmée !</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.ts</context>
-          <context context-type="linenumber">189</context>
+          <context context-type="linenumber">175</context>
         </context-group>
       </trans-unit>
       <trans-unit id="location.error" datatype="html">
         <source>La location a échoué. Veuillez réessayer.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.ts</context>
-          <context context-type="linenumber">197</context>
+          <context context-type="linenumber">183</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.catalog.eyebrow" datatype="html">
@@ -3543,21 +3594,21 @@
         <source>Recherche d&apos;adresses en cours…</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/components/a11y-components/autocomplete/address-autocomplete.component.ts</context>
-          <context context-type="linenumber">88</context>
+          <context context-type="linenumber">89</context>
         </context-group>
       </trans-unit>
       <trans-unit id="autocomplete.status.none" datatype="html">
         <source>Aucune adresse trouvée.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/components/a11y-components/autocomplete/address-autocomplete.component.ts</context>
-          <context context-type="linenumber">93</context>
+          <context context-type="linenumber">94</context>
         </context-group>
       </trans-unit>
       <trans-unit id="autocomplete.status.count" datatype="html">
         <source><x id="count" equiv-text="n"/> adresse(s) trouvée(s). Utilisez les flèches pour parcourir.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/components/a11y-components/autocomplete/address-autocomplete.component.ts</context>
-          <context context-type="linenumber">95</context>
+          <context context-type="linenumber">96</context>
         </context-group>
       </trans-unit>
       <trans-unit id="faq.title" datatype="html">

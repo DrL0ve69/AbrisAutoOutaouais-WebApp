@@ -28,7 +28,8 @@ public sealed class GetAllProductsQueryHandler(IApplicationDbContext dbContext)
             .Select(p => new ProductDto(
                 p.Id, p.Name, p.Slug, p.Description, p.Price, p.RentalPrice,
                 p.Stock, p.IsAvailable, p.Category.Name,
-                p.Images.OrderBy(i => i.SortOrder).Select(i => i.Url).ToList()));
+                p.Images.OrderBy(i => i.SortOrder).Select(i => i.Url).ToList(),
+                p.WidthCm, p.LengthCm, p.HeightCm));
 
         return await PaginatedList<ProductDto>.CreateAsync(productsQuery, query.Page, query.PageSize, ct);
     }

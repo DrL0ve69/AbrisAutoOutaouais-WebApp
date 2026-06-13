@@ -1,14 +1,17 @@
-﻿using AbrisAutoOutaouais_WebApp.Domain.Constants;
+using AbrisAutoOutaouais_WebApp.Domain.Constants;
 using FluentValidation;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace AbrisAutoOutaouais_WebApp.Application.Products.Commands;
 
-public class CreateProductCommandValidator : AbstractValidator<CreateProductCommand>
+/// <summary>
+/// Validation de la mise à jour d'un produit. Calque exact de
+/// <see cref="CreateProductCommandValidator"/> (Name/Description/Price/Stock/CategoryId)
+/// plus les 3 dimensions optionnelles. Existe car l'Update n'était pas validé du tout
+/// auparavant — un trou silencieux que ce validator referme.
+/// </summary>
+public class UpdateProductCommandValidator : AbstractValidator<UpdateProductCommand>
 {
-    public CreateProductCommandValidator()
+    public UpdateProductCommandValidator()
     {
         RuleFor(x => x.Name)
             .NotEmpty()
@@ -18,14 +21,14 @@ public class CreateProductCommandValidator : AbstractValidator<CreateProductComm
             .MaximumLength(1000);
         RuleFor(x => x.Price)
             .GreaterThan(0);
-        RuleFor(x => x.StockQuantity)
+        RuleFor(x => x.Stock)
             .GreaterThanOrEqualTo(0);
         RuleFor(x => x.CategoryId)
             .NotEmpty();
 
         // Dimensions optionnelles : null accepté, mais si fournie elle doit tenir
-        // dans la plage métier [MinCm, MaxCm]. On NE met PAS InclusiveBetween seul
-        // (il rejetterait null) — on le garde sous .When(HasValue).
+        // dans la plage métier [MinCm, MaxCm]. InclusiveBetween sous .When(HasValue)
+        // pour ne pas rejeter null.
         RuleFor(x => x.WidthCm)
             .InclusiveBetween(ProductDimensions.MinCm, ProductDimensions.MaxCm)
             .When(x => x.WidthCm.HasValue);

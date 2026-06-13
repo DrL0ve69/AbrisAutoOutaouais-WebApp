@@ -13,5 +13,8 @@ public sealed record UpdateProductCommand(
     string Description,
     decimal Price,
     int Stock,
-    Guid CategoryId
+    Guid CategoryId,
+    int? WidthCm = null,
+    int? LengthCm = null,
+    int? HeightCm = null
 ) : ICommand<bool>;
