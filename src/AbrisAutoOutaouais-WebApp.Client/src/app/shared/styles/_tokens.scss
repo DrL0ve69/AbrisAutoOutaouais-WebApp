@@ -192,6 +192,13 @@
   --color-border-on-dark: rgba(255, 255, 255, 0.1); // bordure sur navy
   --color-on-brand-muted: rgba(255, 255, 255, 0.8); // paragraphe cta-banner (~4.9:1 sur rouge ✅)
   --color-surface-on-brand-hover: #f3f4f6; // absorbe le hack .btn--inverse:hover (≈7.5:1 avec #991b1b ✅)
+  // Accent « marque » (rouge) posé sur une surface navy FIXE — ex. le « Tempo » du logo + l'icône
+  // de la navbar (fond navy translucide composé ≈ #39424a dans les deux thèmes). FIXE comme les
+  // autres jetons « sur sombre » : NON surchargé dans le mixin sombre. NE PAS confondre avec
+  // --color-primary-light, qui BASCULE par thème (#dc2626 clair → #fca5a5 sombre) et servait ici :
+  // en clair, #dc2626 ne faisait que ≈2.11:1 sur le navbar composé (échec 1.4.3, gras 20px → seuil
+  // 3:1). #f87171 ≈ 3.4:1 sur le #39424a composé (✅) et ≈ 5.1:1 sur le navy plein (E5, must-fix contraste).
+  --color-brand-on-dark: #f87171;
 
   // ── E. Élévation / dégradés / lueurs ───────────────────────
   --elevation-1: var(--shadow-sm);

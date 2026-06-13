@@ -68,10 +68,17 @@ les critères a11y dans sa Definition of Done (voir `definition-of-done.md`).
 | US-3.5 | En tant qu'**utilisateur à basse vision**, je veux des **contrastes ≥ AA** afin de lire confortablement. | 3 | **Must** | ✅ Livré (tokens documentés) |
 | US-3.6 | En tant qu'**utilisateur tactile**, je veux des **cibles ≥ 44px** afin de cliquer sans erreur. | 2 | **Should** | ✅ Livré (`min-height: 44px` chips + champs) |
 | US-3.7 | En tant qu'**équipe**, je veux **étendre la couverture axe e2e** (auth, profil, états d'erreur) afin de fiabiliser la CI. | 3 | **Should** | ✅ Livré (`/auth`, `/panier` ajoutés) |
+| US-3.8 | En tant qu'**utilisateur à basse vision**, je veux que le **redesign v2 (Épic E)** respecte les **contrastes AA dans les deux thèmes**, y compris navbar scrollée (verre), afin que l'esthétique ne dégrade pas la lisibilité. | 3 | **Must** | ✅ Livré (E5 : jeton FIXE `--color-brand-on-dark` pour « Tempo »/icône navbar — était 2.11:1 en clair ; bouton « Voir en 3D » recoloré — était 1.1:1 ; e2e `motion-a11y.spec.ts` dual-thème **navbar scrollée** + repli `reduced-motion` réel ; scan `reschedule.spec.ts` pleine page) |
 
 **Critères d'acceptation — US-3.4**
 - Suite axe (tags `wcag2a/2aa/21a/21aa`) verte en local et CI.
 - e2e Playwright avec `color-contrast` **actif** sur Accueil/Boutique/Détail → `violations === []`.
+
+**Critères d'acceptation — US-3.8**
+- `color-contrast` **actif** en e2e (couleurs composées réelles ; rappel : désactivé en vitest par conception, L-016).
+- Balayage axe **deux thèmes × routes redessinées** AVEC défilement (déclenche `.navbar--scrolled`) → `violations === []`.
+- Repli `prefers-reduced-motion` **émulé** : hero figé (pas de `.pin-spacer`), cursor-ring masqué, viewer 3D montable sans auto-rotation.
+- Bundle initial figé : `index.html` sans `<script>` de lib lourde (gsap/three/leaflet en chunks lazy).
 
 ---
 

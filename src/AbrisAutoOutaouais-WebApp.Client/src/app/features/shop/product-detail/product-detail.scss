@@ -130,8 +130,21 @@
 }
 
 // Bloc 3D : le bouton « Voir en 3D » et le viewer s'inscrivent sous l'image, avec un espacement.
+// `.btn--secondary` est conçu pour des surfaces SOMBRES (texte blanc fixe `--color-on-dark`) ; or ce
+// bouton vit sur la surface CLAIRE de la fiche produit → blanc sur clair ≈1.1:1 (échec 1.4.3, axe e2e
+// E5). On redéfinit donc ses couleurs pour la surface courante avec des jetons qui basculent par
+// thème (texte foncé sur clair / clair sur sombre — AA dans les deux). E5 (must-fix contraste).
 .detail__view3d {
   margin-top: var(--space-3, 0.75rem);
+  color: var(--color-text);
+  border-color: var(--color-border-strong);
+
+  &:hover:not(:disabled),
+  &:focus-visible {
+    color: var(--color-text);
+    background: var(--color-bg-muted);
+    border-color: var(--color-text-secondary);
+  }
 }
 
 .detail__view3d-loading {

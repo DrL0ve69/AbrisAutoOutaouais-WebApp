@@ -70,7 +70,10 @@
 
 .navbar__brand-icon {
   font-size: 1.8rem;
-  color: var(--color-primary-light);
+  // Accent marque sur la surface navy FIXE de la navbar (composée ≈ #39424a) : jeton FIXE
+  // --color-brand-on-dark (#f87171) ≥ 3:1, et non --color-primary-light qui descend à ≈2.11:1
+  // en thème clair (échec 1.4.3). L'icône partage le fond de « Tempo » → corrigée ensemble (E5).
+  color: var(--color-brand-on-dark);
   transition: transform var(--transition-base);
   line-height: 1;
 }
@@ -83,7 +86,9 @@
   line-height: 1.1;
 
   strong {
-    color: var(--color-primary-light);
+    // « Tempo » : accent marque sur navy FIXE → jeton FIXE ≥ 3:1 (gras 20px = grand texte).
+    // --color-primary-light tombait à ≈2.11:1 en clair (échec 1.4.3) — cf. --color-brand-on-dark (E5).
+    color: var(--color-brand-on-dark);
     font-weight: var(--font-weight-extrabold);
   }
 
