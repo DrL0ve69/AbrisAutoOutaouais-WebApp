@@ -3958,53 +3958,67 @@
           <context context-type="linenumber">38,40</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="shop.detail.view3d" datatype="html">
+        <source> Voir en 3D </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
+          <context context-type="linenumber">80,81</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.detail.view3dLoading" datatype="html">
+        <source> Chargement du modèle 3D… </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
+          <context context-type="linenumber">84,86</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="shop.detail.rentLabel" datatype="html">
         <source>Location</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
-          <context context-type="linenumber">89,90</context>
+          <context context-type="linenumber">125,126</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.detail.month" datatype="html">
         <source>mois</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
-          <context context-type="linenumber">92,94</context>
+          <context context-type="linenumber">128,130</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.detail.available" datatype="html">
         <source>En stock</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
-          <context context-type="linenumber">107,109</context>
+          <context context-type="linenumber">143,145</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.detail.unavailable" datatype="html">
         <source>Épuisé</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
-          <context context-type="linenumber">110,112</context>
+          <context context-type="linenumber">146,148</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.detail.descriptionTitle" datatype="html">
         <source>Description</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
-          <context context-type="linenumber">116,117</context>
+          <context context-type="linenumber">152,153</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.detail.addToCart" datatype="html">
         <source> Ajouter au panier </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
-          <context context-type="linenumber">129,131</context>
+          <context context-type="linenumber">165,167</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.detail.addedToast" datatype="html">
         <source><x id="name" equiv-text="product.name"/> a été ajouté au panier.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.ts</context>
-          <context context-type="linenumber">70</context>
+          <context context-type="linenumber">85</context>
         </context-group>
       </trans-unit>
       <trans-unit id="autocomplete.listbox.label" datatype="html">
@@ -4182,6 +4196,55 @@
           <context context-type="linenumber">77,81</context>
         </context-group>
         <note priority="1" from="description">Bouton ajouter au panier</note>
+      </trans-unit>
+      <trans-unit id="shelter3d.controlsGroup" datatype="html">
+        <source>Commandes du modèle 3D</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/shelter-3d-viewer/shelter-3d-viewer.html</context>
+          <context context-type="linenumber">38,39</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shelter3d.rotateLeft" datatype="html">
+        <source>Pivoter vers la gauche</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/shelter-3d-viewer/shelter-3d-viewer.html</context>
+          <context context-type="linenumber">45,46</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shelter3d.rotateRight" datatype="html">
+        <source>Pivoter vers la droite</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/shelter-3d-viewer/shelter-3d-viewer.html</context>
+          <context context-type="linenumber">54,55</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shelter3d.zoomIn" datatype="html">
+        <source>Zoom avant</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/shelter-3d-viewer/shelter-3d-viewer.html</context>
+          <context context-type="linenumber">63,64</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shelter3d.zoomOut" datatype="html">
+        <source>Zoom arrière</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/shelter-3d-viewer/shelter-3d-viewer.html</context>
+          <context context-type="linenumber">72,73</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shelter3d.reset" datatype="html">
+        <source>Réinitialiser la vue</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/shelter-3d-viewer/shelter-3d-viewer.html</context>
+          <context context-type="linenumber">81,82</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shelter3d.canvasLabel" datatype="html">
+        <source>Modèle 3D interactif de <x id="name" equiv-text="this.productName()"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/shelter-3d-viewer/shelter-3d-viewer.ts</context>
+          <context context-type="linenumber">74</context>
+        </context-group>
       </trans-unit>
       <trans-unit id="footer.logoAria" datatype="html">
         <source>AbrisTempo Local — Accueil</source>

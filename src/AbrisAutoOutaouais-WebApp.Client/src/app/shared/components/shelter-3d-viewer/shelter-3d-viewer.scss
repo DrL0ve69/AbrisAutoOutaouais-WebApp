@@ -1,0 +1,88 @@
+// Viewer 3D d'abri (E4, Redesign v2) — ratio réservé (anti-CLS), boutons ≥44px, tokens v2.
+
+.viewer3d {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 0.75rem);
+}
+
+.viewer3d__stage {
+  position: relative;
+  width: 100%;
+  // Ratio FIXE réservé dès le placeholder → aucune secousse de mise en page (CLS) quand la
+  // 3D ou le repli se charge.
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--radius-lg, 0.75rem);
+  background: var(--color-bg-subtle, #f9fafb);
+  border: 1px solid var(--color-border, #e5e7eb);
+}
+
+.viewer3d__fallback,
+.viewer3d__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.viewer3d__fallback {
+  object-fit: contain;
+}
+
+.viewer3d__canvas {
+  display: block;
+  // Masqué jusqu'à ce que la scène soit rendue (le repli reste visible dessous).
+  opacity: 0;
+  touch-action: none; // OrbitControls gère le tactile (pas de scroll parasite).
+  transition: opacity var(--duration-base, 250ms) var(--ease-in-out, ease);
+
+  &--ready {
+    opacity: 1;
+  }
+}
+
+.viewer3d__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2, 0.5rem);
+  justify-content: center;
+}
+
+.viewer3d__btn {
+  // Cible tactile ≥ 44px (WCAG 2.2 — 2.5.8 Target Size).
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--color-text, #111827);
+  background: var(--color-surface, #fff);
+  border: 1px solid var(--color-border-strong, #d1d5db);
+  border-radius: var(--radius-md, 0.5rem);
+  transition:
+    background var(--duration-fast, 150ms) var(--ease-in-out, ease),
+    border-color var(--duration-fast, 150ms) var(--ease-in-out, ease);
+
+  &:hover {
+    background: var(--color-bg-muted, #f3f4f6);
+    border-color: var(--color-primary, #b91c1c);
+  }
+
+  // Focus visible obligatoire (WCAG 2.4.7).
+  &:focus-visible {
+    outline: 2px solid var(--color-focus, #1d4ed8);
+    outline-offset: 2px;
+    box-shadow: var(--color-focus-ring, 0 0 0 3px rgba(29, 78, 216, 0.45));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .viewer3d__canvas,
+  .viewer3d__btn {
+    transition: none;
+  }
+}

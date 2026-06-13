@@ -58,6 +58,42 @@
               <span>📦</span>
             </div>
           }
+
+          <!-- Viewer 3D : seulement si les dimensions hors-tout sont connues. Chargé À LA DEMANDE
+               (`@defer on interaction`) — le chunk `three` reste hors du bundle initial (E5). -->
+          @if (has3dDims()) {
+            @defer (on interaction(view3dTrigger)) {
+              <app-shelter-3d-viewer
+                [widthCm]="product()!.widthCm!"
+                [lengthCm]="product()!.lengthCm!"
+                [heightCm]="product()!.heightCm!"
+                [fallbackImageSrc]="imageSrc()"
+                [productName]="product()!.name"
+              />
+            } @placeholder {
+              <button
+                #view3dTrigger
+                type="button"
+                class="btn btn--secondary detail__view3d"
+                i18n="@@shop.detail.view3d"
+              >
+                Voir en 3D
+              </button>
+            } @loading {
+              <p class="detail__view3d-loading" role="status" aria-busy="true" i18n="@@shop.detail.view3dLoading">
+                Chargement du modèle 3D…
+              </p>
+            } @error {
+              <img
+                class="detail__image"
+                [src]="imageSrc()"
+                [alt]="product()!.name"
+                width="640"
+                height="480"
+                decoding="async"
+              />
+            }
+          }
         </div>
 
         <!-- Informations -->

@@ -129,6 +129,21 @@
   background: var(--color-bg-muted);
 }
 
+// Bloc 3D : le bouton « Voir en 3D » et le viewer s'inscrivent sous l'image, avec un espacement.
+.detail__view3d {
+  margin-top: var(--space-3, 0.75rem);
+}
+
+.detail__view3d-loading {
+  margin-top: var(--space-3, 0.75rem);
+  color: var(--color-text-secondary, #374151);
+}
+
+app-shelter-3d-viewer {
+  display: block;
+  margin-top: var(--space-3, 0.75rem);
+}
+
 .detail__image {
   display: block;
   width: 100%;

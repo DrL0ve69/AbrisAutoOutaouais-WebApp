@@ -1150,6 +1150,14 @@
         <source>mois</source>
         <target>month</target>
       </trans-unit>
+      <trans-unit id="shop.detail.view3d" datatype="html">
+        <source> Voir en 3D </source>
+        <target> View in 3D </target>
+      </trans-unit>
+      <trans-unit id="shop.detail.view3dLoading" datatype="html">
+        <source> Chargement du modèle 3D… </source>
+        <target> Loading 3D model… </target>
+      </trans-unit>
       <trans-unit id="shop.detail.available" datatype="html">
         <source>En stock</source>
         <target>In stock</target>
@@ -2039,6 +2047,34 @@
       <trans-unit id="navbar.mobileMenuAria" datatype="html">
         <source>Menu mobile</source>
         <target>Mobile menu</target>
+      </trans-unit>
+      <trans-unit id="shelter3d.controlsGroup" datatype="html">
+        <source>Commandes du modèle 3D</source>
+        <target>3D model controls</target>
+      </trans-unit>
+      <trans-unit id="shelter3d.rotateLeft" datatype="html">
+        <source>Pivoter vers la gauche</source>
+        <target>Rotate left</target>
+      </trans-unit>
+      <trans-unit id="shelter3d.rotateRight" datatype="html">
+        <source>Pivoter vers la droite</source>
+        <target>Rotate right</target>
+      </trans-unit>
+      <trans-unit id="shelter3d.zoomIn" datatype="html">
+        <source>Zoom avant</source>
+        <target>Zoom in</target>
+      </trans-unit>
+      <trans-unit id="shelter3d.zoomOut" datatype="html">
+        <source>Zoom arrière</source>
+        <target>Zoom out</target>
+      </trans-unit>
+      <trans-unit id="shelter3d.reset" datatype="html">
+        <source>Réinitialiser la vue</source>
+        <target>Reset the view</target>
+      </trans-unit>
+      <trans-unit id="shelter3d.canvasLabel" datatype="html">
+        <source>Modèle 3D interactif de <x id="name" equiv-text="this.productName()"/></source>
+        <target>Interactive 3D model of <x id="name" equiv-text="this.productName()"/></target>
       </trans-unit>
       <trans-unit id="footer.logoAria" datatype="html">
         <source>AbrisTempo Local — Accueil</source>
