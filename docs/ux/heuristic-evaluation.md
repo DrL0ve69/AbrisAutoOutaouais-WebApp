@@ -207,5 +207,13 @@ patrons de champ/bouton réutilisés.
 | H9 Diagnostic erreurs | Pas de « mot de passe oublié » utile | 1 | ✅ Page `/auth/reset` accessible (le lien existait sans cible) |
 | H2 Monde réel | Logo abstrait « ⬡ » | 1 | ✅ Glyphe d'abri (toit + poteaux) en navbar et auth |
 
-Reste ouvert : **H1** (transition de langue) et **H5** (unicité username/courriel asynchrone) —
-priorité basse. Vérification : `npm run build` ✅, `npm test` 33/33 ✅.
+## Remédiations livrées (2026-06-13) — Épic B (sections manquantes)
+
+| Heuristique | Constat | Sév. | Correctif livré |
+|-------------|---------|:----:|-----------------|
+| H1 Visibilité | Changement de langue = rechargement opaque | 2 | ✅ Marqueur `sessionStorage` avant rechargement + annonce `role="status"` polite à la locale servie (`locale.service.ts`, `app.ts`) — SSR-safe |
+| H5 Prévention erreurs | Unicité username/courriel vérifiée tardivement (au submit) | 2 | ✅ Validateurs **asynchrones debouncés** (400 ms, `switchMap`) sur l'inscription → `GET api/v1/auth/availability` ; annonce `aria-busy`/`aria-live` |
+| H10 Aide & doc | Réservation sans aide contextuelle | 3 | ✅ **FAQ accessible** (`<details>/<summary>`) sur `/installation` et `/location` (incl. « autres marques sauf ShelterLogic ») |
+
+**Tous les constats heuristiques (H1–H10) sont désormais remédiés.**
+Vérification : `dotnet test` (UT 106 / IT 59) ✅, `npm test` 100 (zéro violation axe) ✅, `npm run e2e` 48 ✅.

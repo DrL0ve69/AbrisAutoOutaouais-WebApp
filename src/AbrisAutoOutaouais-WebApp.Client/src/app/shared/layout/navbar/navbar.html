@@ -198,11 +198,14 @@
             </svg>
           </button>
 
+          <!-- Fermé : `inert` natif → sous-arbre infocusable ET retiré de l'arbre
+               d'accessibilité (subsume aria-hidden). L'ancien duo aria-hidden +
+               pointer-events:none laissait les liens tabulables (Bug-08, WCAG 2.4.3). -->
           <ul
             id="user-dropdown"
             class="navbar__dropdown"
             role="menu"
-            [attr.aria-hidden]="!userMenuOpen()"
+            [inert]="!userMenuOpen()"
           >
             <li role="none">
               <a
@@ -271,13 +274,15 @@
      un bloc conteneur local, qui « piégeait » le position:fixed du panneau (il
      restait collé au sommet, trop grand et ne suivait pas le défilement). En
      dehors de l'élément filtré, le fixed se réfère bien au viewport. ───────── -->
+<!-- Fermé : `inert` natif (cf. menu utilisateur) — le panneau hors écran
+     (translateX) gardait ses liens tabulables sous aria-hidden (Bug-08). -->
 <div
   id="mobile-menu"
   #mobileMenu
   class="navbar__mobile"
   [class.is-open]="menuOpen()"
   role="dialog"
-  [attr.aria-hidden]="!menuOpen()"
+  [inert]="!menuOpen()"
   aria-label="Menu mobile"
   i18n-aria-label="@@navbar.mobileMenuAria"
 >

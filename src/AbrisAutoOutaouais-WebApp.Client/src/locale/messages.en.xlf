@@ -185,8 +185,8 @@
         <target>Administrator dashboard</target>
       </trans-unit>
       <trans-unit id="admin.lead" datatype="html">
-        <source> Gérez le catalogue, les commandes et les utilisateurs d&apos;AbrisTempo Local. Les modules ci-dessous arrivent prochainement. </source>
-        <target> Manage the catalogue, orders and users of AbrisTempo Local. The modules below are coming soon. </target>
+        <source> Gérez le catalogue, les commandes, les réservations, les locations et les utilisateurs d&apos;AbrisTempo Local. </source>
+        <target> Manage the catalogue, orders, bookings, rentals and users of AbrisTempo Local. </target>
       </trans-unit>
       <trans-unit id="admin.sectionsLabel" datatype="html">
         <source>Sections d&apos;administration</source>
@@ -229,8 +229,16 @@
         <target>Bookings</target>
       </trans-unit>
       <trans-unit id="admin.section.reservationsDesc" datatype="html">
-        <source>Planifier les installations et les locations d&apos;abris.</source>
-        <target>Schedule shelter installations and rentals.</target>
+        <source>Confirmer, compléter ou annuler les créneaux d&apos;installation.</source>
+        <target>Confirm, complete or cancel installation time slots.</target>
+      </trans-unit>
+      <trans-unit id="admin.section.rentals" datatype="html">
+        <source>Locations</source>
+        <target>Rentals</target>
+      </trans-unit>
+      <trans-unit id="admin.section.rentalsDesc" datatype="html">
+        <source>Consulter et annuler les contrats de location saisonnière.</source>
+        <target>Review and cancel seasonal rental contracts.</target>
       </trans-unit>
 
       <!-- ===== PANIER ===== -->
@@ -645,6 +653,240 @@
       <trans-unit id="installation.error" datatype="html">
         <source>La réservation a échoué. Veuillez réessayer.</source>
         <target>The booking failed. Please try again.</target>
+      </trans-unit>
+
+      <!-- ===== LEGAL (pages légales : conditions, confidentialité, accessibilité) ===== -->
+      <trans-unit id="legal.eyebrow" datatype="html">
+        <source>Informations légales</source>
+        <target>Legal information</target>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.title" datatype="html">
+        <source> Déclaration d&apos;accessibilité </source>
+        <target> Accessibility statement </target>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.updated" datatype="html">
+        <source> Dernière révision : juin 2026 </source>
+        <target> Last reviewed: June 2026 </target>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.commitment.title" datatype="html">
+        <source>1. Notre engagement</source>
+        <target>1. Our commitment</target>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.commitment.p1" datatype="html">
+        <source> AbrisTempo Outaouais s&apos;engage à rendre son site accessible à toutes et à tous, y compris aux personnes en situation de handicap. Notre cible de conformité est le référentiel <x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong&gt;"/>WCAG 2.2, niveau AA<x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong&gt;"/>, appliqué dès la conception et vérifié en continu à chaque modification du site. </source>
+        <target> AbrisTempo Outaouais is committed to making its website accessible to everyone, including people with disabilities. Our conformance target is <x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong&gt;"/>WCAG 2.2, level AA<x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong&gt;"/>, applied from the design stage and verified continuously with every change to the site. </target>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.measures.title" datatype="html">
+        <source>2. Mesures de vérification</source>
+        <target>2. Verification measures</target>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.measures.p1" datatype="html">
+        <source> L&apos;accessibilité est validée par une combinaison de tests automatisés et de vérifications manuelles — l&apos;automatisation ne couvrant qu&apos;une partie des critères WCAG : </source>
+        <target> Accessibility is validated through a combination of automated tests and manual checks — automation only covers part of the WCAG criteria: </target>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.measures.item1" datatype="html">
+        <source> tests automatisés axe-core à deux niveaux : sur chaque composant (tests unitaires) et sur chaque page complète de l&apos;application réelle (tests de bout en bout, y compris le contraste des couleurs) ; </source>
+        <target> automated axe-core tests at two levels: on each component (unit tests) and on each full page of the real application (end-to-end tests, including colour contrast); </target>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.measures.item2" datatype="html">
+        <source> passes manuelles avec les lecteurs d&apos;écran NVDA (Windows) et VoiceOver (macOS) ; </source>
+        <target> manual passes with the NVDA (Windows) and VoiceOver (macOS) screen readers; </target>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.measures.item3" datatype="html">
+        <source> navigation complète au clavier (ordre de tabulation, focus visible, absence de piège) et zoom jusqu&apos;à 400 % sans perte de contenu ; </source>
+        <target> full keyboard navigation (tab order, visible focus, no traps) and zoom up to 400% with no loss of content; </target>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.measures.item4" datatype="html">
+        <source> balayage de contraste dans les deux thèmes (clair et sombre) et respect des préférences système, dont la réduction des animations. </source>
+        <target> contrast sweeps in both themes (light and dark) and respect for system preferences, including reduced motion. </target>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.status.title" datatype="html">
+        <source>3. État de conformité</source>
+        <target>3. Conformance status</target>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.status.p1" datatype="html">
+        <source> Selon notre audit interne (juin 2026), le site est conforme au niveau AA des WCAG 2.2 sur les parcours principaux : accueil, boutique, fiche produit, authentification, panier et espace client. Cet état est réévalué à chaque évolution du site. </source>
+        <target> According to our internal audit (June 2026), the site conforms to WCAG 2.2 level AA on the main journeys: home, shop, product page, authentication, cart and customer account. This status is reassessed with every evolution of the site. </target>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.limits.title" datatype="html">
+        <source>4. Limites connues</source>
+        <target>4. Known limitations</target>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.limits.p1" datatype="html">
+        <source> Malgré nos efforts, certains contenus peuvent présenter des limites ponctuelles, notamment des contenus récents pas encore passés en revue ou des éléments fournis par des tiers. Si vous rencontrez un obstacle, signalez-le-nous : nous corrigerons dans les meilleurs délais et vous proposerons une solution de rechange accessible. </source>
+        <target> Despite our efforts, some content may have occasional limitations, in particular recent content not yet reviewed or items supplied by third parties. If you encounter a barrier, let us know: we will fix it as quickly as possible and offer you an accessible alternative. </target>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.feedback.title" datatype="html">
+        <source>5. Rétroaction et assistance</source>
+        <target>5. Feedback and assistance</target>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.feedback.p1" datatype="html">
+        <source> Vos commentaires nous aident à nous améliorer. Pour signaler un problème d&apos;accessibilité ou demander de l&apos;aide, écrivez à <x id="START_LINK" ctype="x-a" equiv-text="&lt;a&gt;"/>accessibilite@abristempo-outaouais.ca<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/> ou appelez le <x id="START_LINK_1" equiv-text="&lt;a&gt;"/>819 123-4567<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/>. Nous nous engageons à répondre dans un délai de cinq jours ouvrables. </source>
+        <target> Your feedback helps us improve. To report an accessibility issue or request assistance, write to <x id="START_LINK" ctype="x-a" equiv-text="&lt;a&gt;"/>accessibilite@abristempo-outaouais.ca<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/> or call <x id="START_LINK_1" equiv-text="&lt;a&gt;"/>819 123-4567<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/>. We are committed to responding within five business days. </target>
+      </trans-unit>
+      <trans-unit id="legal.conditions.title" datatype="html">
+        <source>Conditions d&apos;utilisation</source>
+        <target>Terms of use</target>
+      </trans-unit>
+      <trans-unit id="legal.conditions.updated" datatype="html">
+        <source> Dernière mise à jour : juin 2026 </source>
+        <target> Last updated: June 2026 </target>
+      </trans-unit>
+      <trans-unit id="legal.conditions.intro.title" datatype="html">
+        <source>1. Objet et acceptation</source>
+        <target>1. Purpose and acceptance</target>
+      </trans-unit>
+      <trans-unit id="legal.conditions.intro.p1" datatype="html">
+        <source> Les présentes conditions encadrent l&apos;utilisation du site AbrisTempo Outaouais, représentant régional de la marque Abris Tempo pour l&apos;Outaouais. En naviguant sur le site, en créant un compte ou en passant une commande, vous acceptez ces conditions dans leur intégralité. </source>
+        <target> These terms govern the use of the AbrisTempo Outaouais website, regional representative of the Abris Tempo brand for the Outaouais. By browsing the site, creating an account or placing an order, you accept these terms in full. </target>
+      </trans-unit>
+      <trans-unit id="legal.conditions.intro.demo" datatype="html">
+        <source> Avis : cette plateforme est un site de démonstration à des fins de portfolio. Les commandes, locations et réservations qui y sont effectuées n&apos;engagent aucune transaction réelle. </source>
+        <target> Notice: this platform is a demonstration site for portfolio purposes. Orders, rentals and bookings placed here do not involve any real transaction. </target>
+      </trans-unit>
+      <trans-unit id="legal.conditions.account.title" datatype="html">
+        <source>2. Compte et utilisation du site</source>
+        <target>2. Account and use of the site</target>
+      </trans-unit>
+      <trans-unit id="legal.conditions.account.p1" datatype="html">
+        <source> La création d&apos;un compte est requise pour commander, louer un abri ou réserver une installation. Vous êtes responsable de l&apos;exactitude des renseignements fournis et de la confidentialité de votre mot de passe. Toute utilisation frauduleuse, abusive ou contraire à la loi peut entraîner la suspension du compte. </source>
+        <target> An account is required to order, rent a shelter or book an installation. You are responsible for the accuracy of the information you provide and for keeping your password confidential. Any fraudulent, abusive or unlawful use may result in account suspension. </target>
+      </trans-unit>
+      <trans-unit id="legal.conditions.orders.title" datatype="html">
+        <source>3. Commandes et livraison</source>
+        <target>3. Orders and delivery</target>
+      </trans-unit>
+      <trans-unit id="legal.conditions.orders.p1" datatype="html">
+        <source> Les prix sont affichés en dollars canadiens, taxes en sus. Une commande est confirmée après validation du paiement et de l&apos;adresse de livraison. La livraison est offerte dans la région de l&apos;Outaouais et les environs ; les délais communiqués sont indicatifs et peuvent varier selon la saison et les conditions routières. </source>
+        <target> Prices are shown in Canadian dollars, taxes extra. An order is confirmed once payment and the delivery address are validated. Delivery is available in the Outaouais region and surrounding areas; quoted lead times are indicative and may vary with the season and road conditions. </target>
+      </trans-unit>
+      <trans-unit id="legal.conditions.rentals.title" datatype="html">
+        <source>4. Location saisonnière</source>
+        <target>4. Seasonal rental</target>
+      </trans-unit>
+      <trans-unit id="legal.conditions.rentals.p1" datatype="html">
+        <source> La location d&apos;un abri couvre la période convenue au contrat (généralement la saison hivernale). L&apos;abri demeure la propriété d&apos;AbrisTempo Outaouais ; le locataire s&apos;engage à l&apos;utiliser avec soin et à signaler tout dommage. Des frais peuvent s&apos;appliquer en cas de bris ou de perte attribuable à une utilisation anormale. </source>
+        <target> A shelter rental covers the period agreed in the contract (usually the winter season). The shelter remains the property of AbrisTempo Outaouais; the renter agrees to use it with care and to report any damage. Fees may apply for breakage or loss caused by abnormal use. </target>
+      </trans-unit>
+      <trans-unit id="legal.conditions.bookings.title" datatype="html">
+        <source>5. Réservation d&apos;installation</source>
+        <target>5. Installation booking</target>
+      </trans-unit>
+      <trans-unit id="legal.conditions.bookings.p1" datatype="html">
+        <source> Les créneaux d&apos;installation et de désinstallation sont réservés en ligne et confirmés par courriel. Vous pouvez reporter ou annuler un rendez-vous depuis votre compte jusqu&apos;à 48 heures avant le créneau prévu. L&apos;accès au lieu d&apos;installation doit être dégagé et sécuritaire ; à défaut, le rendez-vous pourra être reporté. </source>
+        <target> Installation and removal slots are booked online and confirmed by email. You can reschedule or cancel an appointment from your account up to 48 hours before the scheduled slot. Access to the installation site must be clear and safe; otherwise the appointment may be rescheduled. </target>
+      </trans-unit>
+      <trans-unit id="legal.conditions.liability.title" datatype="html">
+        <source>6. Responsabilité</source>
+        <target>6. Liability</target>
+      </trans-unit>
+      <trans-unit id="legal.conditions.liability.p1" datatype="html">
+        <source> AbrisTempo Outaouais met tout en œuvre pour assurer l&apos;exactitude des renseignements publiés, sans garantir l&apos;absence d&apos;erreurs. Dans les limites permises par la loi, sa responsabilité est limitée au montant payé pour le produit ou le service concerné. Rien dans les présentes ne restreint les garanties légales prévues par la Loi sur la protection du consommateur du Québec. </source>
+        <target> AbrisTempo Outaouais makes every effort to ensure the accuracy of the information published, without guaranteeing the absence of errors. To the extent permitted by law, its liability is limited to the amount paid for the product or service concerned. Nothing herein restricts the legal warranties provided by the Quebec Consumer Protection Act. </target>
+      </trans-unit>
+      <trans-unit id="legal.conditions.law.title" datatype="html">
+        <source>7. Droit applicable</source>
+        <target>7. Governing law</target>
+      </trans-unit>
+      <trans-unit id="legal.conditions.law.p1" datatype="html">
+        <source> Les présentes conditions sont régies par les lois applicables au Québec et au Canada. Tout litige relève des tribunaux compétents du district judiciaire de Gatineau (Québec). </source>
+        <target> These terms are governed by the laws applicable in Quebec and Canada. Any dispute falls under the jurisdiction of the competent courts of the judicial district of Gatineau (Quebec). </target>
+      </trans-unit>
+      <trans-unit id="legal.conditions.contact.title" datatype="html">
+        <source>8. Nous joindre</source>
+        <target>8. Contact us</target>
+      </trans-unit>
+      <trans-unit id="legal.conditions.contact.p1" datatype="html">
+        <source> Pour toute question sur ces conditions, écrivez-nous à <x id="START_LINK" ctype="x-a" equiv-text="&lt;a&gt;"/>info@abristempo-outaouais.ca<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/> ou appelez le <x id="START_LINK_1" equiv-text="&lt;a&gt;"/>819 123-4567<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/>. </source>
+        <target> For any question about these terms, write to us at <x id="START_LINK" ctype="x-a" equiv-text="&lt;a&gt;"/>info@abristempo-outaouais.ca<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/> or call <x id="START_LINK_1" equiv-text="&lt;a&gt;"/>819 123-4567<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/>. </target>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.title" datatype="html">
+        <source> Politique de confidentialité </source>
+        <target> Privacy policy </target>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.updated" datatype="html">
+        <source> Dernière mise à jour : juin 2026 </source>
+        <target> Last updated: June 2026 </target>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.collect.title" datatype="html">
+        <source>1. Renseignements recueillis</source>
+        <target>1. Information we collect</target>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.collect.p1" datatype="html">
+        <source> Nous recueillons uniquement les renseignements nécessaires à la prestation de nos services : </source>
+        <target> We only collect the information needed to provide our services: </target>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.collect.item1" datatype="html">
+        <source> Compte : nom, prénom, adresse courriel, nom d&apos;utilisateur, numéro de téléphone (facultatif) et mot de passe (stocké sous forme hachée, jamais en clair) ; </source>
+        <target> Account: last name, first name, email address, username, phone number (optional) and password (stored hashed, never in clear text); </target>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.collect.item2" datatype="html">
+        <source> Adresses : adresse de livraison ou d&apos;installation que vous enregistrez ; </source>
+        <target> Addresses: the delivery or installation address you save; </target>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.collect.item3" datatype="html">
+        <source> Transactions : historique de vos commandes, locations et réservations. </source>
+        <target> Transactions: the history of your orders, rentals and bookings. </target>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.purpose.title" datatype="html">
+        <source>2. Finalités d&apos;utilisation</source>
+        <target>2. Purposes of use</target>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.purpose.p1" datatype="html">
+        <source> Ces renseignements servent exclusivement à traiter vos commandes, planifier les livraisons et installations, gérer votre compte et vous transmettre les communications liées à vos transactions (confirmations, rappels de rendez-vous). Nous ne vendons ni ne louons vos renseignements personnels à des tiers. </source>
+        <target> This information is used exclusively to process your orders, schedule deliveries and installations, manage your account and send you communications related to your transactions (confirmations, appointment reminders). We do not sell or rent your personal information to third parties. </target>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.retention.title" datatype="html">
+        <source>3. Conservation</source>
+        <target>3. Retention</target>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.retention.p1" datatype="html">
+        <source> Les renseignements liés à votre compte sont conservés tant que celui-ci est actif. Les renseignements transactionnels sont conservés pour la durée exigée par les obligations légales et fiscales applicables, puis détruits ou anonymisés de façon sécuritaire. </source>
+        <target> Information linked to your account is kept for as long as the account is active. Transactional information is kept for the period required by applicable legal and tax obligations, then securely destroyed or anonymized. </target>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.storage.title" datatype="html">
+        <source>4. Témoins et stockage local</source>
+        <target>4. Cookies and local storage</target>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.storage.p1" datatype="html">
+        <source> Le site n&apos;utilise aucun témoin (cookie) publicitaire ni outil de suivi tiers. Seul le stockage local de votre navigateur est utilisé, pour des fonctions essentielles : </source>
+        <target> The site does not use any advertising cookies or third-party tracking tools. Only your browser&apos;s local storage is used, for essential functions: </target>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.storage.item1" datatype="html">
+        <source> votre préférence de thème (clair ou sombre) ; </source>
+        <target> your theme preference (light or dark); </target>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.storage.item2" datatype="html">
+        <source> le contenu de votre panier d&apos;achat ; </source>
+        <target> the contents of your shopping cart; </target>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.storage.item3" datatype="html">
+        <source> votre jeton de session (JWT) lorsque vous êtes connecté, supprimé à la déconnexion. </source>
+        <target> your session token (JWT) while you are signed in, removed when you sign out. </target>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.rights.title" datatype="html">
+        <source>5. Vos droits (Loi 25)</source>
+        <target>5. Your rights (Law 25)</target>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.rights.p1" datatype="html">
+        <source> Conformément à la Loi modernisant des dispositions législatives en matière de protection des renseignements personnels (Loi 25, Québec), vous pouvez en tout temps demander l&apos;accès à vos renseignements personnels, leur rectification, leur retrait ou la cessation de leur diffusion. Vous pouvez modifier vos renseignements directement depuis votre compte, ou nous écrire pour exercer vos autres droits. Une réponse vous sera transmise dans les 30 jours. </source>
+        <target> In accordance with the Act to modernize legislative provisions as regards the protection of personal information (Law 25, Quebec), you may at any time request access to your personal information, its rectification, its withdrawal or the cessation of its dissemination. You can update your information directly from your account, or write to us to exercise your other rights. A response will be provided within 30 days. </target>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.security.title" datatype="html">
+        <source>6. Sécurité</source>
+        <target>6. Security</target>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.security.p1" datatype="html">
+        <source> Les échanges avec nos serveurs sont chiffrés (HTTPS) et l&apos;accès aux renseignements personnels est restreint au personnel qui en a besoin pour fournir le service. En cas d&apos;incident de confidentialité présentant un risque de préjudice sérieux, les personnes concernées et la Commission d&apos;accès à l&apos;information seraient avisées. </source>
+        <target> Exchanges with our servers are encrypted (HTTPS) and access to personal information is restricted to staff who need it to provide the service. In the event of a confidentiality incident presenting a risk of serious harm, the persons concerned and the Commission d&apos;accès à l&apos;information would be notified. </target>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.contact.title" datatype="html">
+        <source>7. Responsable de la protection</source>
+        <target>7. Privacy officer</target>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.contact.p1" datatype="html">
+        <source> Pour toute question relative à la présente politique ou pour exercer vos droits, contactez le responsable de la protection des renseignements personnels à <x id="START_LINK" ctype="x-a" equiv-text="&lt;a&gt;"/>confidentialite@abristempo-outaouais.ca<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/> ou au <x id="START_LINK_1" equiv-text="&lt;a&gt;"/>819 123-4567<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/>. </source>
+        <target> For any question about this policy or to exercise your rights, contact the person responsible for the protection of personal information at <x id="START_LINK" ctype="x-a" equiv-text="&lt;a&gt;"/>confidentialite@abristempo-outaouais.ca<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/> or at <x id="START_LINK_1" equiv-text="&lt;a&gt;"/>819 123-4567<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/>. </target>
       </trans-unit>
 
       <!-- ===== LOCATION (location d'abris) ===== -->
@@ -1280,6 +1522,344 @@
         <source>La mise à jour du statut a échoué.</source>
         <target>Status update failed.</target>
       </trans-unit>
+
+      <!-- ===== ADMIN — RÉSERVATIONS ===== -->
+      <trans-unit id="admin.bookings.eyebrow" datatype="html">
+        <source>Réservations</source>
+        <target>Bookings</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.title" datatype="html">
+        <source> Gestion des réservations </source>
+        <target> Booking management </target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.lead" datatype="html">
+        <source> Confirmez, complétez ou annulez les créneaux d&apos;installation, de livraison et de démontage. </source>
+        <target> Confirm, complete or cancel installation, delivery and removal time slots. </target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.back" datatype="html">
+        <source> ← Retour au tableau de bord </source>
+        <target> ← Back to dashboard </target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.list.heading" datatype="html">
+        <source>Toutes les réservations</source>
+        <target>All bookings</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.list.loading" datatype="html">
+        <source>Chargement…</source>
+        <target>Loading…</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.list.error" datatype="html">
+        <source> Impossible de charger les réservations. </source>
+        <target> Unable to load the bookings. </target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.list.empty" datatype="html">
+        <source> Aucune réservation pour le moment. </source>
+        <target> No bookings yet. </target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.table.caption" datatype="html">
+        <source> Liste des réservations avec client, créneau, type, adresse, statut et actions. </source>
+        <target> List of bookings with customer, time slot, type, address, status and actions. </target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.table.customer" datatype="html">
+        <source>Client</source>
+        <target>Customer</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.table.slot" datatype="html">
+        <source>Créneau</source>
+        <target>Time slot</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.table.type" datatype="html">
+        <source>Type</source>
+        <target>Type</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.table.address" datatype="html">
+        <source>Adresse</source>
+        <target>Address</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.table.status" datatype="html">
+        <source>Statut</source>
+        <target>Status</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.table.actions" datatype="html">
+        <source>Actions</source>
+        <target>Actions</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.status.pending" datatype="html">
+        <source>En attente</source>
+        <target>Pending</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.status.confirmed" datatype="html">
+        <source>Confirmée</source>
+        <target>Confirmed</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.status.completed" datatype="html">
+        <source>Complétée</source>
+        <target>Completed</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.status.cancelled" datatype="html">
+        <source>Annulée</source>
+        <target>Cancelled</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.type.installation" datatype="html">
+        <source>Installation</source>
+        <target>Installation</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.type.delivery" datatype="html">
+        <source>Livraison</source>
+        <target>Delivery</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.type.removal" datatype="html">
+        <source>Démontage</source>
+        <target>Removal</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.action.confirm" datatype="html">
+        <source>Confirmer</source>
+        <target>Confirm</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.action.complete" datatype="html">
+        <source>Marquer complétée</source>
+        <target>Mark as completed</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.action.cancel" datatype="html">
+        <source>Annuler</source>
+        <target>Cancel</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.dialog.confirmTitle" datatype="html">
+        <source>Confirmer cette réservation ?</source>
+        <target>Confirm this booking?</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.dialog.completeTitle" datatype="html">
+        <source>Marquer cette réservation comme complétée ?</source>
+        <target>Mark this booking as completed?</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.dialog.cancelTitle" datatype="html">
+        <source>Annuler cette réservation ?</source>
+        <target>Cancel this booking?</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.dialog.desc" datatype="html">
+        <source>Réservation de</source>
+        <target>Booking for</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.dialog.confirm" datatype="html">
+        <source> Confirmer l&apos;action </source>
+        <target> Confirm action </target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.dialog.dismiss" datatype="html">
+        <source> Retour à la liste </source>
+        <target> Back to the list </target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.toast.loadError" datatype="html">
+        <source>Échec du chargement des réservations.</source>
+        <target>Failed to load bookings.</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.toast.updated" datatype="html">
+        <source>Statut de la réservation mis à jour.</source>
+        <target>Booking status updated.</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.toast.updateError" datatype="html">
+        <source>La mise à jour du statut a échoué.</source>
+        <target>Status update failed.</target>
+      </trans-unit>
+
+      <!-- ===== ADMIN — LOCATIONS ===== -->
+      <trans-unit id="admin.rentals.eyebrow" datatype="html">
+        <source>Locations</source>
+        <target>Rentals</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.title" datatype="html">
+        <source> Gestion des locations </source>
+        <target> Rental management </target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.lead" datatype="html">
+        <source> Consultez les contrats de location saisonnière et annulez-les au besoin. </source>
+        <target> Review seasonal rental contracts and cancel them if needed. </target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.back" datatype="html">
+        <source> ← Retour au tableau de bord </source>
+        <target> ← Back to dashboard </target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.list.heading" datatype="html">
+        <source>Tous les contrats</source>
+        <target>All contracts</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.list.loading" datatype="html">
+        <source>Chargement…</source>
+        <target>Loading…</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.list.error" datatype="html">
+        <source> Impossible de charger les locations. </source>
+        <target> Unable to load the rentals. </target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.list.empty" datatype="html">
+        <source> Aucune location pour le moment. </source>
+        <target> No rentals yet. </target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.table.caption" datatype="html">
+        <source> Liste des contrats de location avec client, abri, période, tarif mensuel, statut et actions. </source>
+        <target> List of rental contracts with customer, shelter, period, monthly rate, status and actions. </target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.table.customer" datatype="html">
+        <source>Client</source>
+        <target>Customer</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.table.product" datatype="html">
+        <source>Abri</source>
+        <target>Shelter</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.table.period" datatype="html">
+        <source>Période</source>
+        <target>Period</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.table.rate" datatype="html">
+        <source>Tarif mensuel</source>
+        <target>Monthly rate</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.table.status" datatype="html">
+        <source>Statut</source>
+        <target>Status</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.table.actions" datatype="html">
+        <source>Actions</source>
+        <target>Actions</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.status.active" datatype="html">
+        <source>Active</source>
+        <target>Active</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.status.expired" datatype="html">
+        <source>Expirée</source>
+        <target>Expired</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.status.cancelled" datatype="html">
+        <source>Annulée</source>
+        <target>Cancelled</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.action.cancel" datatype="html">
+        <source> Annuler </source>
+        <target> Cancel </target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.cancel.aria" datatype="html">
+        <source>Annuler la location</source>
+        <target>Cancel the rental</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.dialog.title" datatype="html">
+        <source>Annuler cette location ?</source>
+        <target>Cancel this rental?</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.dialog.desc" datatype="html">
+        <source>Location</source>
+        <target>Rental</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.dialog.desc2" datatype="html">
+        <source>Cette action est définitive.</source>
+        <target>This action is permanent.</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.dialog.confirm" datatype="html">
+        <source> Confirmer l&apos;annulation </source>
+        <target> Confirm cancellation </target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.dialog.dismiss" datatype="html">
+        <source> Garder la location </source>
+        <target> Keep the rental </target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.toast.loadError" datatype="html">
+        <source>Échec du chargement des locations.</source>
+        <target>Failed to load rentals.</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.toast.cancelled" datatype="html">
+        <source>Location annulée.</source>
+        <target>Rental cancelled.</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.toast.cancelError" datatype="html">
+        <source>L&apos;annulation a échoué. Veuillez réessayer.</source>
+        <target>The cancellation failed. Please try again.</target>
+      </trans-unit>
+
+      <!-- ===== ADMIN — UTILISATEURS ===== -->
+      <trans-unit id="admin.users.eyebrow" datatype="html">
+        <source>Utilisateurs</source>
+        <target>Users</target>
+      </trans-unit>
+      <trans-unit id="admin.users.title" datatype="html">
+        <source> Liste des utilisateurs </source>
+        <target> User list </target>
+      </trans-unit>
+      <trans-unit id="admin.users.lead" datatype="html">
+        <source> Consultez les comptes, leurs rôles et leur état de verrouillage (lecture seule). </source>
+        <target> Review accounts, their roles and their lockout state (read-only). </target>
+      </trans-unit>
+      <trans-unit id="admin.users.back" datatype="html">
+        <source> ← Retour au tableau de bord </source>
+        <target> ← Back to dashboard </target>
+      </trans-unit>
+      <trans-unit id="admin.users.list.heading" datatype="html">
+        <source>Tous les comptes</source>
+        <target>All accounts</target>
+      </trans-unit>
+      <trans-unit id="admin.users.list.loading" datatype="html">
+        <source>Chargement…</source>
+        <target>Loading…</target>
+      </trans-unit>
+      <trans-unit id="admin.users.list.error" datatype="html">
+        <source> Impossible de charger les utilisateurs. </source>
+        <target> Unable to load the users. </target>
+      </trans-unit>
+      <trans-unit id="admin.users.list.empty" datatype="html">
+        <source> Aucun utilisateur pour le moment. </source>
+        <target> No users yet. </target>
+      </trans-unit>
+      <trans-unit id="admin.users.table.caption" datatype="html">
+        <source> Liste des utilisateurs avec nom, courriel, nom d&apos;utilisateur, rôles, date d&apos;inscription et état du compte. </source>
+        <target> List of users with name, email, username, roles, registration date and account state. </target>
+      </trans-unit>
+      <trans-unit id="admin.users.table.name" datatype="html">
+        <source>Nom</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="admin.users.table.email" datatype="html">
+        <source>Courriel</source>
+        <target>Email</target>
+      </trans-unit>
+      <trans-unit id="admin.users.table.username" datatype="html">
+        <source>Nom d&apos;utilisateur</source>
+        <target>Username</target>
+      </trans-unit>
+      <trans-unit id="admin.users.table.roles" datatype="html">
+        <source>Rôles</source>
+        <target>Roles</target>
+      </trans-unit>
+      <trans-unit id="admin.users.table.createdAt" datatype="html">
+        <source>Inscrit le</source>
+        <target>Registered on</target>
+      </trans-unit>
+      <trans-unit id="admin.users.table.state" datatype="html">
+        <source>État</source>
+        <target>State</target>
+      </trans-unit>
+      <trans-unit id="admin.users.state.locked" datatype="html">
+        <source> Verrouillé </source>
+        <target> Locked </target>
+      </trans-unit>
+      <trans-unit id="admin.users.state.active" datatype="html">
+        <source> Actif </source>
+        <target> Active </target>
+      </trans-unit>
+      <trans-unit id="admin.users.role.admin" datatype="html">
+        <source>Administrateur</source>
+        <target>Administrator</target>
+      </trans-unit>
+      <trans-unit id="admin.users.role.staff" datatype="html">
+        <source>Personnel</source>
+        <target>Staff</target>
+      </trans-unit>
+      <trans-unit id="admin.users.role.customer" datatype="html">
+        <source>Client</source>
+        <target>Customer</target>
+      </trans-unit>
+      <trans-unit id="admin.users.toast.loadError" datatype="html">
+        <source>Échec du chargement des utilisateurs.</source>
+        <target>Failed to load users.</target>
+      </trans-unit>
       <trans-unit id="navbar.shop" datatype="html">
         <source>Boutique</source>
         <target>Shop</target>
@@ -1471,6 +2051,162 @@
       <trans-unit id="reset.emailInvalid" datatype="html">
         <source>Format de courriel invalide.</source>
         <target>Invalid email format.</target>
+      </trans-unit>
+      <trans-unit id="reset.logoAria" datatype="html">
+        <source>AbrisTempo Local — Retour à l&apos;accueil</source>
+        <target>AbrisTempo Local — Back to home</target>
+      </trans-unit>
+      <trans-unit id="reset.newTitle" datatype="html">
+        <source>Choisir un nouveau mot de passe</source>
+        <target>Choose a new password</target>
+      </trans-unit>
+      <trans-unit id="reset.newSubtitle" datatype="html">
+        <source> Définissez le nouveau mot de passe du compte <x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong&gt;"/><x id="INTERPOLATION" equiv-text="{{ email() }}"/><x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong&gt;"/>. </source>
+        <target> Set the new password for the account <x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong&gt;"/><x id="INTERPOLATION" equiv-text="{{ email() }}"/><x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong&gt;"/>. </target>
+      </trans-unit>
+      <trans-unit id="reset.successTitle" datatype="html">
+        <source> Mot de passe réinitialisé </source>
+        <target> Password reset </target>
+      </trans-unit>
+      <trans-unit id="reset.successBody" datatype="html">
+        <source> Votre mot de passe a été mis à jour. Vous pouvez maintenant vous connecter avec votre nouveau mot de passe. </source>
+        <target> Your password has been updated. You can now sign in with your new password. </target>
+      </trans-unit>
+      <trans-unit id="reset.successLogin" datatype="html">
+        <source> Se connecter </source>
+        <target> Sign in </target>
+      </trans-unit>
+      <trans-unit id="reset.newPwdLabel" datatype="html">
+        <source> Nouveau mot de passe <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;required&quot; aria-hidden=&quot;true&quot;&gt;"/>*<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
+        <target> New password <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;required&quot; aria-hidden=&quot;true&quot;&gt;"/>*<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
+      </trans-unit>
+      <trans-unit id="reset.newPwdHint" datatype="html">
+        <source> Min. 8 caractères, avec majuscule, minuscule, chiffre et caractère spécial. </source>
+        <target> Min. 8 characters, with an uppercase letter, a lowercase letter, a digit and a special character. </target>
+      </trans-unit>
+      <trans-unit id="reset.newPwdRequired" datatype="html">
+        <source>Le nouveau mot de passe est requis.</source>
+        <target>The new password is required.</target>
+      </trans-unit>
+      <trans-unit id="reset.newPwdWeak" datatype="html">
+        <source>Le mot de passe ne respecte pas les exigences ci-dessus.</source>
+        <target>The password does not meet the requirements above.</target>
+      </trans-unit>
+      <trans-unit id="reset.confirmPwdLabel" datatype="html">
+        <source> Confirmer le mot de passe <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;required&quot; aria-hidden=&quot;true&quot;&gt;"/>*<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
+        <target> Confirm the password <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;required&quot; aria-hidden=&quot;true&quot;&gt;"/>*<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></target>
+      </trans-unit>
+      <trans-unit id="reset.confirmPwdRequired" datatype="html">
+        <source>La confirmation est requise.</source>
+        <target>The confirmation is required.</target>
+      </trans-unit>
+      <trans-unit id="reset.confirmPwdMismatch" datatype="html">
+        <source>Les mots de passe ne correspondent pas.</source>
+        <target>The passwords do not match.</target>
+      </trans-unit>
+      <trans-unit id="reset.newSubmit" datatype="html">
+        <source> Réinitialiser le mot de passe </source>
+        <target> Reset the password </target>
+      </trans-unit>
+      <trans-unit id="reset.errorGeneric" datatype="html">
+        <source>Le lien de réinitialisation est invalide ou expiré. Demandez un nouveau lien.</source>
+        <target>The reset link is invalid or has expired. Request a new link.</target>
+      </trans-unit>
+      <trans-unit id="locale.switched" datatype="html">
+        <source>Langue changée : <x id="label" equiv-text="label"/></source>
+        <target>Language changed: <x id="label" equiv-text="label"/></target>
+      </trans-unit>
+      <trans-unit id="auth.email.checking" datatype="html">
+        <source>Vérification de la disponibilité…</source>
+        <target>Checking availability…</target>
+      </trans-unit>
+      <trans-unit id="auth.email.available" datatype="html">
+        <source>Courriel disponible.</source>
+        <target>Email available.</target>
+      </trans-unit>
+      <trans-unit id="auth.email.taken" datatype="html">
+        <source>Un compte existe déjà avec ce courriel.</source>
+        <target>An account already exists with this email.</target>
+      </trans-unit>
+      <trans-unit id="auth.username.checking" datatype="html">
+        <source>Vérification de la disponibilité…</source>
+        <target>Checking availability…</target>
+      </trans-unit>
+      <trans-unit id="auth.username.available" datatype="html">
+        <source>Nom d'utilisateur disponible.</source>
+        <target>Username available.</target>
+      </trans-unit>
+      <trans-unit id="auth.username.taken" datatype="html">
+        <source>Ce nom d'utilisateur est déjà pris.</source>
+        <target>This username is already taken.</target>
+      </trans-unit>
+      <trans-unit id="faq.title" datatype="html">
+        <source>Foire aux questions</source>
+        <target>Frequently asked questions</target>
+      </trans-unit>
+      <trans-unit id="faq.install.delais.q" datatype="html">
+        <source>Quels sont les délais pour une installation ?</source>
+        <target>What is the lead time for an installation?</target>
+      </trans-unit>
+      <trans-unit id="faq.install.delais.a" datatype="html">
+        <source>Après confirmation du rendez-vous, l'installation a généralement lieu sous une à deux semaines selon la saison et la disponibilité des créneaux. Les périodes de fin d'automne sont les plus demandées : réservez tôt.</source>
+        <target>Once the appointment is confirmed, installation usually takes place within one to two weeks depending on the season and slot availability. Late autumn is the busiest period, so book early.</target>
+      </trans-unit>
+      <trans-unit id="faq.install.marques.q" datatype="html">
+        <source>Installez-vous d'autres marques d'abris que Abris Tempo ?</source>
+        <target>Do you install shelter brands other than Abris Tempo?</target>
+      </trans-unit>
+      <trans-unit id="faq.install.marques.a" datatype="html">
+        <source>Oui. On installe aussi d'autres marques d'abris, à l'exception de ShelterLogic. Contactez-nous avec le modèle et les dimensions pour confirmer la faisabilité avant de réserver.</source>
+        <target>Yes. We also install other shelter brands, except for ShelterLogic. Contact us with the model and dimensions to confirm feasibility before booking.</target>
+      </trans-unit>
+      <trans-unit id="faq.install.garantie.q" datatype="html">
+        <source>L'installation est-elle garantie ?</source>
+        <target>Is the installation guaranteed?</target>
+      </trans-unit>
+      <trans-unit id="faq.install.garantie.a" datatype="html">
+        <source>Le travail d'installation est garanti contre les défauts de montage. La garantie du produit lui-même reste celle du fabricant de l'abri.</source>
+        <target>The installation work is guaranteed against assembly defects. The warranty on the product itself remains that of the shelter manufacturer.</target>
+      </trans-unit>
+      <trans-unit id="faq.install.terrain.q" datatype="html">
+        <source>Dois-je préparer le terrain avant votre venue ?</source>
+        <target>Do I need to prepare the ground before you arrive?</target>
+      </trans-unit>
+      <trans-unit id="faq.install.terrain.a" datatype="html">
+        <source>Dégagez la surface (neige, véhicules, obstacles) et assurez-vous que le sol est raisonnablement de niveau. Notre équipe s'occupe de l'ancrage adapté à votre surface (asphalte, gravier ou gazon).</source>
+        <target>Clear the surface (snow, vehicles, obstacles) and make sure the ground is reasonably level. Our team handles anchoring suited to your surface (asphalt, gravel or grass).</target>
+      </trans-unit>
+      <trans-unit id="faq.location.duree.q" datatype="html">
+        <source>Quelle est la durée minimale d'une location ?</source>
+        <target>What is the minimum rental duration?</target>
+      </trans-unit>
+      <trans-unit id="faq.location.duree.a" datatype="html">
+        <source>Les abris se louent à la saison. Indiquez vos dates de début et de fin au moment de la réservation ; la facturation est mensuelle.</source>
+        <target>Shelters are rented by the season. Provide your start and end dates when booking; billing is monthly.</target>
+      </trans-unit>
+      <trans-unit id="faq.location.depot.q" datatype="html">
+        <source>Un dépôt est-il exigé ?</source>
+        <target>Is a deposit required?</target>
+      </trans-unit>
+      <trans-unit id="faq.location.depot.a" datatype="html">
+        <source>Un dépôt de garantie peut être demandé à la signature du contrat. Il est remboursé à la fin de la location si l'abri est rendu en bon état.</source>
+        <target>A security deposit may be required when signing the contract. It is refunded at the end of the rental if the shelter is returned in good condition.</target>
+      </trans-unit>
+      <trans-unit id="faq.location.annulation.q" datatype="html">
+        <source>Puis-je annuler ma location ?</source>
+        <target>Can I cancel my rental?</target>
+      </trans-unit>
+      <trans-unit id="faq.location.annulation.a" datatype="html">
+        <source>Vous pouvez annuler depuis « Mes locations » dans votre compte. Les conditions d'annulation dépendent du moment de la demande par rapport à la date de début prévue.</source>
+        <target>You can cancel from “My rentals” in your account. Cancellation terms depend on when the request is made relative to the planned start date.</target>
+      </trans-unit>
+      <trans-unit id="faq.location.installation.q" datatype="html">
+        <source>L'installation est-elle incluse dans la location ?</source>
+        <target>Is installation included in the rental?</target>
+      </trans-unit>
+      <trans-unit id="faq.location.installation.a" datatype="html">
+        <source>L'adresse d'installation est demandée à la réservation. Selon l'entente, le montage peut être inclus ou facturé séparément — précisez votre besoin dans la demande.</source>
+        <target>The installation address is requested at booking. Depending on the agreement, assembly may be included or billed separately — specify your needs in the request.</target>
       </trans-unit>
     </body>
   </file>

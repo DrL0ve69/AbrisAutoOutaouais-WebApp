@@ -1,0 +1,132 @@
+<section class="admint" aria-labelledby="adminb-heading">
+  <div class="container">
+    <header class="admint__head">
+      <p class="admint__eyebrow" i18n="@@admin.bookings.eyebrow">Réservations</p>
+      <h1 #heading id="adminb-heading" tabindex="-1" i18n="@@admin.bookings.title">
+        Gestion des réservations
+      </h1>
+      <p class="admint__lead" i18n="@@admin.bookings.lead">
+        Confirmez, complétez ou annulez les créneaux d'installation, de livraison et de démontage.
+      </p>
+      <a routerLink="/admin/dashboard" class="admint__back" i18n="@@admin.bookings.back">
+        ← Retour au tableau de bord
+      </a>
+    </header>
+
+    <section class="admint__panel" aria-labelledby="adminb-list-heading">
+      <h2 id="adminb-list-heading" i18n="@@admin.bookings.list.heading">Toutes les réservations</h2>
+
+      @if (loading()) {
+        <output class="admint__status" i18n="@@admin.bookings.list.loading">Chargement…</output>
+      } @else if (error()) {
+        <output class="admint__status admint__status--error" i18n="@@admin.bookings.list.error">
+          Impossible de charger les réservations.
+        </output>
+      } @else if (items().length === 0) {
+        <output class="admint__status" i18n="@@admin.bookings.list.empty">
+          Aucune réservation pour le moment.
+        </output>
+      } @else {
+        <!-- Région défilante (overflow-x) : focalisable au clavier (axe scrollable-region-focusable). -->
+        <div class="admint__tablewrap" role="region" tabindex="0" aria-labelledby="adminb-list-heading">
+          <table class="admint__table">
+            <caption class="sr-only" i18n="@@admin.bookings.table.caption">
+              Liste des réservations avec client, créneau, type, adresse, statut et actions.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col" i18n="@@admin.bookings.table.customer">Client</th>
+                <th scope="col" i18n="@@admin.bookings.table.slot">Créneau</th>
+                <th scope="col" i18n="@@admin.bookings.table.type">Type</th>
+                <th scope="col" i18n="@@admin.bookings.table.address">Adresse</th>
+                <th scope="col" i18n="@@admin.bookings.table.status">Statut</th>
+                <th scope="col" i18n="@@admin.bookings.table.actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (b of items(); track b.id) {
+                <tr>
+                  <th scope="row">
+                    {{ b.customerName }}<br />
+                    <span class="admint__muted">{{ b.customerEmail }}</span>
+                  </th>
+                  <td>
+                    {{ b.slotStart | date: 'short' : '' : 'fr-CA' }}
+                    –
+                    {{ b.slotEnd | date: 'shortTime' : '' : 'fr-CA' }}
+                  </td>
+                  <td>{{ typeLabel(b.type) }}</td>
+                  <td>{{ b.addressSummary }}</td>
+                  <td>
+                    <span class="admint__badge" [class]="'admint__badge--' + statusModifier(b.status)">
+                      {{ statusLabel(b.status) }}
+                    </span>
+                  </td>
+                  <td class="admint__rowactions">
+                    @for (act of actionsFor(b.status); track act.action) {
+                      <button
+                        type="button"
+                        class="btn btn--small"
+                        [class.btn--danger]="act.danger"
+                        [attr.aria-label]="actionAria(act.label, b)"
+                        (click)="askAction(b, act.action, $event)"
+                      >
+                        {{ act.label }}
+                      </button>
+                    } @empty {
+                      <span class="admint__noaction" aria-hidden="true">—</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  </div>
+</section>
+
+@if (pending(); as p) {
+  <div class="admin-overlay" (click)="dismiss()" (keydown.escape)="dismiss()">
+    <div
+      #confirmDialog
+      class="admin-dialog"
+      role="alertdialog"
+      aria-modal="true"
+      tabindex="-1"
+      aria-labelledby="adminb-dialog-title"
+      aria-describedby="adminb-dialog-desc"
+      (click)="$event.stopPropagation()"
+      (keydown.escape)="dismiss()"
+    >
+      <h2 id="adminb-dialog-title">{{ dialogTitle(p.action) }}</h2>
+      <p id="adminb-dialog-desc">
+        <ng-container i18n="@@admin.bookings.dialog.desc">Réservation de</ng-container>
+        <strong> {{ p.booking.customerName }}</strong> —
+        {{ p.booking.slotStart | date: 'short' : '' : 'fr-CA' }}.
+      </p>
+      <div class="admin-dialog__actions">
+        <button
+          type="button"
+          class="btn"
+          [class.btn--danger]="p.action === 'cancel'"
+          (click)="confirmAction()"
+          [disabled]="busy()"
+          [attr.aria-busy]="busy()"
+          i18n="@@admin.bookings.dialog.confirm"
+        >
+          Confirmer l'action
+        </button>
+        <button
+          type="button"
+          class="btn btn--ghost"
+          (click)="dismiss()"
+          i18n="@@admin.bookings.dialog.dismiss"
+        >
+          Retour à la liste
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -5,8 +5,10 @@ using System;
 namespace AbrisAutoOutaouais_WebApp.UnitTest.Domain;
 
 /// <summary>
-/// Règles de report d'un créneau : seule une réservation à venir (Pending/Confirmed) est
-/// reportable, vers un créneau futur, et le statut est conservé.
+/// Règles de transition de statut d'un créneau (machine à états utilisée par l'admin :
+/// Pending → Confirmed|Cancelled ; Confirmed → Completed|Cancelled ; tout le reste échoue)
+/// et règles de report : seule une réservation à venir (Pending/Confirmed) est reportable,
+/// vers un créneau futur, et le statut est conservé.
 /// </summary>
 public sealed class BookingSlotTests
 {
@@ -18,6 +20,109 @@ public sealed class BookingSlotTests
         => BookingSlot.Create(
             Guid.NewGuid(), DateTime.UtcNow.AddDays(30), 120,
             BookingType.Installation, MakeAddress());
+
+    /// <summary>Amène une réservation neuve (Pending) jusqu'au statut demandé.</summary>
+    private static BookingSlot MakeBookingIn(BookingStatus status)
+    {
+        var booking = MakeBooking();
+        switch (status)
+        {
+            case BookingStatus.Confirmed:
+                booking.Confirm();
+                break;
+            case BookingStatus.Completed:
+                booking.Confirm();
+                booking.Complete();
+                break;
+            case BookingStatus.Cancelled:
+                booking.Cancel();
+                break;
+        }
+        return booking;
+    }
+
+    // ── Matrice des transitions de statut ────────────────────────────────────
+
+    [Fact]
+    public void Confirm_FromPending_SetsConfirmed()
+    {
+        var booking = MakeBookingIn(BookingStatus.Pending);
+
+        booking.Confirm();
+
+        booking.Status.Should().Be(BookingStatus.Confirmed);
+    }
+
+    [Fact]
+    public void Cancel_FromPending_SetsCancelled()
+    {
+        var booking = MakeBookingIn(BookingStatus.Pending);
+
+        booking.Cancel();
+
+        booking.Status.Should().Be(BookingStatus.Cancelled);
+    }
+
+    [Fact]
+    public void Complete_FromConfirmed_SetsCompleted()
+    {
+        var booking = MakeBookingIn(BookingStatus.Confirmed);
+
+        booking.Complete();
+
+        booking.Status.Should().Be(BookingStatus.Completed);
+    }
+
+    [Fact]
+    public void Cancel_FromConfirmed_SetsCancelled()
+    {
+        var booking = MakeBookingIn(BookingStatus.Confirmed);
+
+        booking.Cancel();
+
+        booking.Status.Should().Be(BookingStatus.Cancelled);
+    }
+
+    [Theory] // Confirm n'est légal que depuis Pending.
+    [InlineData(BookingStatus.Confirmed)]
+    [InlineData(BookingStatus.Completed)]
+    [InlineData(BookingStatus.Cancelled)]
+    public void Confirm_FromNonPending_Throws(BookingStatus from)
+    {
+        var booking = MakeBookingIn(from);
+
+        var act = booking.Confirm;
+
+        act.Should().Throw<BusinessRuleException>().WithMessage("*en attente*");
+        booking.Status.Should().Be(from); // statut inchangé
+    }
+
+    [Theory] // Complete n'est légal que depuis Confirmed.
+    [InlineData(BookingStatus.Pending)]
+    [InlineData(BookingStatus.Completed)]
+    [InlineData(BookingStatus.Cancelled)]
+    public void Complete_FromNonConfirmed_Throws(BookingStatus from)
+    {
+        var booking = MakeBookingIn(from);
+
+        var act = booking.Complete;
+
+        act.Should().Throw<BusinessRuleException>().WithMessage("*confirmé*");
+        booking.Status.Should().Be(from);
+    }
+
+    [Theory] // Cancel est illégal depuis Completed et depuis Cancelled (déjà annulé).
+    [InlineData(BookingStatus.Completed)]
+    [InlineData(BookingStatus.Cancelled)]
+    public void Cancel_FromTerminalState_Throws(BookingStatus from)
+    {
+        var booking = MakeBookingIn(from);
+
+        var act = booking.Cancel;
+
+        act.Should().Throw<BusinessRuleException>();
+        booking.Status.Should().Be(from);
+    }
 
     [Fact]
     public void Reschedule_ToFutureSlot_UpdatesStartAndKeepsStatus()

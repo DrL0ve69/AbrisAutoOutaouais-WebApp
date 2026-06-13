@@ -1,7 +1,9 @@
 <!-- ============================================================
-     /auth/reset — Demande de réinitialisation du mot de passe
-     Accessibilité : h1 unique, label associé, aria-invalid +
-     aria-describedby, confirmation annoncée en aria-live.
+     /auth/reset — Réinitialisation du mot de passe (2 modes)
+     1. Sans jeton : demande de lien (confirmation neutre aria-live).
+     2. Avec ?email&token : nouveau mot de passe → succès / erreur.
+     Accessibilité : h1 unique par état, labels associés, aria-invalid
+     + aria-describedby, focus géré APRÈS rendu (L-006).
 ============================================================ -->
 <div class="reset-page">
   <div class="reset-bg" aria-hidden="true">
@@ -10,7 +12,12 @@
   </div>
 
   <div class="reset-scene">
-    <a routerLink="/" class="reset-logo" aria-label="AbrisTempo Local — Retour à l'accueil">
+    <a
+      routerLink="/"
+      class="reset-logo"
+      aria-label="AbrisTempo Local — Retour à l'accueil"
+      i18n-aria-label="@@reset.logoAria"
+    >
       <svg
         class="reset-logo__icon"
         aria-hidden="true"
@@ -31,78 +38,227 @@
     </a>
 
     <div class="reset-card">
-      <header class="reset-header">
-        <h1 class="reset-title" i18n="@@reset.title">Réinitialiser le mot de passe</h1>
-        <p class="reset-subtitle" i18n="@@reset.subtitle">
-          Indiquez votre adresse courriel. Si un compte y est associé, vous recevrez un lien de
-          réinitialisation.
-        </p>
-      </header>
+      @if (!hasToken()) {
+        <!-- ─── MODE 1 : demande d'un lien de réinitialisation ─── -->
+        <header class="reset-header">
+          <h1 class="reset-title" i18n="@@reset.title">Réinitialiser le mot de passe</h1>
+          @if (!requestSent()) {
+            <p class="reset-subtitle" i18n="@@reset.subtitle">
+              Indiquez votre adresse courriel. Si un compte y est associé, vous recevrez un lien
+              de réinitialisation.
+            </p>
+          }
+        </header>
 
-      <!-- Confirmation neutre, annoncée aux lecteurs d'écran -->
-      <div aria-live="polite" aria-atomic="true">
-        @if (submitted()) {
-          <div class="reset-alert reset-alert--success" role="status">
-            <svg
-              aria-hidden="true"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
+        <!-- Confirmation neutre, annoncée aux lecteurs d'écran et focalisée
+             après rendu (le bouton soumis disparaît du DOM — L-006). -->
+        <div aria-live="polite" aria-atomic="true">
+          @if (requestSent()) {
+            <div
+              #requestConfirm
+              tabindex="-1"
+              class="reset-alert reset-alert--success"
+              role="status"
             >
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
-            <span i18n="@@reset.confirm">
-              Si un compte correspond à cette adresse, un courriel de réinitialisation vient d'être
-              envoyé. Pensez à vérifier vos pourriels.
-            </span>
-          </div>
-        }
-      </div>
-
-      @if (!submitted()) {
-        <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
-          <div class="field">
-            <label class="field__label" for="reset-email" i18n="@@reset.emailLabel">
-              Adresse courriel <span class="required" aria-hidden="true">*</span>
-            </label>
-            <input
-              id="reset-email"
-              type="email"
-              class="field__input"
-              formControlName="email"
-              autocomplete="email"
-              inputmode="email"
-              [attr.aria-invalid]="email.invalid && email.touched"
-              [attr.aria-required]="true"
-              aria-describedby="reset-email-err"
-              placeholder="votre@courriel.com"
-            />
-            @if (email.invalid && email.touched) {
-              <span id="reset-email-err" class="field__error" role="alert">
-                @if (email.hasError('required')) {
-                  <ng-container i18n="@@reset.emailRequired"
-                    >L'adresse courriel est requise.</ng-container
-                  >
-                } @else if (email.hasError('email')) {
-                  <ng-container i18n="@@reset.emailInvalid"
-                    >Format de courriel invalide.</ng-container
-                  >
-                }
+              <svg
+                aria-hidden="true"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              <span i18n="@@reset.confirm">
+                Si un compte correspond à cette adresse, un courriel de réinitialisation vient
+                d'être envoyé. Pensez à vérifier vos pourriels.
               </span>
-            }
-          </div>
+            </div>
+          }
+        </div>
 
-          <button
-            type="submit"
-            class="btn btn--primary btn--full reset-submit"
-            i18n="@@reset.submit"
-          >
-            Envoyer le lien
-          </button>
-        </form>
+        @if (!requestSent()) {
+          <form [formGroup]="requestForm" (ngSubmit)="submitRequest()" novalidate>
+            <div class="field">
+              <label class="field__label" for="reset-email" i18n="@@reset.emailLabel">
+                Adresse courriel <span class="required" aria-hidden="true">*</span>
+              </label>
+              <input
+                id="reset-email"
+                type="email"
+                class="field__input"
+                formControlName="email"
+                autocomplete="email"
+                inputmode="email"
+                [attr.aria-invalid]="reqEmail.invalid && reqEmail.touched"
+                [attr.aria-required]="true"
+                aria-describedby="reset-email-err"
+                placeholder="votre@courriel.com"
+              />
+              @if (reqEmail.invalid && reqEmail.touched) {
+                <span id="reset-email-err" class="field__error" role="alert">
+                  @if (reqEmail.hasError('required')) {
+                    <ng-container i18n="@@reset.emailRequired"
+                      >L'adresse courriel est requise.</ng-container
+                    >
+                  } @else if (reqEmail.hasError('email')) {
+                    <ng-container i18n="@@reset.emailInvalid"
+                      >Format de courriel invalide.</ng-container
+                    >
+                  }
+                </span>
+              }
+            </div>
+
+            <!-- aria-busy plutôt que [disabled] : un bouton désactivé perd le
+                 focus clavier → il retomberait sur <body> (WCAG 2.4.3). La garde
+                 de ré-entrée (submitRequest) empêche le double envoi. -->
+            <button
+              type="submit"
+              class="btn btn--primary btn--full reset-submit"
+              [attr.aria-busy]="loading()"
+              i18n="@@reset.submit"
+            >
+              Envoyer le lien
+            </button>
+          </form>
+        }
+      } @else {
+        <!-- ─── MODE 2 : choisir un nouveau mot de passe ─── -->
+        <header class="reset-header">
+          <h1 class="reset-title" i18n="@@reset.newTitle">Choisir un nouveau mot de passe</h1>
+          @if (!resetDone()) {
+            <p class="reset-subtitle" i18n="@@reset.newSubtitle">
+              Définissez le nouveau mot de passe du compte
+              <strong class="reset-email">{{ email() }}</strong
+              >.
+            </p>
+          }
+        </header>
+
+        @if (resetDone()) {
+          <!-- Succès : focus déplacé sur le titre APRÈS rendu (L-006). -->
+          <div class="reset-alert reset-alert--success reset-success">
+            <h2
+              #successHeading
+              tabindex="-1"
+              class="reset-success__title"
+              i18n="@@reset.successTitle"
+            >
+              Mot de passe réinitialisé
+            </h2>
+            <p i18n="@@reset.successBody">
+              Votre mot de passe a été mis à jour. Vous pouvez maintenant vous connecter avec
+              votre nouveau mot de passe.
+            </p>
+            <a routerLink="/auth" class="btn btn--primary btn--full" i18n="@@reset.successLogin">
+              Se connecter
+            </a>
+          </div>
+        } @else {
+          <!-- Erreur de réinitialisation (jeton invalide/expiré…) -->
+          @if (error()) {
+            <div role="alert" class="reset-alert reset-alert--error">
+              <svg
+                aria-hidden="true"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+              {{ error() }}
+            </div>
+          }
+
+          <form [formGroup]="resetForm" (ngSubmit)="submitReset()" novalidate>
+            <div class="field">
+              <label class="field__label" for="reset-new-password" i18n="@@reset.newPwdLabel">
+                Nouveau mot de passe <span class="required" aria-hidden="true">*</span>
+              </label>
+              <input
+                id="reset-new-password"
+                type="password"
+                class="field__input"
+                formControlName="newPassword"
+                autocomplete="new-password"
+                [attr.aria-invalid]="newPwd.invalid && newPwd.touched"
+                [attr.aria-required]="true"
+                aria-describedby="reset-new-pwd-hint reset-new-pwd-err"
+                placeholder="••••••••"
+              />
+              <span id="reset-new-pwd-hint" class="field__hint" i18n="@@reset.newPwdHint">
+                Min. 8 caractères, avec majuscule, minuscule, chiffre et caractère spécial.
+              </span>
+              @if (newPwd.invalid && newPwd.touched) {
+                <span id="reset-new-pwd-err" class="field__error" role="alert">
+                  @if (newPwd.hasError('required')) {
+                    <ng-container i18n="@@reset.newPwdRequired"
+                      >Le nouveau mot de passe est requis.</ng-container
+                    >
+                  } @else {
+                    <ng-container i18n="@@reset.newPwdWeak"
+                      >Le mot de passe ne respecte pas les exigences ci-dessus.</ng-container
+                    >
+                  }
+                </span>
+              }
+            </div>
+
+            <div class="field">
+              <label
+                class="field__label"
+                for="reset-confirm-password"
+                i18n="@@reset.confirmPwdLabel"
+              >
+                Confirmer le mot de passe <span class="required" aria-hidden="true">*</span>
+              </label>
+              <input
+                id="reset-confirm-password"
+                type="password"
+                class="field__input"
+                formControlName="confirmPassword"
+                autocomplete="new-password"
+                [attr.aria-invalid]="(confirmPwd.invalid || pwdMismatch) && confirmPwd.touched"
+                [attr.aria-required]="true"
+                aria-describedby="reset-confirm-pwd-err"
+                placeholder="••••••••"
+              />
+              @if ((confirmPwd.invalid || pwdMismatch) && confirmPwd.touched) {
+                <span id="reset-confirm-pwd-err" class="field__error" role="alert">
+                  @if (confirmPwd.hasError('required')) {
+                    <ng-container i18n="@@reset.confirmPwdRequired"
+                      >La confirmation est requise.</ng-container
+                    >
+                  } @else if (pwdMismatch) {
+                    <ng-container i18n="@@reset.confirmPwdMismatch"
+                      >Les mots de passe ne correspondent pas.</ng-container
+                    >
+                  }
+                </span>
+              }
+            </div>
+
+            <!-- aria-busy (pas [disabled]) : conserve le focus pour le renvoyer
+                 ici si la réinitialisation échoue (submitReset). -->
+            <button
+              #resetSubmitBtn
+              type="submit"
+              class="btn btn--primary btn--full reset-submit"
+              [attr.aria-busy]="loading()"
+              i18n="@@reset.newSubmit"
+            >
+              Réinitialiser le mot de passe
+            </button>
+          </form>
+        }
       }
 
       <p class="reset-switch">

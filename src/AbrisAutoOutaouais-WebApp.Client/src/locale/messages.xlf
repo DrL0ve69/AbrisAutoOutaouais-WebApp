@@ -2,6 +2,13 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="fr" datatype="plaintext" original="ng2.template">
     <body>
+      <trans-unit id="locale.switched" datatype="html">
+        <source>Langue changée : <x id="label" equiv-text="label"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/core/services/locale.service.ts</context>
+          <context context-type="linenumber">124</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="account.back" datatype="html">
         <source> ← Mon compte </source>
         <context-group purpose="location">
@@ -323,6 +330,248 @@
           <context context-type="linenumber">230</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="admin.bookings.eyebrow" datatype="html">
+        <source>Réservations</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.html</context>
+          <context context-type="linenumber">4,5</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.title" datatype="html">
+        <source> Gestion des réservations </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.html</context>
+          <context context-type="linenumber">6,8</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.lead" datatype="html">
+        <source> Confirmez, complétez ou annulez les créneaux d&apos;installation, de livraison et de démontage. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.html</context>
+          <context context-type="linenumber">9,11</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.back" datatype="html">
+        <source> ← Retour au tableau de bord </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.html</context>
+          <context context-type="linenumber">12,16</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.list.heading" datatype="html">
+        <source>Toutes les réservations</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.html</context>
+          <context context-type="linenumber">17,20</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.list.loading" datatype="html">
+        <source>Chargement…</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.html</context>
+          <context context-type="linenumber">20,22</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.list.error" datatype="html">
+        <source> Impossible de charger les réservations. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.html</context>
+          <context context-type="linenumber">23,25</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.list.empty" datatype="html">
+        <source> Aucune réservation pour le moment. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.html</context>
+          <context context-type="linenumber">27,29</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.table.caption" datatype="html">
+        <source> Liste des réservations avec client, créneau, type, adresse, statut et actions. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.html</context>
+          <context context-type="linenumber">34,36</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.table.customer" datatype="html">
+        <source>Client</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.html</context>
+          <context context-type="linenumber">38,39</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.table.slot" datatype="html">
+        <source>Créneau</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.html</context>
+          <context context-type="linenumber">39,40</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.table.type" datatype="html">
+        <source>Type</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.html</context>
+          <context context-type="linenumber">40,41</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.table.address" datatype="html">
+        <source>Adresse</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.html</context>
+          <context context-type="linenumber">41,42</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.table.status" datatype="html">
+        <source>Statut</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.html</context>
+          <context context-type="linenumber">42,43</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.table.actions" datatype="html">
+        <source>Actions</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.html</context>
+          <context context-type="linenumber">43,45</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.dialog.desc" datatype="html">
+        <source>Réservation de</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.html</context>
+          <context context-type="linenumber">105,106</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.dialog.confirm" datatype="html">
+        <source> Confirmer l&apos;action </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.html</context>
+          <context context-type="linenumber">119,122</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.dialog.dismiss" datatype="html">
+        <source> Retour à la liste </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.html</context>
+          <context context-type="linenumber">127,130</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.toast.loadError" datatype="html">
+        <source>Échec du chargement des réservations.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
+          <context context-type="linenumber">91</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.status.pending" datatype="html">
+        <source>En attente</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
+          <context context-type="linenumber">102</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.status.confirmed" datatype="html">
+        <source>Confirmée</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
+          <context context-type="linenumber">104</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.status.completed" datatype="html">
+        <source>Complétée</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
+          <context context-type="linenumber">106</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.status.cancelled" datatype="html">
+        <source>Annulée</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
+          <context context-type="linenumber">108</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.type.installation" datatype="html">
+        <source>Installation</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
+          <context context-type="linenumber">116</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.type.delivery" datatype="html">
+        <source>Livraison</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
+          <context context-type="linenumber">118</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.type.removal" datatype="html">
+        <source>Démontage</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
+          <context context-type="linenumber">120</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.action.confirm" datatype="html">
+        <source>Confirmer</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
+          <context context-type="linenumber">136</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.action.cancel" datatype="html">
+        <source>Annuler</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
+          <context context-type="linenumber">141</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
+          <context context-type="linenumber">154</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.action.complete" datatype="html">
+        <source>Marquer complétée</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
+          <context context-type="linenumber">149</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.dialog.confirmTitle" datatype="html">
+        <source>Confirmer cette réservation ?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
+          <context context-type="linenumber">168</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.dialog.completeTitle" datatype="html">
+        <source>Marquer cette réservation comme complétée ?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
+          <context context-type="linenumber">170</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.dialog.cancelTitle" datatype="html">
+        <source>Annuler cette réservation ?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
+          <context context-type="linenumber">172</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.toast.updated" datatype="html">
+        <source>Statut de la réservation mis à jour.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
+          <context context-type="linenumber">210</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.toast.updateError" datatype="html">
+        <source>La mise à jour du statut a échoué.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
+          <context context-type="linenumber">220</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="admin.eyebrow" datatype="html">
         <source>Espace réservé</source>
         <context-group purpose="location">
@@ -338,7 +587,7 @@
         </context-group>
       </trans-unit>
       <trans-unit id="admin.lead" datatype="html">
-        <source> Gérez le catalogue, les commandes et les utilisateurs d&apos;AbrisTempo Local. Les modules ci-dessous arrivent prochainement. </source>
+        <source> Gérez le catalogue, les commandes, les réservations, les locations et les utilisateurs d&apos;AbrisTempo Local. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/dashboard/dashboard.ts</context>
           <context context-type="linenumber">30,31</context>
@@ -400,32 +649,46 @@
           <context context-type="linenumber">77</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="admin.section.reservations" datatype="html">
+        <source>Réservations</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/dashboard/dashboard.ts</context>
+          <context context-type="linenumber">83</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.section.reservationsDesc" datatype="html">
+        <source>Confirmer, compléter ou annuler les créneaux d&apos;installation.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/dashboard/dashboard.ts</context>
+          <context context-type="linenumber">84</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.section.rentals" datatype="html">
+        <source>Locations</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/dashboard/dashboard.ts</context>
+          <context context-type="linenumber">90</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.section.rentalsDesc" datatype="html">
+        <source>Consulter et annuler les contrats de location saisonnière.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/dashboard/dashboard.ts</context>
+          <context context-type="linenumber">91</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="admin.section.users" datatype="html">
         <source>Utilisateurs</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/dashboard/dashboard.ts</context>
-          <context context-type="linenumber">83</context>
+          <context context-type="linenumber">97</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.section.usersDesc" datatype="html">
         <source>Gérer les comptes et les rôles des utilisateurs.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/dashboard/dashboard.ts</context>
-          <context context-type="linenumber">84</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="admin.section.reservations" datatype="html">
-        <source>Réservations</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/admin/dashboard/dashboard.ts</context>
-          <context context-type="linenumber">89</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="admin.section.reservationsDesc" datatype="html">
-        <source>Planifier les installations et les locations d&apos;abris.</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/admin/dashboard/dashboard.ts</context>
-          <context context-type="linenumber">90</context>
+          <context context-type="linenumber">98</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.orders.eyebrow" datatype="html">
@@ -933,60 +1196,551 @@
           <context context-type="linenumber">196</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="admin.rentals.eyebrow" datatype="html">
+        <source>Locations</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/rentals/rentals.html</context>
+          <context context-type="linenumber">4,5</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.rentals.title" datatype="html">
+        <source> Gestion des locations </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/rentals/rentals.html</context>
+          <context context-type="linenumber">6,8</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.rentals.lead" datatype="html">
+        <source> Consultez les contrats de location saisonnière et annulez-les au besoin. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/rentals/rentals.html</context>
+          <context context-type="linenumber">9,11</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.rentals.back" datatype="html">
+        <source> ← Retour au tableau de bord </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/rentals/rentals.html</context>
+          <context context-type="linenumber">12,15</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.rentals.list.heading" datatype="html">
+        <source>Tous les contrats</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/rentals/rentals.html</context>
+          <context context-type="linenumber">17,20</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.rentals.list.loading" datatype="html">
+        <source>Chargement…</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/rentals/rentals.html</context>
+          <context context-type="linenumber">20,22</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.rentals.list.error" datatype="html">
+        <source> Impossible de charger les locations. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/rentals/rentals.html</context>
+          <context context-type="linenumber">23,25</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.rentals.list.empty" datatype="html">
+        <source> Aucune location pour le moment. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/rentals/rentals.html</context>
+          <context context-type="linenumber">27,29</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.rentals.table.caption" datatype="html">
+        <source> Liste des contrats de location avec client, abri, période, tarif mensuel, statut et actions. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/rentals/rentals.html</context>
+          <context context-type="linenumber">34,36</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.rentals.table.customer" datatype="html">
+        <source>Client</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/rentals/rentals.html</context>
+          <context context-type="linenumber">38,39</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.rentals.table.product" datatype="html">
+        <source>Abri</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/rentals/rentals.html</context>
+          <context context-type="linenumber">39,40</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.rentals.table.period" datatype="html">
+        <source>Période</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/rentals/rentals.html</context>
+          <context context-type="linenumber">40,41</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.rentals.table.rate" datatype="html">
+        <source>Tarif mensuel</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/rentals/rentals.html</context>
+          <context context-type="linenumber">41,42</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.rentals.table.status" datatype="html">
+        <source>Statut</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/rentals/rentals.html</context>
+          <context context-type="linenumber">42,43</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.rentals.table.actions" datatype="html">
+        <source>Actions</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/rentals/rentals.html</context>
+          <context context-type="linenumber">43,45</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.rentals.action.cancel" datatype="html">
+        <source> Annuler </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/rentals/rentals.html</context>
+          <context context-type="linenumber">74,75</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.rentals.dialog.title" datatype="html">
+        <source>Annuler cette location ?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/rentals/rentals.html</context>
+          <context context-type="linenumber">103,105</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.rentals.dialog.desc" datatype="html">
+        <source>Location</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/rentals/rentals.html</context>
+          <context context-type="linenumber">105,106</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.rentals.dialog.desc2" datatype="html">
+        <source>Cette action est définitive.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/rentals/rentals.html</context>
+          <context context-type="linenumber">107,109</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.rentals.dialog.confirm" datatype="html">
+        <source> Confirmer l&apos;annulation </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/rentals/rentals.html</context>
+          <context context-type="linenumber">118,120</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.rentals.dialog.dismiss" datatype="html">
+        <source> Garder la location </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/rentals/rentals.html</context>
+          <context context-type="linenumber">126,129</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.rentals.toast.loadError" datatype="html">
+        <source>Échec du chargement des locations.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/rentals/rentals.ts</context>
+          <context context-type="linenumber">74</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.rentals.status.active" datatype="html">
+        <source>Active</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/rentals/rentals.ts</context>
+          <context context-type="linenumber">85</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.rentals.status.expired" datatype="html">
+        <source>Expirée</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/rentals/rentals.ts</context>
+          <context context-type="linenumber">87</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.rentals.status.cancelled" datatype="html">
+        <source>Annulée</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/rentals/rentals.ts</context>
+          <context context-type="linenumber">89</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.rentals.cancel.aria" datatype="html">
+        <source>Annuler la location</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/rentals/rentals.ts</context>
+          <context context-type="linenumber">105</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.rentals.toast.cancelled" datatype="html">
+        <source>Location annulée.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/rentals/rentals.ts</context>
+          <context context-type="linenumber">136</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.rentals.toast.cancelError" datatype="html">
+        <source>L&apos;annulation a échoué. Veuillez réessayer.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/rentals/rentals.ts</context>
+          <context context-type="linenumber">146</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.users.eyebrow" datatype="html">
+        <source>Utilisateurs</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/users/users.html</context>
+          <context context-type="linenumber">4,5</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.users.title" datatype="html">
+        <source> Liste des utilisateurs </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/users/users.html</context>
+          <context context-type="linenumber">6,8</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.users.lead" datatype="html">
+        <source> Consultez les comptes, leurs rôles et leur état de verrouillage (lecture seule). </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/users/users.html</context>
+          <context context-type="linenumber">9,11</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.users.back" datatype="html">
+        <source> ← Retour au tableau de bord </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/users/users.html</context>
+          <context context-type="linenumber">12,14</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.users.list.heading" datatype="html">
+        <source>Tous les comptes</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/users/users.html</context>
+          <context context-type="linenumber">17,20</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.users.list.loading" datatype="html">
+        <source>Chargement…</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/users/users.html</context>
+          <context context-type="linenumber">20,22</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.users.list.error" datatype="html">
+        <source> Impossible de charger les utilisateurs. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/users/users.html</context>
+          <context context-type="linenumber">23,25</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.users.list.empty" datatype="html">
+        <source> Aucun utilisateur pour le moment. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/users/users.html</context>
+          <context context-type="linenumber">27,29</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.users.table.caption" datatype="html">
+        <source> Liste des utilisateurs avec nom, courriel, nom d&apos;utilisateur, rôles, date d&apos;inscription et état du compte. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/users/users.html</context>
+          <context context-type="linenumber">34,36</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.users.table.name" datatype="html">
+        <source>Nom</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/users/users.html</context>
+          <context context-type="linenumber">39</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.users.table.email" datatype="html">
+        <source>Courriel</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/users/users.html</context>
+          <context context-type="linenumber">39,40</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.users.table.username" datatype="html">
+        <source>Nom d&apos;utilisateur</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/users/users.html</context>
+          <context context-type="linenumber">40,41</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.users.table.roles" datatype="html">
+        <source>Rôles</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/users/users.html</context>
+          <context context-type="linenumber">41,42</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.users.table.createdAt" datatype="html">
+        <source>Inscrit le</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/users/users.html</context>
+          <context context-type="linenumber">42,43</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.users.table.state" datatype="html">
+        <source>État</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/users/users.html</context>
+          <context context-type="linenumber">43,45</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.users.state.locked" datatype="html">
+        <source> Verrouillé </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/users/users.html</context>
+          <context context-type="linenumber">65,66</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.users.state.active" datatype="html">
+        <source> Actif </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/users/users.html</context>
+          <context context-type="linenumber">69,70</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.users.toast.loadError" datatype="html">
+        <source>Échec du chargement des utilisateurs.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/users/users.ts</context>
+          <context context-type="linenumber">45</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.users.role.admin" datatype="html">
+        <source>Administrateur</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/users/users.ts</context>
+          <context context-type="linenumber">56</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.users.role.staff" datatype="html">
+        <source>Personnel</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/users/users.ts</context>
+          <context context-type="linenumber">58</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.users.role.customer" datatype="html">
+        <source>Client</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/users/users.ts</context>
+          <context context-type="linenumber">60</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.email.checking" datatype="html">
+        <source>Vérification de la disponibilité…</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/auth.html</context>
+          <context context-type="linenumber">232,233</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.email.available" datatype="html">
+        <source>Courriel disponible.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/auth.html</context>
+          <context context-type="linenumber">234,236</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.email.taken" datatype="html">
+        <source>Un compte existe déjà avec ce courriel.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/auth.html</context>
+          <context context-type="linenumber">242,243</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.username.checking" datatype="html">
+        <source>Vérification de la disponibilité…</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/auth.html</context>
+          <context context-type="linenumber">268,269</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.username.available" datatype="html">
+        <source>Nom d&apos;utilisateur disponible.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/auth.html</context>
+          <context context-type="linenumber">270,272</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.username.taken" datatype="html">
+        <source>Ce nom d&apos;utilisateur est déjà pris.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/auth.html</context>
+          <context context-type="linenumber">278,280</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="reset.logoAria" datatype="html">
+        <source>AbrisTempo Local — Retour à l&apos;accueil</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
+          <context context-type="linenumber">18,19</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="reset.title" datatype="html">
         <source>Réinitialiser le mot de passe</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
-          <context context-type="linenumber">35,36</context>
+          <context context-type="linenumber">44,45</context>
         </context-group>
       </trans-unit>
       <trans-unit id="reset.subtitle" datatype="html">
         <source> Indiquez votre adresse courriel. Si un compte y est associé, vous recevrez un lien de réinitialisation. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
-          <context context-type="linenumber">37,39</context>
+          <context context-type="linenumber">47,49</context>
         </context-group>
       </trans-unit>
       <trans-unit id="reset.confirm" datatype="html">
         <source> Si un compte correspond à cette adresse, un courriel de réinitialisation vient d&apos;être envoyé. Pensez à vérifier vos pourriels. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
-          <context context-type="linenumber">58,59</context>
+          <context context-type="linenumber">75,76</context>
         </context-group>
       </trans-unit>
       <trans-unit id="reset.emailLabel" datatype="html">
         <source> Adresse courriel <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;required&quot; aria-hidden=&quot;true&quot;&gt;"/>*<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
-          <context context-type="linenumber">69,70</context>
+          <context context-type="linenumber">86,87</context>
         </context-group>
       </trans-unit>
       <trans-unit id="reset.emailRequired" datatype="html">
         <source>L&apos;adresse courriel est requise.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
-          <context context-type="linenumber">87,88</context>
+          <context context-type="linenumber">104,105</context>
         </context-group>
       </trans-unit>
       <trans-unit id="reset.emailInvalid" datatype="html">
         <source>Format de courriel invalide.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
-          <context context-type="linenumber">91,92</context>
+          <context context-type="linenumber">108,109</context>
         </context-group>
       </trans-unit>
       <trans-unit id="reset.submit" datatype="html">
         <source> Envoyer le lien </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
-          <context context-type="linenumber">103,104</context>
+          <context context-type="linenumber">124,125</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="reset.newTitle" datatype="html">
+        <source>Choisir un nouveau mot de passe</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
+          <context context-type="linenumber">131,132</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="reset.newSubtitle" datatype="html">
+        <source> Définissez le nouveau mot de passe du compte <x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong class=&quot;reset-email&quot;&gt;"/><x id="INTERPOLATION" equiv-text="{{ email() }}"/><x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong
+              &gt;"/>. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
+          <context context-type="linenumber">134,138</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="reset.successTitle" datatype="html">
+        <source> Mot de passe réinitialisé </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
+          <context context-type="linenumber">150,152</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="reset.successBody" datatype="html">
+        <source> Votre mot de passe a été mis à jour. Vous pouvez maintenant vous connecter avec votre nouveau mot de passe. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
+          <context context-type="linenumber">153,155</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="reset.successLogin" datatype="html">
+        <source> Se connecter </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
+          <context context-type="linenumber">157,159</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="reset.newPwdLabel" datatype="html">
+        <source> Nouveau mot de passe <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;required&quot; aria-hidden=&quot;true&quot;&gt;"/>*<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
+          <context context-type="linenumber">184,185</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="reset.newPwdHint" datatype="html">
+        <source> Min. 8 caractères, avec majuscule, minuscule, chiffre et caractère spécial. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
+          <context context-type="linenumber">198,199</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="reset.newPwdRequired" datatype="html">
+        <source>Le nouveau mot de passe est requis.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
+          <context context-type="linenumber">204,205</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="reset.newPwdWeak" datatype="html">
+        <source>Le mot de passe ne respecte pas les exigences ci-dessus.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
+          <context context-type="linenumber">208,209</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="reset.confirmPwdLabel" datatype="html">
+        <source> Confirmer le mot de passe <x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span class=&quot;required&quot; aria-hidden=&quot;true&quot;&gt;"/>*<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
+          <context context-type="linenumber">221,222</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="reset.confirmPwdRequired" datatype="html">
+        <source>La confirmation est requise.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
+          <context context-type="linenumber">238,240</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="reset.confirmPwdMismatch" datatype="html">
+        <source>Les mots de passe ne correspondent pas.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
+          <context context-type="linenumber">242,244</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="reset.newSubmit" datatype="html">
+        <source> Réinitialiser le mot de passe </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
+          <context context-type="linenumber">258,259</context>
         </context-group>
       </trans-unit>
       <trans-unit id="reset.backToLogin" datatype="html">
         <source>← Retour à la connexion</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/auth/reset/reset.html</context>
-          <context context-type="linenumber">109,112</context>
+          <context context-type="linenumber">265,268</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="reset.errorGeneric" datatype="html">
+        <source>Le lien de réinitialisation est invalide ou expiré. Demandez un nouveau lien.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/auth/reset/reset.ts</context>
+          <context context-type="linenumber">186</context>
         </context-group>
       </trans-unit>
       <trans-unit id="cart.eyebrow" datatype="html">
@@ -1798,28 +2552,444 @@
         <source>Connectez-vous pour réserver une installation.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.ts</context>
-          <context context-type="linenumber">104</context>
+          <context context-type="linenumber">109</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.noSlot" datatype="html">
         <source>Veuillez choisir un créneau.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.ts</context>
-          <context context-type="linenumber">114</context>
+          <context context-type="linenumber">119</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.success" datatype="html">
         <source>Réservation confirmée !</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.ts</context>
-          <context context-type="linenumber">144</context>
+          <context context-type="linenumber">149</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.error" datatype="html">
         <source>La réservation a échoué. Veuillez réessayer.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.ts</context>
-          <context context-type="linenumber">152</context>
+          <context context-type="linenumber">157</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.eyebrow" datatype="html">
+        <source>Informations légales</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/accessibilite/accessibilite.html</context>
+          <context context-type="linenumber">9,10</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">9,10</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">9,10</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.title" datatype="html">
+        <source> Déclaration d&apos;accessibilité </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/accessibilite/accessibilite.html</context>
+          <context context-type="linenumber">11,13</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.updated" datatype="html">
+        <source> Dernière révision : juin 2026 </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/accessibilite/accessibilite.html</context>
+          <context context-type="linenumber">14,18</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.commitment.title" datatype="html">
+        <source>1. Notre engagement</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/accessibilite/accessibilite.html</context>
+          <context context-type="linenumber">20,21</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.commitment.p1" datatype="html">
+        <source> AbrisTempo Outaouais s&apos;engage à rendre son site accessible à toutes et à tous, y compris aux personnes en situation de handicap. Notre cible de conformité est le référentiel <x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong&gt;"/>WCAG 2.2, niveau AA<x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong&gt;"/>, appliqué dès la conception et vérifié en continu à chaque modification du site. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/accessibilite/accessibilite.html</context>
+          <context context-type="linenumber">22,26</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.measures.title" datatype="html">
+        <source>2. Mesures de vérification</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/accessibilite/accessibilite.html</context>
+          <context context-type="linenumber">30,31</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.measures.p1" datatype="html">
+        <source> L&apos;accessibilité est validée par une combinaison de tests automatisés et de vérifications manuelles — l&apos;automatisation ne couvrant qu&apos;une partie des critères WCAG : </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/accessibilite/accessibilite.html</context>
+          <context context-type="linenumber">32,36</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.measures.item1" datatype="html">
+        <source> tests automatisés axe-core à deux niveaux : sur chaque composant (tests unitaires) et sur chaque page complète de l&apos;application réelle (tests de bout en bout, y compris le contraste des couleurs) ; </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/accessibilite/accessibilite.html</context>
+          <context context-type="linenumber">38,41</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.measures.item2" datatype="html">
+        <source> passes manuelles avec les lecteurs d&apos;écran NVDA (Windows) et VoiceOver (macOS) ; </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/accessibilite/accessibilite.html</context>
+          <context context-type="linenumber">43,45</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.measures.item3" datatype="html">
+        <source> navigation complète au clavier (ordre de tabulation, focus visible, absence de piège) et zoom jusqu&apos;à 400 % sans perte de contenu ; </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/accessibilite/accessibilite.html</context>
+          <context context-type="linenumber">46,49</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.measures.item4" datatype="html">
+        <source> balayage de contraste dans les deux thèmes (clair et sombre) et respect des préférences système, dont la réduction des animations. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/accessibilite/accessibilite.html</context>
+          <context context-type="linenumber">50,53</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.status.title" datatype="html">
+        <source>3. État de conformité</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/accessibilite/accessibilite.html</context>
+          <context context-type="linenumber">57,58</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.status.p1" datatype="html">
+        <source> Selon notre audit interne (juin 2026), le site est conforme au niveau AA des WCAG 2.2 sur les parcours principaux : accueil, boutique, fiche produit, authentification, panier et espace client. Cet état est réévalué à chaque évolution du site. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/accessibilite/accessibilite.html</context>
+          <context context-type="linenumber">59,63</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.limits.title" datatype="html">
+        <source>4. Limites connues</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/accessibilite/accessibilite.html</context>
+          <context context-type="linenumber">66,67</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.limits.p1" datatype="html">
+        <source> Malgré nos efforts, certains contenus peuvent présenter des limites ponctuelles, notamment des contenus récents pas encore passés en revue ou des éléments fournis par des tiers. Si vous rencontrez un obstacle, signalez-le-nous : nous corrigerons dans les meilleurs délais et vous proposerons une solution de rechange accessible. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/accessibilite/accessibilite.html</context>
+          <context context-type="linenumber">68,72</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.feedback.title" datatype="html">
+        <source>5. Rétroaction et assistance</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/accessibilite/accessibilite.html</context>
+          <context context-type="linenumber">76,77</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.accessibilite.feedback.p1" datatype="html">
+        <source> Vos commentaires nous aident à nous améliorer. Pour signaler un problème d&apos;accessibilité ou demander de l&apos;aide, écrivez à <x id="START_LINK" ctype="x-a" equiv-text="&lt;a href=&quot;mailto:accessibilite@abristempo-outaouais.ca&quot;
+            &gt;"/>accessibilite@abristempo-outaouais.ca<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/> ou appelez le <x id="START_LINK_1" equiv-text="&lt;a href=&quot;tel:+18191234567&quot;&gt;"/>819 123-4567<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/>. Nous nous engageons à répondre dans un délai de cinq jours ouvrables. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/accessibilite/accessibilite.html</context>
+          <context context-type="linenumber">78,85</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.title" datatype="html">
+        <source>Conditions d&apos;utilisation</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">10,11</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.updated" datatype="html">
+        <source> Dernière mise à jour : juin 2026 </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">12,16</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.intro.title" datatype="html">
+        <source>1. Objet et acceptation</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">18,19</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.intro.p1" datatype="html">
+        <source> Les présentes conditions encadrent l&apos;utilisation du site AbrisTempo Outaouais, représentant régional de la marque Abris Tempo pour l&apos;Outaouais. En naviguant sur le site, en créant un compte ou en passant une commande, vous acceptez ces conditions dans leur intégralité. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">20,24</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.intro.demo" datatype="html">
+        <source> Avis : cette plateforme est un site de démonstration à des fins de portfolio. Les commandes, locations et réservations qui y sont effectuées n&apos;engagent aucune transaction réelle. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">26,29</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.account.title" datatype="html">
+        <source>2. Compte et utilisation du site</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">33,34</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.account.p1" datatype="html">
+        <source> La création d&apos;un compte est requise pour commander, louer un abri ou réserver une installation. Vous êtes responsable de l&apos;exactitude des renseignements fournis et de la confidentialité de votre mot de passe. Toute utilisation frauduleuse, abusive ou contraire à la loi peut entraîner la suspension du compte. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">35,39</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.orders.title" datatype="html">
+        <source>3. Commandes et livraison</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">43,44</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.orders.p1" datatype="html">
+        <source> Les prix sont affichés en dollars canadiens, taxes en sus. Une commande est confirmée après validation du paiement et de l&apos;adresse de livraison. La livraison est offerte dans la région de l&apos;Outaouais et les environs ; les délais communiqués sont indicatifs et peuvent varier selon la saison et les conditions routières. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">45,49</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.rentals.title" datatype="html">
+        <source>4. Location saisonnière</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">53,54</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.rentals.p1" datatype="html">
+        <source> La location d&apos;un abri couvre la période convenue au contrat (généralement la saison hivernale). L&apos;abri demeure la propriété d&apos;AbrisTempo Outaouais ; le locataire s&apos;engage à l&apos;utiliser avec soin et à signaler tout dommage. Des frais peuvent s&apos;appliquer en cas de bris ou de perte attribuable à une utilisation anormale. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">55,59</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.bookings.title" datatype="html">
+        <source>5. Réservation d&apos;installation</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">63,64</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.bookings.p1" datatype="html">
+        <source> Les créneaux d&apos;installation et de désinstallation sont réservés en ligne et confirmés par courriel. Vous pouvez reporter ou annuler un rendez-vous depuis votre compte jusqu&apos;à 48 heures avant le créneau prévu. L&apos;accès au lieu d&apos;installation doit être dégagé et sécuritaire ; à défaut, le rendez-vous pourra être reporté. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">65,69</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.liability.title" datatype="html">
+        <source>6. Responsabilité</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">73,74</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.liability.p1" datatype="html">
+        <source> AbrisTempo Outaouais met tout en œuvre pour assurer l&apos;exactitude des renseignements publiés, sans garantir l&apos;absence d&apos;erreurs. Dans les limites permises par la loi, sa responsabilité est limitée au montant payé pour le produit ou le service concerné. Rien dans les présentes ne restreint les garanties légales prévues par la Loi sur la protection du consommateur du Québec. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">75,79</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.law.title" datatype="html">
+        <source>7. Droit applicable</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">84,85</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.law.p1" datatype="html">
+        <source> Les présentes conditions sont régies par les lois applicables au Québec et au Canada. Tout litige relève des tribunaux compétents du district judiciaire de Gatineau (Québec). </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">86,89</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.contact.title" datatype="html">
+        <source>8. Nous joindre</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">93,94</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.conditions.contact.p1" datatype="html">
+        <source> Pour toute question sur ces conditions, écrivez-nous à <x id="START_LINK" ctype="x-a" equiv-text="&lt;a href=&quot;mailto:info@abristempo-outaouais.ca&quot;&gt;"/>info@abristempo-outaouais.ca<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/> ou appelez le <x id="START_LINK_1" equiv-text="&lt;a href=&quot;tel:+18191234567&quot;&gt;"/>819 123-4567<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/>. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/conditions/conditions.html</context>
+          <context context-type="linenumber">95,99</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.title" datatype="html">
+        <source> Politique de confidentialité </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">11,13</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.updated" datatype="html">
+        <source> Dernière mise à jour : juin 2026 </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">14,18</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.collect.title" datatype="html">
+        <source>1. Renseignements recueillis</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">20,21</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.collect.p1" datatype="html">
+        <source> Nous recueillons uniquement les renseignements nécessaires à la prestation de nos services : </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">22,26</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.collect.item1" datatype="html">
+        <source> Compte : nom, prénom, adresse courriel, nom d&apos;utilisateur, numéro de téléphone (facultatif) et mot de passe (stocké sous forme hachée, jamais en clair) ; </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">27,30</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.collect.item2" datatype="html">
+        <source> Adresses : adresse de livraison ou d&apos;installation que vous enregistrez ; </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">31,33</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.collect.item3" datatype="html">
+        <source> Transactions : historique de vos commandes, locations et réservations. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">34,37</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.purpose.title" datatype="html">
+        <source>2. Finalités d&apos;utilisation</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">40,41</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.purpose.p1" datatype="html">
+        <source> Ces renseignements servent exclusivement à traiter vos commandes, planifier les livraisons et installations, gérer votre compte et vous transmettre les communications liées à vos transactions (confirmations, rappels de rendez-vous). Nous ne vendons ni ne louons vos renseignements personnels à des tiers. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">42,46</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.retention.title" datatype="html">
+        <source>3. Conservation</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">50,51</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.retention.p1" datatype="html">
+        <source> Les renseignements liés à votre compte sont conservés tant que celui-ci est actif. Les renseignements transactionnels sont conservés pour la durée exigée par les obligations légales et fiscales applicables, puis détruits ou anonymisés de façon sécuritaire. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">52,56</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.storage.title" datatype="html">
+        <source>4. Témoins et stockage local</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">60,61</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.storage.p1" datatype="html">
+        <source> Le site n&apos;utilise aucun témoin (cookie) publicitaire ni outil de suivi tiers. Seul le stockage local de votre navigateur est utilisé, pour des fonctions essentielles : </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">62,66</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.storage.item1" datatype="html">
+        <source> votre préférence de thème (clair ou sombre) ; </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">67,69</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.storage.item2" datatype="html">
+        <source> le contenu de votre panier d&apos;achat ; </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">70,72</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.storage.item3" datatype="html">
+        <source> votre jeton de session (JWT) lorsque vous êtes connecté, supprimé à la déconnexion. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">73,76</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.rights.title" datatype="html">
+        <source>5. Vos droits (Loi 25)</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">79,80</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.rights.p1" datatype="html">
+        <source> Conformément à la Loi modernisant des dispositions législatives en matière de protection des renseignements personnels (Loi 25, Québec), vous pouvez en tout temps demander l&apos;accès à vos renseignements personnels, leur rectification, leur retrait ou la cessation de leur diffusion. Vous pouvez modifier vos renseignements directement depuis votre compte, ou nous écrire pour exercer vos autres droits. Une réponse vous sera transmise dans les 30 jours. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">81,86</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.security.title" datatype="html">
+        <source>6. Sécurité</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">91,92</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.security.p1" datatype="html">
+        <source> Les échanges avec nos serveurs sont chiffrés (HTTPS) et l&apos;accès aux renseignements personnels est restreint au personnel qui en a besoin pour fournir le service. En cas d&apos;incident de confidentialité présentant un risque de préjudice sérieux, les personnes concernées et la Commission d&apos;accès à l&apos;information seraient avisées. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">93,97</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.contact.title" datatype="html">
+        <source>7. Responsable de la protection</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">101,102</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="legal.confidentialite.contact.p1" datatype="html">
+        <source> Pour toute question relative à la présente politique ou pour exercer vos droits, contactez le responsable de la protection des renseignements personnels à <x id="START_LINK" ctype="x-a" equiv-text="&lt;a href=&quot;mailto:confidentialite@abristempo-outaouais.ca&quot;
+            &gt;"/>confidentialite@abristempo-outaouais.ca<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/> ou au <x id="START_LINK_1" equiv-text="&lt;a href=&quot;tel:+18191234567&quot;&gt;"/>819 123-4567<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/>. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/legal/confidentialite/confidentialite.html</context>
+          <context context-type="linenumber">103,110</context>
         </context-group>
       </trans-unit>
       <trans-unit id="location.eyebrow" datatype="html">
@@ -1966,35 +3136,35 @@
         <source>Connectez-vous pour louer un abri.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.ts</context>
-          <context context-type="linenumber">89</context>
+          <context context-type="linenumber">94</context>
         </context-group>
       </trans-unit>
       <trans-unit id="location.noProduct" datatype="html">
         <source>Veuillez choisir un abri à louer.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.ts</context>
-          <context context-type="linenumber">99</context>
+          <context context-type="linenumber">104</context>
         </context-group>
       </trans-unit>
       <trans-unit id="location.badDates" datatype="html">
         <source>La date de fin doit être après la date de début.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.ts</context>
-          <context context-type="linenumber">113</context>
+          <context context-type="linenumber">118</context>
         </context-group>
       </trans-unit>
       <trans-unit id="location.success" datatype="html">
         <source>Location confirmée !</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.ts</context>
-          <context context-type="linenumber">137</context>
+          <context context-type="linenumber">142</context>
         </context-group>
       </trans-unit>
       <trans-unit id="location.error" datatype="html">
         <source>La location a échoué. Veuillez réessayer.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.ts</context>
-          <context context-type="linenumber">145</context>
+          <context context-type="linenumber">150</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.catalog.eyebrow" datatype="html">
@@ -2242,6 +3412,125 @@
           <context context-type="linenumber">70</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="faq.title" datatype="html">
+        <source>Foire aux questions</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/faq/faq.component.ts</context>
+          <context context-type="linenumber">28,30</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="faq.install.delais.q" datatype="html">
+        <source>Quels sont les délais pour une installation ?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/faq/faq.component.ts</context>
+          <context context-type="linenumber">74</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="faq.install.delais.a" datatype="html">
+        <source>Après confirmation du rendez-vous, l&apos;installation a généralement lieu sous une à deux semaines selon la saison et la disponibilité des créneaux. Les périodes de fin d&apos;automne sont les plus demandées : réservez tôt.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/faq/faq.component.ts</context>
+          <context context-type="linenumber">75</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="faq.install.marques.q" datatype="html">
+        <source>Installez-vous d&apos;autres marques d&apos;abris que Abris Tempo ?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/faq/faq.component.ts</context>
+          <context context-type="linenumber">78</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="faq.install.marques.a" datatype="html">
+        <source>Oui. On installe aussi d&apos;autres marques d&apos;abris, à l&apos;exception de ShelterLogic. Contactez-nous avec le modèle et les dimensions pour confirmer la faisabilité avant de réserver.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/faq/faq.component.ts</context>
+          <context context-type="linenumber">79</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="faq.install.garantie.q" datatype="html">
+        <source>L&apos;installation est-elle garantie ?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/faq/faq.component.ts</context>
+          <context context-type="linenumber">82</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="faq.install.garantie.a" datatype="html">
+        <source>Le travail d&apos;installation est garanti contre les défauts de montage. La garantie du produit lui-même reste celle du fabricant de l&apos;abri.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/faq/faq.component.ts</context>
+          <context context-type="linenumber">83</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="faq.install.terrain.q" datatype="html">
+        <source>Dois-je préparer le terrain avant votre venue ?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/faq/faq.component.ts</context>
+          <context context-type="linenumber">86</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="faq.install.terrain.a" datatype="html">
+        <source>Dégagez la surface (neige, véhicules, obstacles) et assurez-vous que le sol est raisonnablement de niveau. Notre équipe s&apos;occupe de l&apos;ancrage adapté à votre surface (asphalte, gravier ou gazon).</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/faq/faq.component.ts</context>
+          <context context-type="linenumber">87</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="faq.location.duree.q" datatype="html">
+        <source>Quelle est la durée minimale d&apos;une location ?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/faq/faq.component.ts</context>
+          <context context-type="linenumber">90</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="faq.location.duree.a" datatype="html">
+        <source>Les abris se louent à la saison. Indiquez vos dates de début et de fin au moment de la réservation ; la facturation est mensuelle.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/faq/faq.component.ts</context>
+          <context context-type="linenumber">91</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="faq.location.depot.q" datatype="html">
+        <source>Un dépôt est-il exigé ?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/faq/faq.component.ts</context>
+          <context context-type="linenumber">94</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="faq.location.depot.a" datatype="html">
+        <source>Un dépôt de garantie peut être demandé à la signature du contrat. Il est remboursé à la fin de la location si l&apos;abri est rendu en bon état.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/faq/faq.component.ts</context>
+          <context context-type="linenumber">95</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="faq.location.annulation.q" datatype="html">
+        <source>Puis-je annuler ma location ?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/faq/faq.component.ts</context>
+          <context context-type="linenumber">98</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="faq.location.annulation.a" datatype="html">
+        <source>Vous pouvez annuler depuis « Mes locations » dans votre compte. Les conditions d&apos;annulation dépendent du moment de la demande par rapport à la date de début prévue.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/faq/faq.component.ts</context>
+          <context context-type="linenumber">99</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="faq.location.installation.q" datatype="html">
+        <source>L&apos;installation est-elle incluse dans la location ?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/faq/faq.component.ts</context>
+          <context context-type="linenumber">102</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="faq.location.installation.a" datatype="html">
+        <source>L&apos;adresse d&apos;installation est demandée à la réservation. Selon l&apos;entente, le montage peut être inclus ou facturé séparément — précisez votre besoin dans la demande.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/faq/faq.component.ts</context>
+          <context context-type="linenumber">103</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="product.available" datatype="html">
         <source>En stock</source>
         <context-group purpose="location">
@@ -2311,7 +3600,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">289,291</context>
+          <context context-type="linenumber">294,296</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.rental" datatype="html">
@@ -2326,7 +3615,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">292,295</context>
+          <context context-type="linenumber">297,300</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.install" datatype="html">
@@ -2341,7 +3630,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">295,299</context>
+          <context context-type="linenumber">300,304</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.account" datatype="html">
@@ -2352,7 +3641,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">319,320</context>
+          <context context-type="linenumber">324,325</context>
         </context-group>
       </trans-unit>
       <trans-unit id="footer.legalNavAria" datatype="html">
@@ -2433,7 +3722,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">306,308</context>
+          <context context-type="linenumber">311,313</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.register" datatype="html">
@@ -2444,53 +3733,53 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">312,314</context>
+          <context context-type="linenumber">317,319</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.profile" datatype="html">
         <source>Mon profil</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">213,215</context>
+          <context context-type="linenumber">216,218</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.myOrders" datatype="html">
         <source>Mes commandes</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">222,224</context>
+          <context context-type="linenumber">225,227</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.myReservations" datatype="html">
         <source>Mes réservations</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">231,233</context>
+          <context context-type="linenumber">234,236</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.logout" datatype="html">
         <source> Déconnexion </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">243,244</context>
+          <context context-type="linenumber">246,247</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">321,323</context>
+          <context context-type="linenumber">326,328</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.mobileMenuAria" datatype="html">
         <source>Menu mobile</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">281,282</context>
+          <context context-type="linenumber">286,287</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.home" datatype="html">
         <source>Accueil</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">286,288</context>
+          <context context-type="linenumber">291,293</context>
         </context-group>
       </trans-unit>
       <trans-unit id="skipNav.link" datatype="html">

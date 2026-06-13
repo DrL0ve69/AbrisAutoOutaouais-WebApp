@@ -6,7 +6,7 @@ import {
   PLATFORM_ID,
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -33,6 +33,24 @@ export interface RegisterRequest {
   lastName: string;
   password: string;
   confirmPassword: string;
+}
+
+/** Correspond au sealed record C# ResetPasswordCommand (camelCase). */
+export interface ResetPasswordRequest {
+  email: string;
+  token: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
+/**
+ * Disponibilité d'un nom d'utilisateur et/ou d'un courriel à l'inscription (H5).
+ * Correspond au sealed record C# AvailabilityDto (camelCase). `null` = non
+ * demandé, `true` = disponible, `false` = déjà pris.
+ */
+export interface AvailabilityResponse {
+  usernameAvailable: boolean | null;
+  emailAvailable: boolean | null;
 }
 
 /**
@@ -98,6 +116,36 @@ export class AuthService {
     return this.http
       .post<AuthResponse>(`${environment.apiUrl}/auth/register`, req)
       .pipe(tap(res => this.setSession(res)));
+  }
+
+  /**
+   * Demande l'envoi d'un lien de réinitialisation du mot de passe.
+   * Le backend répond TOUJOURS 202 (anti-énumération de comptes).
+   */
+  forgotPassword(email: string) {
+    return this.http.post<void>(
+      `${environment.apiUrl}/auth/forgot-password`, { email });
+  }
+
+  /** Réinitialise le mot de passe avec le jeton reçu par courriel (204 ou 400). */
+  resetPassword(req: ResetPasswordRequest) {
+    return this.http.post<void>(
+      `${environment.apiUrl}/auth/reset-password`, req);
+  }
+
+  /**
+   * Vérifie la disponibilité d'un nom d'utilisateur et/ou d'un courriel à
+   * l'inscription (H5). Endpoint public d'aide UX. Passer une chaîne vide pour
+   * le paramètre qu'on ne veut pas évaluer (le serveur le laisse alors null).
+   */
+  checkAvailability(params: { username?: string; email?: string }) {
+    let httpParams = new HttpParams();
+    if (params.username) httpParams = httpParams.set('username', params.username);
+    if (params.email) httpParams = httpParams.set('email', params.email);
+    return this.http.get<AvailabilityResponse>(
+      `${environment.apiUrl}/auth/availability`,
+      { params: httpParams },
+    );
   }
 
   logout(): void {

@@ -1,6 +1,8 @@
 using AbrisAutoOutaouais_WebApp.Application.Common.Mediator;
+using AbrisAutoOutaouais_WebApp.Application.Rentals.Commands.AdminCancelRental;
 using AbrisAutoOutaouais_WebApp.Application.Rentals.Commands.CancelRental;
 using AbrisAutoOutaouais_WebApp.Application.Rentals.Commands.CreateRentalContract;
+using AbrisAutoOutaouais_WebApp.Application.Rentals.Queries.GetAllRentals;
 using AbrisAutoOutaouais_WebApp.Application.Rentals.Queries.GetMyRentals;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
@@ -39,6 +41,30 @@ public sealed class RentalsController(IDispatcher dispatcher) : ControllerBase
     public async Task<IActionResult> Cancel(Guid id, CancellationToken ct)
     {
         await dispatcher.DispatchAsync(new CancelRentalCommand(id), ct);
+        return NoContent();
+    }
+
+    // ── Administration ─────────────────────────────────────────────────────────
+
+    /// <summary>Tous les contrats de location (Admin).</summary>
+    [HttpGet("all")]
+    [Authorize(Policy = "AdminOnly")]
+    [ProducesResponseType<IReadOnlyList<AdminRentalDto>>(200)]
+    public async Task<IActionResult> GetAll(CancellationToken ct)
+        => Ok(await dispatcher.DispatchAsync(new GetAllRentalsQuery(), ct));
+
+    /// <summary>
+    /// Annuler n'importe quel contrat de location (Admin) — route distincte de
+    /// POST {id}/cancel, qui reste réservée au propriétaire du contrat.
+    /// </summary>
+    [HttpPost("{id:guid}/admin-cancel")]
+    [Authorize(Policy = "AdminOnly")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType<ProblemDetails>(404)]
+    [ProducesResponseType<ProblemDetails>(422)]
+    public async Task<IActionResult> AdminCancel(Guid id, CancellationToken ct)
+    {
+        await dispatcher.DispatchAsync(new AdminCancelRentalCommand(id), ct);
         return NoContent();
     }
 }

@@ -11,9 +11,9 @@ interface AdminSection {
 }
 
 /**
- * Tableau de bord administrateur — coquille (shell).
- * Présente les sections d'administration sous forme de cartes
- * « Section en construction » (aucun CRUD backend pour l'instant).
+ * Tableau de bord administrateur.
+ * Présente les sections d'administration sous forme de cartes avec lien
+ * « Gérer » (produits, commandes, réservations, locations, utilisateurs).
  * Accès protégé par authGuard + adminGuard (cf. app.routes.ts).
  */
 @Component({
@@ -27,8 +27,8 @@ interface AdminSection {
           <p class="admin__eyebrow" i18n="@@admin.eyebrow">Espace réservé</p>
           <h1 id="admin-heading" i18n="@@admin.title">Tableau de bord administrateur</h1>
           <p class="admin__lead" i18n="@@admin.lead">
-            Gérez le catalogue, les commandes et les utilisateurs d'AbrisTempo Local.
-            Les modules ci-dessous arrivent prochainement.
+            Gérez le catalogue, les commandes, les réservations, les locations
+            et les utilisateurs d'AbrisTempo Local.
           </p>
         </header>
 
@@ -79,16 +79,25 @@ export class AdminDashboardComponent {
       route: '/admin/commandes',
     },
     {
+      id: 'reservations',
+      label: $localize`:@@admin.section.reservations:Réservations`,
+      description: $localize`:@@admin.section.reservationsDesc:Confirmer, compléter ou annuler les créneaux d'installation.`,
+      icon: '📅',
+      route: '/admin/reservations',
+    },
+    {
+      id: 'rentals',
+      label: $localize`:@@admin.section.rentals:Locations`,
+      description: $localize`:@@admin.section.rentalsDesc:Consulter et annuler les contrats de location saisonnière.`,
+      icon: '🏠',
+      route: '/admin/locations',
+    },
+    {
       id: 'users',
       label: $localize`:@@admin.section.users:Utilisateurs`,
       description: $localize`:@@admin.section.usersDesc:Gérer les comptes et les rôles des utilisateurs.`,
       icon: '👥',
-    },
-    {
-      id: 'reservations',
-      label: $localize`:@@admin.section.reservations:Réservations`,
-      description: $localize`:@@admin.section.reservationsDesc:Planifier les installations et les locations d'abris.`,
-      icon: '📅',
+      route: '/admin/utilisateurs',
     },
   ];
 }

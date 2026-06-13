@@ -1,6 +1,9 @@
+using AbrisAutoOutaouais_WebApp.Application.Auth.CheckAvailability;
 using AbrisAutoOutaouais_WebApp.Application.Auth.DTOs;
+using AbrisAutoOutaouais_WebApp.Application.Auth.ForgotPassword;
 using AbrisAutoOutaouais_WebApp.Application.Auth.Login;
 using AbrisAutoOutaouais_WebApp.Application.Auth.Register;
+using AbrisAutoOutaouais_WebApp.Application.Auth.ResetPassword;
 using AbrisAutoOutaouais_WebApp.Application.Common.Interfaces;
 using AbrisAutoOutaouais_WebApp.Application.Common.Mediator;
 using Microsoft.AspNetCore.Authorization;
@@ -63,6 +66,52 @@ public class AuthController : ControllerBase
         return result.IsSuccess
             ? Ok(result.Value)
             : Unauthorized(new { error = result.Error });
+    }
+
+    /// <summary>Demande l'envoi d'un lien de réinitialisation du mot de passe.</summary>
+    // TODO(Epic C): rate-limit — endpoint anonyme et coûteux (génération de jeton +
+    // envoi de courriel), à protéger contre l'abus quand le limiteur d'Epic C arrive.
+    [HttpPost("forgot-password")]
+    [AllowAnonymous]
+    public async Task<IActionResult> ForgotPassword(
+        [FromBody] ForgotPasswordCommand request, CancellationToken cancellationToken)
+    {
+        // Anti-énumération : toujours 202 Accepted, que le compte existe ou non.
+        await _dispatcher.DispatchAsync(request, cancellationToken);
+        return Accepted();
+    }
+
+    /// <summary>Réinitialise le mot de passe à partir du jeton reçu par courriel.</summary>
+    [HttpPost("reset-password")]
+    [AllowAnonymous]
+    public async Task<IActionResult> ResetPassword(
+        [FromBody] ResetPasswordCommand request, CancellationToken cancellationToken)
+    {
+        var result = await _dispatcher.DispatchAsync(request, cancellationToken);
+
+        return result.IsSuccess
+            ? NoContent()
+            : BadRequest(new { error = result.Error });
+    }
+
+    /// <summary>
+    /// Vérifie la disponibilité d'un nom d'utilisateur et/ou d'un courriel à
+    /// l'inscription (aide UX, H5). Au moins un des deux paramètres doit être
+    /// fourni ; la disponibilité d'un paramètre absent reste null.
+    /// </summary>
+    // TODO(Epic C): rate-limit — endpoint anonyme interrogeable en boucle
+    // (oracle d'existence assumé pour l'UX), à protéger contre l'abus quand le
+    // limiteur d'Epic C arrive (même garde que forgot-password).
+    [HttpGet("availability")]
+    [AllowAnonymous]
+    public async Task<IActionResult> CheckAvailability(
+        [FromQuery] string? username,
+        [FromQuery] string? email,
+        CancellationToken cancellationToken)
+    {
+        var result = await _dispatcher.DispatchAsync(
+            new CheckAvailabilityQuery(username, email), cancellationToken);
+        return Ok(result);
     }
 
     /// <summary>Profil complet de l'utilisateur connecté.</summary>

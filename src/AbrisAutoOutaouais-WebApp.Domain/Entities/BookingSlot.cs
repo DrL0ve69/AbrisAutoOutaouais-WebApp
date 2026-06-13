@@ -65,7 +65,16 @@ public sealed class BookingSlot : ISoftDeletable, IAuditableEntity
     {
         if (Status == BookingStatus.Completed)
             throw new BusinessRuleException("Un créneau complété ne peut pas être annulé.");
+        if (Status == BookingStatus.Cancelled)
+            throw new BusinessRuleException("Ce créneau est déjà annulé.");
         Status = BookingStatus.Cancelled;
+    }
+
+    public void Complete()
+    {
+        if (Status != BookingStatus.Confirmed)
+            throw new BusinessRuleException("Seul un créneau confirmé peut être marqué complété.");
+        Status = BookingStatus.Completed;
     }
 
     /// <summary>

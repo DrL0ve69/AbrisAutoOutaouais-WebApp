@@ -3,6 +3,7 @@ using AbrisAutoOutaouais_WebApp.Application.Common.Interfaces;
 using AbrisAutoOutaouais_WebApp.Application.Common.Models;
 using Domain.ValueObjects;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace AbrisAutoOutaouais_WebApp.Infrastructure.Identity;
 
@@ -129,6 +130,30 @@ public sealed class IdentityService : IIdentityService
             user.PhoneNumber, user.Avatar, user.PreferredLanguage, address, user.CreatedAt, roles);
     }
 
+    public async Task<IReadOnlyList<AdminUserDto>> GetAllUsersAsync(CancellationToken cancellationToken = default)
+    {
+        var users = await _userManager.Users
+            .AsNoTracking()
+            .OrderByDescending(u => u.CreatedAt)
+            .ToListAsync(cancellationToken);
+
+        var result = new List<AdminUserDto>(users.Count);
+        foreach (var user in users)
+        {
+            var roles = (await _userManager.GetRolesAsync(user)).ToList().AsReadOnly();
+            result.Add(new AdminUserDto(
+                user.Id,
+                user.Email ?? "—",
+                user.UserName ?? "—",
+                user.FullName,
+                roles,
+                user.CreatedAt,
+                await _userManager.IsLockedOutAsync(user)));
+        }
+
+        return result;
+    }
+
     public async Task<Result> UpdateProfileAsync(
         Guid userId, UpdateProfileRequest request, CancellationToken cancellationToken = default)
     {
@@ -188,6 +213,45 @@ public sealed class IdentityService : IIdentityService
             ? Result.Success()
             : Result.Failure(string.Join(", ", result.Errors.Select(e => e.Description)));
     }
+
+    public async Task<Result<string>> GeneratePasswordResetTokenAsync(
+        string email, CancellationToken cancellationToken = default)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+        if (user is null) return Result<string>.Failure("Utilisateur introuvable.");
+
+        // Jeton à durée limitée émis par le DataProtectorTokenProvider (AddDefaultTokenProviders).
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+        return Result<string>.Success(token);
+    }
+
+    public async Task<Result> ResetPasswordAsync(
+        string email, string token, string newPassword, CancellationToken cancellationToken = default)
+    {
+        // Message volontairement identique pour un compte inconnu et un jeton invalide :
+        // la réponse ne doit pas permettre de déduire l'existence d'un compte.
+        const string invalidLink = "Le lien de réinitialisation est invalide ou expiré.";
+
+        var user = await _userManager.FindByEmailAsync(email);
+        if (user is null) return Result.Failure(invalidLink);
+
+        var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
+        if (result.Succeeded) return Result.Success();
+
+        // Jeton invalide/expiré → message générique ; autres erreurs (politique de mot de
+        // passe…) → détails utiles à l'utilisateur, comme ChangePasswordAsync.
+        return result.Errors.Any(e => e.Code == nameof(IdentityErrorDescriber.InvalidToken))
+            ? Result.Failure(invalidLink)
+            : Result.Failure(string.Join(", ", result.Errors.Select(e => e.Description)));
+    }
+
+    public async Task<bool> IsUsernameTakenAsync(
+        string username, CancellationToken cancellationToken = default)
+        => await _userManager.FindByNameAsync(username) is not null;
+
+    public async Task<bool> IsEmailTakenAsync(
+        string email, CancellationToken cancellationToken = default)
+        => await _userManager.FindByEmailAsync(email) is not null;
 
     private async Task<AuthResponse> BuildAuthResponseAsync(AppUser user)
     {

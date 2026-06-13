@@ -18,7 +18,8 @@
   margin-bottom: var(--space-8);
 
   &:hover {
-    color: var(--color-primary-dark);
+    // Jeton AA dans les deux thèmes (cf. --color-link-hover, _tokens.scss).
+    color: var(--color-link-hover);
   }
 
   &:focus-visible {

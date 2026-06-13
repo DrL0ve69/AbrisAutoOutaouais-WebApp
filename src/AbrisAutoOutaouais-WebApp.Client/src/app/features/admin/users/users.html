@@ -1,0 +1,81 @@
+<section class="admint" aria-labelledby="adminu-heading">
+  <div class="container">
+    <header class="admint__head">
+      <p class="admint__eyebrow" i18n="@@admin.users.eyebrow">Utilisateurs</p>
+      <h1 id="adminu-heading" tabindex="-1" i18n="@@admin.users.title">
+        Liste des utilisateurs
+      </h1>
+      <p class="admint__lead" i18n="@@admin.users.lead">
+        Consultez les comptes, leurs rôles et leur état de verrouillage (lecture seule).
+      </p>
+      <a routerLink="/admin/dashboard" class="admint__back" i18n="@@admin.users.back">
+        ← Retour au tableau de bord
+      </a>
+    </header>
+
+    <section class="admint__panel" aria-labelledby="adminu-list-heading">
+      <h2 id="adminu-list-heading" i18n="@@admin.users.list.heading">Tous les comptes</h2>
+
+      @if (loading()) {
+        <output class="admint__status" i18n="@@admin.users.list.loading">Chargement…</output>
+      } @else if (error()) {
+        <output class="admint__status admint__status--error" i18n="@@admin.users.list.error">
+          Impossible de charger les utilisateurs.
+        </output>
+      } @else if (items().length === 0) {
+        <output class="admint__status" i18n="@@admin.users.list.empty">
+          Aucun utilisateur pour le moment.
+        </output>
+      } @else {
+        <!-- Région défilante (overflow-x) : focalisable au clavier (axe scrollable-region-focusable). -->
+        <div class="admint__tablewrap" role="region" tabindex="0" aria-labelledby="adminu-list-heading">
+          <table class="admint__table">
+            <caption class="sr-only" i18n="@@admin.users.table.caption">
+              Liste des utilisateurs avec nom, courriel, nom d'utilisateur, rôles, date d'inscription et état du compte.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col" i18n="@@admin.users.table.name">Nom</th>
+                <th scope="col" i18n="@@admin.users.table.email">Courriel</th>
+                <th scope="col" i18n="@@admin.users.table.username">Nom d'utilisateur</th>
+                <th scope="col" i18n="@@admin.users.table.roles">Rôles</th>
+                <th scope="col" i18n="@@admin.users.table.createdAt">Inscrit le</th>
+                <th scope="col" i18n="@@admin.users.table.state">État</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (u of items(); track u.id) {
+                <tr>
+                  <th scope="row">{{ u.fullName }}</th>
+                  <td>{{ u.email }}</td>
+                  <td>{{ u.username }}</td>
+                  <td>
+                    <span class="admint__roles">
+                      @for (role of u.roles; track role) {
+                        <span class="admint__badge" [class]="'admint__badge--' + roleModifier(role)">
+                          {{ roleLabel(role) }}
+                        </span>
+                      }
+                    </span>
+                  </td>
+                  <td>{{ u.createdAt | date: 'mediumDate' : '' : 'fr-CA' }}</td>
+                  <td>
+                    @if (u.isLockedOut) {
+                      <span class="admint__badge admint__badge--cancelled" i18n="@@admin.users.state.locked">
+                        Verrouillé
+                      </span>
+                    } @else {
+                      <span class="admint__badge admint__badge--completed" i18n="@@admin.users.state.active">
+                        Actif
+                      </span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  </div>
+</section>

@@ -38,6 +38,9 @@ public interface IIdentityService
     /// <summary>Profil complet d'un utilisateur (null si introuvable).</summary>
     Task<UserProfileDto?> GetProfileAsync(Guid userId, CancellationToken cancellationToken = default);
 
+    /// <summary>Tous les utilisateurs (réservé à l'administration), du plus récent au plus ancien.</summary>
+    Task<IReadOnlyList<AdminUserDto>> GetAllUsersAsync(CancellationToken cancellationToken = default);
+
     /// <summary>Met à jour les informations de profil.</summary>
     Task<Result> UpdateProfileAsync(Guid userId, UpdateProfileRequest request, CancellationToken cancellationToken = default);
 
@@ -46,6 +49,26 @@ public interface IIdentityService
 
     /// <summary>Change le mot de passe.</summary>
     Task<Result> ChangePasswordAsync(Guid userId, string currentPassword, string newPassword, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Génère un jeton de réinitialisation du mot de passe pour le courriel donné.
+    /// Échec si aucun compte ne correspond (l'appelant décide de rester silencieux —
+    /// anti-énumération de comptes).
+    /// </summary>
+    Task<Result<string>> GeneratePasswordResetTokenAsync(string email, CancellationToken cancellationToken = default);
+
+    /// <summary>Réinitialise le mot de passe à partir d'un jeton de réinitialisation valide.</summary>
+    Task<Result> ResetPasswordAsync(string email, string token, string newPassword, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Indique si un nom d'utilisateur est déjà pris (aide à l'inscription, H5).
+    /// </summary>
+    Task<bool> IsUsernameTakenAsync(string username, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Indique si un courriel est déjà associé à un compte (aide à l'inscription, H5).
+    /// </summary>
+    Task<bool> IsEmailTakenAsync(string email, CancellationToken cancellationToken = default);
 }
 
 /// <summary>

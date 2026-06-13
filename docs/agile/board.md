@@ -84,7 +84,7 @@ Remédiations livrées à partir des évaluations UX/WCAG (boucle *audit → cor
 | — | Fil d'Ariane détail produit | H6 | Breadcrumb `Accueil / Boutique / Catégorie / Produit` (`product-detail.html`) | ✅ Terminé |
 | — | Home dédupliquée | H8 | Section catalogue dupliquée retirée — vedettes + renvoi vers `/boutique` | ✅ Terminé |
 | — | Logo évoquant un abri | H2 | Glyphe `⬡` remplacé par une icône d'abri (navbar + auth/reset) | ✅ Terminé |
-| US-2.6 | Mot de passe oublié | H9 / Task-flow T2 | Page `/auth/reset` accessible (confirmation neutre anti-énumération) — **branche backend à faire** | 🟡 Partiel |
+| US-2.6 | Mot de passe oublié | H9 / Task-flow T2 | Page `/auth/reset` accessible (confirmation neutre anti-énumération) + **backend de bout en bout livré** (Épic B2, voir ci-dessous) | ✅ Terminé |
 | — | Ancres non masquées | 2.4.11/2.4.12 (R7) | `scroll-padding-top` + `scroll-margin-top` (navbar sticky) | ✅ Terminé |
 
 > Vérification : `npm run build` ✅, `npm test` (33/33) ✅. Drift corrigé au passage — `installation`/`location` sont désormais de **vrais formulaires** de réservation/location et le panier/caisse existent (les anciens « placeholders » des audits sont obsolètes).
@@ -95,13 +95,36 @@ Remédiations livrées à partir des évaluations UX/WCAG (boucle *audit → cor
 
 | ID | Titre | Type | Critère WCAG | Détecté par | Statut |
 |----|-------|------|--------------|-------------|--------|
-| Bug-08 | Menu utilisateur de la navbar : `<ul role="menu" aria-hidden="true">` conserve des enfants **focusables** une fois fermé (`opacity:0; pointer-events:none` au lieu de `inert`/`display:none`) → violation axe `aria-hidden-focus` sur **toute page authentifiée** | Bug a11y | 4.1.2 (Name, Role, Value) | e2e d'annulation de location (`rental-cancel.spec.ts`) | ⛔ Backlog |
+| Bug-08 | Menu utilisateur de la navbar : `<ul role="menu" aria-hidden="true">` conserve des enfants **focusables** une fois fermé (`opacity:0; pointer-events:none` au lieu de `inert`/`display:none`) → violation axe `aria-hidden-focus` sur **toute page authentifiée** | Bug a11y | 4.1.2 (Name, Role, Value) | e2e d'annulation de location (`rental-cancel.spec.ts`) | ✅ Corrigé (branche `fix/a11y-contrast-dark-theme`) |
 
 > **Contexte.** Distinct de Bug-07 (fermeture clavier/clic — déjà corrigé) : ici le menu *fermé*
-> reste dans l'ordre de tabulation tout en étant `aria-hidden`. Comme le défaut est **hors
-> périmètre** de la fonctionnalité « annulation de location » et touche un composant **partagé**
-> (`navbar`), l'axe pleine page de `rental-cancel.spec.ts` a été volontairement **restreint à
-> `app-rentals`** ; le défaut est consigné ici plutôt que corrigé dans cette PR.
-> **Correctif proposé** : `[attr.inert]="!userMenuOpen()"` sur le menu déroulant (ou
-> `display:none` / `visibility:hidden` à l'état fermé) pour retirer ses enfants de l'ordre de
-> tabulation et de l'arbre d'accessibilité.
+> restait dans l'ordre de tabulation tout en étant `aria-hidden`.
+> **Correctif appliqué** : `[inert]="!userMenuOpen()"` sur le menu déroulant utilisateur **et**
+> sur le menu mobile (même patron fautif) — `aria-hidden` retiré, `inert` retire les enfants de
+> l'ordre de tabulation et de l'arbre d'accessibilité. Garde de régression : `navbar.spec.ts`
+> (assertions de focus réelles, 6 tests) ; l'exclusion `app-rentals` de l'axe pleine page dans
+> `rental-cancel.spec.ts`, devenue obsolète, a été **retirée** — la navbar authentifiée est
+> désormais couverte par axe.
+
+---
+
+## Mise à jour — clôture de l'Épic B « Sections manquantes » (2026-06-13)
+
+Branche `feat/missing-sections`. Boucle *architecte → développeur → revue indépendante → mentor*.
+
+| ID | Titre | Critère / Heuristique | Correctif | Statut |
+|----|-------|-----------------------|-----------|--------|
+| B1 | Pages légales | H10 / RGPD-like | `/conditions`, `/confidentialite`, `/accessibilite` (résume l'audit WCAG réel) — routes paresseuses, i18n fr/en | ✅ Terminé |
+| B2 | Réinitialisation du mot de passe | H9 / Task-flow T2 | `forgot-password` (202 anti-énumération) + `reset-password` `[AllowAnonymous]`, `IEmailService` (stub journalisé), round-trip couvert en IT | ✅ Terminé |
+| B3 | Admin réservations / locations / utilisateurs | — | Queries + commandes (transitions légales) ; pages clonées sur la data-table a11y ; tuiles du tableau de bord remplacent « Section en construction » | ✅ Terminé |
+| B4-H1 | Confirmation du changement de langue | H1 | Marqueur `sessionStorage` + annonce `role="status"` polite à la locale servie (SSR-safe) | ✅ Terminé |
+| B4-H5 | Vérification de disponibilité | H5 | `GET api/v1/auth/availability` + validateurs async debouncés (400 ms) sur l'inscription | ✅ Terminé |
+| B4-FAQ | FAQ accessible | H10 | Accordéon `<details>/<summary>` sur `/installation` et `/location` (incl. « autres marques sauf ShelterLogic ») | ✅ Terminé |
+
+> **Revue indépendante** (l'implémenteur ne valide pas son propre diff) : **APPROVE WITH NITS**
+> (2 nits optionnels, non bloquants). Leçon capturée : **L-010** (une live-region ARIA globale casse
+> les locators `getByRole` non scopés des specs sans rapport).
+> **Vérification** : `dotnet test` UT 106 / IT 59 ✅ (intégration désormais en CI), `npm test` 100
+> (zéro violation axe) ✅, `npm run e2e` 48 ✅.
+> **Suite immédiate** : mini-cycle « marque/modèle sur `BookingSlot` + exclusion ShelterLogic »
+> (Domain + migration EF), puis Épic C (adresse structurée + autocomplétion).

@@ -43,6 +43,8 @@ yarn-error.log
 testem.log
 /typings
 __screenshots__/
+# Captures d'échec écrites par vitest (mode navigateur) — artefacts transitoires.
+.vitest-attachments/
 
 # System files
 .DS_Store

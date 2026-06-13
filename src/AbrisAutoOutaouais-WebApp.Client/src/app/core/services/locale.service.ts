@@ -1,7 +1,23 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
-import { computed, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
+import {
+  afterNextRender,
+  computed,
+  inject,
+  Injectable,
+  PLATFORM_ID,
+  signal,
+} from '@angular/core';
 
 export type AppLocale = 'fr' | 'en';
+
+/**
+ * Clé sessionStorage posée AVANT le rechargement pleine page du switch de langue,
+ * relue au chargement suivant pour annoncer la confirmation, puis nettoyée (H1).
+ */
+const PENDING_SWITCH_KEY = 'locale-switch-pending';
+
+/** Libellé natif de chaque langue, pour la confirmation « Langue changée : … ». */
+const LOCALE_LABELS: Record<AppLocale, string> = { fr: 'Français', en: 'English' };
 
 /**
  * Construit l'URL équivalente d'un emplacement dans la locale `lang`, en
@@ -48,15 +64,64 @@ export class LocaleService {
   readonly other = computed<AppLocale>(() => (this.current() === 'fr' ? 'en' : 'fr'));
 
   /**
+   * Confirmation de changement de langue, annoncée via une région `aria-live`
+   * (H1). Vide en temps normal ; renseignée une seule fois au chargement qui
+   * suit une bascule, puis remise à vide.
+   */
+  private readonly _switchAnnouncement = signal('');
+  readonly switchAnnouncement = this._switchAnnouncement.asReadonly();
+
+  constructor() {
+    // Au PREMIER rendu navigateur après un rechargement de bascule : relire le
+    // marqueur (posé avant le reload), annoncer la confirmation dans la NOUVELLE
+    // locale, puis nettoyer. afterNextRender ne s'exécute jamais côté SSR, donc
+    // aucun accès à sessionStorage/window au niveau module (sûr pour le SSR).
+    afterNextRender(() => this.announcePendingSwitch());
+  }
+
+  /**
    * Bascule vers `lang` en rechargeant l'équivalent du chemin courant dans
    * l'autre locale (le chemin, la query et le fragment sont conservés). No-op
-   * côté serveur (SSR) ou si on est déjà sur la langue demandée.
+   * côté serveur (SSR) ou si on est déjà sur la langue demandée. Pose au passage
+   * un marqueur sessionStorage pour annoncer la confirmation après rechargement.
    */
   switchTo(lang: AppLocale): void {
     if (!isPlatformBrowser(this.platform) || lang === this.current()) return;
+    try {
+      this.document.defaultView!.sessionStorage.setItem(PENDING_SWITCH_KEY, lang);
+    } catch {
+      // sessionStorage indisponible (mode privé, quota) → on bascule quand même,
+      // sans la confirmation : la bascule reste prioritaire sur l'annonce.
+    }
     this.document.defaultView!.location.href = localizedHref(
       this.document.defaultView!.location,
       lang,
+    );
+  }
+
+  /** Relit et consomme le marqueur de bascule pour annoncer la confirmation (H1). */
+  private announcePendingSwitch(): void {
+    const win = this.document.defaultView;
+    if (!win) return;
+
+    let pending: string | null = null;
+    try {
+      pending = win.sessionStorage.getItem(PENDING_SWITCH_KEY);
+      if (pending) win.sessionStorage.removeItem(PENDING_SWITCH_KEY);
+    } catch {
+      return;
+    }
+
+    // N'annoncer que si la page sert effectivement la langue demandée (la
+    // bascule a réussi) — sinon un marqueur résiduel donnerait une fausse annonce.
+    if (pending !== 'fr' && pending !== 'en') return;
+    if (pending !== this.current()) return;
+
+    const label = LOCALE_LABELS[pending];
+    // Le texte est rendu dans la NOUVELLE locale (le build localisé est déjà
+    // chargé) : $localize résout vers la bonne traduction, le libellé reste natif.
+    this._switchAnnouncement.set(
+      $localize`:@@locale.switched:Langue changée : ${label}:label:`,
     );
   }
 

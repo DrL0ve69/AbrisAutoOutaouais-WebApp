@@ -34,9 +34,11 @@ test('le menu hamburger couvre le viewport sous la navbar et suit le défilement
   const boxAfter = await menu.boundingBox();
   expect(boxAfter!.y).toBeLessThanOrEqual(70);
 
-  // Disclosure : Échap referme le panneau (aria-hidden) et renvoie le focus au
-  // bouton déclencheur (WCAG 2.1.2 / 2.4.3).
+  // Disclosure : Échap referme le panneau et renvoie le focus au bouton
+  // déclencheur (WCAG 2.1.2 / 2.4.3). Fermé, le panneau est `inert` (Bug-08) :
+  // retiré de l'arbre d'accessibilité ET infocusable — l'ancien aria-hidden
+  // laissait ses liens tabulables.
   await page.keyboard.press('Escape');
-  await expect(menu).toHaveAttribute('aria-hidden', 'true');
+  await expect(menu).toHaveAttribute('inert', '');
   await expect(toggle).toBeFocused();
 });

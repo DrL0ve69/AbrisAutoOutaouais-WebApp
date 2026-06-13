@@ -126,16 +126,73 @@
   margin-bottom: var(--space-4);
   border: 1px solid;
 
+  // Les fonds d'alerte (--color-success-bg / --color-error-bg) restent CLAIRS
+  // dans les deux thèmes (non surchargés par dark-theme). On fixe donc des
+  // textes foncés constants : les variantes sombres des tokens (#4ade80,
+  // #f87171) ne font que ~1.7:1 / ~2.5:1 sur ces fonds clairs (échec AA).
   &.reset-alert--success {
     background: var(--color-success-bg);
-    color: var(--color-success);
+    color: #166534; // 6.7:1 sur #f0fdf4 ✅ (deux thèmes)
     border-color: var(--color-success-border);
+  }
+
+  &.reset-alert--error {
+    background: var(--color-error-bg);
+    color: #b91c1c; // 5.6:1 sur #fef2f2 ✅ (deux thèmes)
+    border-color: var(--color-error-border);
   }
 
   svg {
     flex-shrink: 0;
     margin-top: 2px;
   }
+
+  // Anneau de focus pour la confirmation neutre (#requestConfirm, tabindex=-1).
+  // MÊME raison que les textes foncés ci-dessus : le fond d'alerte reste CLAIR
+  // (#f0fdf4) dans les deux thèmes, mais dark-theme surcharge --color-focus en
+  // #60a5fa (~2.4:1 sur ce fond clair → échec 1.4.11). On fixe donc un bleu
+  // foncé constant (#1d4ed8 ≈ 4.7:1) au lieu de la variable thématisée.
+  &:focus-visible {
+    outline: 3px solid #1d4ed8;
+    outline-offset: 3px;
+  }
+}
+
+// ── Bloc de succès (mode réinitialisation) ───────────────────
+.reset-success {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-3);
+  padding: var(--space-5);
+}
+
+.reset-success__title {
+  font-family: var(--font-display);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  // Les titres héritent de var(--color-text) via les styles globaux — en thème
+  // sombre ce texte clair (#f1f5f9) ne fait que 1.04:1 sur le fond menthe de
+  // l'alerte (constant entre les thèmes). Reprendre le vert foncé du conteneur.
+  color: inherit;
+
+  // Cible de focus programmatique (L-006) — anneau visible (WCAG 2.4.7).
+  // Bleu foncé CONSTANT (pas var(--color-focus), surchargé en #60a5fa par
+  // dark-theme) : le titre est sur le fond menthe clair de l'alerte (constant
+  // entre thèmes), où #60a5fa ne ferait que ~2.4:1 (échec 1.4.11). #1d4ed8 ≈ 4.7:1.
+  &:focus-visible {
+    outline: 3px solid #1d4ed8;
+    outline-offset: 3px;
+  }
+}
+
+// Le courriel injecté dans le sous-titre peut être long : autoriser la coupure.
+.reset-email {
+  overflow-wrap: anywhere;
+}
+
+.field__hint {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
 }
 
 form {

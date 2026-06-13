@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   backend:
-    name: Backend — build & tests unitaires (.NET 10)
+    name: Backend — build & tests (unitaires + intégration, .NET 10)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -27,9 +27,15 @@ jobs:
       # solution entière déclencherait npm/ng dans le job backend, ce qu'on évite.
       - name: Build backend (API + dépendances)
         run: dotnet build src/AbrisAutoOutaouais-WebApp.API/AbrisAutoOutaouais-WebApp.API.csproj -c Release
-      # Les tests d'intégration nécessitent SQL Server LocalDB — exécutés localement.
       - name: Tests unitaires
         run: dotnet test AbrisAutoOutaouais-WebApp.UnitTest/AbrisAutoOutaouais-WebApp.UnitTest.csproj -c Release
+      # Les tests d'intégration utilisent WebApplicationFactory + DB InMemory
+      # (WebAppFactory.cs) : aucun SQL Server LocalDB requis, ils tournent donc sur
+      # le runner Ubuntu. Sans cette étape, le parcours de réinitialisation
+      # (PasswordResetEndpointTests, seul garde-fou du cycle complet du jeton) ne
+      # serait jamais exécuté en CI (L-005 : un garde-fou ne garde que s'il tourne).
+      - name: Tests d'intégration
+        run: dotnet test AbrisAutoOutaouais-WebApp.IntegrationTest/AbrisAutoOutaouais-WebApp.IntegrationTest.csproj -c Release
 
   frontend:
     name: Frontend — build, i18n & tests d'accessibilité (Angular 21)

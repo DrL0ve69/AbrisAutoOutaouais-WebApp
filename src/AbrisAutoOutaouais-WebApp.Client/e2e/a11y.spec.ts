@@ -65,9 +65,19 @@ const productList = {
   hasPrev: false,
 };
 
+// Créneaux d'installation simulés (deux créneaux le même jour) pour /installation.
+const availableSlots = [
+  { start: '2026-07-01T13:00:00', end: '2026-07-01T15:00:00' },
+  { start: '2026-07-01T15:00:00', end: '2026-07-01T17:00:00' },
+];
+
 async function mockApi(page: Page): Promise<void> {
   // Catégories
   await page.route('**/api/v1/categories', (route) => route.fulfill({ json: categories }));
+  // Créneaux disponibles pour la réservation d'installation.
+  await page.route('**/api/v1/bookings/available-slots*', (route) =>
+    route.fulfill({ json: availableSlots }),
+  );
   // Produit unique par slug (ex. /products/abri-simple).
   // Enregistré AVANT le pattern de liste pour matcher en priorité.
   await page.route('**/api/v1/products/*', (route) => route.fulfill({ json: product }));
@@ -82,128 +92,123 @@ test.beforeEach(async ({ page }) => {
   await mockApi(page);
 });
 
-test('Accueil (/) — aucune violation WCAG AA', async ({ page }) => {
-  await page.goto('/');
-  await expect(page.getByRole('heading', { name: /abri/i }).first()).toBeVisible();
+// ── Balayage axe paramétré : routes × thèmes ───────────────────────────────
+// Chaque route est vérifiée dans LES DEUX thèmes : plusieurs régressions de
+// contraste ne se manifestaient QU'EN sombre (boutons `btn--secondary` du hero,
+// bandeau CTA, lien « Administration ») car des tokens basculent en dark. On
+// force le thème via localStorage (lu par ThemeService au démarrage), puis on
+// confirme `data-theme` sur <html> AVANT de lancer axe — l'attente de l'attribut
+// garantit aussi que l'hydratation a appliqué le thème.
 
-  const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
-  expect(
-    results.violations,
-    JSON.stringify(
-      results.violations.map((v) => ({ id: v.id, nodes: v.nodes.length })),
-      null,
-      2,
-    ),
-  ).toEqual([]);
-});
+const routes = [
+  {
+    nom: 'Accueil (/)',
+    chemin: '/',
+    pret: (page: Page) =>
+      expect(page.getByRole('heading', { name: /abri/i }).first()).toBeVisible(),
+  },
+  {
+    nom: 'Boutique (/boutique)',
+    chemin: '/boutique',
+    pret: (page: Page) =>
+      expect(page.getByRole('heading', { name: /abri/i }).first()).toBeVisible(),
+  },
+  {
+    nom: 'Détail produit (/boutique/abri-simple)',
+    chemin: '/boutique/abri-simple',
+    pret: (page: Page) =>
+      expect(page.getByRole('heading', { name: /abri/i }).first()).toBeVisible(),
+  },
+  {
+    nom: 'Authentification (/auth)',
+    chemin: '/auth',
+    pret: (page: Page) =>
+      expect(page.getByRole('heading', { name: /connexion/i }).first()).toBeVisible(),
+  },
+  {
+    nom: 'Panier (/panier)',
+    // Panier vide par défaut (aucun article en session) — doit rester accessible.
+    chemin: '/panier',
+    pret: (page: Page) => expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible(),
+  },
+  // Pages légales statiques (liées depuis le footer et /auth) — publiques,
+  // aucun appel API nécessaire au-delà des mocks existants.
+  {
+    nom: 'Conditions d’utilisation (/conditions)',
+    chemin: '/conditions',
+    pret: (page: Page) =>
+      expect(
+        page.getByRole('heading', { level: 1, name: /conditions d'utilisation/i }),
+      ).toBeVisible(),
+  },
+  {
+    nom: 'Politique de confidentialité (/confidentialite)',
+    chemin: '/confidentialite',
+    pret: (page: Page) =>
+      expect(
+        page.getByRole('heading', { level: 1, name: /politique de confidentialité/i }),
+      ).toBeVisible(),
+  },
+  {
+    nom: 'Déclaration d’accessibilité (/accessibilite)',
+    chemin: '/accessibilite',
+    pret: (page: Page) =>
+      expect(
+        page.getByRole('heading', { level: 1, name: /déclaration d'accessibilité/i }),
+      ).toBeVisible(),
+  },
+  // Pages porteuses de la FAQ accordéon (H-FAQ) — on attend l'apparition de la
+  // section FAQ pour garantir que l'accordéon natif <details> est dans le scan axe.
+  {
+    nom: 'Installation (/installation) — avec FAQ',
+    chemin: '/installation',
+    pret: (page: Page) =>
+      expect(
+        page.getByRole('heading', { level: 2, name: /foire aux questions/i }),
+      ).toBeVisible(),
+  },
+  {
+    nom: 'Location (/location) — avec FAQ',
+    chemin: '/location',
+    pret: (page: Page) =>
+      expect(
+        page.getByRole('heading', { level: 2, name: /foire aux questions/i }),
+      ).toBeVisible(),
+  },
+] as const;
 
-test('Boutique (/boutique) — aucune violation WCAG AA', async ({ page }) => {
-  await page.goto('/boutique');
-  await expect(page.getByRole('heading', { name: /abri/i }).first()).toBeVisible();
+const themes = [
+  { id: 'light', libelle: 'thème clair' },
+  { id: 'dark', libelle: 'thème sombre' },
+] as const;
 
-  const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
-  expect(
-    results.violations,
-    JSON.stringify(
-      results.violations.map((v) => ({ id: v.id, nodes: v.nodes.length })),
-      null,
-      2,
-    ),
-  ).toEqual([]);
-});
-
-test('Détail produit (/boutique/abri-simple) — aucune violation WCAG AA', async ({ page }) => {
-  await page.goto('/boutique/abri-simple');
-  await expect(page.getByRole('heading', { name: /abri/i }).first()).toBeVisible();
-
-  const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
-  expect(
-    results.violations,
-    JSON.stringify(
-      results.violations.map((v) => ({ id: v.id, nodes: v.nodes.length })),
-      null,
-      2,
-    ),
-  ).toEqual([]);
-});
-
-test('Authentification (/auth) — aucune violation WCAG AA', async ({ page }) => {
-  await page.goto('/auth');
-  await expect(page.getByRole('heading', { name: /connexion/i }).first()).toBeVisible();
-
-  const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
-  expect(
-    results.violations,
-    JSON.stringify(
-      results.violations.map((v) => ({ id: v.id, nodes: v.nodes.length })),
-      null,
-      2,
-    ),
-  ).toEqual([]);
-});
-
-test('Panier (/panier) — aucune violation WCAG AA', async ({ page }) => {
-  await page.goto('/panier');
-  // Panier vide par défaut (aucun article en session) — doit rester accessible.
-  await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
-
-  const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
-  expect(
-    results.violations,
-    JSON.stringify(
-      results.violations.map((v) => ({ id: v.id, nodes: v.nodes.length })),
-      null,
-      2,
-    ),
-  ).toEqual([]);
-});
-
-// ── Mode sombre ────────────────────────────────────────────────────────────
-// Les passes ci-dessus s'exécutent en thème CLAIR (défaut). Plusieurs régressions
-// de contraste ne se manifestaient QU'EN sombre (boutons `btn--secondary` du hero,
-// bandeau CTA, lien « Administration ») car des tokens basculent en dark. On force
-// donc le thème sombre via localStorage (lu par ThemeService au démarrage) et on
-// relance axe sur les pages concernées — garde-fou contre ces régressions.
-function forceDarkTheme(page: Page): Promise<void> {
-  return page.addInitScript(() => {
+function forceTheme(page: Page, theme: 'light' | 'dark'): Promise<void> {
+  return page.addInitScript((t) => {
     try {
-      localStorage.setItem('abristempo-theme', 'dark');
+      localStorage.setItem('abristempo-theme', t);
     } catch {
       /* localStorage indisponible — ignoré */
     }
-  });
+  }, theme);
 }
 
-test('Accueil (/) en mode SOMBRE — aucune violation WCAG AA', async ({ page }) => {
-  await forceDarkTheme(page);
-  await page.goto('/');
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-  await expect(page.getByRole('heading', { name: /abri/i }).first()).toBeVisible();
+for (const theme of themes) {
+  for (const route of routes) {
+    test(`${route.nom} — aucune violation WCAG AA (${theme.libelle})`, async ({ page }) => {
+      await forceTheme(page, theme.id);
+      await page.goto(route.chemin);
+      await expect(page.locator('html')).toHaveAttribute('data-theme', theme.id);
+      await route.pret(page);
 
-  const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
-  expect(
-    results.violations,
-    JSON.stringify(
-      results.violations.map((v) => ({ id: v.id, nodes: v.nodes.length })),
-      null,
-      2,
-    ),
-  ).toEqual([]);
-});
-
-test('Boutique (/boutique) en mode SOMBRE — aucune violation WCAG AA', async ({ page }) => {
-  await forceDarkTheme(page);
-  await page.goto('/boutique');
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-  await expect(page.getByRole('heading', { name: /abri/i }).first()).toBeVisible();
-
-  const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
-  expect(
-    results.violations,
-    JSON.stringify(
-      results.violations.map((v) => ({ id: v.id, nodes: v.nodes.length })),
-      null,
-      2,
-    ),
-  ).toEqual([]);
-});
+      const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
+      expect(
+        results.violations,
+        JSON.stringify(
+          results.violations.map((v) => ({ id: v.id, nodes: v.nodes.length })),
+          null,
+          2,
+        ),
+      ).toEqual([]);
+    });
+  }
+}

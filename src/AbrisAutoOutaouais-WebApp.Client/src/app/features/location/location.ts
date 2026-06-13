@@ -17,6 +17,8 @@ import { ToastService } from '../../core/services/toast.service';
 import { ProfileService } from '../../core/services/profile.service';
 import { ProductSummaryDto } from '../../core/models/product.model';
 import { CreateRentalContractRequest } from '../../core/models/rental.model';
+import { FaqComponent } from '../../shared/components/faq/faq.component';
+import { LOCATION_FAQ } from '../../shared/content/faq.data';
 
 /**
  * Location saisonnière d'abris.
@@ -26,11 +28,14 @@ import { CreateRentalContractRequest } from '../../core/models/rental.model';
 @Component({
   selector: 'app-location',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, CurrencyPipe],
+  imports: [ReactiveFormsModule, CurrencyPipe, FaqComponent],
   templateUrl: './location.html',
   styleUrl: './location.scss',
 })
 export class LocationComponent implements OnInit {
+  /** Entrées FAQ de la page (durée, dépôt, annulation, installation). */
+  protected readonly faq = LOCATION_FAQ;
+
   private readonly fb = inject(FormBuilder);
   private readonly products = inject(ProductService);
   private readonly rentals = inject(RentalService);

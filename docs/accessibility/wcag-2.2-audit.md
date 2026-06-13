@@ -167,6 +167,22 @@ détection → recommandation → remédiation → re-test.
 - **Avant** : le dropdown utilisateur passait sous les sections suivantes.
 - **Après** : échelle de `z-index` formalisée dans les jetons (`--z-dropdown: 200`, `--z-sticky: 300`, `--z-modal: 500`) garantissant l'empilement correct du menu et du focus visible.
 
+### 5.6 Bouton primaire invisible sur le bandeau CTA (deux thèmes)
+- **Critère** : 1.4.3 / 1.4.11.
+- **Avant** : le bandeau CTA de l'accueil a un fond rouge **figé** (`linear-gradient(#b91c1c → #991b1b)`) mais le bouton `.btn--primary` suit les jetons de thème → **rouge sur rouge (≈1:1) en thème clair**, rouge pâle `#f87171` sur rouge ≈2.34:1 en sombre.
+- **Après** : variante `.btn--inverse` (fond blanc, texte `#991b1b` 8.3:1, survol `#f3f4f6` 7.55:1, anneau de focus **blanc** — l'anneau bleu global était peu visible sur le rouge), adossée aux jetons v2 indépendants du thème (`--color-on-brand`, `--color-surface-on-brand`, `--color-text-on-brand-inverse`).
+- **Re-test** : balayage axe **deux thèmes** (5.8).
+
+### 5.7 Liens et surtitre sous le seuil AA en thème sombre
+- **Critère** : 1.4.3.
+- **Avant** : `a:hover`/`a:visited` résolvaient `--color-primary-dark` `#ef4444` ≈4.02:1 sur `--color-bg-subtle` `#1a2736` ; surtitre « Pourquoi nous » `rgba(255,255,255,0.45)` ≈4.48:1 sur `#0f1923` (et rendu à 18px au lieu des 12px voulus par un conflit de spécificité).
+- **Après** : nouveau jeton `--color-link-hover` (clair : `--color-primary-dark` inchangé ; sombre : `#f87171` 5.47:1) appliqué aux liens globaux + 3 styles de survol de composants ; surtitre à `rgba(255,255,255,0.72)` ≈9.6:1 et taille 12px rétablie.
+
+### 5.8 Bug-08 — menu fermé focalisable + balayage axe des deux thèmes
+- **Critère** : 4.1.2 / méthodologie.
+- **Avant** : menus utilisateur et mobile fermés via `aria-hidden` + `pointer-events:none` → enfants encore focalisables (`aria-hidden-focus`) ; l'axe e2e ne balayait le thème sombre que sur 2 routes.
+- **Après** : attribut natif `inert` lié à l'état fermé (les deux menus) ; `e2e/a11y.spec.ts` paramétré **routes × thèmes** (5 routes × clair/sombre, `data-theme` vérifié avant chaque scan) ; l'exclusion `app-rentals` de `rental-cancel.spec.ts` retirée — la navbar authentifiée est couverte. Gardes : `navbar.spec.ts` (assertions de focus réelles).
+
 ---
 
 ## 6. Risques résiduels & recommandations
