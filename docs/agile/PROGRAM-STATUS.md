@@ -11,13 +11,25 @@
 
 ## Curseur courant
 
-- **Épic en cours :** **Épic D — Outil `/mesurer` parking + suggestions d'abri** (branche `feat/mesurer-parking` — créée, active)
-- **Prochaine sous-tâche :** **D3 — Feature `/mesurer`** (frontend Angular, voir plan Épic D) : deps `leaflet` + `@geoman-io/leaflet-geoman-free` + `@turf/turf` + `@types/leaflet` ; stepper signals **1 Adresse** (réutilise l'autocomplete C3 + lat/lng) → **2 Mesure** (`map-measure` `@defer`+import dynamique, Esri World Imagery, geoman rect/polygon→turf ; `role=application`) **ou** `vehicle-calculator` (équivalent clavier accessible, `vehicle-dims.const.ts`) → **3 Résultats** (cartes produit via l'endpoint D2 + badge « Ajusté serré ») ; math pure dans `footprint.util.ts` + spec ; route + navbar + home CTA ; axe exclusions scopées `.leaflet-container` uniquement ; `/mesurer` ajouté au sweep dual-theme ; chunk lazy ≤ ~120 kB gz. **C'est la frontière d'épic D** → à la fin : gates client complètes (`i18n:extract`, `build:prod`, `npm test`, `npm run e2e` zéro axe) + **revue indépendante `code-reviewer` + `solid-review` sur le diff backend cumulé D1+D2+D3** (reportée) → commit → PR → revue CI → merge `master`.
-- **D2 — Endpoint `suggest-shelters` : ✅ FAIT (commit local `b3408f0`, non revu)** — `APP/Products/Queries/SuggestShelters/` (Query + `ShelterSuggestionDto` + Handler + Validator) ; `GET api/v1/products/suggest-shelters?requiredWidthCm&requiredLengthCm` `[AllowAnonymous]` : filtre dims non-null ∧ ≥ requis, tri empreinte croissante (`Width*Length`) tie-break nom, marges + `IsTightFit` (< `ProductDimensions.TightFitMarginCm` = **50**, ajouté à la constante partagée, L-004). Route littérale placée avant `{slug}` (verrouillée par IT). Validator de query (>0 ∧ ≤ MaxCm) exécuté par `ValidationBehavior` → 422. Gates : `dotnet test` **202 UT + 72 IT = 274 ✅** (vérifié indépendamment). Pas de frontend.
-- **D1 — Dimensions produit : ✅ FAIT (commit local `a526d90`, non revu)** — 3 `int?` `WidthCm`/`LengthCm`/`HeightCm` sur `Product` (scalaires, pas de VO owned), migration additive `AddProductDimensions` (`20260613065137`, appliquée LocalDB), seeder dims Tempo par slug, `ProductDto` + **2 projections** (GetAll + GetBySlug), Create/Update + validateurs, `UpdateProductCommandValidator` **créé** (trou : l'Update n'était pas validé), constante partagée `Domain/Constants/ProductDimensions` (L-004), 3 champs admin a11y + i18n fr/en. Gates : `dotnet test` 186 UT + 70 IT ✅ · `npm test` 124 (zéro axe) ✅ · `build:prod` ✅.
-  - **À traiter à la frontière d'épic (D3) :** revue indépendante `code-reviewer` + `solid-review` sur le diff backend cumulé **D1+D2**. **Candidat-leçon L-014** signalé par le dev (à confirmer par le `mentor`) : un tuple `readonly [value, validators]` *spread* dans `fb.control(...)` casse le typecheck Angular (`'nonNullable' is missing`) — déclarer `this.fb.control<number | null>(null, [validators])`.
-- **Pré-requis Épic D déjà satisfait :** l'autocomplétion C3 (rue + lat/lng dans `PlaceSuggestionDto`) est livrée et réutilisable par l'étape « Adresse » du `/mesurer`.
-- **Dernière mise à jour :** 2026-06-13 (D2 fait — `b3408f0`)
+- **Épic en cours :** **Épic E — Redesign v2** (tokens v2, hero scroll GSAP, viewer 3D three.js, micro-interactions) — **prochain**, branche `feat/redesign-v2` à créer depuis `master` une fois la PR D mergée. Voir le plan (Épic E) : E1 tokens v2 (absorbe le bloc A) → E2 hero scroll story (GSAP, `gsap.matchMedia` reduced-motion, SSR frame 1) → E3 micro-interactions (directives reveal/magnetic/count-up, loading-overlay, cursor-ring) → E4 viewer 3D (`three`, builder paramétrique dimensionné depuis les dims produit D1, `@defer (on interaction)`) → E5 perf gates (bundle initial figé, `e2e/motion-a11y.spec.ts`, Lighthouse). **Contrainte : E4 dépend de D1 (✅ livré).**
+- **Prochaine action concrète :** **Épic D entièrement implémenté + revu sur `feat/mesurer-parking` — reste : PR → CI verte → merge `master`** (frontière d'épic, cf. `[[program-git-flow]]`). Si la session reprend ici : vérifier l'état de la PR (`gh pr view`), attendre/relire la CI, merger vers `master`, supprimer la branche, puis créer `feat/redesign-v2` et démarrer E1.
+
+### Épic D — ✅ TERMINÉ (revu, branche `feat/mesurer-parking`)
+
+| Sous-tâche | État | Commits |
+|-----------|------|---------|
+| D1 — Dimensions produit (`WidthCm/LengthCm/HeightCm` + migration `AddProductDimensions` + seeder + projections + Create/Update validators + constante `ProductDimensions`) | ✅ | `a526d90` |
+| D2 — Endpoint `suggest-shelters` (filtre dims ≥ requis, tri empreinte, marges + `IsTightFit`, validator >0∧≤2000) | ✅ | `b3408f0` |
+| D3 — Feature `/mesurer` (stepper Adresse→Mesure→Résultats ; calculateur clavier ou carte Leaflet/geoman/turf `@defer` SSR-safe ; **cm-canonique + affichage en pieds** `units.util` ; radiogroups **APG** `radio-nav.util`) | ✅ | `01983b4` |
+| Correctifs revue indépendante (radiogroups APG roving tabindex+flèches, wording, sealed, modifier-keys) | ✅ | `53d99fd`, `88fa70a`, `bd8381d` |
+
+**Revue indépendante** : `code-reviewer` **REQUEST CHANGES → corrigée** (1 Major a11y : `role=radio` sans contrat APG, invisible pour AXE) ; `solid-review` backend **APPROVE WITH NITS** (validateurs scellés). **Leçons capturées : L-015** (APG roving tabindex ; focus synchrone post-`set` sûr si élément monté — contre-partie L-006) **et L-014** (`fb.control<number|null>`, jamais un tuple spread).
+**Gates finales** : `npm test` **161** (zéro axe) ✅ · `npm run build:prod` (fr+en, i18n OK, chunk `/mesurer` ~28 kB gz) ✅ · `npm run e2e` `/mesurer` (clavier + smoke carte) + sweep dual-theme ✅ · `dotnet test` **274** ✅. *(Flake connu : 1er run e2e à froid → `vite-error-overlay` transitoire du dev-server ; vert au re-run warm + retries CI.)*
+**Décision produit pliée** : **cm-canonique + affichage en pieds** — tout le calcul/API en cm ; les pieds ne servent qu'à la saisie (`feetToCm`) et à l'affichage (`cmToFeet`, « pi »/« ft », 1 décimale). Saisie manuelle en pieds (1–65 pi).
+**Docs retournées** : `board.md` (clôture Épic D), `product-backlog.md` (US-1.7), README roadmap, `wcag-2.2-audit.md` (4.1.2 radiogroup APG).
+**Statut git** : commits locaux sur `feat/mesurer-parking` ; **PR vers `master` à créer/finaliser → CI → merge**.
+
+- **Dernière mise à jour :** 2026-06-13 (Épic D terminé + revu — `bd8381d` ; PR/CI/merge en cours)
 
 ### Épic C — ✅ TERMINÉ (branche `feat/address-split-autocomplete`)
 
