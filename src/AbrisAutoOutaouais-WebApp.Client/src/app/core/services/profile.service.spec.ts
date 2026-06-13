@@ -21,7 +21,9 @@ const profileWithAddress: UserProfileDto = {
   avatar: null,
   preferredLanguage: 'fr',
   defaultDeliveryAddress: {
-    street: '1 rue des Abris',
+    civicNumber: '1',
+    street: 'rue des Abris',
+    apartment: null,
     city: 'Gatineau',
     province: 'QC',
     postalCode: 'J8X 1A1',
@@ -75,7 +77,9 @@ describe('ProfileService', () => {
   it("applyDefaultAddress remplit les champs intacts (pristine) sans écraser une saisie", () => {
     const fb = TestBed.inject(FormBuilder);
     const form = fb.nonNullable.group({
+      civicNumber: [''],
       street: [''],
+      apartment: [''],
       city: ['Hull'], // l'utilisateur a saisi « Hull » (marqué dirty ci-dessous)
       province: ['QC'], // valeur PAR DÉFAUT, pristine → doit être remplacée par l'adresse
       postalCode: [''],
@@ -84,14 +88,18 @@ describe('ProfileService', () => {
     form.controls.city.markAsDirty(); // simule une saisie utilisateur sur « ville »
 
     service.applyDefaultAddress(form, {
-      street: '1 rue des Abris',
+      civicNumber: '1',
+      street: 'rue des Abris',
+      apartment: '4B',
       city: 'Gatineau',
       province: 'ON', // différent du défaut « QC »
       postalCode: 'K1A 0A6',
       country: 'Canada',
     });
 
-    expect(form.controls.street.value).toBe('1 rue des Abris'); // vide + pristine → rempli
+    expect(form.controls.civicNumber.value).toBe('1'); // vide + pristine → rempli
+    expect(form.controls.street.value).toBe('rue des Abris'); // vide + pristine → rempli
+    expect(form.controls.apartment.value).toBe('4B'); // vide + pristine → rempli
     expect(form.controls.postalCode.value).toBe('K1A 0A6'); // vide + pristine → rempli
     expect(form.controls.province.value).toBe('ON'); // défaut pristine → remplacé
     expect(form.controls.city.value).toBe('Hull'); // édité (dirty) → préservé

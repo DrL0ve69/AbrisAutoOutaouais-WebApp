@@ -20,11 +20,12 @@ import { OrderService } from '../../core/services/order.service';
 import { ToastService } from '../../core/services/toast.service';
 import { ProfileService } from '../../core/services/profile.service';
 import { DeliveryType } from '../../core/models/order.model';
+import { CIVIC_PATTERN, POSTAL_PATTERN, normalizePostal } from '../../core/validators/address.validators';
 
 /** Adresse requise uniquement si le mode de réception est « Livraison ». */
 function addressRequiredIfDelivery(g: AbstractControl): ValidationErrors | null {
   if (g.get('deliveryType')?.value !== 'Delivery') return null;
-  const missing = ['street', 'city', 'postalCode'].some(
+  const missing = ['civicNumber', 'street', 'city', 'postalCode'].some(
     k => !(g.get(k)?.value ?? '').trim(),
   );
   return missing ? { addressRequired: true } : null;
@@ -62,10 +63,12 @@ export class CheckoutComponent {
   protected readonly form = this.fb.nonNullable.group(
     {
       deliveryType: ['Pickup' as DeliveryType, Validators.required],
+      civicNumber: ['', Validators.pattern(CIVIC_PATTERN)],
       street: [''],
+      apartment: [''],
       city: [''],
       province: ['QC'],
-      postalCode: [''],
+      postalCode: ['', Validators.pattern(POSTAL_PATTERN)],
       cardName: ['', Validators.required],
       cardNumber: ['', [Validators.required, Validators.pattern(/^\d{13,19}$/)]],
       expiry: ['', [Validators.required, Validators.pattern(/^(0[1-9]|1[0-2])\/\d{2}$/)]],
@@ -101,10 +104,12 @@ export class CheckoutComponent {
     const shippingAddress =
       v.deliveryType === 'Delivery'
         ? {
+            civicNumber: v.civicNumber,
             street: v.street,
+            apartment: v.apartment.trim() || null,
             city: v.city,
             province: v.province || 'QC',
-            postalCode: v.postalCode,
+            postalCode: normalizePostal(v.postalCode),
             country: 'Canada',
           }
         : null;

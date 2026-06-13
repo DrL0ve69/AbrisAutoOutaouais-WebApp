@@ -74,14 +74,35 @@
           </select>
         </div>
 
+        <div class="form-row form-row--two">
+          <div class="form-field">
+            <label for="civicNumber" i18n="@@installation.field.civic">Numéro civique</label>
+            <input id="civicNumber" type="text" formControlName="civicNumber"
+                   autocomplete="off" inputmode="text" placeholder="123"
+                   [attr.aria-invalid]="f.civicNumber.touched && f.civicNumber.invalid"
+                   aria-describedby="inst-civic-err" />
+            @if (f.civicNumber.touched && f.civicNumber.invalid) {
+            <p id="inst-civic-err" class="form-field__error" role="alert" i18n="@@installation.field.civicInvalid">
+              Numéro civique invalide (ex&nbsp;: 123 ou 123A).
+            </p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="street" i18n="@@installation.field.street">Rue</label>
+            <input id="street" type="text" formControlName="street" autocomplete="address-line1" />
+            @if (f.street.touched && f.street.invalid) {
+            <p class="form-field__error" role="alert" i18n="@@installation.field.streetRequired">
+              L'adresse est requise.
+            </p>
+            }
+          </div>
+        </div>
+
         <div class="form-field">
-          <label for="street" i18n="@@installation.field.street">Adresse</label>
-          <input id="street" type="text" formControlName="street" autocomplete="address-line1" />
-          @if (f.street.touched && f.street.invalid) {
-          <p class="form-field__error" role="alert" i18n="@@installation.field.streetRequired">
-            L'adresse est requise.
-          </p>
-          }
+          <label for="apartment" i18n="@@installation.field.apartment">Appartement / unité (optionnel)</label>
+          <input id="apartment" type="text" formControlName="apartment"
+                 autocomplete="address-line2" placeholder="4B" />
         </div>
 
         <div class="form-row">
@@ -102,10 +123,14 @@
 
           <div class="form-field">
             <label for="postalCode" i18n="@@installation.field.postalCode">Code postal</label>
-            <input id="postalCode" type="text" formControlName="postalCode" autocomplete="postal-code" />
+            <input id="postalCode" type="text" formControlName="postalCode" autocomplete="postal-code"
+                   placeholder="J8X 1A1"
+                   [attr.aria-invalid]="f.postalCode.touched && f.postalCode.invalid"
+                   aria-describedby="inst-postal-hint inst-postal-err" />
+            <span id="inst-postal-hint" class="form-field__hint" i18n="@@installation.field.postalHint">Format&nbsp;: A1A 1A1</span>
             @if (f.postalCode.touched && f.postalCode.invalid) {
-            <p class="form-field__error" role="alert" i18n="@@installation.field.postalCodeRequired">
-              Le code postal est requis.
+            <p id="inst-postal-err" class="form-field__error" role="alert" i18n="@@installation.field.postalCodeInvalid">
+              Code postal invalide (ex&nbsp;: J8X 1A1).
             </p>
             }
           </div>

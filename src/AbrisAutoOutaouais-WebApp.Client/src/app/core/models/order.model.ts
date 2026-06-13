@@ -34,7 +34,9 @@ export interface OrderLineRequest {
 }
 
 export interface ShippingAddressRequest {
+  readonly civicNumber: string;
   readonly street: string;
+  readonly apartment: string | null;
   readonly city: string;
   readonly province: string;
   readonly postalCode: string;

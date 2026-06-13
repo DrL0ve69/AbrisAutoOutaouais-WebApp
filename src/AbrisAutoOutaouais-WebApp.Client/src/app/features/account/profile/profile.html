@@ -385,15 +385,48 @@
                 novalidate
                 class="profile-form"
               >
+                <div class="field-row">
+                  <div class="field field--civic">
+                    <label class="field__label" for="addr-civic">Numéro civique</label>
+                    <input
+                      id="addr-civic"
+                      type="text"
+                      class="field__input"
+                      formControlName="civicNumber"
+                      autocomplete="off"
+                      inputmode="text"
+                      placeholder="123"
+                      [attr.aria-invalid]="aCivic.invalid && aCivic.touched"
+                      aria-describedby="addr-civic-err"
+                    />
+                    @if (aCivic.invalid && aCivic.touched) {
+                      <span id="addr-civic-err" class="field__error" role="alert">
+                        Numéro civique invalide (ex&nbsp;: 123 ou 123A).
+                      </span>
+                    }
+                  </div>
+                  <div class="field">
+                    <label class="field__label" for="addr-street">Rue</label>
+                    <input
+                      id="addr-street"
+                      type="text"
+                      class="field__input"
+                      formControlName="street"
+                      autocomplete="address-line1"
+                      placeholder="rue des Érables"
+                    />
+                  </div>
+                </div>
+
                 <div class="field">
-                  <label class="field__label" for="addr-street">Rue et numéro civique</label>
+                  <label class="field__label" for="addr-apartment">Appartement / unité (optionnel)</label>
                   <input
-                    id="addr-street"
+                    id="addr-apartment"
                     type="text"
                     class="field__input"
-                    formControlName="street"
-                    autocomplete="street-address"
-                    placeholder="123 rue des Érables"
+                    formControlName="apartment"
+                    autocomplete="address-line2"
+                    placeholder="4B"
                   />
                 </div>
 

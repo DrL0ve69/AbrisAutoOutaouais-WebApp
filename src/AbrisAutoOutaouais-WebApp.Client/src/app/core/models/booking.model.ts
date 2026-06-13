@@ -2,7 +2,9 @@ export type BookingType = 'Installation' | 'Delivery' | 'Removal';
 export type BookingStatus = 'Pending' | 'Confirmed' | 'Completed' | 'Cancelled';
 
 export interface AddressDto {
+  readonly civicNumber: string;
   readonly street: string;
+  readonly apartment: string | null;
   readonly city: string;
   readonly province: string;
   readonly postalCode: string;

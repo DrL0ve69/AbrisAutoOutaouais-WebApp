@@ -19,6 +19,7 @@ import { ProductSummaryDto } from '../../core/models/product.model';
 import { CreateRentalContractRequest } from '../../core/models/rental.model';
 import { FaqComponent } from '../../shared/components/faq/faq.component';
 import { LOCATION_FAQ } from '../../shared/content/faq.data';
+import { CIVIC_PATTERN, POSTAL_PATTERN, normalizePostal } from '../../core/validators/address.validators';
 
 /**
  * Location saisonnière d'abris.
@@ -56,10 +57,12 @@ export class LocationComponent implements OnInit {
   protected readonly form = this.fb.nonNullable.group({
     startDate: ['', Validators.required],
     endDate: ['', Validators.required],
+    civicNumber: ['', [Validators.required, Validators.pattern(CIVIC_PATTERN)]],
     street: ['', Validators.required],
+    apartment: ['', Validators.maxLength(20)],
     city: ['', Validators.required],
     province: ['QC', Validators.required],
-    postalCode: ['', Validators.required],
+    postalCode: ['', [Validators.required, Validators.pattern(POSTAL_PATTERN)]],
   });
 
   constructor() {
@@ -127,10 +130,12 @@ export class LocationComponent implements OnInit {
       startDate: v.startDate,
       endDate: v.endDate,
       address: {
+        civicNumber: v.civicNumber,
         street: v.street,
+        apartment: v.apartment.trim() || null,
         city: v.city,
         province: v.province || 'QC',
-        postalCode: v.postalCode,
+        postalCode: normalizePostal(v.postalCode),
         country: 'Canada',
       },
     };

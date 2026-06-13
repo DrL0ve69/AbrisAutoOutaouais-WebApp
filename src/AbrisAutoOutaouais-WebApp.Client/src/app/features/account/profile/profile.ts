@@ -16,6 +16,7 @@ import { ProfileService } from '../../../core/services/profile.service';
 import { LocaleService, AppLocale } from '../../../core/services/locale.service';
 import { environment } from '../../../../environments/environment';
 import { UserProfileDto, UpdateProfileRequest } from '../../../core/models/profile.model';
+import { CIVIC_PATTERN, POSTAL_PATTERN, normalizePostal } from '../../../core/validators/address.validators';
 
 type ActiveTab = 'info' | 'address' | 'security';
 
@@ -78,14 +79,17 @@ export class ProfileComponent implements OnInit {
 
   // ── Formulaire adresse ───────────────────────────────────────
   protected readonly addressForm = this.fb.nonNullable.group({
+    civicNumber: ['', [Validators.maxLength(10), Validators.pattern(CIVIC_PATTERN)]],
     street: ['', Validators.maxLength(200)],
+    apartment: ['', Validators.maxLength(20)],
     city: ['', Validators.maxLength(100)],
     province: ['QC'],
     // Accepte le format canadien avec OU sans espace (« A1A 1A1 » ou « A1A1A1 »),
     // exactement comme l'indice du champ l'affiche. Sans le « espace optionnel »,
     // saisir « J8X 1A1 » échouait silencieusement la validation → l'adresse ne se
-    // sauvegardait jamais (leçon L-001). Normalisée à l'enregistrement.
-    postalCode: ['', Validators.pattern(/^[A-Za-z]\d[A-Za-z] ?\d[A-Za-z]\d$/)],
+    // sauvegardait jamais (leçon L-001). Normalisée à l'enregistrement. Motif partagé
+    // avec le serveur via address.validators (L-004).
+    postalCode: ['', Validators.pattern(POSTAL_PATTERN)],
     country: ['Canada'],
   });
 
@@ -119,6 +123,9 @@ export class ProfileComponent implements OnInit {
     return this.infoForm.controls.preferredLanguage;
   }
 
+  protected get aCivic() {
+    return this.addressForm.controls.civicNumber;
+  }
   protected get aPostal() {
     return this.addressForm.controls.postalCode;
   }
@@ -215,8 +222,14 @@ export class ProfileComponent implements OnInit {
     }
 
     const raw = this.addressForm.getRawValue();
-    const addr = { ...raw, postalCode: this.normalizePostal(raw.postalCode) };
-    const hasAddress = addr.street || addr.city || addr.postalCode;
+    const addr = {
+      ...raw,
+      apartment: raw.apartment.trim() || null,
+      postalCode: normalizePostal(raw.postalCode),
+    };
+    // Le serveur exige n° civique + rue + ville + code postal pour considérer une
+    // adresse « présente » : on n'envoie un objet que si ces champs sont remplis.
+    const hasAddress = addr.civicNumber && addr.street && addr.city && addr.postalCode;
 
     this.save({
       firstName: this.fFirst.value,
@@ -358,12 +371,6 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  /** Normalise un code postal canadien en « A1A 1A1 » (majuscules, espace unique). */
-  private normalizePostal(value: string): string {
-    const compact = (value ?? '').replace(/\s+/g, '').toUpperCase();
-    return compact.length === 6 ? `${compact.slice(0, 3)} ${compact.slice(3)}` : value.trim();
-  }
-
   private patchForms(p: UserProfileDto): void {
     this.infoForm.patchValue({
       firstName: p.firstName,
@@ -372,8 +379,17 @@ export class ProfileComponent implements OnInit {
       preferredLanguage: p.preferredLanguage ?? 'fr',
     });
 
-    if (p.defaultDeliveryAddress) {
-      this.addressForm.patchValue(p.defaultDeliveryAddress);
+    const a = p.defaultDeliveryAddress;
+    if (a) {
+      this.addressForm.patchValue({
+        civicNumber: a.civicNumber,
+        street: a.street,
+        apartment: a.apartment ?? '',
+        city: a.city,
+        province: a.province,
+        postalCode: a.postalCode,
+        country: a.country,
+      });
     }
   }
 }

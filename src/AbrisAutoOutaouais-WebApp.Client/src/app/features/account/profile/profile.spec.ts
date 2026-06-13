@@ -14,17 +14,22 @@ import { ProfileComponent } from './profile';
 describe('ProfileComponent — code postal', () => {
   // Le formulaire est créé dès la construction (initialisation de champ), donc inutile
   // de déclencher ngOnInit / un appel HTTP pour tester sa validation.
-  type PostalControl = { setValue(v: string): void; valid: boolean };
-  type Internals = { addressForm: { controls: { postalCode: PostalControl } } };
+  type Control = { setValue(v: string): void; valid: boolean };
+  type Internals = {
+    addressForm: { controls: { postalCode: Control; civicNumber: Control } };
+  };
 
-  let postal: PostalControl;
+  let postal: Control;
+  let civic: Control;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
     });
     const fixture = TestBed.createComponent(ProfileComponent);
-    postal = (fixture.componentInstance as unknown as Internals).addressForm.controls.postalCode;
+    const controls = (fixture.componentInstance as unknown as Internals).addressForm.controls;
+    postal = controls.postalCode;
+    civic = controls.civicNumber;
   });
 
   it("accepte « J8X 1A1 » (format avec espace, exactement comme l'indice)", () => {
@@ -40,5 +45,17 @@ describe('ProfileComponent — code postal', () => {
   it('rejette un code manifestement invalide', () => {
     postal.setValue('12345');
     expect(postal.valid).toBe(false);
+  });
+
+  it('accepte un numéro civique valide (« 123 » et « 123A »)', () => {
+    civic.setValue('123');
+    expect(civic.valid).toBe(true);
+    civic.setValue('123A');
+    expect(civic.valid).toBe(true);
+  });
+
+  it('rejette un numéro civique non numérique', () => {
+    civic.setValue('abc');
+    expect(civic.valid).toBe(false);
   });
 });

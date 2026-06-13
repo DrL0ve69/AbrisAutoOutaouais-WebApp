@@ -602,13 +602,25 @@
         <source>Type d&apos;intervention</source>
         <target>Service type</target>
       </trans-unit>
+      <trans-unit id="installation.field.civic" datatype="html">
+        <source>Numéro civique</source>
+        <target>Street number</target>
+      </trans-unit>
+      <trans-unit id="installation.field.civicInvalid" datatype="html">
+        <source> Numéro civique invalide (ex&nbsp;: 123 ou 123A). </source>
+        <target> Invalid street number (e.g. 123 or 123A). </target>
+      </trans-unit>
       <trans-unit id="installation.field.street" datatype="html">
-        <source>Adresse</source>
-        <target>Address</target>
+        <source>Rue</source>
+        <target>Street</target>
       </trans-unit>
       <trans-unit id="installation.field.streetRequired" datatype="html">
         <source> L&apos;adresse est requise. </source>
         <target> The address is required. </target>
+      </trans-unit>
+      <trans-unit id="installation.field.apartment" datatype="html">
+        <source>Appartement / unité (optionnel)</source>
+        <target>Apartment / unit (optional)</target>
       </trans-unit>
       <trans-unit id="installation.field.city" datatype="html">
         <source>Ville</source>
@@ -625,6 +637,14 @@
       <trans-unit id="installation.field.postalCode" datatype="html">
         <source>Code postal</source>
         <target>Postal code</target>
+      </trans-unit>
+      <trans-unit id="installation.field.postalHint" datatype="html">
+        <source>Format&nbsp;: A1A 1A1</source>
+        <target>Format: A1A 1A1</target>
+      </trans-unit>
+      <trans-unit id="installation.field.postalCodeInvalid" datatype="html">
+        <source> Code postal invalide (ex&nbsp;: J8X 1A1). </source>
+        <target> Invalid postal code (e.g. J8X 1A1). </target>
       </trans-unit>
       <trans-unit id="installation.field.postalCodeRequired" datatype="html">
         <source> Le code postal est requis. </source>
@@ -938,13 +958,25 @@
         <source> La date de fin est requise. </source>
         <target> The end date is required. </target>
       </trans-unit>
+      <trans-unit id="location.field.civic" datatype="html">
+        <source>Numéro civique</source>
+        <target>Street number</target>
+      </trans-unit>
+      <trans-unit id="location.field.civicInvalid" datatype="html">
+        <source> Numéro civique invalide (ex&nbsp;: 123 ou 123A). </source>
+        <target> Invalid street number (e.g. 123 or 123A). </target>
+      </trans-unit>
       <trans-unit id="location.field.street" datatype="html">
-        <source>Adresse</source>
-        <target>Address</target>
+        <source>Rue</source>
+        <target>Street</target>
       </trans-unit>
       <trans-unit id="location.field.streetRequired" datatype="html">
         <source> L&apos;adresse est requise. </source>
         <target> The address is required. </target>
+      </trans-unit>
+      <trans-unit id="location.field.apartment" datatype="html">
+        <source>Appartement / unité (optionnel)</source>
+        <target>Apartment / unit (optional)</target>
       </trans-unit>
       <trans-unit id="location.field.city" datatype="html">
         <source>Ville</source>
@@ -961,6 +993,14 @@
       <trans-unit id="location.field.postalCode" datatype="html">
         <source>Code postal</source>
         <target>Postal code</target>
+      </trans-unit>
+      <trans-unit id="location.field.postalHint" datatype="html">
+        <source>Format&nbsp;: A1A 1A1</source>
+        <target>Format: A1A 1A1</target>
+      </trans-unit>
+      <trans-unit id="location.field.postalCodeInvalid" datatype="html">
+        <source> Code postal invalide (ex&nbsp;: J8X 1A1). </source>
+        <target> Invalid postal code (e.g. J8X 1A1). </target>
       </trans-unit>
       <trans-unit id="location.field.postalCodeRequired" datatype="html">
         <source> Le code postal est requis. </source>
@@ -1156,9 +1196,21 @@
         <source>Adresse de livraison</source>
         <target>Delivery address</target>
       </trans-unit>
+      <trans-unit id="checkout.address.civic" datatype="html">
+        <source>Numéro civique</source>
+        <target>Street number</target>
+      </trans-unit>
+      <trans-unit id="checkout.address.civicInvalid" datatype="html">
+        <source>Numéro civique invalide (ex&nbsp;: 123 ou 123A).</source>
+        <target>Invalid street number (e.g. 123 or 123A).</target>
+      </trans-unit>
       <trans-unit id="checkout.address.street" datatype="html">
         <source>Rue</source>
         <target>Street</target>
+      </trans-unit>
+      <trans-unit id="checkout.address.apartment" datatype="html">
+        <source>Appartement / unité (optionnel)</source>
+        <target>Apartment / unit (optional)</target>
       </trans-unit>
       <trans-unit id="checkout.address.city" datatype="html">
         <source>Ville</source>
