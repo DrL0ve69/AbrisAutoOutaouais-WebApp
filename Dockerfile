@@ -29,4 +29,9 @@ EXPOSE 8080
 ENV ASPNETCORE_HTTP_PORTS=8080
 
 COPY --from=build /app ./
+
+# Exécution en utilisateur NON-root (durcissement). L'image .NET 8+ fournit un
+# utilisateur applicatif dédié (`APP_UID`=1654) ; 8080 est un port non privilégié,
+# donc liable sans root. (Résout docker:S6471.)
+USER $APP_UID
 ENTRYPOINT ["dotnet", "AbrisAutoOutaouais-WebApp.API.dll"]
