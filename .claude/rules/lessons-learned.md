@@ -11,6 +11,34 @@
 
 ---
 
+## L-021 · An `addInitHook` Leaflet plugin (geoman) only patches maps built AFTER it loads — and a global-reading IIFE plugin needs `globalThis.L` set before import
+
+- **Symptom.** F2-D: on `/mesurer` the satellite map rendered but was **non-drawable** — geoman's
+  draw toolbar never appeared and `map.pm` was `undefined`. Two compounding causes (both required to
+  fix; verified by inspecting `node_modules/@geoman-io/leaflet-geoman-free@2.19.3/dist/leaflet-geoman.js`
+  + live `window.ng.getComponent()` probes before/after). (1) geoman's dist is a self-contained
+  esbuild **IIFE that imports no Leaflet** (0 `require`/`import` of leaflet, 463 `L.` references) — it
+  reads `L` as a **free variable off `globalThis.L`**. The component imported Leaflet as a local ESM
+  module and never exposed it globally, so `globalThis.L` was `undefined` when geoman evaluated → it
+  patched nothing. (2) Even after setting the global, `map.pm` was still null: geoman attaches it via
+  `L.Map.addInitHook(...)`, which **only fires for map instances constructed AFTER the plugin loads** —
+  but the code did `L.map(...)` **before** importing geoman, so the already-built map never acquired
+  `pm`. This was **NOT** the "different/duplicate Leaflet instance" / CJS-ESM dedup theory L-019 had
+  recorded (there's nothing to dedup — geoman loads no leaflet); it reproduces identically in vite-dev
+  and esbuild-prod.
+- **Rule.** For a Leaflet (or any `addInitHook`-style) plugin shipped as a **global-reading IIFE**:
+  (a) set the global the plugin expects **before** importing it — `globalThis.L = L;` then
+  `await import('@geoman-io/leaflet-geoman-free')`, inside `afterNextRender` so it stays SSR-safe; and
+  (b) **import the plugin BEFORE constructing the instance** it must patch (`import(geoman)` then
+  `L.map(...)`) — an `addInitHook` retro-fits nothing onto already-built objects. Don't stop at "the
+  global got patched" (`L.PM` exists): **probe the CAPABILITY on the live instance** (`map.pm` present /
+  toolbar drawable) via `window.ng.getComponent()` ([[L-001]] live repro, [[L-009]] capability-not-
+  envelope) — the global being patched and *this* map being drawable are different facts. Resolves the
+  geoman `map.pm` follow-up that [[L-019]] left open.
+- **Refs.** `features/mesurer/steps/measure-step/map-measure/map-measure.ts` (`globalThis.L = L` +
+  import-geoman-before-`L.map` reorder), `e2e/mesurer.spec.ts` (capability test flipped to assert the
+  draw toolbar), branch `fix/f2d-mesurer-geoman-draw`.
+
 ## L-020 · Before deduping a utility CSS class across SCOPED stylesheets, prove who can actually reach it — a "shared" class may resolve nowhere
 
 - **Symptom.** F2-C: `.btn--small` / `.btn--danger` were defined **3×** across scoped component
@@ -41,11 +69,12 @@
   registered » — because the dep is already bundled before the mock registers. (b) A smoke test that
   asserted only the **container** (`.leaflet-container`) was **vacuous**: it passed while the
   interactive widget was silently dead. Adding a **positive capability** assertion — « is the geoman
-  draw toolbar (`.leaflet-pm-toolbar`) present? » — revealed `map.pm` never attaches (geoman patches a
-  *different* Leaflet instance than the one the dynamic import created — same family as the documented
-  « `L.map` is not a function » CJS/ESM interop trap, on the `map.pm` axis). That geoman defect is
-  **pre-existing (Épic D) and an OPEN follow-up in `board.md`** — not fixed here; the durable thing is
-  the *test discipline*.
+  draw toolbar (`.leaflet-pm-toolbar`) present? » — revealed `map.pm` never attaches. That geoman
+  defect was **pre-existing (Épic D)**; the durable thing here is the *test discipline*. **Root-cause
+  note (corrected by F2-D):** the original guess below — « geoman patches a *different* Leaflet
+  instance », same family as the « `L.map` is not a function » CJS/ESM interop trap — was **wrong**.
+  The real cause was a global-reading IIFE + `addInitHook` ordering, now captured and fixed in
+  [[L-021]] (which resolves the once-open `board.md` follow-up).
 - **Rule.** When a component dynamically imports a heavy lib (`leaflet`/`geoman`/`turf`/`three`) in
   `afterNextRender`, **don't rely on `vi.mock(<lib>)`** — it won't intercept the pre-bundled dynamic
   import in browser mode. Instead: (a) **test what renders BEFORE/independently of the heavy init** —
@@ -55,8 +84,9 @@
   prod. For the heavy path itself, **assert the CAPABILITY, not the wrapper**: a positive check that the
   widget is actually usable (draw toolbar present / map interactive), never just that its container
   mounted — a container-only assertion guards nothing ([[L-009]], [[L-005]]). Same « test the right
-  layer » discipline as [[L-016]] / [[L-001]], extended to the dynamic-import axis. Pin the CJS/ESM
-  interop (`const lib = ns.default ?? ns;`) so `map.pm` / `L.map` resolve against the same instance.
+  layer » discipline as [[L-016]] / [[L-001]], extended to the dynamic-import axis. (For the actual
+  geoman attach fix — `globalThis.L` + import-before-construct, NOT a CJS/ESM interop dedup — see
+  [[L-021]].)
 - **Refs.** `features/mesurer/steps/measure-step/measure-step.ts` (`notLocated()` computed; map init
   `if (!pm) return;` guard), the `/mesurer` map spec (capability assertion on `.leaflet-pm-toolbar`),
   `docs/agile/board.md` (open geoman `map.pm` follow-up, Épic D), branch `fix/f2-heuristics-followup`
