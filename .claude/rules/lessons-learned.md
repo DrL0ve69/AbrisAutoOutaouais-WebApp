@@ -11,6 +11,28 @@
 
 ---
 
+## L-022 · Container Apps : migration EF au démarrage OFF par défaut (sinon InMemory casse les tests), et le flag forwarded-headers évite la boucle 307 sans code
+
+- **Symptom.** Préparation du déploiement backend sur Azure Container Apps. Deux pièges. (a) Une
+  migration EF « au démarrage » non gardée ferait tomber TOUTE la suite d'intégration : le
+  `WebAppFactory` boote l'app sur le provider **InMemory**, qui lève sur `Database.MigrateAsync()`
+  (méthodes relationnelles indisponibles sur un provider non-relationnel). (b) Derrière l'ingress
+  Container Apps (TLS terminé, HTTP:8080 en interne), `app.UseHttpsRedirection()` (actif hors dev)
+  voit du HTTP et **boucle en 307** — le conteneur paraît « up » mais l'API est inatteignable.
+- **Rule.** (a) Toute migration au démarrage est **opt-in, OFF par défaut**
+  (`if (Configuration.GetValue<bool>("Database:MigrateOnStartup"))`), activée seulement par
+  `Database__MigrateOnStartup=true` sur le conteneur prod — dev/tests restent sur
+  `ef database update` / InMemory. Ici le garde doit précisément **NE PAS** s'exécuter en test pour
+  garder `dotnet test` vert (miroir de [[L-005]]). `MigrateAsync` prend le verrou de migration SQL
+  Server → sûr en multi-réplicas, et tourne **avant** les seeders (le schéma doit exister). (b)
+  Poser `ASPNETCORE_FORWARDEDHEADERS_ENABLED=true` (flag natif, **aucun code**) → les
+  forwarded-headers sont traités avant `UseHttpsRedirection`, qui voit alors `https`. Repli si la
+  boucle persiste : `UseForwardedHeaders` en code avec `KnownNetworks`/`KnownProxies` vidés
+  (l'ingress Envoy n'est pas loopback, donc non fié par défaut).
+- **Refs.** `src/AbrisAutoOutaouais-WebApp.API/Program.cs` (migration opt-in),
+  `Dockerfile`, `.github/workflows/azure-container-app.yml` (gated sur `AZURE_CREDENTIALS`),
+  `docs/deployment.md` §4.2, branche `chore/prep-backend-deploy`.
+
 ## L-021 · An `addInitHook` Leaflet plugin (geoman) only patches maps built AFTER it loads — and a global-reading IIFE plugin needs `globalThis.L` set before import
 
 - **Symptom.** F2-D: on `/mesurer` the satellite map rendered but was **non-drawable** — geoman's
