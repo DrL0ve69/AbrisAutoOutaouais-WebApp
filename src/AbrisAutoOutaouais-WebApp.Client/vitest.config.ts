@@ -9,6 +9,14 @@ export default defineConfig({
   plugins: [angular()],
   optimizeDeps: {
     include: ['axe-core'], // pré-bundle pour éviter un reload Vite pendant les tests
+    // Scope le scan de dépendances aux SEULS fichiers de test. Par défaut, le scanner Vite
+    // crawle tous les `*.html` du workspace comme points d'entrée — y compris les
+    // `dist/**/index.server.html` produits par `build:prod` (lancé avant `npm test` en CI).
+    // Il échouait alors à résoudre les bundles serveur hachés (« Failed to run dependency
+    // scan »), ce qui faisait tomber par intermittence le test en cours (flake CI récurrent
+    // sur `webgl.util.spec`, pourtant 100 % pur/déterministe). En épinglant les entrées aux
+    // specs, le scan ignore complètement `dist/`.
+    entries: ['src/**/*.spec.ts'],
   },
   test: {
     globals: true,
