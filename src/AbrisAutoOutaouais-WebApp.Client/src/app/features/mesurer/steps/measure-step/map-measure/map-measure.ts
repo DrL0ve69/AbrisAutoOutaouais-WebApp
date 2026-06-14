@@ -4,6 +4,7 @@ import {
   DestroyRef,
   ElementRef,
   afterNextRender,
+  computed,
   inject,
   input,
   output,
@@ -50,6 +51,16 @@ export class MapMeasureComponent {
   protected readonly ready = signal(false);
   /** Vrai quand le dessin obtenu dépasse la plage `[1, 2000]` cm. */
   protected readonly outOfRange = signal(false);
+
+  /**
+   * Vrai quand l'adresse n'a PAS été localisée (saisie manuelle sans choix d'une
+   * suggestion) : `lat`/`lng` sont `null` et la carte retombe sur Gatineau par défaut
+   * (voir `center` dans `initMap`). On affiche alors un indice persistant pour éviter
+   * que l'utilisateur mesure silencieusement le mauvais emplacement.
+   */
+  protected readonly notLocated = computed(
+    () => this.lat() === null || this.lng() === null,
+  );
 
   private readonly mapHost = viewChild.required<ElementRef<HTMLDivElement>>('mapHost');
 
@@ -103,7 +114,12 @@ export class MapMeasureComponent {
     const bbox = (await import('@turf/bbox')).default;
 
     // Rectangle + polygone uniquement (pas de marqueurs/lignes).
-    const pm = (map as unknown as { pm: PmApi }).pm;
+    // geoman s'attache à la carte par EFFET DE BORD (`map.pm`). Si cet attachement n'a pas eu
+    // lieu (échec d'interop CJS↔ESM, comme pour `L.map` — cf. en-tête ; ou environnement de
+    // test sans le vrai conteneur), on s'arrête là sans planter l'init : la carte satellite
+    // reste affichée, seuls les outils de dessin manquent.
+    const pm = (map as unknown as { pm?: PmApi }).pm;
+    if (!pm) return;
     pm.addControls({
       position: 'topright',
       drawMarker: false,
