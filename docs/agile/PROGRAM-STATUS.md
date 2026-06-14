@@ -20,9 +20,9 @@
 
 | Épic | Sujet | État |
 |------|-------|------|
-| **A** | Contraste & lisibilité boutons (`.btn--primary` texte invisible en sombre) | **🔵 EN COURS — prochaine sous-tâche** |
-| B | Curseur custom : point + anneau magnétique | ⚪ à faire |
-| C | Bascule langue (EN) en local (serveur localisé dev) | ⚪ à faire |
+| **A** | Contraste & lisibilité boutons (`.btn--primary` texte invisible en sombre) | **✅ MERGÉ — PR #31 (`3e08e68`), CI verte, prod auto-déployée** |
+| **B** | Curseur custom : point + anneau magnétique | **✅ Implémenté — revue APPROVE WITH NITS (nits clôturés), gates verts ; PR→CI→merge en cours** |
+| **C** | Bascule langue (EN) en local (serveur localisé dev) | **🔵 EN COURS — prochaine sous-tâche** |
 | D | Système d'adresse unifié (champ unique intelligent) + zone 100 km | ⚪ à faire |
 | E | Parcours premier utilisateur (register→profil ; alerte adresse) | ⚪ à faire |
 | F | Accès invité (compte express silencieux à la confirmation) | ⚪ à faire |
@@ -33,6 +33,12 @@
 éditables ; curseur = **point + anneau magnétique** ; invité = **compte express silencieux**
 (clé courriel, sans mot de passe) créé **à la confirmation**, coordonnées+adresse saisies seulement
 à ce moment → `CustomerId` réel partout.
+
+---
+
+## Curseur courant (Programme G)
+
+- **🔵 Épic B — Curseur custom (point + anneau magnétique) : IMPLÉMENTÉ, revue OK, gates verts — PR→CI→merge en cours (branche `feat/cursor-ring-magnetic`, 2026-06-14).** Refonte de `shared/components/cursor-ring/` en **deux éléments** : un **point** net (8px) qui suit le pointeur instantanément (`translate3d`, transition opacity seulement) + un **anneau** fin (36px) en léger retard via boucle **rAF lerp auto-arrêtée** (FACTOR 0.18, stop sur EPSILON → zéro frame au repos), qui **grossit (56px) + prend une teinte douce** (`--color-primary-subtle`) au survol d'un interactif (`a, button, [role=button]`) via la classe `cursor-ring__ring--active`. Magnétique **délégué sur `document`** (`pointerover`/`pointerout` + `closest`), anti-spam (`classList.toggle` seulement sur transition d'état). **Gardes conservées et étendues aux DEUX éléments** : host `aria-hidden`, `pointer-events:none`, **jamais `cursor:none`**, actif seulement `pointer:fine` ET `!prefersReducedMotion()`, init `afterNextRender` (SSR-safe), repli CSS `@media (pointer:coarse),(prefers-reduced-motion:reduce){display:none}`. **Teardown complet** au `DestroyRef` (4 listeners + `cancelAnimationFrame`). Cycle : architect → developer → **code-reviewer indépendant APPROVE WITH NITS** (zéro Critical/Major ; nit `isActive` relâché en `onLeave` appliqué ; aucune leçon nouvelle — L-006/L-009/L-016 déjà bien appliquées). Gates : `npm run build` ✅ · `npm test` **203** (cursor-ring 3/3, 0 axe — *contraste NON couvert en vitest L-016, anneau décoratif `aria-hidden`*) · `npm run e2e` **motion-a11y 8/8** (Bloc A reduced-motion réel → dot+ring cachés ; Bloc B axe dual-thème navbar scrollée). *Reste : pousser branche → PR → CI verte → merge `master` ; round-trip live L-001 (survol magnétique à l'œil dans les deux thèmes) recommandé côté utilisateur.*
 
 ---
 

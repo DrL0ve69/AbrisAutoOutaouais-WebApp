@@ -1,5 +1,5 @@
 // ============================================================
-// cursor-ring — anneau de curseur décoratif (E3)
+// cursor-ring — point net + anneau magnétique décoratifs (E3, Programme G)
 // ============================================================
 
 :host {
@@ -11,27 +11,58 @@
   pointer-events: none;
 }
 
+// Point net : suit le pointeur INSTANTANÉMENT (transform posé par JS, AUCUNE transition
+// de position — seule l'opacité est animée).
 .cursor-ring__dot {
   position: fixed;
   top: 0;
   left: 0;
-  width: 28px;
-  height: 28px;
-  margin: -14px 0 0 -14px; // centre l'anneau sur la position du pointeur
-  border: 2px solid var(--color-primary);
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px; // centre le point sur la position du pointeur
+  background: var(--color-primary);
   border-radius: var(--radius-full);
   pointer-events: none;
   opacity: 0;
   will-change: transform, opacity;
+  transition: opacity var(--duration-fast) var(--ease-out); // PAS de transform
+}
+
+// Anneau fin : suit en léger retard (boucle rAF lerp côté JS) ; grossit + prend une
+// teinte douce au survol d'un élément interactif via `.cursor-ring__ring--active`.
+.cursor-ring__ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 36px;
+  height: 36px;
+  margin: -18px 0 0 -18px; // centre l'anneau sur la position du pointeur
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-full);
+  background: transparent;
+  pointer-events: none;
+  opacity: 0;
+  will-change: transform, opacity, width, height;
   transition:
-    transform var(--duration-fast) var(--ease-out),
-    opacity var(--duration-base) var(--ease-out);
+    opacity var(--duration-base) var(--ease-out),
+    width var(--duration-base) var(--ease-spring),
+    height var(--duration-base) var(--ease-spring),
+    margin var(--duration-base) var(--ease-spring),
+    background-color var(--duration-base) var(--ease-out);
+}
+
+.cursor-ring__ring--active {
+  width: 56px;
+  height: 56px;
+  margin: -28px 0 0 -28px;
+  background: var(--color-primary-subtle);
 }
 
 // Garde CSS doublant le garde TS : pointeur grossier (tactile) ou mouvement réduit
-// → l'anneau ne s'affiche jamais.
+// → ni le point ni l'anneau ne s'affichent jamais.
 @media (pointer: coarse), (prefers-reduced-motion: reduce) {
-  .cursor-ring__dot {
+  .cursor-ring__dot,
+  .cursor-ring__ring {
     display: none;
   }
 }
