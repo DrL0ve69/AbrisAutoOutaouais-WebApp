@@ -53,6 +53,16 @@ process.stdin.on('end', () => {
   const isBackend = /\.cs$/.test(p) && !isClient;
   const isMigration = /\/Migrations\//.test(p);
 
+  // Motion / colour-tokens / heavy-lib (maps, 3D, autocomplete) surfaces: these carry the
+  // hardest-to-catch regressions (contrast — invisible in vitest, L-016 — and reduced-motion).
+  // Any .scss counts (tokens/animations/translucent fills), plus the named motion/maps files.
+  const isMotionOrTokens =
+    isClient &&
+    (/\.scss$/.test(p) ||
+      /(motion\.service|reveal-on-scroll|count-up|magnetic-hover|cursor-ring|loading-overlay|hero-story|shelter-3d|address-autocomplete|\/directives\/|\/places\/)/.test(
+        p,
+      ));
+
   if (isFrontend) {
     reminders.push(
       'Frontend edit detected (' +
@@ -61,6 +71,17 @@ process.stdin.on('end', () => {
         'standalone, signals, OnPush, inject(), native control flow, [class]/[style], reactive forms). ' +
         'Before finishing, run from src/AbrisAutoOutaouais-WebApp.Client: `npm run build` (typecheck) ' +
         'and `npm test` (vitest + axe). Keep WCAG 2.2 AA — zero AXE violations. UI strings in French with i18n.',
+    );
+  }
+
+  if (isMotionOrTokens) {
+    reminders.push(
+      'Motion / colour-tokens / heavy-lib surface touched — run the `.claude/rules/motion-a11y.md` ' +
+        'checklist before finishing: reduced-motion belt+braces (MotionService + CSS @media), ' +
+        'semantic-tokens-ONLY (no hardcoded colours; on-dark/`.btn--secondary` tokens belong only on ' +
+        'DARK surfaces), heavy libs (three/leaflet/turf) lazy via `@defer` + dynamic import in ' +
+        '`afterNextRender`. CONTRAST is NOT covered by vitest (`color-contrast` disabled, L-016) — ' +
+        'verify with `npm run e2e` (`motion-a11y.spec.ts`: dual-theme axe + real reduced-motion).',
     );
   }
 

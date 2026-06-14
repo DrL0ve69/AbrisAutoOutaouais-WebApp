@@ -232,6 +232,7 @@ AbrisAutoOutaouais-WebApp.slnx
 - [x] Aide & UX : FAQ accessible (`/installation`, `/location`) · vérif. de disponibilité username/courriel · confirmation du changement de langue
 - [x] **Adresse structurée** (numéro civique / appartement / rue) + **autocomplétion accessible** (combobox APG, proxy Places Photon/Radar/Google, code postal pré‑rempli éditable) · marque/modèle d'abri à l'installation (autres marques sauf ShelterLogic)
 - [x] Outil **« mesurer mon stationnement »** (carte satellite Leaflet à dessiner **ou** calculateur de véhicules au clavier) → **suggestion d'abri adapté** (mesures en pieds, calcul interne en cm, badge « ajusté serré »)
+- [x] **Redesign v2** — système de **jetons sémantiques** clair/sombre, **viewer 3D d'abri** (three.js, montage `@defer`/lazy, repli image, contrôles clavier), micro‑interactions respectant `prefers-reduced-motion`, contraste vérifié **axe dual‑thème** ; hero d'accueil en section statique (défilement normal)
 - [ ] Déploiement (Vercel + Azure App Service) via GitHub Actions
 
 ## Compétences démontrées
@@ -241,5 +242,8 @@ AbrisAutoOutaouais-WebApp.slnx
 - **Accessibilité** — WCAG 2.2 AA, tests axe automatisés, technologies d'assistance (NVDA/VoiceOver),
   audit & remédiation documentés.
 - **UX** — évaluation heuristique (Nielsen), analyses de flux de tâches, recommandations concrètes.
+- **Visualisation 3D** — three.js : descripteur d'abri **pur** (testé sans WebGL), montage **lazy** `@defer`, teardown WebGL, repli image et **contrôles clavier** (rotation/zoom/reset).
+- **Géospatial** — proxy d'adresses serveur (Photon/Radar/Google, normalisation de la province en code canonique, *rate‑limiting*) ; mesure de stationnement Leaflet/turf, le calculateur clavier servant de repli à la carte souris.
+- **Données & migrations** — migration EF Core d'un *owned type* `Address` (éclaté en sous‑champs) **avec préservation des données** (*nullable‑add → backfill → NOT‑NULL*, `Down()` réversible).
 - **Qualité & Agile** — CI, tests à plusieurs niveaux, backlog/sprints/DoD, gabarits, commits conventionnels.
 - **Internationalisation** — bilingue fr/en (compile‑time).

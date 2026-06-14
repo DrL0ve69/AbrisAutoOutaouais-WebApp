@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/angular';
+import { render, screen, within, waitFor } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect } from 'vitest';
 import { provideRouter } from '@angular/router';
@@ -31,17 +31,40 @@ const emptyPage = {
   hasPrev: false,
 };
 
+/** Produit unique pour exercer la suppression (ligne + bouton déclencheur). */
+const product = {
+  id: 'p-1',
+  name: 'Abri Test',
+  slug: 'abri-test',
+  price: 599,
+  rentalPrice: null,
+  isAvailable: true,
+  categoryName: 'Abris simples',
+  thumbnailUrl: null,
+  description: null,
+  stock: 4,
+  imageUrls: [],
+  widthCm: null,
+  lengthCm: null,
+  heightCm: null,
+};
+
+const pageWithProduct = { ...emptyPage, items: [product], totalCount: 1, totalPages: 1 };
+
 /**
  * Monte le composant et vide les deux requêtes déclenchées au constructeur
  * (catégories + liste paginée), afin que le formulaire soit prêt.
  */
-async function setup() {
+async function setup(list: typeof emptyPage = emptyPage) {
   const result = await render(AdminProductsComponent, {
     providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
   });
   const http = TestBed.inject(HttpTestingController);
   http.expectOne(`${environment.apiUrl}/categories`).flush(categories);
-  http.expectOne(req => req.url === `${environment.apiUrl}/products`).flush(emptyPage);
+  http.expectOne(req => req.url === `${environment.apiUrl}/products`).flush(list);
+  // Le flush met à jour les signaux APRÈS le rendu initial : on déclenche la détection
+  // de changements pour que la liste (@for) soit peinte avant les requêtes du test.
+  result.detectChanges();
   return { ...result, http };
 }
 
@@ -119,6 +142,60 @@ describe('AdminProductsComponent — dimensions', () => {
     const { http, container } = await setup();
 
     await expectNoA11yViolations(container);
+    http.verify();
+  });
+});
+
+// Gestion du focus du dialogue de suppression (WCAG 2.4.3 / APG modal) — parité avec
+// admin/bookings et admin/rentals (F2-A). Un statut/role-only ne suffit pas : on asserte
+// le focus réel (L-006).
+describe('AdminProductsComponent — focus du dialogue de suppression', () => {
+  it('déplace le focus dans la boîte de dialogue à l’ouverture', async () => {
+    const { http } = await setup(pageWithProduct);
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole("button", { name: /supprimer abri test/i }));
+
+    const dialog = await screen.findByRole('alertdialog');
+    await waitFor(() => expect(dialog).toHaveFocus());
+    http.verify();
+  });
+
+  it('referme la confirmation sans supprimer et rend le focus au déclencheur', async () => {
+    const { http } = await setup(pageWithProduct);
+    const user = userEvent.setup();
+
+    const trigger = await screen.findByRole("button", { name: /supprimer abri test/i });
+    await user.click(trigger);
+    await screen.findByRole('alertdialog');
+
+    await user.click(screen.getByRole('button', { name: /^annuler$/i }));
+
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    await waitFor(() => expect(trigger).toHaveFocus());
+    http.verify();
+  });
+
+  it('supprime après confirmation et déplace le focus au titre de la liste (déclencheur retiré)', async () => {
+    const { http } = await setup(pageWithProduct);
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole("button", { name: /supprimer abri test/i }));
+    const dialog = await screen.findByRole('alertdialog');
+
+    // Bouton « Supprimer » DU DIALOGUE (scopé pour ne pas viser celui de la ligne).
+    await user.click(within(dialog).getByRole('button', { name: /supprimer/i }));
+
+    http
+      .expectOne(req => req.method === 'DELETE' && req.url === `${environment.apiUrl}/products/p-1`)
+      .flush(null);
+    // Le succès recharge la liste (déclencheur retiré du DOM).
+    http.expectOne(req => req.url === `${environment.apiUrl}/products`).flush(emptyPage);
+
+    // Le focus revient sur le titre de la liste APRÈS le rendu (L-006).
+    await waitFor(() =>
+      expect(screen.getByRole('heading', { name: /produits du catalogue/i })).toHaveFocus(),
+    );
     http.verify();
   });
 });

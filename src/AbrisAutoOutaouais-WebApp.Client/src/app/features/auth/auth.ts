@@ -13,7 +13,7 @@ import {
   AsyncValidatorFn,
   ValidationErrors,
 } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Observable, of, timer } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
@@ -74,9 +74,15 @@ export class AuthComponent {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   // ── État ────────────────────────────────────────────────────
-  protected readonly view = signal<View>('login');
+  // Vue initiale pilotée par le lien d'entrée : `/auth?vue=inscription` ouvre
+  // directement le formulaire d'inscription (corrige le « S'inscrire → connexion »).
+  // Tout autre cas reste sur la connexion.
+  protected readonly view = signal<View>(
+    this.route.snapshot.queryParamMap.get('vue') === 'inscription' ? 'register' : 'login',
+  );
   protected readonly flipState = signal<FlipState>('idle');
   protected readonly loading = signal(false);
   protected readonly error = signal<string | null>(null);

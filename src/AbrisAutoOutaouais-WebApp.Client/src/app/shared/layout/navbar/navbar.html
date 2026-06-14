@@ -165,10 +165,9 @@
         }
       </a>
 
-      <!-- Non authentifié -->
+      <!-- Non authentifié — un seul point d'entrée vers /auth (connexion ET inscription) -->
       @if (!auth.isAuthenticated()) {
-        <a routerLink="/auth" class="btn btn--ghost btn--sm" i18n="@@navbar.login">Connexion</a>
-        <a routerLink="/auth" class="btn btn--primary btn--sm" i18n="@@navbar.register">S'inscrire</a>
+        <a routerLink="/auth" class="btn btn--primary btn--sm" i18n="@@navbar.login">Connexion</a>
       }
 
       <!-- Authentifié — menu utilisateur -->
@@ -316,16 +315,10 @@
     @if (!auth.isAuthenticated()) {
       <a
         routerLink="/auth"
-        class="btn btn--outline btn--full"
+        class="btn btn--primary btn--full"
         (click)="closeMenu()"
         i18n="@@navbar.login"
       >Connexion</a>
-      <a
-        routerLink="/auth"
-        class="btn btn--primary btn--full"
-        (click)="closeMenu()"
-        i18n="@@navbar.register"
-      >S'inscrire</a>
     } @else {
       <a
         routerLink="/mon-compte/profil"

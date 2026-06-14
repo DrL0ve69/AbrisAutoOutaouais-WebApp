@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, inject, signal, computed } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  effect,
+  inject,
+  signal,
+  computed,
+  viewChild,
+} from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CurrencyPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -42,6 +51,13 @@ export class AdminProductsComponent {
 
   protected readonly isEditing = computed(() => this.mode() === 'edit');
 
+  // Gestion du focus du dialogue de suppression (WCAG 2.4.3 / APG modal) — même
+  // contrat que admin/bookings et admin/rentals.
+  private readonly delDialog = viewChild<ElementRef<HTMLElement>>('delDialog');
+  private readonly listHeading = viewChild<ElementRef<HTMLElement>>('listHeading');
+  /** Bouton « Supprimer » ayant ouvert le dialogue — pour lui rendre le focus. */
+  private deleteTriggerEl: HTMLElement | null = null;
+
   // Dimensions optionnelles (cm) : nullables, mais si renseignées → bornes 50–2000
   // (calque exact des validators serveur Create/Update — cf. ProductDimensions).
   private dimensionControl() {
@@ -68,6 +84,14 @@ export class AdminProductsComponent {
   protected get heightCtrl() { return this.form.controls.heightCm; }
 
   constructor() {
+    // À l'ouverture, déplace le focus dans le dialogue (LIT delDialog() pour se ré-exécuter
+    // quand le @if l'a rendu) — sinon Échap/le piège de focus ne pourraient pas fonctionner.
+    effect(() => {
+      const dialog = this.delDialog();
+      if (this.pendingDeleteId() && dialog) {
+        dialog.nativeElement.focus();
+      }
+    });
     this.loadCategories();
     this.loadProducts();
   }
@@ -199,12 +223,15 @@ export class AdminProductsComponent {
     );
   }
 
-  protected askDelete(id: string): void {
+  protected askDelete(id: string, event: MouseEvent): void {
+    this.deleteTriggerEl = event.currentTarget as HTMLElement;
     this.pendingDeleteId.set(id);
   }
 
   protected cancelDelete(): void {
+    // Refermé sans agir : la ligne (donc le bouton déclencheur) existe toujours → focus rendu.
     this.pendingDeleteId.set(null);
+    this.focusDeleteTrigger();
   }
 
   protected confirmDelete(): void {
@@ -220,15 +247,32 @@ export class AdminProductsComponent {
           this.startCreate();
         }
         this.loadProducts();
+        // Le bouton déclencheur disparaît (produit supprimé) : focus sur le titre de la liste
+        // APRÈS le rendu, sinon il tomberait sur <body> (L-006).
+        this.focusListHeadingAfterRender();
       },
       error: () => {
+        // Échec : le produit (et son bouton) reste → retour au déclencheur.
         this.pendingDeleteId.set(null);
         this.toast.show(
           $localize`:@@admin.products.toast.deleteError:La suppression a échoué.`,
           'error',
         );
+        this.focusDeleteTrigger();
       },
     });
+  }
+
+  /** Rend le focus au bouton « Supprimer » déclencheur (toujours présent). */
+  private focusDeleteTrigger(): void {
+    this.deleteTriggerEl?.focus();
+    this.deleteTriggerEl = null;
+  }
+
+  /** Déplace le focus sur le titre de la liste une fois la ligne supprimée du DOM (L-006). */
+  private focusListHeadingAfterRender(): void {
+    this.deleteTriggerEl = null;
+    setTimeout(() => this.listHeading()?.nativeElement.focus());
   }
 
   protected productName(id: string | null): string {

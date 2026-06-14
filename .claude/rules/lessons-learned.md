@@ -11,6 +11,29 @@
 
 ---
 
+## L-018 · Deleting the last consumer of a dep / i18n string isn't done until you finish the removal at EVERY layer
+
+- **Symptom.** Two half-done removals in the Épic-F wrap-up, same root cause. (a) The GSAP "scroll
+  story" hero — the only consumer of `gsap` — was deleted and all `gsap`/`ScrollTrigger` imports were
+  gone, but `gsap` still sat in `package.json` `dependencies` (and `package-lock.json`). The
+  tree-shaken prod bundle was green and the commit even claimed « gsap fully dropped from the bundle »,
+  so the dead dependency was invisible — it only lingers as install-time + supply-chain surface. (b)
+  Five trans-units (`navbar.register`, `home.heroStory.beat1`–`beat4`) became orphaned when the navbar
+  button was merged and the hero rewritten. The build stayed green; left as-is, the next
+  `npm run i18n:extract` would prune them from the **source** `messages.xlf` while they remained
+  hand-maintained in the **translated** `messages.en.xlf` → the two catalogs silently desync.
+- **Rule.** When you delete the **last** consumer of a dependency or an i18n string, finish the removal
+  at every layer in the same change — a green tree-shaken bundle hides a dead dep, and a green build
+  hides orphaned/desynced translations. For a now-unused npm dep: drop it from `package.json` AND
+  refresh `package-lock.json` (grep imports across the client to confirm it's truly the last consumer).
+  For an orphaned trans-unit: prune it from BOTH catalogs — `npm run i18n:extract` regenerates the
+  source `messages.xlf` but does **not** touch the translated `messages.en.xlf`, so remove the orphan
+  there too (line-based) and confirm both files carry the same id set. Cousin of [[L-008]] (after a
+  removal, hunt down everything that still references the old thing) on the dependency/i18n axis.
+- **Refs.** `package.json` / `package-lock.json` (`gsap` removed), `src/locale/messages.xlf` +
+  `src/locale/messages.en.xlf` (`navbar.register`, `home.heroStory.beat*` pruned from both),
+  commit `5adb1f3`, branch `docs/program-wrapup`.
+
 ## L-017 · A zombie dev-server + `reuseExistingServer: true` makes Playwright test STALE code
 
 - **Symptom.** During E4 an e2e failed (`has3dDims` came back `undefined` on the component instance)

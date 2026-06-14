@@ -54,8 +54,13 @@ jobs:
         run: npm ci
       - name: Install Chromium (Playwright)
         run: npx playwright install --with-deps chromium
-      - name: Build
-        run: npm run build
+      # Build de PRODUCTION (et non `npm run build` = config development) : c'est la seule
+      # configuration qui porte les BUDGETS (`angular.json` production : initial 500 kB warn /
+      # 1 MB error, anyComponentStyle 10/16 kB) — le build dev ne les applique pas, donc une
+      # régression de taille (lib lourde non lazy) passerait inaperçue (L-005 : un garde-fou ne
+      # garde que s'il tourne). `build:prod` valide aussi le bundle localisé /en/ + le postbuild i18n.
+      - name: Build de production (budgets + i18n fr/en)
+        run: npm run build:prod
       - name: Tests unitaires + accessibilité (Vitest navigateur + axe-core)
         run: npm test
       - name: Tests e2e d'accessibilité (Playwright + axe-core)

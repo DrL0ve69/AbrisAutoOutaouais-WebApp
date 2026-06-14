@@ -20,12 +20,12 @@ async function setup() {
 }
 
 describe('HeroStoryComponent', () => {
-  // E2 : le hero doit être SIGNIFIANT sans défilement ni JS (le serveur rend la scène finale ;
-  // le contenu sémantique occupe sa boîte définitive). On vérifie le contenu SANS scroll.
-  it('rend le h1, les deux CTA et les 3 statistiques sans défilement', async () => {
+  // Le hero est STATIQUE : tout le contenu sémantique est rendu d'emblée (pas d'animation
+  // au défilement). On vérifie le contenu sans interaction.
+  it('rend le h1, les deux CTA et les 3 statistiques', async () => {
     const { q } = await setup();
 
-    // h1 — le LCP, présent dès le rendu (pas d'animation requise).
+    // h1 — le LCP, présent dès le rendu.
     expect(q.getByRole('heading', { level: 1, name: /protégez votre véhicule/i })).toBeTruthy();
 
     // CTA boutique + installation (liens routés, nommés par leur aria-label).
@@ -37,31 +37,16 @@ describe('HeroStoryComponent', () => {
     expect(within(stats).getAllByRole('listitem')).toHaveLength(3);
   });
 
-  it('lie la légende au h1 (aria-labelledby) et masque toute la décoration', async () => {
-    const { container, fixture } = await setup();
-    // La <section> racine porte le hook E5 `data-hero-story` ET aria-labelledby (même nœud).
+  it('lie la légende au h1 (aria-labelledby) sans décor à lire', async () => {
+    const { container } = await setup();
+    // La <section> racine porte le marqueur `data-hero-story` ET aria-labelledby (même nœud).
     const section = container.querySelector('section[data-hero-story]');
     expect(section).toBeTruthy();
     expect(section?.getAttribute('aria-labelledby')).toBe('hero-heading');
     expect(container.querySelector('#hero-heading')).toBeTruthy();
-    // `data-motion` est reflété sur l'hôte <app-hero-story> (hook E5) : 'on' par défaut, puis
-    // 'on'|'reduced' selon la préférence média une fois GSAP chargé (afterNextRender).
-    const host = fixture.nativeElement as HTMLElement;
-    expect(host.getAttribute('data-motion')).toMatch(/^(on|reduced)$/);
-
-    // SVG décoratif + légendes du récit sont aria-hidden (non lus par les LT).
-    expect(container.querySelector('[data-hero-svg]')?.getAttribute('aria-hidden')).toBe('true');
-    expect(
-      container.querySelector('.hero-story__beats')?.getAttribute('aria-hidden'),
-    ).toBe('true');
-    // Aucune légende décorative ne doit exposer de nom accessible.
-    expect(container.querySelectorAll('[data-beat]').length).toBe(4);
   });
 
-  // Contenu atteignable au clavier indépendamment du mode mouvement : les deux CTA sont des
-  // liens natifs focusables (jamais inertés ni retirés par l'animation, qui ne touche que la
-  // décoration). Le branchement réel pin/scrub vs statique (prefers-reduced-motion) est couvert
-  // par le Playwright d'E5, qui peut émuler la préférence média — pas le runner vitest.
+  // Les deux CTA sont des liens natifs focusables.
   it('contenu sémantique atteignable au clavier (CTA focusables)', async () => {
     const { q } = await setup();
     const links = q.getAllByRole('link');
