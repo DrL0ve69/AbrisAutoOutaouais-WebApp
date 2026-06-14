@@ -11,6 +11,57 @@
 
 ---
 
+## L-020 · Before deduping a utility CSS class across SCOPED stylesheets, prove who can actually reach it — a "shared" class may resolve nowhere
+
+- **Symptom.** F2-C: `.btn--small` / `.btn--danger` were defined **3×** across scoped component
+  stylesheets. The audit reco — « keep the `admin-shared.scss` copy, delete the others » — was
+  **impossible as written**: `orders.ts` / `products.ts` don't list `admin-shared.scss` as a
+  `styleUrl`, so Angular's view-encapsulation scoping meant deleting the duplicates would leave their
+  buttons unstyled (a scoped class only applies inside the component that declares it). Worse, a
+  **non-admin** component (`account/rentals`, inline template) referenced `.btn--danger` while **no
+  scoped SCSS reached it at all** → the button was silently unstyled until the class was promoted.
+- **Rule.** Angular view encapsulation scopes a component's styles to **that component only** — a class
+  living in `a/x.scss` does **not** apply in component `b` even if `b`'s template uses the same name.
+  So before "deduping" a utility class (`.btn--*`, badges, chips) between scoped stylesheets: grep
+  **every** consumer — external templates **and** inline `template:` in `.ts` files — and confirm
+  which stylesheet each actually loads. The correct dedup for a genuinely cross-component utility is to
+  **promote it to global `styles.scss`** (where the `.btn` base already lives), not to pick one scoped
+  copy as the survivor. Verify in a live render that each consuming button is still styled after the
+  move (a class that resolved nowhere produces no error, only an unstyled element — cousin of [[L-009]]:
+  no failure ≠ correct).
+- **Refs.** `src/styles.scss` (`.btn--small` / `.btn--danger` promoted to global),
+  `features/admin/{orders,products}`, `features/account/rentals/rentals.ts` (inline template consuming
+  `.btn--danger`), branch `fix/f2-heuristics-followup` (F2-C).
+
+## L-019 · Behind a dynamic heavy-lib import, `vi.mock` doesn't intercept and a container-only smoke test is vacuous — test the capability, not the envelope
+
+- **Symptom.** F2-B touched the `/mesurer` Leaflet+geoman map (the lib is imported **dynamically**
+  inside `afterNextRender`). Two traps surfaced. (a) **`vi.mock('leaflet')` is inoperative** in vitest
+  **browser** mode for a dynamically-imported, pre-bundled (`optimizeDeps`) dep — « Mock wasn't
+  registered » — because the dep is already bundled before the mock registers. (b) A smoke test that
+  asserted only the **container** (`.leaflet-container`) was **vacuous**: it passed while the
+  interactive widget was silently dead. Adding a **positive capability** assertion — « is the geoman
+  draw toolbar (`.leaflet-pm-toolbar`) present? » — revealed `map.pm` never attaches (geoman patches a
+  *different* Leaflet instance than the one the dynamic import created — same family as the documented
+  « `L.map` is not a function » CJS/ESM interop trap, on the `map.pm` axis). That geoman defect is
+  **pre-existing (Épic D) and an OPEN follow-up in `board.md`** — not fixed here; the durable thing is
+  the *test discipline*.
+- **Rule.** When a component dynamically imports a heavy lib (`leaflet`/`geoman`/`turf`/`three`) in
+  `afterNextRender`, **don't rely on `vi.mock(<lib>)`** — it won't intercept the pre-bundled dynamic
+  import in browser mode. Instead: (a) **test what renders BEFORE/independently of the heavy init** —
+  e.g. the `notLocated()` hint is a **pure `computed`** of the inputs, evaluated on first render, so it
+  needs no map at all; and (b) make the heavy init **robust to the lib being absent** (`if (!pm) return;`),
+  which both kills the unhandled post-assertion rejections that polluted the whole suite **and** hardens
+  prod. For the heavy path itself, **assert the CAPABILITY, not the wrapper**: a positive check that the
+  widget is actually usable (draw toolbar present / map interactive), never just that its container
+  mounted — a container-only assertion guards nothing ([[L-009]], [[L-005]]). Same « test the right
+  layer » discipline as [[L-016]] / [[L-001]], extended to the dynamic-import axis. Pin the CJS/ESM
+  interop (`const lib = ns.default ?? ns;`) so `map.pm` / `L.map` resolve against the same instance.
+- **Refs.** `features/mesurer/steps/measure-step/measure-step.ts` (`notLocated()` computed; map init
+  `if (!pm) return;` guard), the `/mesurer` map spec (capability assertion on `.leaflet-pm-toolbar`),
+  `docs/agile/board.md` (open geoman `map.pm` follow-up, Épic D), branch `fix/f2-heuristics-followup`
+  (F2-B).
+
 ## L-018 · Deleting the last consumer of a dep / i18n string isn't done until you finish the removal at EVERY layer
 
 - **Symptom.** Two half-done removals in the Épic-F wrap-up, same root cause. (a) The GSAP "scroll
