@@ -1,0 +1,22 @@
+@if (visible()) {
+  <div class="loading-overlay" role="status" aria-live="polite">
+    <span class="sr-only" i18n="@@loadingOverlay.label">Chargement de la page…</span>
+    <!-- Arche d'abri brandée — purement décoratif (l'état est annoncé via le libellé sr-only). -->
+    <svg
+      class="loading-overlay__spinner"
+      viewBox="0 0 48 48"
+      width="48"
+      height="48"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        class="loading-overlay__arch"
+        d="M6 42 V24 a18 18 0 0 1 36 0 V42"
+        stroke="currentColor"
+        stroke-width="4"
+        stroke-linecap="round"
+      />
+    </svg>
+  </div>
+}

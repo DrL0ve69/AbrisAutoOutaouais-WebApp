@@ -1,0 +1,88 @@
+<!-- ============================================================
+     Viewer 3D d'abri (E4, Redesign v2)
+     - Canvas role=img (visuel pur) + aria-label avec le nom du produit
+     - Commande clavier via vrais <button> (rotation/zoom/reset), ≥44px
+     - Repli <img> statique si pas de WebGL / SSR (pas de crash)
+     - Ratio réservé dès le placeholder (anti-CLS)
+============================================================ -->
+<div class="viewer3d">
+  <div class="viewer3d__stage">
+    <!-- Repli statique : visible tant que la 3D n'est pas prête, ou définitivement si non supportée. -->
+    @if (!ready()) {
+      <img
+        class="viewer3d__fallback"
+        [src]="fallbackImageSrc()"
+        [alt]="productName()"
+        decoding="async"
+      />
+    }
+
+    <!-- Canvas WebGL : purement visuel (role=img), masqué tant que non prêt. Toujours présent dans
+         le DOM (sauf si non supporté) pour que `afterNextRender` puisse récupérer le viewChild. -->
+    @if (!unsupported()) {
+      <canvas
+        #canvasHost
+        class="viewer3d__canvas"
+        [class.viewer3d__canvas--ready]="ready()"
+        role="img"
+        [attr.aria-label]="canvasLabel()"
+      ></canvas>
+    }
+  </div>
+
+  <!-- Barre de commande clavier : n'apparaît qu'une fois la 3D montée. -->
+  @if (ready()) {
+    <div
+      class="viewer3d__controls"
+      role="group"
+      aria-label="Commandes du modèle 3D"
+      i18n-aria-label="@@shelter3d.controlsGroup"
+    >
+      <button
+        type="button"
+        class="viewer3d__btn"
+        (click)="rotate(-1)"
+        aria-label="Pivoter vers la gauche"
+        i18n-aria-label="@@shelter3d.rotateLeft"
+      >
+        <span aria-hidden="true">⟲</span>
+      </button>
+      <button
+        type="button"
+        class="viewer3d__btn"
+        (click)="rotate(1)"
+        aria-label="Pivoter vers la droite"
+        i18n-aria-label="@@shelter3d.rotateRight"
+      >
+        <span aria-hidden="true">⟳</span>
+      </button>
+      <button
+        type="button"
+        class="viewer3d__btn"
+        (click)="zoom(1)"
+        aria-label="Zoom avant"
+        i18n-aria-label="@@shelter3d.zoomIn"
+      >
+        <span aria-hidden="true">＋</span>
+      </button>
+      <button
+        type="button"
+        class="viewer3d__btn"
+        (click)="zoom(-1)"
+        aria-label="Zoom arrière"
+        i18n-aria-label="@@shelter3d.zoomOut"
+      >
+        <span aria-hidden="true">－</span>
+      </button>
+      <button
+        type="button"
+        class="viewer3d__btn"
+        (click)="reset()"
+        aria-label="Réinitialiser la vue"
+        i18n-aria-label="@@shelter3d.reset"
+      >
+        <span aria-hidden="true">⤾</span>
+      </button>
+    </div>
+  }
+</div>

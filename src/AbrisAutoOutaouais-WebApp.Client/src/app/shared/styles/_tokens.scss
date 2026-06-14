@@ -142,6 +142,85 @@
   --color-on-brand: #ffffff; // texte/icônes posés directement sur la marque
   --color-surface-on-brand: #ffffff; // fond d'un contrôle posé sur la marque
   --color-text-on-brand-inverse: #991b1b; // texte d'un contrôle clair sur la marque (≈8.3:1 sur blanc ✅)
+
+  // ============================================================
+  // Tokens v2 — Épic E / E1 (additif : aucun jeton existant n'est retiré)
+  // ============================================================
+
+  // ── A. Échelle « navy » ────────────────────────────────────
+  // Surface marque-sombre FIXE (identique dans les deux thèmes) : NON surchargée
+  // dans le mixin sombre. Les alias --color-secondary* pointent désormais dessus.
+  --color-navy-900: #0f1923; // surface la plus profonde (hero, footer, navbar)
+  --color-navy-800: #1e2d3d; // variante intermédiaire (dropdown, cartes)
+  --color-navy-700: #2d3f52; // surface de carte sombre
+  --color-navy-600: #3d5275;
+  --color-navy-500: #4a6285;
+  --color-secondary: var(--color-navy-900); // alias (compat — ex-#0f1923)
+  --color-secondary-mid: var(--color-navy-800); // alias (compat — ex-#1e2d3d)
+  --color-secondary-soft: var(--color-navy-700); // alias (compat — ex-#2d3f52)
+
+  // ── B. Rampe « rouge » ─────────────────────────────────────
+  // Pas d'échelon en clair, repointe les alias --color-primary* LIGHT dessus.
+  // NB : les surcharges rouge SOMBRE (#f87171…) restent littérales (cf. mixin).
+  --color-red-700: #991b1b; // hover (≈8.3:1 sur blanc ✅)
+  --color-red-600: #b91c1c; // marque (≈5.9:1 sur blanc ✅)
+  --color-red-500: #dc2626; // active / accents
+  --color-red-50: #fef2f2; // fond teinte légère
+  --color-primary: var(--color-red-600); // alias (≈5.9:1 sur blanc ✅)
+  --color-primary-dark: var(--color-red-700);
+  --color-primary-light: var(--color-red-500);
+  --color-primary-subtle: var(--color-red-50);
+
+  // ── C. Neutres chauds ──────────────────────────────────────
+  // En sombre, --color-bg-warm conserve sa surcharge #1a2736 (cf. mixin).
+  --color-warm-50: #faf9f7; // crème léger
+  --color-warm-100: #f3f1ed;
+  --color-warm-200: #e8e4dd;
+  --color-bg-warm: var(--color-warm-50); // alias (compat — ex-#faf9f7)
+
+  // ── D. Couche sémantique « sur sombre » / « sur marque » ───
+  // Le tueur de hacks : remplace les blancs/rgba(255,255,255,α) codés en dur
+  // posés sur les surfaces navy/marque. NON surchargés en sombre — surfaces fixes
+  // (cf. bloc Épic A) : ces jetons valent pour des surfaces sombres FIXES dans
+  // les deux thèmes, jamais pour --color-bg/-surface (qui, eux, basculent).
+  --color-on-dark: #ffffff; // texte primaire sur navy (≥15:1 ✅)
+  --color-on-dark-muted: rgba(255, 255, 255, 0.8); // texte secondaire (~9:1 ✅)
+  --color-on-dark-subtle: rgba(255, 255, 255, 0.72); // surtitre 12px gras (~9:1 ✅)
+  --color-on-dark-faint: rgba(255, 255, 255, 0.55); // DÉCORATIF uniquement — échoue AA pour du texte
+  --color-surface-on-dark: rgba(255, 255, 255, 0.05); // fond de carte sur navy
+  --color-surface-on-dark-hover: rgba(255, 255, 255, 0.08); // survol de carte sur navy
+  --color-border-on-dark: rgba(255, 255, 255, 0.1); // bordure sur navy
+  --color-on-brand-muted: rgba(255, 255, 255, 0.8); // paragraphe cta-banner (~4.9:1 sur rouge ✅)
+  --color-surface-on-brand-hover: #f3f4f6; // absorbe le hack .btn--inverse:hover (≈7.5:1 avec #991b1b ✅)
+  // Accent « marque » (rouge) posé sur une surface navy FIXE — ex. le « Tempo » du logo + l'icône
+  // de la navbar (fond navy translucide composé ≈ #39424a dans les deux thèmes). FIXE comme les
+  // autres jetons « sur sombre » : NON surchargé dans le mixin sombre. NE PAS confondre avec
+  // --color-primary-light, qui BASCULE par thème (#dc2626 clair → #fca5a5 sombre) et servait ici :
+  // en clair, #dc2626 ne faisait que ≈2.11:1 sur le navbar composé (échec 1.4.3, gras 20px → seuil
+  // 3:1). #f87171 ≈ 3.4:1 sur le #39424a composé (✅) et ≈ 5.1:1 sur le navy plein (E5, must-fix contraste).
+  --color-brand-on-dark: #f87171;
+
+  // ── E. Élévation / dégradés / lueurs ───────────────────────
+  --elevation-1: var(--shadow-sm);
+  --elevation-2: var(--shadow-md);
+  --elevation-3: var(--shadow-lg);
+  --elevation-4: var(--shadow-xl);
+  // Dégradé marque : rouges FIXES dans les deux thèmes (AA-justifié — cf. .cta-banner).
+  --gradient-brand: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+  --gradient-navy: linear-gradient(135deg, var(--color-navy-900) 0%, var(--color-navy-800) 100%);
+  --gradient-placeholder: linear-gradient(135deg, var(--color-bg-muted) 0%, #e5e7eb 100%);
+  --glow-brand: radial-gradient(circle, rgba(185, 28, 28, 0.18) 0%, transparent 65%);
+  --glow-focus: radial-gradient(circle, rgba(29, 78, 216, 0.12) 0%, transparent 65%);
+
+  // ── F. Mouvement (extension — tous les jetons existants restent) ──
+  --duration-instant: 80ms;
+  --duration-slower: 600ms;
+  --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --ease-bounce: var(--ease-spring);
+  --transition-colors: color var(--duration-fast) var(--ease-in-out),
+    background-color var(--duration-fast) var(--ease-in-out),
+    border-color var(--duration-fast) var(--ease-in-out);
+  --transition-transform: transform var(--duration-base) var(--ease-spring);
 }
 
 // ── Dark mode ────────────────────────────────────────────────

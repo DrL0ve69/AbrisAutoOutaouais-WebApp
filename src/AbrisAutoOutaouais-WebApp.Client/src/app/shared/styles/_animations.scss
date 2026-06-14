@@ -1,0 +1,37 @@
+// ============================================================
+// _animations.scss — Micro-interactions partagées (E3, Redesign v2)
+// ============================================================
+//
+// Contrat CLS / a11y : on ne pose JAMAIS `opacity:0` au repos ici. L'état masqué
+// initial est ajouté en JS uniquement (classe `is-revealable`, posée par la directive
+// `appRevealOnScroll` dans `afterNextRender`), si bien que sans JS / côté SSR le contenu
+// reste pleinement visible (pas d'invisibilité, pas de CLS). La directive ajoute ensuite
+// `is-revealed` à l'entrée dans la fenêtre.
+
+// ── Révélation au défilement ────────────────────────────────
+// État masqué : appliqué SEULEMENT quand le JS a posé `.is-revealable`.
+.is-revealable {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity var(--duration-slow) var(--ease-out),
+    transform var(--duration-slow) var(--ease-out);
+  will-change: opacity, transform;
+
+  &.is-revealed {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+// Mouvement réduit : on neutralise tout masquage/animation. La directive révèle
+// déjà immédiatement, mais ce repli CSS garantit la visibilité même si le JS échoue
+// après avoir posé `.is-revealable`.
+@media (prefers-reduced-motion: reduce) {
+  .is-revealable {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    will-change: auto;
+  }
+}

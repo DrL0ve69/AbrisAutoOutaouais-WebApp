@@ -3,6 +3,8 @@ import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from './shared/layout/navbar/navbar';
 import { FooterComponent } from './shared/layout/footer/footer';
 import { SkipNavComponent } from './shared/layout/skip-nav/skip-nav';
+import { LoadingOverlayComponent } from './shared/components/loading-overlay/loading-overlay';
+import { CursorRingComponent } from './shared/components/cursor-ring/cursor-ring';
 import { LocaleService } from './core/services/locale.service';
 
 @Component({
@@ -10,7 +12,14 @@ import { LocaleService } from './core/services/locale.service';
   templateUrl: './app.html',
   styleUrl: './app.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, NavbarComponent, FooterComponent, SkipNavComponent],
+  imports: [
+    RouterOutlet,
+    NavbarComponent,
+    FooterComponent,
+    SkipNavComponent,
+    LoadingOverlayComponent,
+    CursorRingComponent,
+  ],
 })
 export class AppComponent {
   // Exposé au template pour annoncer la confirmation de changement de langue (H1).

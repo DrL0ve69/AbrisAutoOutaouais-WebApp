@@ -169,3 +169,21 @@ Branche `feat/mesurer-parking`. Boucle *architecte → développeur → revue in
 > **Revue indépendante** : **REQUEST CHANGES → corrigée**. 1 Major a11y : les sélecteurs de mode portaient `role="radio"` **sans le contrat APG** (roving tabindex + flèches) — AXE passait quand même au vert ; corrigé (util pur `radio-nav.util` + roving tabindex + flèches/Home/End déplacent ET sélectionnent, test clavier `toHaveFocus`). 1 Minor (message « hors plage » neutralisé) + nits. `solid-review` backend : **APPROVE WITH NITS** (validateurs scellés). **Leçons capturées : L-015** (`role=radio` sans roving/flèches cassé au clavier, invisible pour AXE ; focus synchrone post-`set` sûr si l'élément reste monté — contre-partie de L-006), **L-014** (`fb.control<number|null>`, jamais un tuple spread).
 > **Vérification** : `npm test` 161 (zéro violation axe) ✅, `npm run build:prod` (fr+en, i18n OK, chunk `/mesurer` ~28 kB gz) ✅, `npm run e2e` `/mesurer` + sweep dual-theme ✅, `dotnet test` 274 ✅.
 > **Suite** : Épic E — Redesign v2 (tokens v2, hero GSAP, viewer three.js — dimensionné depuis les dims produit D1).
+
+---
+
+## Mise à jour — Épic E « Redesign v2 » : sous-tâche E5 livrée (2026-06-13)
+
+Branche `feat/redesign-v2`. E1→E4 déjà faits (commits locaux). E5 clôt l'implémentation de l'épic ; la **revue indépendante E1→E5 + le round-trip live** (frontière d'épic) restent à faire avant PR/merge.
+
+| ID | Titre | Critère / Règle | Correctif | Statut |
+|----|-------|-----------------|-----------|--------|
+| E1 | Tokens v2 | — | Bloc additif `_tokens.scss` (échelles navy/rouge, couche « sur sombre/sur marque », élévation/dégradés, mouvement) | ✅ Terminé |
+| E2 | Hero « scroll story » | CLS / 2.3.3 | GSAP `pin`+`scrub` (import dynamique `afterNextRender`, SSR-safe), repli `prefers-reduced-motion` | ✅ Terminé |
+| E3 | Micro-interactions | 2.3.3 | Directives reveal/magnetic/count-up, loading-overlay, cursor-ring (pointeur fin only), navbar verre | ✅ Terminé |
+| E4 | Viewer 3D abri | 4.1.2 / 2.5.8 | `three` vanilla, builder paramétrique (dims D1), `@defer (on interaction)`, repli statique sans WebGL | ✅ Terminé |
+| E5 | Perf gates + remédiation contraste | 1.4.3 / perf | **Must-fix contraste** : jeton FIXE `--color-brand-on-dark #f87171` pour « Tempo »/icône navbar (était `--color-primary-light #dc2626` → 2.11:1 en clair) ; `.detail__view3d` (bouton « Voir en 3D ») recoloré pour surface claire (était blanc-sur-clair 1.1:1). `e2e/motion-a11y.spec.ts` (reduced-motion réel + axe dual-thème **navbar scrollée**) ; `reschedule.spec.ts` en scan **pleine page** ; bundle initial figé (gsap/three/leaflet lazy, `index.html` vérifié) ; gate Lighthouse documenté **manuel/non bloquant**. | ✅ Terminé |
+
+> **Vérification (E5)** : `netstat` ports e2e propres (pas de serveur zombie, L-017) ✅ ; `npm run build` (typecheck) ✅ ; `npm test` **196** — zéro violation axe vitest, *mais `color-contrast` NON couvert ici par conception (L-016) ; contraste validé en e2e* ✅ ; `npm run build:prod` (budgets OK, `index.html` sans `<script>` lib lourde) ✅ ; `npm run e2e` **suite complète 71 passées** (dont `motion-a11y` 8/8, `admin-management` — les 3 scans « clair » jadis à 2.11:1 repassent —, `reschedule` pleine page, `shelter-3d`) ✅.
+> **Écart au plan** : le balayage dual-thème e2e a révélé **une seconde** violation de contraste que le constat de l'architecte (« une seule violation ») ne couvrait pas — `.detail__view3d` (blanc sur clair, 1.1:1) : corrigée dans le même lot. C'est précisément l'intérêt de faire tourner le scan complet (L-005/L-008).
+> **Suite** : frontière d'épic E — revue indépendante `code-reviewer` (E1→E5) + round-trip live L-001 (reduced-motion ON/OFF, deux thèmes, verre au scroll, cursor-ring, viewer 3D) → revue → commit → PR → CI → merge `master`.

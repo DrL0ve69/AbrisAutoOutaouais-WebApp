@@ -23,3 +23,9 @@
 <div class="sr-only" role="status" aria-live="polite" aria-atomic="true">
   {{ locale.switchAnnouncement() }}
 </div>
+
+<!-- Micro-interactions globales (E3) — montées après le footer, hors flux sémantique.
+     Le loading-overlay porte SON PROPRE role="status" (second nœud status global) : voir
+     L-010, les locators e2e/spec status sont tous scopés par texte. -->
+<app-loading-overlay />
+<app-cursor-ring />

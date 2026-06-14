@@ -11,6 +11,50 @@
 
 ---
 
+## L-017 · A zombie dev-server + `reuseExistingServer: true` makes Playwright test STALE code
+
+- **Symptom.** During E4 an e2e failed (`has3dDims` came back `undefined` on the component instance)
+  even though the source was correct and vitest passed. Cause: `playwright.config`
+  (`webServer.reuseExistingServer: true`) attached to a **zombie `ng serve`** left running from an
+  *earlier* session — started BEFORE the edits — so the e2e ran against a stale bundle. The tell was
+  probing the live instance via `window.ng.getComponent()`: the property was simply absent → the
+  served bundle predated the change. Cousin of [[L-001]] (reproduce against the REAL stack — here the
+  "real" stack also has to be the *current* one, not a leftover process).
+- **Rule.** Before you blame an e2e failure on the current diff — or declare an e2e green — confirm no
+  zombie dev-server from a previous session is listening on the port (4200/4300): with
+  `reuseExistingServer: true`, Playwright binds to it and tests dead code. Kill the listener and let
+  Playwright spin up a fresh server (or, when in doubt, probe the live component via
+  `window.ng.getComponent()` to confirm the served bundle matches HEAD). **Distinguish this from a
+  legitimately pre-existing failure**: isolate the latter with `git stash` to prove your diff didn't
+  cause it (E4 correctly stashed to confirm the `/en/` color-contrast failures were pre-existing, not
+  introduced — the [[L-008]] discipline of separating "my change broke it" from "already broken").
+- **Refs.** `src/AbrisAutoOutaouais-WebApp.Client/playwright.config.ts`
+  (`webServer.reuseExistingServer`), E4 (Épic E).
+
+## L-016 · « Zéro violation axe » in vitest is VACUOUS for color-contrast — it's disabled by design
+
+- **Symptom.** `src/testing/axe-helper.ts` (`expectNoA11yViolations`) explicitly disables the
+  `color-contrast` rule (`rules: { 'color-contrast': { enabled: false } }`, line 14) — rightly, since
+  global styles (`styles.scss` + `_tokens.scss`) aren't loaded in the unit render, so the composed
+  colors aren't representative. Consequence: the E1 (tokens v2), E2 (hero) and E3 (micro-interactions +
+  navbar glass `.navbar--scrolled` at `rgba(15,25,35,0.82)`) sub-tasks each reported « npm test: zéro
+  violation axe » and that gate was taken as *proof of accessibility* — when it **cannot** catch a
+  contrast regression. The real regression (`color-contrast` failures on `.navbar--scrolled` plus the
+  admin/rentals/mesurer sections introduced by the Épic-E redesign) only surfaced at the **Playwright
+  e2e** run (real composed colors) several sub-tasks later. Same vacuity family as [[L-009]] (an
+  assertion that passes because the condition is structurally unreachable), but on the contrast axis
+  and across several consecutive sub-tasks.
+- **Rule.** Any sub-task touching **colors / tokens / backgrounds** (theme, `_tokens.scss`,
+  translucent/glass fills, gradients, hover states) **cannot** rely on `npm test` (vitest) for
+  contrast — `color-contrast` is off there by design. Contrast MUST be verified by Playwright e2e +
+  axe (`npm run e2e`, real composed colors) AND a live round-trip ([[L-001]]) **in BOTH themes**. When
+  reporting a « zéro axe » gate on a color diff, qualify it — « (vitest — color-contrast NON couvert;
+  contraste validé en e2e/live) » — so the gate isn't over-credited (same honesty as [[L-005]]: a
+  guard that can't fire guards nothing). Best: add an e2e scenario that axe-scans the redesigned routes
+  for contrast on both themes (the intended E5 « axe both themes » gate).
+- **Refs.** `src/testing/axe-helper.ts:14` (`color-contrast` disabled),
+  `src/app/shared/layout/navbar/navbar.scss` (`.navbar--scrolled`), Épic-E commits `cdd82a4` / `1e38a4d`.
+
 ## L-015 · `role="radio"`/`radiogroup` without roving `tabindex` + arrow keys is keyboard-broken — and AXE passes anyway
 
 - **Symptom.** Two mode toggles (`features/mesurer/steps/measure-step` calculateur⇄carte and

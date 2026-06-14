@@ -14,13 +14,14 @@ import { environment } from '../../../../environments/environment';
 import { ProductDto, resolveProductImage } from '../../../core/models/product.model';
 import { CartService } from '../../../core/services/cart.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { Shelter3dViewerComponent } from '../../../shared/components/shelter-3d-viewer/shelter-3d-viewer';
 
 @Component({
   selector: 'app-product-detail',
   templateUrl: './product-detail.html',
   styleUrl: './product-detail.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CurrencyPipe, RouterLink],
+  imports: [CurrencyPipe, RouterLink, Shelter3dViewerComponent],
 })
 export class ProductDetailComponent implements OnInit {
   private readonly http = inject(HttpClient);
@@ -39,6 +40,20 @@ export class ProductDetailComponent implements OnInit {
   protected readonly imageSrc = computed(() => {
     const p = this.product();
     return p ? resolveProductImage(p) : '';
+  });
+
+  // Vrai si les 3 dimensions hors-tout sont renseignées (et non nulles) → on propose la 3D.
+  protected readonly has3dDims = computed(() => {
+    const p = this.product();
+    return (
+      !!p &&
+      p.widthCm !== null &&
+      p.widthCm > 0 &&
+      p.lengthCm !== null &&
+      p.lengthCm > 0 &&
+      p.heightCm !== null &&
+      p.heightCm > 0
+    );
   });
 
   protected onImageError(): void {

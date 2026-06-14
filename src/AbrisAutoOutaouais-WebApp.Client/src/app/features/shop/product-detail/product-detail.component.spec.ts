@@ -70,4 +70,26 @@ describe('ProductDetailComponent', () => {
     await expectNoA11yViolations(container);
     http.verify();
   });
+
+  it('propose « Voir en 3D » quand les 3 dimensions sont présentes', async () => {
+    const { http } = await setup();
+    http.expectOne(`${environment.apiUrl}/products/abri-simple`).flush(product);
+    await screen.findByRole('heading', { level: 1, name: /abri simple/i });
+
+    expect(
+      await screen.findByRole('button', { name: /voir en 3d/i }),
+    ).toBeInTheDocument();
+    http.verify();
+  });
+
+  it('masque « Voir en 3D » si une dimension est nulle', async () => {
+    const { http } = await setup();
+    http
+      .expectOne(`${environment.apiUrl}/products/abri-simple`)
+      .flush({ ...product, heightCm: null });
+    await screen.findByRole('heading', { level: 1, name: /abri simple/i });
+
+    expect(screen.queryByRole('button', { name: /voir en 3d/i })).not.toBeInTheDocument();
+    http.verify();
+  });
 });

@@ -2159,382 +2159,410 @@
           <context context-type="linenumber">162</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="home.heroStory.beat1" datatype="html">
+        <source>On ancre.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/hero-story/hero-story.html</context>
+          <context context-type="linenumber">54,55</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.heroStory.beat2" datatype="html">
+        <source>On structure.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/hero-story/hero-story.html</context>
+          <context context-type="linenumber">55,56</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.heroStory.beat3" datatype="html">
+        <source>On couvre.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/hero-story/hero-story.html</context>
+          <context context-type="linenumber">56,57</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="home.heroStory.beat4" datatype="html">
+        <source> Protégé tout l&apos;hiver. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/home/hero-story/hero-story.html</context>
+          <context context-type="linenumber">58,62</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="home.hero.badge" datatype="html">
         <source>Représentant officiel Tempo — Outaouais</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/home/home.html</context>
-          <context context-type="linenumber">18,21</context>
+          <context context-type="sourcefile">src/app/features/home/hero-story/hero-story.html</context>
+          <context context-type="linenumber">66,69</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.hero.title" datatype="html">
         <source>Protégez votre véhicule</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/home/home.html</context>
-          <context context-type="linenumber">22,23</context>
+          <context context-type="sourcefile">src/app/features/home/hero-story/hero-story.html</context>
+          <context context-type="linenumber">70,71</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.hero.titleAccent" datatype="html">
         <source>toute l&apos;année</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/home/home.html</context>
-          <context context-type="linenumber">23,26</context>
+          <context context-type="sourcefile">src/app/features/home/hero-story/hero-story.html</context>
+          <context context-type="linenumber">71,74</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.hero.subtitle" datatype="html">
         <source> Vente, location et installation d&apos;abris d&apos;auto Tempo de qualité. Livraison partout en Outaouais — service local et personnalisé. </source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/home/home.html</context>
-          <context context-type="linenumber">27,31</context>
+          <context context-type="sourcefile">src/app/features/home/hero-story/hero-story.html</context>
+          <context context-type="linenumber">75,79</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.hero.catalogAria" datatype="html">
         <source>Voir notre catalogue d&apos;abris</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/home/home.html</context>
-          <context context-type="linenumber">35,36</context>
+          <context context-type="sourcefile">src/app/features/home/hero-story/hero-story.html</context>
+          <context context-type="linenumber">83,84</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.hero.catalogCta" datatype="html">
         <source>Voir le catalogue</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/home/home.html</context>
-          <context context-type="linenumber">38,40</context>
+          <context context-type="sourcefile">src/app/features/home/hero-story/hero-story.html</context>
+          <context context-type="linenumber">86,88</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.hero.installAria" datatype="html">
         <source>Réserver une installation à domicile</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/home/home.html</context>
-          <context context-type="linenumber">55,56</context>
+          <context context-type="sourcefile">src/app/features/home/hero-story/hero-story.html</context>
+          <context context-type="linenumber">103,104</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.hero.installCta" datatype="html">
         <source> Réserver une installation </source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/home/home.html</context>
-          <context context-type="linenumber">59,62</context>
+          <context context-type="sourcefile">src/app/features/home/hero-story/hero-story.html</context>
+          <context context-type="linenumber">107,111</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.hero.statsAria" datatype="html">
         <source>Chiffres clés</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/home/home.html</context>
-          <context context-type="linenumber">67,68</context>
+          <context context-type="sourcefile">src/app/features/home/hero-story/hero-story.html</context>
+          <context context-type="linenumber">115,116</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.hero.stat1" datatype="html">
         <source>Abris installés</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/home/home.html</context>
-          <context context-type="linenumber">72,74</context>
+          <context context-type="sourcefile">src/app/features/home/hero-story/hero-story.html</context>
+          <context context-type="linenumber">120,122</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.hero.stat2Number" datatype="html">
         <source>15 ans</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/home/home.html</context>
-          <context context-type="linenumber">76,77</context>
+          <context context-type="sourcefile">src/app/features/home/hero-story/hero-story.html</context>
+          <context context-type="linenumber">124,125</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.hero.stat2" datatype="html">
         <source>D&apos;expérience</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/home/home.html</context>
-          <context context-type="linenumber">77,79</context>
+          <context context-type="sourcefile">src/app/features/home/hero-story/hero-story.html</context>
+          <context context-type="linenumber">125,127</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.hero.stat3" datatype="html">
         <source>Clients satisfaits</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/home/home.html</context>
-          <context context-type="linenumber">82,84</context>
+          <context context-type="sourcefile">src/app/features/home/hero-story/hero-story.html</context>
+          <context context-type="linenumber">130,132</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.services.eyebrow" datatype="html">
         <source>Ce que nous offrons</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.html</context>
-          <context context-type="linenumber">92,93</context>
+          <context context-type="linenumber">13,14</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.services.title" datatype="html">
         <source>Tous vos besoins en abris</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.html</context>
-          <context context-type="linenumber">93,94</context>
+          <context context-type="linenumber">14,15</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.services.subtitle" datatype="html">
         <source> De la vente à l&apos;installation, nous vous accompagnons à chaque étape. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.html</context>
-          <context context-type="linenumber">95,98</context>
+          <context context-type="linenumber">16,19</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.whyUs.eyebrow" datatype="html">
         <source> Notre engagement </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.html</context>
-          <context context-type="linenumber">136,138</context>
+          <context context-type="linenumber">57,59</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.whyUs.titleLead" datatype="html">
         <source>Pourquoi choisir</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.html</context>
-          <context context-type="linenumber">139,140</context>
+          <context context-type="linenumber">60,61</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.whyUs.titleAccent" datatype="html">
         <source>AbrisTempo Outaouais ?</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.html</context>
-          <context context-type="linenumber">140,142</context>
+          <context context-type="linenumber">61,63</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.whyUs.body" datatype="html">
         <source> Nous sommes votre représentant local de confiance pour les abris Tempo. Qualité, service et expertise au service de votre tranquillité d&apos;esprit. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.html</context>
-          <context context-type="linenumber">143,145</context>
+          <context context-type="linenumber">64,66</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.whyUs.cta" datatype="html">
         <source> Découvrir nos produits </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.html</context>
-          <context context-type="linenumber">152,154</context>
+          <context context-type="linenumber">73,75</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.featured.eyebrow" datatype="html">
         <source>Nos produits populaires</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.html</context>
-          <context context-type="linenumber">175,176</context>
+          <context context-type="linenumber">96,97</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.featured.title" datatype="html">
         <source>Abris les plus populaires</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.html</context>
-          <context context-type="linenumber">176,179</context>
+          <context context-type="linenumber">97,100</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.featured.loading" datatype="html">
         <source>Chargement des produits…</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.html</context>
-          <context context-type="linenumber">184,185</context>
+          <context context-type="linenumber">105,106</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.featured.soldOut" datatype="html">
         <source>Épuisé</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.html</context>
-          <context context-type="linenumber">204,206</context>
+          <context context-type="linenumber">125,127</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.featured.rentLabel" datatype="html">
         <source>Location</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.html</context>
-          <context context-type="linenumber">232,233</context>
+          <context context-type="linenumber">153,154</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.featured.month" datatype="html">
         <source>mois</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.html</context>
-          <context context-type="linenumber">235,237</context>
+          <context context-type="linenumber">156,158</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.featured.viewProduct" datatype="html">
         <source> Voir le produit </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.html</context>
-          <context context-type="linenumber">246,248</context>
+          <context context-type="linenumber">167,169</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.featured.viewAll" datatype="html">
         <source> Voir tous nos produits </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.html</context>
-          <context context-type="linenumber">255,257</context>
+          <context context-type="linenumber">176,178</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.cta.title" datatype="html">
         <source>Prêt à protéger votre véhicule ?</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.html</context>
-          <context context-type="linenumber">266,267</context>
+          <context context-type="linenumber">187,188</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.cta.body" datatype="html">
         <source> Contactez-nous pour obtenir une soumission gratuite ou réservez directement votre installation en ligne. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.html</context>
-          <context context-type="linenumber">268,270</context>
+          <context context-type="linenumber">189,191</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.cta.installAria" datatype="html">
         <source>Réserver une installation d&apos;abri</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.html</context>
-          <context context-type="linenumber">276,277</context>
+          <context context-type="linenumber">197,198</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.cta.installCta" datatype="html">
         <source> Réserver l&apos;installation </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.html</context>
-          <context context-type="linenumber">280,283</context>
+          <context context-type="linenumber">201,204</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.cta.phoneAria" datatype="html">
         <source>Appeler au 819 123-4567</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.html</context>
-          <context context-type="linenumber">285,286</context>
+          <context context-type="linenumber">206,207</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.services.shop.title" datatype="html">
         <source>Boutique en ligne</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.ts</context>
-          <context context-type="linenumber">38</context>
+          <context context-type="linenumber">39</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.services.shop.desc" datatype="html">
         <source>Parcourez notre catalogue complet d&apos;abris d&apos;auto Tempo. Livraison disponible partout en Outaouais.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.ts</context>
-          <context context-type="linenumber">39</context>
+          <context context-type="linenumber">40</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.services.shop.link" datatype="html">
         <source>Voir le catalogue</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.ts</context>
-          <context context-type="linenumber">41</context>
+          <context context-type="linenumber">42</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.services.rental.title" datatype="html">
         <source>Location saisonnière</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.ts</context>
-          <context context-type="linenumber">45</context>
+          <context context-type="linenumber">46</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.services.rental.desc" datatype="html">
         <source>Louez un abri pour la saison. Solution flexible et économique sans engagement à long terme.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.ts</context>
-          <context context-type="linenumber">46</context>
+          <context context-type="linenumber">47</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.services.rental.link" datatype="html">
         <source>Explorer la location</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.ts</context>
-          <context context-type="linenumber">48</context>
+          <context context-type="linenumber">49</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.services.install.title" datatype="html">
         <source>Installation professionnelle</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.ts</context>
-          <context context-type="linenumber">52</context>
+          <context context-type="linenumber">53</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.services.install.desc" datatype="html">
         <source>Service d&apos;installation et de démontage à domicile. Réservez votre créneau en ligne.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.ts</context>
-          <context context-type="linenumber">53</context>
+          <context context-type="linenumber">54</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.services.install.link" datatype="html">
         <source>Réserver maintenant</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.ts</context>
-          <context context-type="linenumber">55</context>
+          <context context-type="linenumber">56</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.services.measure.title" datatype="html">
         <source>Mesurer mon stationnement</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.ts</context>
-          <context context-type="linenumber">59</context>
+          <context context-type="linenumber">60</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.services.measure.desc" datatype="html">
         <source>Mesurez votre espace sur une carte satellite ou avec notre calculateur, et trouvez l&apos;abri adapté.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.ts</context>
-          <context context-type="linenumber">60</context>
+          <context context-type="linenumber">61</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.services.measure.link" datatype="html">
         <source>Mesurer mon espace</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.ts</context>
-          <context context-type="linenumber">62</context>
+          <context context-type="linenumber">63</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.whyUs.official.title" datatype="html">
         <source>Représentant officiel</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.ts</context>
-          <context context-type="linenumber">69</context>
+          <context context-type="linenumber">70</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.whyUs.official.text" datatype="html">
         <source>Distributeur agréé Tempo pour la région de l&apos;Outaouais. Produits garantis et authentiques.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.ts</context>
-          <context context-type="linenumber">70</context>
+          <context context-type="linenumber">71</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.whyUs.delivery.title" datatype="html">
         <source>Livraison régionale</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.ts</context>
-          <context context-type="linenumber">74</context>
+          <context context-type="linenumber">75</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.whyUs.delivery.text" datatype="html">
         <source>Livraison directement chez vous dans toute la région. Disponible 7 jours sur 7.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.ts</context>
-          <context context-type="linenumber">75</context>
+          <context context-type="linenumber">76</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.whyUs.service.title" datatype="html">
         <source>Service personnalisé</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.ts</context>
-          <context context-type="linenumber">79</context>
+          <context context-type="linenumber">80</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.whyUs.service.text" datatype="html">
         <source>Parlez à un vrai représentant. Conseils sur mesure pour choisir le bon abri.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.ts</context>
-          <context context-type="linenumber">80</context>
+          <context context-type="linenumber">81</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.whyUs.quality.title" datatype="html">
         <source>Qualité garantie</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.ts</context>
-          <context context-type="linenumber">84</context>
+          <context context-type="linenumber">85</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.whyUs.quality.text" datatype="html">
         <source>Abris Tempo reconnus pour leur robustesse face aux conditions hivernales du Québec.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/home.ts</context>
-          <context context-type="linenumber">85</context>
+          <context context-type="linenumber">86</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.eyebrow" datatype="html">
@@ -3447,7 +3475,7 @@
         <source> Numéro civique invalide (ex : 123 ou 123A). </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/address-step/address-step.html</context>
-          <context context-type="linenumber">21,25</context>
+          <context context-type="linenumber">21,24</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.address.street" datatype="html">
@@ -3475,7 +3503,7 @@
         <source> La ville est requise. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/address-step/address-step.html</context>
-          <context context-type="linenumber">52,57</context>
+          <context context-type="linenumber">52,56</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.address.province" datatype="html">
@@ -3531,7 +3559,7 @@
         <source> Mesurer sur la carte </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/measure-step.html</context>
-          <context context-type="linenumber">28,32</context>
+          <context context-type="linenumber">28,31</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.method.mapPlaceholder" datatype="html">
@@ -3591,7 +3619,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.html</context>
-          <context context-type="linenumber">109,114</context>
+          <context context-type="linenumber">109,112</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.calc.manualLegend" datatype="html">
@@ -3612,7 +3640,7 @@
         <source> Entrez une largeur entre 1 et 65 pieds. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.html</context>
-          <context context-type="linenumber">83,86</context>
+          <context context-type="linenumber">83,85</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.calc.length" datatype="html">
@@ -3633,7 +3661,7 @@
         <source> Le gabarit obtenu dépasse la taille maximale prise en charge. Réduisez le nombre de véhicules ou ajustez les dimensions. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.html</context>
-          <context context-type="linenumber">118,122</context>
+          <context context-type="linenumber">118,121</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.vehicle.compact" datatype="html">
@@ -3930,53 +3958,67 @@
           <context context-type="linenumber">38,40</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="shop.detail.view3d" datatype="html">
+        <source> Voir en 3D </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
+          <context context-type="linenumber">80,81</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.detail.view3dLoading" datatype="html">
+        <source> Chargement du modèle 3D… </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
+          <context context-type="linenumber">84,86</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="shop.detail.rentLabel" datatype="html">
         <source>Location</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
-          <context context-type="linenumber">89,90</context>
+          <context context-type="linenumber">125,126</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.detail.month" datatype="html">
         <source>mois</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
-          <context context-type="linenumber">92,94</context>
+          <context context-type="linenumber">128,130</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.detail.available" datatype="html">
         <source>En stock</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
-          <context context-type="linenumber">107,109</context>
+          <context context-type="linenumber">143,145</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.detail.unavailable" datatype="html">
         <source>Épuisé</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
-          <context context-type="linenumber">110,112</context>
+          <context context-type="linenumber">146,148</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.detail.descriptionTitle" datatype="html">
         <source>Description</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
-          <context context-type="linenumber">116,117</context>
+          <context context-type="linenumber">152,153</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.detail.addToCart" datatype="html">
         <source> Ajouter au panier </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
-          <context context-type="linenumber">129,131</context>
+          <context context-type="linenumber">165,167</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.detail.addedToast" datatype="html">
         <source><x id="name" equiv-text="product.name"/> a été ajouté au panier.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.ts</context>
-          <context context-type="linenumber">70</context>
+          <context context-type="linenumber">85</context>
         </context-group>
       </trans-unit>
       <trans-unit id="autocomplete.listbox.label" datatype="html">
@@ -4126,6 +4168,13 @@
           <context context-type="linenumber">103</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="loadingOverlay.label" datatype="html">
+        <source>Chargement de la page…</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/loading-overlay/loading-overlay.html</context>
+          <context context-type="linenumber">3,4</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="product.available" datatype="html">
         <source>En stock</source>
         <context-group purpose="location">
@@ -4147,6 +4196,55 @@
           <context context-type="linenumber">77,81</context>
         </context-group>
         <note priority="1" from="description">Bouton ajouter au panier</note>
+      </trans-unit>
+      <trans-unit id="shelter3d.controlsGroup" datatype="html">
+        <source>Commandes du modèle 3D</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/shelter-3d-viewer/shelter-3d-viewer.html</context>
+          <context context-type="linenumber">38,39</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shelter3d.rotateLeft" datatype="html">
+        <source>Pivoter vers la gauche</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/shelter-3d-viewer/shelter-3d-viewer.html</context>
+          <context context-type="linenumber">45,46</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shelter3d.rotateRight" datatype="html">
+        <source>Pivoter vers la droite</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/shelter-3d-viewer/shelter-3d-viewer.html</context>
+          <context context-type="linenumber">54,55</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shelter3d.zoomIn" datatype="html">
+        <source>Zoom avant</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/shelter-3d-viewer/shelter-3d-viewer.html</context>
+          <context context-type="linenumber">63,64</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shelter3d.zoomOut" datatype="html">
+        <source>Zoom arrière</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/shelter-3d-viewer/shelter-3d-viewer.html</context>
+          <context context-type="linenumber">72,73</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shelter3d.reset" datatype="html">
+        <source>Réinitialiser la vue</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/shelter-3d-viewer/shelter-3d-viewer.html</context>
+          <context context-type="linenumber">81,82</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shelter3d.canvasLabel" datatype="html">
+        <source>Modèle 3D interactif de <x id="name" equiv-text="this.productName()"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/shelter-3d-viewer/shelter-3d-viewer.ts</context>
+          <context context-type="linenumber">74</context>
+        </context-group>
       </trans-unit>
       <trans-unit id="footer.logoAria" datatype="html">
         <source>AbrisTempo Local — Accueil</source>

@@ -1,0 +1,37 @@
+// ============================================================
+// cursor-ring — anneau de curseur décoratif (E3)
+// ============================================================
+
+:host {
+  // L'hôte est une couche fixe, NON interactive, qui couvre la fenêtre sans rien
+  // intercepter. Le curseur natif reste visible (jamais `cursor:none`).
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-raised);
+  pointer-events: none;
+}
+
+.cursor-ring__dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px; // centre l'anneau sur la position du pointeur
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-full);
+  pointer-events: none;
+  opacity: 0;
+  will-change: transform, opacity;
+  transition:
+    transform var(--duration-fast) var(--ease-out),
+    opacity var(--duration-base) var(--ease-out);
+}
+
+// Garde CSS doublant le garde TS : pointeur grossier (tactile) ou mouvement réduit
+// → l'anneau ne s'affiche jamais.
+@media (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .cursor-ring__dot {
+    display: none;
+  }
+}

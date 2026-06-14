@@ -65,8 +65,9 @@ test('Mes réservations — report accessible (focus + POST /reschedule)', async
   const reporter = page.getByRole('button', { name: /reporter la réservation/i });
   await expect(reporter).toBeVisible();
 
-  // a11y de la liste (restreint au composant : la navbar porte un bug a11y préexistant).
-  let results = await new AxeBuilder({ page }).include('app-reservations').withTags(WCAG_TAGS).analyze();
+  // a11y PLEINE PAGE (navbar authentifiée incluse) : le contraste de la navbar est corrigé
+  // (E5, must-fix « Tempo »/icône → --color-brand-on-dark) ; plus d'exclusion app-reservations (L-008).
+  let results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
   expect(results.violations, JSON.stringify(results.violations.map((v) => v.id))).toEqual([]);
 
   // Ouvre le dialogue → alertdialog visible et focus capturé.
@@ -75,8 +76,8 @@ test('Mes réservations — report accessible (focus + POST /reschedule)', async
   await expect(dialog).toBeVisible();
   await expect(dialog).toBeFocused();
 
-  // a11y avec le dialogue (et le radiogroup des créneaux) ouvert.
-  results = await new AxeBuilder({ page }).include('app-reservations').withTags(WCAG_TAGS).analyze();
+  // a11y PLEINE PAGE avec le dialogue (et le radiogroup des créneaux) ouvert.
+  results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
   expect(results.violations, JSON.stringify(results.violations.map((v) => v.id))).toEqual([]);
 
   // Échap referme et rend le focus au déclencheur (WCAG 2.4.3).
