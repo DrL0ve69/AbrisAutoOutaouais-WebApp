@@ -360,6 +360,28 @@ select {
   min-height: 52px;
 }
 
+// `.btn--small` (densité d'action ADMIN) ≠ `.btn--sm` (échelle de taille du design system).
+// Les deux coexistent À DESSEIN : `.btn--sm` réduit la police (font-size-xs) et le min-height à
+// 36px ; `.btn--small` garde la police `sm` et resserre seulement le rembourrage pour densifier
+// les barres d'action des tableaux admin. Le `.btn` de base conserve `min-height: 44px`
+// (cible tactile WCAG 2.5.5) — `.btn--small` ne le réduit pas. Promu ici depuis 3 copies locales
+// identiques (admin-shared / orders / products) pour dédupliquer (valeurs verbatim, zéro régression).
+.btn--small {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--font-size-sm);
+}
+
+// Action destructive (suppression / annulation). Texte blanc sur --color-danger (#b91c1c ≈ 6.8:1
+// AA). Promu globalement depuis les mêmes 3 copies admin ; remplace aussi le `.btn--danger` qui
+// n'était jusqu'ici stylé nulle part pour `features/account/rentals` (qui l'utilisait déjà).
+.btn--danger {
+  color: #fff;
+  background: var(--color-danger, #b91c1c);
+  border-color: var(--color-danger, #b91c1c);
+
+  &:hover { background: #991b1b; }
+}
+
 .btn--full {
   width: 100%;
 }
