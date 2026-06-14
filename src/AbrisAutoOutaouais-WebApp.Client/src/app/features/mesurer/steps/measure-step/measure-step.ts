@@ -15,7 +15,7 @@ import { MapMeasureComponent } from './map-measure/map-measure';
 /**
  * Étape 2 « Mesure » — choix entre deux méthodes pour obtenir le gabarit :
  *  - Calculateur de véhicules (DÉFAUT) : entièrement clavier, SSR-safe, équivalent accessible.
- *  - Carte satellite : dessin pointer-only (Leaflet/geoman), chargée en `@defer (on viewport)`.
+ *  - Carte satellite : dessin pointer-only (Leaflet/geoman), chargée en `@defer (on immediate)`.
  *
  * Le défaut sur le calculateur garantit qu'un utilisateur au clavier dispose immédiatement
  * d'un chemin complet sans dépendre de la carte. Émet `footprintComputed` vers le shell.

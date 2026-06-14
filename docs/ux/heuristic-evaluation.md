@@ -295,7 +295,7 @@ locales d'`orders.scss`/`products.scss` ; aligner le nommage sur le global (`--s
 | F2-A | Admin /products | Dialogue de suppression sans gestion du focus (incohérent vs bookings/rentals) | **3** | Reprendre le pattern focus-géré (ouverture/piège/retour) + test clavier | ✅ corrigé |
 | F2-B | `/mesurer` | Adresse manuelle → carte sur défaut Gatineau sans avertir | 2 | Indice « non localisé » + inciter la suggestion / géocoder au submit | ✅ corrigé |
 | F2-C | Admin | `.btn--small`/`.btn--danger` dupliquées ×3 + divergence `--sm` | 1–2 | Une seule définition partagée + aligner le nommage | ✅ corrigé |
-| F2-D | `/mesurer` | **Découvert pendant F2-B** : barre d'outils de dessin geoman (`map.pm`) ne s'attache pas → mode carte non dessinable (préexistant Épic D) | **3** | Binder geoman sur la même instance Leaflet que la carte (interop CJS/ESM, axe `map.pm`) | ⏳ suivi tracké (board.md) |
+| F2-D | `/mesurer` | **Découvert pendant F2-B** : barre d'outils de dessin geoman (`map.pm`) ne s'attache pas → mode carte non dessinable (préexistant Épic D) | **3** | `globalThis.L = L` + import geoman **avant** `L.map(...)` (IIFE lisant `L` libre + `addInitHook` post-construction ; ≠ interop CJS/ESM) | ✅ corrigé (`fix/f2d-mesurer-geoman-draw`, L-021) |
 
 **Lecture d'ensemble** : les surfaces nouvelles sont **globalement saines** (le système de design
 tokenisé, les patrons APG et la discipline focus des Épics C→E paient). **Un seul majeur (3)** : un
@@ -327,14 +327,19 @@ scopé ne l'atteigne → le bouton « Confirmer l'annulation » était **non sty
 une classe scopée avant de dédupliquer). Nommage `--small` vs `--sm` : **coexistence assumée** (densité
 d'action admin vs échelle de taille du DS — valeurs différentes), documentée en commentaire.
 
-**F2-D — défaut geoman découvert (2026-06-14), suivi OUVERT.** La garde e2e positive ajoutée pour F2-B
-(« la barre d'outils de dessin geoman est-elle présente ? ») a révélé que `map.pm` ne s'attache pas
-contre le serveur e2e → le mode « Mesurer sur la carte » est **non dessinable** (préexistant Épic D,
-masqué jusqu'ici par un smoke test qui n'assertait que `.leaflet-container`). Non causé par F2-B (sa
-garde `if (!pm) return;` a transformé un crash dur en dégradation douce et exposé le défaut latent).
-Tracké dans `board.md` (Bug a11y/fonctionnel, sév. 3) — mérite son propre cycle avec vérif live L-001
-(dev-server vite vs build prod esbuild). Leçon L-019 capturée (tester la **capacité** derrière un import
-dynamique lourd, pas l'enveloppe). **Flake annexe** (préexistant, confirmé via `git stash`) :
+**F2-D — défaut geoman découvert (2026-06-14), ✅ CORRIGÉ (branche `fix/f2d-mesurer-geoman-draw`).** La
+garde e2e positive ajoutée pour F2-B (« la barre d'outils de dessin geoman est-elle présente ? ») a
+révélé que `map.pm` ne s'attachait pas → le mode « Mesurer sur la carte » était **non dessinable**
+(préexistant Épic D, masqué jusqu'ici par un smoke test qui n'assertait que `.leaflet-container`). Non
+causé par F2-B (sa garde `if (!pm) return;` a transformé un crash dur en dégradation douce et exposé le
+défaut latent). **Cause réelle (≠ hypothèse CJS/ESM initiale)** : geoman est un IIFE qui lit `L` en
+**variable libre depuis `globalThis.L`** (n'importe pas Leaflet) **et** attache `map.pm` via un
+`L.Map.addInitHook` ne s'exécutant que pour les cartes construites **après** son chargement. **Fix**
+(`map-measure.ts`, `afterNextRender`, SSR-safe) : `globalThis.L = L` **puis** import geoman **avant**
+`L.map(...)`. Le test e2e de capacité (ex-`test.fixme`) est désormais **actif et vert** (barre
+`.leaflet-pm-toolbar.leaflet-pm-draw` + bouton de dessin). Leçons **L-019** (tester la **capacité**
+derrière un import dynamique lourd, pas l'enveloppe — toujours valide) et **L-021** (plugin `addInitHook` :
+importer avant construction + `globalThis.L` ; le diagnostic CJS/ESM de L-019 est supersédé). **Flake annexe** (préexistant, confirmé via `git stash`) :
 `a11y.spec.ts` Boutique `aria-prohibited-attr` sur le `<div class="catalog__grid" aria-busy aria-label>`
 sans `role` pendant la fenêtre de chargement — à corriger côté `catalog.html` (mettre `role="status"`
 ou retirer l'`aria-label` du `div` sans rôle).
