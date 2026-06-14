@@ -2452,6 +2452,10 @@
         <source> La zone tracée est trop petite ou dépasse la plage prise en charge. Tracez un rectangle réaliste de votre stationnement. </source>
         <target> The drawn area is too small or exceeds the supported range. Draw a realistic rectangle of your driveway. </target>
       </trans-unit>
+      <trans-unit id="mesurer.map.notLocated" datatype="html">
+        <source> Adresse non localisée précisément — la carte est centrée sur Gatineau par défaut. Repérez votre stationnement avant de tracer le rectangle. </source>
+        <target> Address not precisely located — the map is centred on Gatineau by default. Locate your driveway before drawing the rectangle. </target>
+      </trans-unit>
       <trans-unit id="mesurer.method.group" datatype="html">
         <source>Méthode de mesure</source>
         <target>Measurement method</target>

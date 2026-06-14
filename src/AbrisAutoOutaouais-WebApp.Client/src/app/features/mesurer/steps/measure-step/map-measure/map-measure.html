@@ -9,13 +9,28 @@
     </ng-container>
   </p>
 
+  <!-- Indice persistant (info STATIQUE, pas une annonce async → pas de role/aria-live, qui
+       ferait du bruit lecteur d'écran et risquerait une collision de live-region). Quand
+       l'adresse n'a pas été localisée, l'id est rattaché à l'aria-describedby du canvas pour
+       que l'info fasse partie de la description accessible de la zone de dessin. -->
+  @if (notLocated()) {
+  <p class="map-measure__hint" id="map-not-located">
+    <ng-container i18n="@@mesurer.map.notLocated">
+      Adresse non localisée précisément — la carte est centrée sur Gatineau par défaut.
+      Repérez votre stationnement avant de tracer le rectangle.
+    </ng-container>
+  </p>
+  }
+
   <!-- role="application" : zone de dessin interactive tierce (Leaflet/geoman). axe exclut
        `.leaflet-container` (internes du widget) — l'équivalent clavier couvre l'a11y. -->
   <div
     #mapHost
     class="map-measure__canvas"
     role="application"
-    aria-describedby="map-instructions"
+    [attr.aria-describedby]="
+      notLocated() ? 'map-instructions map-not-located' : 'map-instructions'
+    "
     aria-label="Carte satellite pour mesurer le stationnement"
     i18n-aria-label="@@mesurer.map.canvasLabel"
     [attr.aria-busy]="!ready()"></div>

@@ -360,6 +360,32 @@ select {
   min-height: 52px;
 }
 
+// `.btn--small` (densité d'action ADMIN) ≠ `.btn--sm` (échelle de taille du design system).
+// Les deux coexistent À DESSEIN : `.btn--sm` réduit la police (font-size-xs) et le min-height à
+// 36px ; `.btn--small` garde la police `sm` et resserre seulement le rembourrage pour densifier
+// les barres d'action des tableaux admin. Le `.btn` de base conserve `min-height: 44px`
+// (cible tactile WCAG 2.5.5) — `.btn--small` ne le réduit pas. Promu ici depuis 3 copies locales
+// identiques (admin-shared / orders / products) pour dédupliquer (valeurs verbatim, zéro régression).
+.btn--small {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--font-size-sm);
+}
+
+// Action destructive (suppression / annulation). `--color-danger` n'est PAS un jeton sémantique
+// défini dans _tokens.scss : il n'existe nulle part, donc `var(--color-danger, …)` retombe TOUJOURS
+// sur le littéral de repli #b91c1c — une couleur de MARQUE rouge danger FIXE, identique en thème
+// clair et sombre (elle NE bascule PAS par thème). Texte blanc sur #b91c1c ≈ 5.9:1 sur blanc — AA OK
+// (> 4.5:1 ; cf. la table de jetons _tokens.scss). Promu globalement depuis les mêmes 3 copies admin ;
+// remplace aussi le `.btn--danger` qui n'était jusqu'ici stylé nulle part pour `features/account/rentals`
+// (qui l'utilisait déjà).
+.btn--danger {
+  color: #fff;
+  background: var(--color-danger, #b91c1c);
+  border-color: var(--color-danger, #b91c1c);
+
+  &:hover { background: #991b1b; }
+}
+
 .btn--full {
   width: 100%;
 }

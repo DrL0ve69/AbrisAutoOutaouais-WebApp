@@ -2212,7 +2212,7 @@
         <source> Réserver une installation </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/hero-story/hero-story.html</context>
-          <context context-type="linenumber">54,58</context>
+          <context context-type="linenumber">54,57</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.hero.statsAria" datatype="html">
@@ -3499,18 +3499,25 @@
           <context context-type="linenumber">6,9</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="mesurer.map.notLocated" datatype="html">
+        <source> Adresse non localisée précisément — la carte est centrée sur Gatineau par défaut. Repérez votre stationnement avant de tracer le rectangle. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/map-measure/map-measure.html</context>
+          <context context-type="linenumber">19,22</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="mesurer.map.canvasLabel" datatype="html">
         <source>Carte satellite pour mesurer le stationnement</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/map-measure/map-measure.html</context>
-          <context context-type="linenumber">19,20</context>
+          <context context-type="linenumber">34,35</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.map.outOfRange" datatype="html">
         <source> La zone tracée est trop petite ou dépasse la plage prise en charge. Tracez un rectangle réaliste de votre stationnement. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/map-measure/map-measure.html</context>
-          <context context-type="linenumber">26,29</context>
+          <context context-type="linenumber">41,44</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.method.group" datatype="html">

@@ -176,20 +176,6 @@
   gap: var(--space-1);
 }
 
-// ── Variantes de boutons locales (complètent les globales) ────
-.btn--small {
-  padding: var(--space-1) var(--space-3);
-  font-size: var(--font-size-sm);
-}
-
-.btn--danger {
-  color: #fff;
-  background: var(--color-danger, #b91c1c);
-  border-color: var(--color-danger, #b91c1c);
-
-  &:hover { background: #991b1b; }
-}
-
 // ── Confirmation (alertdialog) — même langage que account-shared ──
 .admin-overlay {
   position: fixed;

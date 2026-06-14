@@ -20,6 +20,20 @@
   background: var(--color-surface-alt, var(--color-surface));
 }
 
+// Indice « adresse non localisée » : encadré d'alerte douce. Jetons sémantiques uniquement
+// (basculent par thème) — fond neutre + liseré/accent d'avertissement + texte courant.
+// On évite --color-warning-bg (défini en thème CLAIR seulement) au profit de --color-bg-muted
+// (présent dans les deux thèmes). Le contraste se valide en e2e (color-contrast OFF en vitest).
+.map-measure__hint {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-bg-muted);
+  border-inline-start: 3px solid var(--color-warning);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-size: 0.9rem;
+}
+
 .map-measure__status {
   margin: 0;
   color: var(--color-danger, #b00020);
