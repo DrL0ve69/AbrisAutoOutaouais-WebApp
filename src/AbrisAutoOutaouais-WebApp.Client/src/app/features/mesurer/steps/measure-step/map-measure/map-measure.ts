@@ -23,7 +23,7 @@ import {
  *
  * SSR (risque #1) : AUCUN symbole Leaflet/geoman/turf au niveau module — tout est importé
  * DYNAMIQUEMENT à l'intérieur d'`afterNextRender` (jamais exécuté côté serveur), y compris
- * le CSS de Leaflet. Le `<div>` carte est rendu derrière un `@defer (on viewport)` dans le
+ * le CSS de Leaflet. Le `<div>` carte est rendu derrière un `@defer (on immediate)` dans le
  * parent, donc ce composant n'est instancié qu'au besoin.
  *
  * Mode POINTER-ONLY assumé : geoman se manipule à la souris/au tactile. L'équivalent CLAVIER
@@ -82,18 +82,26 @@ export class MapMeasureComponent {
     ensureLeafletStyles();
 
     // Import dynamique de Leaflet (navigateur uniquement) — aucun symbole au top-level (SSR-safe).
-    // Interop CJS↔ESM : selon le bundler (vite en dev vs esbuild en build/CI), l'API Leaflet est
-    // exposée soit sur le namespace, soit sous `.default`. On normalise pour éviter le
-    // « TypeError: L.map is not a function » observé en CI.
+    // Normalisation du namespace : selon le bundler (vite en dev vs esbuild en build/CI), l'API
+    // Leaflet est exposée soit sur le namespace, soit sous `.default`. On normalise pour éviter le
+    // « TypeError: L.map is not a function » déjà corrigé.
     const leafletNs = await import('leaflet');
     const L = leafletNs.default ?? leafletNs;
 
+    // geoman (free) est un IIFE qui lit `L` comme variable LIBRE → `globalThis.L`. Il n'importe
+    // PAS Leaflet (0 require/import, 463 réfs `L.`). On expose donc l'instance dynamiquement
+    // importée AVANT de charger geoman, sinon geoman patche un `L` absent.
+    // Surtout : geoman attache `map.pm` via un INIT HOOK posé sur `L.Map` — ce hook ne s'exécute
+    // QUE pour les cartes construites APRÈS le chargement de geoman. Il faut donc importer geoman
+    // AVANT `L.map(...)`, faute de quoi notre carte est créée sans `pm` (barre de dessin absente,
+    // bien que `L.PM` existe globalement). Reste dans `afterNextRender` = navigateur uniquement,
+    // donc SSR-safe. On NE supprime PAS `globalThis.L` au teardown (casserait une 2e carte). (F2-D / L-019)
+    (globalThis as { L?: unknown }).L = L;
+    await import('@geoman-io/leaflet-geoman-free'); // effet de bord : pose l'init hook `pm` sur L.Map
+
     const center: [number, number] = [this.lat() ?? 45.4765, this.lng() ?? -75.7013];
 
-    // On crée la carte + les tuiles EN PREMIER : `.leaflet-container` apparaît dès que le chunk
-    // Leaflet est prêt, INDÉPENDAMMENT de geoman/turf. C'est essentiel pour que la carte soit
-    // visible vite ET pour que l'e2e (qui attend `.leaflet-container`) soit déterministe : le
-    // chunk geoman (CommonJS, ~360 kB) ne doit pas bloquer l'apparition du conteneur.
+    // Création de la carte APRÈS geoman → l'init hook attache `map.pm` à la construction.
     const map = L.map(this.mapHost().nativeElement, {
       center,
       zoom: 19,
@@ -108,16 +116,15 @@ export class MapMeasureComponent {
     this.map = map;
     this.ready.set(true);
 
-    // Outils de dessin geoman + mesure turf chargés APRÈS l'affichage de la carte.
-    await import('@geoman-io/leaflet-geoman-free'); // effet de bord : attache `pm` à L
+    // Mesure turf chargée à la demande (calcul d'aire/bbox du tracé).
     const area = (await import('@turf/area')).default;
     const bbox = (await import('@turf/bbox')).default;
 
     // Rectangle + polygone uniquement (pas de marqueurs/lignes).
-    // geoman s'attache à la carte par EFFET DE BORD (`map.pm`). Si cet attachement n'a pas eu
-    // lieu (échec d'interop CJS↔ESM, comme pour `L.map` — cf. en-tête ; ou environnement de
-    // test sans le vrai conteneur), on s'arrête là sans planter l'init : la carte satellite
-    // reste affichée, seuls les outils de dessin manquent.
+    // `map.pm` est posé par l'init hook geoman (cf. plus haut). S'il est absent (environnement de
+    // test sans le vrai conteneur / DOM, ou `globalThis.L` introuvable au chargement de geoman), on
+    // s'arrête là sans planter l'init : la carte satellite reste affichée, seuls les outils de
+    // dessin manquent. (garde défensive — L-019)
     const pm = (map as unknown as { pm?: PmApi }).pm;
     if (!pm) return;
     pm.addControls({

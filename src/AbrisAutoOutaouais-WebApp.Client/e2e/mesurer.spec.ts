@@ -100,9 +100,10 @@ test('smoke CARTE : @defer charge Leaflet, conteneur visible, axe (hors .leaflet
   await page.getByRole('radio', { name: /mesurer sur la carte/i }).click();
 
   // BARRIÈRE déterministe (L-012) : on attend l'apparition du conteneur Leaflet, jamais un
-  // waitForTimeout. La carte + les tuiles sont créées AVANT geoman/turf (cf. `map-measure.ts`),
-  // donc `.leaflet-container` apparaît dès que le chunk Leaflet est prêt, indépendamment de
-  // geoman. Timeout large (30 s) : en CI, ce test est le 1er à charger le chunk Leaflet/geoman
+  // waitForTimeout. Depuis F2-D, geoman est importé AVANT `L.map(...)` (son init hook doit être
+  // posé avant la construction de la carte — cf. `map-measure.ts`), donc `.leaflet-container`
+  // n'apparaît plus indépendamment de geoman : le paint de la carte est gated sur le chunk geoman
+  // (~360 kB). Timeout large (30 s) : en CI, ce test est le 1er à charger les chunks Leaflet+geoman
   // → compilation à la demande du dev-server à froid (contrairement au local « warm »).
   await expect(page.locator('.leaflet-container')).toBeVisible({ timeout: 30000 });
 
@@ -125,19 +126,17 @@ test('smoke CARTE : @defer charge Leaflet, conteneur visible, axe (hors .leaflet
 // s'affiche » en « la carte EST dessinable » en exigeant la barre geoman (`.leaflet-pm-toolbar`) + un
 // bouton de dessin (rectangle/polygone).
 //
-// ⚠️ CONSTAT (À CORRIGER, hors scope F2-C) : en l'exécutant on découvre que, contre le serveur e2e
-// (dev-server vite, hôte 4200), `map.pm` n'est PAS attaché — la barre geoman ne s'affiche jamais
-// (snapshot DOM : carte + zoom + attribution présents, AUCUN bouton de dessin). C'est exactement le
-// faux-vert que L-009 décrit : le dessin sur carte est silencieusement désactivé dans cet
-// environnement. La cause probable est l'interop de la lib geoman (dist IIFE auto-contenue) avec le
-// Leaflet importé dynamiquement par `map-measure.ts` (`L = leafletNs.default ?? leafletNs`) — même
-// famille que le « L.map is not a function » déjà documenté en tête de map-measure.ts, mais sur
-// l'axe `map.pm`. La correction (binder geoman sur le MÊME Leaflet que la carte) est une vraie
-// modif source à instruire/relire à part. On épingle donc ce test en `fixme` — l'assertion et son
-// intention restent dans le code (la garde n'est pas affaiblie), CI reste vert, et le défaut est
-// signalé bruyamment plutôt que masqué. Cf. rapport de revue F2 / lessons-learned (à capturer).
-test.fixme(
-  'CARTE dessinable : barre d’outils geoman présente (bug connu — pm non attaché en e2e dev-server)',
+// ✅ CORRIGÉ F2-D : geoman (dist IIFE) lit `L` comme variable LIBRE résolue depuis `globalThis.L` ;
+// il n'importe PAS Leaflet. Le composant importait Leaflet en module ESM local sans l'exposer
+// globalement → `globalThis.L` était `undefined` → geoman ne patchait rien → `map.pm` jamais créé,
+// barre de dessin absente (le faux-vert L-009 : le smoke ci-dessus restait vert alors que le dessin
+// était silencieusement mort). La correction expose l'instance Leaflet dynamiquement importée sur
+// `globalThis.L` AVANT d'importer geoman (cf. `map-measure.ts`). Ce test passe donc de `fixme` à
+// actif et VÉRIFIE LA CAPACITÉ (la carte est DESSINABLE), pas seulement le conteneur — il exige la
+// barre geoman (`.leaflet-pm-toolbar`) + un bouton de dessin (rectangle/polygone), assertion non
+// affaiblie (L-019/L-009).
+test(
+  'CARTE dessinable : barre d’outils geoman présente (corrigé F2-D — geoman lit `globalThis.L`)',
   async ({ page }) => {
     test.setTimeout(60000);
     await mockApi(page);
@@ -145,8 +144,13 @@ test.fixme(
     await page.getByRole('radio', { name: /mesurer sur la carte/i }).click();
     await expect(page.locator('.leaflet-container')).toBeVisible({ timeout: 30000 });
 
-    // POSITIF : la barre geoman ET un bouton de dessin sont rendus → la carte est dessinable.
-    await expect(page.locator('.leaflet-pm-toolbar')).toBeVisible({ timeout: 30000 });
+    // POSITIF : la barre de DESSIN geoman ET un bouton de dessin sont rendus → la carte est
+    // dessinable. geoman ajoute deux `.leaflet-pm-toolbar` (dessin + édition) ; on cible la barre de
+    // DESSIN (`.leaflet-pm-draw`) pour lever l'ambiguïté du mode strict tout en gardant l'assertion
+    // de CAPACITÉ (on n'affaiblit pas vers un simple conteneur — L-019/L-009).
+    await expect(page.locator('.leaflet-pm-toolbar.leaflet-pm-draw')).toBeVisible({
+      timeout: 30000,
+    });
     await expect(
       page.locator('.leaflet-pm-icon-rectangle, .leaflet-pm-icon-polygon').first(),
     ).toBeVisible();
