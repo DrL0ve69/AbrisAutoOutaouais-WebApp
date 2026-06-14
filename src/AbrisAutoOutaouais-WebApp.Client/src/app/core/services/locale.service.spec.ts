@@ -1,7 +1,10 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { Component, inject } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { render, screen, waitFor } from '@testing-library/angular';
+import { TestBed } from '@angular/core/testing';
 import { LocaleService, localizedHref } from './locale.service';
+import { environment } from '../../../environments/environment';
 
 /**
  * Bascule de langue (i18n compile-time) : passer à l'autre locale doit conserver
@@ -36,6 +39,80 @@ describe('localizedHref', () => {
     // « /enfants » ne doit PAS être traité comme « /en » + « fants ».
     expect(localizedHref(loc('/enfants'), 'en')).toBe('/en/enfants');
     expect(localizedHref(loc('/enfants'), 'fr')).toBe('/enfants');
+  });
+});
+
+/**
+ * Drapeau mono-locale vs bi-locale (Épic C). En dev (`ng serve`, environnement de
+ * test = `environment.ts`), `localized` vaut `false` : la bascule de langue est un
+ * no-op et le bouton est dégradé. En prod/staging (`environment.localized = true`),
+ * le comportement est inchangé. On teste les DEUX branches en pilotant le flag via
+ * `vi.spyOn(environment, 'localized', 'get')` pour que les assertions ne soient pas
+ * vacueuses (L-009 : on prouve l'effet dans chaque état, pas seulement le défaut).
+ */
+describe('LocaleService — drapeau localized + switchTo no-op (Épic C)', () => {
+  /**
+   * Document factice : `location` est un objet nu, donc affecter `location.href`
+   * NE navigue PAS la page de test (impératif en mode browser) et reste OBSERVABLE.
+   * `pathname` « / » → current() = « fr ». `sessionStorage` réel (jsdom/browser).
+   */
+  const stubDocument = (location: { pathname: string; search: string; hash: string; href: string }) =>
+    ({
+      defaultView: { location, sessionStorage: window.sessionStorage },
+    }) as unknown as Document;
+
+  const makeService = (location: { pathname: string; search: string; hash: string; href: string }) => {
+    TestBed.configureTestingModule({
+      providers: [{ provide: DOCUMENT, useValue: stubDocument(location) }],
+    });
+    return TestBed.inject(LocaleService);
+  };
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    sessionStorage.removeItem('locale-switch-pending');
+    TestBed.resetTestingModule();
+  });
+
+  it('localized() reflète environment.localized (faux en dev/test)', () => {
+    // L'environnement de test est `environment.ts` → localized = false.
+    expect(environment.localized).toBe(false);
+    const location = { pathname: '/', search: '', hash: '', href: 'http://localhost/' };
+    const service = makeService(location);
+    expect(service.localized()).toBe(false);
+  });
+
+  it('switchTo() est un NO-OP en mono-locale : ne touche PAS location.href', () => {
+    const location = { pathname: '/', search: '', hash: '', href: 'http://localhost/' };
+    const service = makeService(location);
+    expect(service.localized()).toBe(false);
+
+    service.switchTo('en');
+
+    // Le garde mono-locale sort AVANT toute écriture : href intact, pas de marqueur.
+    expect(location.href).toBe('http://localhost/');
+    expect(sessionStorage.getItem('locale-switch-pending')).toBeNull();
+  });
+
+  it('en bi-locale, localized() est vrai et switchTo() redirige vers /en/…', () => {
+    // On force le flag à true pour prouver que la branche active fonctionne (sinon
+    // le test « no-op » ci-dessus pourrait passer pour une mauvaise raison — L-009).
+    vi.spyOn(environment, 'localized', 'get').mockReturnValue(true);
+    const location = {
+      pathname: '/boutique',
+      search: '',
+      hash: '',
+      href: 'http://localhost/boutique',
+    };
+    const service = makeService(location);
+    expect(service.localized()).toBe(true);
+    expect(service.current()).toBe('fr');
+
+    service.switchTo('en');
+
+    // Branche active : marqueur posé + redirection vers l'équivalent localisé.
+    expect(sessionStorage.getItem('locale-switch-pending')).toBe('en');
+    expect(location.href).toBe('/en/boutique');
   });
 });
 

@@ -11,6 +11,54 @@
 
 ---
 
+## L-025 · An `environment.*` flag tied to a build option must match the `angular.json` config of EVERY configuration that replicates it — sibling configs don't merge
+
+- **Symptom.** Épic C (local EN language switch). `environment.staging.ts` set `localized: true`, but
+  the `staging` configuration in `angular.json` had **no** `"localize": true` — only `production` did,
+  and Angular build configurations **do not inherit/merge between siblings**. A `staging` build would
+  ship a **mono-locale FR** bundle while the runtime flag claimed bilingual → the « EN » button would
+  be fully active and do `location.href = '/en/...'` to a path that doesn't exist → **silent redirect
+  back to the FR home** — exactly the regression Épic C set out to kill. `deployment.md` made it worse
+  by documenting the broken state as correct. The gap was **invisible to dev/prod gates**: it lives
+  only on the `staging` config, which `npm test` / `npm run build` / `e2e` never exercise. Fix:
+  `"localize": true` added to the `staging` config (mirror of `production`), staging build verified
+  green. Same family as [[L-005]] (a flag/guard that doesn't match what the build/CI actually runs
+  guards nothing) and [[L-022]] (per-environment build/deploy flags).
+- **Rule.** Any `environment.*` flag backed by a build option (`localize`, `outputHashing`,
+  `optimization`, `fileReplacements`, `sourceMap`…) must be checked against the `angular.json` config
+  of **every** configuration that replicates it — sibling Angular configs **don't merge**, so one
+  config (e.g. `staging`) can silently « lie » to the runtime without breaking dev/prod. When you add
+  or change such a flag: grep all `configurations` in `angular.json`, confirm each that claims the
+  behaviour carries the matching build option, and keep the doc that describes them in sync ([[L-018]]:
+  finish the change at every layer). A config no gate exercises is unverified — build it once to prove
+  the flag and the option agree.
+- **Refs.** `angular.json` (`staging` config `"localize": true`),
+  `src/environments/environment.{ts,prod.ts,staging.ts}`, `docs/deployment.md`,
+  branch `feat/epic-c-locale-dev`.
+
+## L-024 · Degrade a control with `aria-disabled` (focusable + accessible explanation), not native `disabled`; and a dynamically-bound attribute (`title`) can't use static `i18n-`
+
+- **Symptom.** Épic C: to degrade the « EN » button when the server is mono-locale, native `disabled`
+  would have pulled it **out of the tab order** and hidden the « why » from screen-reader users (a
+  `disabled` control isn't focusable, so its explanation is unreachable by keyboard). The accessible
+  alternative is a still-focusable `<button>` with `[attr.aria-disabled]="true"` +
+  `[attr.aria-describedby]` to a **navbar-scoped** `<span class="sr-only">` (NOT a global `role="status"`
+  — [[L-010]]) and a no-op `(click)`. Second trap: the tooltip uses `[attr.title]`, a **dynamic
+  binding**, so its translation **can't** go through `i18n-title` (which only marks **static**
+  attribute values) — it needs a component property built with `$localize` carrying the same id
+  (`@@navbar.langUnavailable`), and that trans-unit must exist in **both** catalogs ([[L-018]]).
+- **Rule.** To « disable » a control while keeping it accessible, prefer **`aria-disabled="true"`** on
+  a focusable element over native `disabled`: it stays in the tab order so its `aria-describedby`
+  explanation is reachable, and the handler no-ops. Anchor the explanation in a **scoped** `sr-only`
+  node (never a global landmark/live-region — [[L-010]]). When an attribute is **bound** (`[attr.title]`,
+  `[attr.aria-label]`…), `i18n-<attr>` does **not** apply — translate via a `$localize` component
+  property with an explicit `@@id`, and prune/maintain that id in **both** `messages.xlf` and
+  `messages.en.xlf` ([[L-018]]).
+- **Refs.** `src/app/shared/layout/navbar/navbar.{html,ts}` (`aria-disabled` + scoped `sr-only` +
+  `langUnavailableTitle = $localize\`@@navbar.langUnavailable\``),
+  `src/app/core/services/locale.service.ts` (`localized()`),
+  `src/locale/messages.{xlf,en.xlf}`, branch `feat/epic-c-locale-dev`.
+
 ## L-023 · A global `a:visited`/`a:hover` rule overrides `.btn--primary` on anchor-buttons — and a `:visited`-only contrast bug is INVISIBLE to axe/wave by design
 
 - **Symptom.** G-A: primary CTAs styled as anchors (`<a class="btn btn--primary">` on the home hero

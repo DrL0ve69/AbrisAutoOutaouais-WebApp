@@ -67,6 +67,13 @@ postbuild de `build:prod`). Il sert le français à `/`, l'anglais à `/en/`, av
 locale et cache long sur les ressources hachées. Le sélecteur de langue de la navbar (et la
 « langue préférée » du profil) basculent en rechargeant l'autre baseHref en conservant le chemin.
 
+> **Équivalent dev — `npm run dev:i18n`.** Reproduit ce démarrage prod bilingue en local
+> (= `npm run build:i18n && node scripts/serve-i18n.mjs`, fr à `/`, en à `/en/`, port 4300). C'est
+> la SEULE façon d'exercer la bascule de langue hors prod : `npm start` (`ng serve`) ne sert que le
+> français (`environment.localized = false`), où le bouton « EN » est volontairement dégradé
+> (focusable mais annoncé indisponible). En prod/staging le build est localisé
+> (`environment.localized = true`) et le bouton est pleinement actif.
+
 - **Azure Static Web Apps (gratuit, recommandé)** — hébergement **statique** : SWA ne lance pas
   `serve-i18n.mjs`, mais reproduit le même repli SPA par locale via
   **`public/staticwebapp.config.json`** (copié à la racine du build). Déploiement par **GitHub

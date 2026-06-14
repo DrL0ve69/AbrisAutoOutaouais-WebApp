@@ -8,6 +8,7 @@
     "build:prod": "ng build --configuration production && node scripts/postbuild-i18n.mjs",
     "build:i18n": "npm run build:prod",
     "preview:i18n": "node scripts/serve-i18n.mjs",
+    "dev:i18n": "npm run build:i18n && node scripts/serve-i18n.mjs",
     "watch": "ng build --watch --configuration development",
     "test": "vitest run",
     "test:watch": "vitest",

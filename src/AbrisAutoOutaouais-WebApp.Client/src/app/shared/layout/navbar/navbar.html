@@ -74,13 +74,24 @@
     <div class="navbar__actions">
       <!-- Sélecteur de langue : un seul bouton vers l'AUTRE langue.
            i18n compile-time → un bouton statique par locale (l'aria-label traduit
-           doit être un attribut statique, pas une liaison). -->
+           doit être un attribut statique, pas une liaison).
+
+           En build MONO-locale (dev `ng serve`, `locale.localized()` faux), il
+           n'existe pas de cible localisée : le bouton reste un <button> FOCUSABLE
+           mais inactif (`aria-disabled`), décrit par une explication scopée à la
+           navbar (PAS de landmark/live-region global — L-010). On n'utilise PAS
+           l'attribut `disabled` natif (il retire du tab order et masque le titre).
+           En prod/staging localisé, comportement strictement inchangé. -->
       @if (locale.current() === 'fr') {
         <button
           type="button"
           class="navbar__lang-btn"
+          [class.navbar__lang-btn--unavailable]="!locale.localized()"
           lang="en"
           (click)="locale.switchTo('en')"
+          [attr.aria-disabled]="locale.localized() ? null : 'true'"
+          [attr.aria-describedby]="locale.localized() ? null : 'lang-unavailable'"
+          [attr.title]="locale.localized() ? null : langUnavailableTitle"
           aria-label="Passer en anglais"
           i18n-aria-label="@@navbar.langToEn"
         >
@@ -90,13 +101,22 @@
         <button
           type="button"
           class="navbar__lang-btn"
+          [class.navbar__lang-btn--unavailable]="!locale.localized()"
           lang="fr"
           (click)="locale.switchTo('fr')"
+          [attr.aria-disabled]="locale.localized() ? null : 'true'"
+          [attr.aria-describedby]="locale.localized() ? null : 'lang-unavailable'"
+          [attr.title]="locale.localized() ? null : langUnavailableTitle"
           aria-label="Passer en français"
           i18n-aria-label="@@navbar.langToFr"
         >
           FR
         </button>
+      }
+      @if (!locale.localized()) {
+        <!-- Explication scopée à la navbar, reliée au bouton via aria-describedby.
+             `sr-only` : visible des seuls lecteurs d'écran ; `title` couvre la souris. -->
+        <span id="lang-unavailable" class="sr-only" i18n="@@navbar.langUnavailable">Disponible uniquement dans la version localisée (build bilingue).</span>
       }
 
       <!-- Bascule thème clair / sombre -->

@@ -49,6 +49,14 @@ export class NavbarComponent {
   protected readonly scrolled = signal(false);
   protected readonly userMenuOpen = signal(false);
 
+  /**
+   * Infobulle (souris) du bouton de langue quand il est dégradé en build
+   * mono-locale. Même texte que l'explication `sr-only` (@@navbar.langUnavailable),
+   * localisé via $localize — `title` ne peut pas porter d'`i18n-` dans le template
+   * quand il est lié dynamiquement, donc la traduction est résolue ici.
+   */
+  protected readonly langUnavailableTitle = $localize`:@@navbar.langUnavailable:Disponible uniquement dans la version localisée (build bilingue).`;
+
   protected readonly cartLabel = computed(() => {
     const n = this.cart.count();
     return n === 0 ? 'Panier, vide' : n === 1 ? 'Panier, 1 article' : `Panier, ${n} articles`;

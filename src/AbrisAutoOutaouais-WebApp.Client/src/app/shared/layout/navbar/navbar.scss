@@ -277,6 +277,20 @@
     color: white;
     background: rgba(255, 255, 255, 0.1);
   }
+
+  // État dégradé (build mono-locale) : bouton conservé FOCUSABLE (pas d'attribut
+  // `disabled` natif) mais inactif. Opacité réduite + curseur « interdit » ; le
+  // hover n'éclaircit plus le libellé pour ne pas suggérer une action possible.
+  // Le focus-visible (anneau) reste pleinement conservé — accessibilité clavier.
+  &--unavailable {
+    opacity: 0.5;
+    cursor: not-allowed;
+
+    &:hover {
+      color: rgba(255, 255, 255, 0.6);
+      background: transparent;
+    }
+  }
 }
 
 // ── Bascule thème ──────────────────────────────────────────
