@@ -5,6 +5,7 @@ using Asp.Versioning;
 using AbrisAutoOutaouais_WebApp.API.Middlewares;
 using AbrisAutoOutaouais_WebApp.Infrastructure.Identity;
 using AbrisAutoOutaouais_WebApp.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -59,6 +60,20 @@ builder.Services.AddRateLimiter(opts =>
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+// ── Migrations EF au démarrage (opt-in — déploiement conteneurisé) ────────────
+// Désactivé par défaut : dev et tests ne migrent JAMAIS via ce chemin (schéma géré
+// par `dotnet ef database update`). Activé sur le conteneur prod
+// (Database__MigrateOnStartup=true) → la révision se migre elle-même AVANT les
+// seeders, sans étape de migration séparée. `MigrateAsync` prend un verrou
+// applicatif SQL Server, donc sûr même si plusieurs réplicas démarrent ensemble.
+if (app.Configuration.GetValue<bool>("Database:MigrateOnStartup"))
+{
+    using var scope = app.Services.CreateScope();
+    await scope.ServiceProvider
+        .GetRequiredService<ApplicationDbContext>()
+        .Database.MigrateAsync();
+}
 
 // ── Seeders (rôles + compte admin, puis catalogue) ───────────────────────────
 await IdentitySeeder.SeedAsync(app.Services);

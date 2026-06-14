@@ -1,0 +1,20 @@
+# Contexte de build minimal pour l'image de l'API.
+# On exclut tout ce qui n'est pas nécessaire à la publication .NET.
+
+**/bin/
+**/obj/
+**/.vs/
+**/*.user
+
+# Frontend Angular — hors image API.
+src/AbrisAutoOutaouais-WebApp.Client/
+
+# Artefacts divers
+.git/
+.github/
+**/node_modules/
+**/dist/
+**/.vitest-attachments/
+**/TestResults/
+docs/
+*.md
