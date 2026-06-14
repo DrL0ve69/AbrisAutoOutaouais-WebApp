@@ -23,7 +23,7 @@ import { MotionService } from '../../core/services/motion.service';
  * `afterNextRender`). Sous mouvement réduit, l'élément est révélé immédiatement (aucune attente
  * d'intersection, doublé par le repli CSS).
  *
- * `data-motion` reflété sur l'hôte (`'on'|'reduced'`) — hook de débogage/CSS, comme hero-story.
+ * `data-motion` reflété sur l'hôte (`'on'|'reduced'`) — hook de débogage/CSS piloté par `MotionService`.
  */
 @Directive({
   selector: '[appRevealOnScroll]',

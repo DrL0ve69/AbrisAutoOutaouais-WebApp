@@ -386,22 +386,6 @@
       </trans-unit>
 
       <!-- ===== HOME — HERO ===== -->
-      <trans-unit id="home.heroStory.beat1" datatype="html">
-        <source>On ancre.</source>
-        <target>We anchor.</target>
-      </trans-unit>
-      <trans-unit id="home.heroStory.beat2" datatype="html">
-        <source>On structure.</source>
-        <target>We frame.</target>
-      </trans-unit>
-      <trans-unit id="home.heroStory.beat3" datatype="html">
-        <source>On couvre.</source>
-        <target>We cover.</target>
-      </trans-unit>
-      <trans-unit id="home.heroStory.beat4" datatype="html">
-        <source> Protégé tout l&apos;hiver. </source>
-        <target> Protected all winter. </target>
-      </trans-unit>
       <trans-unit id="home.hero.badge" datatype="html">
         <source>Représentant officiel Tempo — Outaouais</source>
         <target>Official Tempo Representative — Outaouais</target>
@@ -2015,10 +1999,6 @@
       <trans-unit id="navbar.login" datatype="html">
         <source>Connexion</source>
         <target>Sign in</target>
-      </trans-unit>
-      <trans-unit id="navbar.register" datatype="html">
-        <source>S&apos;inscrire</source>
-        <target>Sign up</target>
       </trans-unit>
       <trans-unit id="navbar.profile" datatype="html">
         <source>Mon profil</source>

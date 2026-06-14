@@ -1177,74 +1177,74 @@
         <source>Confirmer la suppression</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
-          <context context-type="linenumber">281,283</context>
+          <context context-type="linenumber">282,284</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.delete.message" datatype="html">
         <source>Voulez-vous vraiment supprimer ce produit ?</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
-          <context context-type="linenumber">283,284</context>
+          <context context-type="linenumber">284,285</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.delete.confirm" datatype="html">
         <source> Supprimer </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
-          <context context-type="linenumber">288,290</context>
+          <context context-type="linenumber">289,291</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.delete.cancel" datatype="html">
         <source> Annuler </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.html</context>
-          <context context-type="linenumber">291,293</context>
+          <context context-type="linenumber">292,294</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.toast.loadError" datatype="html">
         <source>Échec du chargement.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.ts</context>
-          <context context-type="linenumber">79</context>
+          <context context-type="linenumber">103</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.ts</context>
-          <context context-type="linenumber">92</context>
+          <context context-type="linenumber">116</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.toast.updated" datatype="html">
         <source>Produit mis à jour.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.ts</context>
-          <context context-type="linenumber">162</context>
+          <context context-type="linenumber">186</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.toast.created" datatype="html">
         <source>Produit créé.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.ts</context>
-          <context context-type="linenumber">176</context>
+          <context context-type="linenumber">200</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.toast.saveError" datatype="html">
         <source>Une erreur est survenue. Veuillez réessayer.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.ts</context>
-          <context context-type="linenumber">198</context>
+          <context context-type="linenumber">222</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.toast.deleted" datatype="html">
         <source>Produit supprimé.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.ts</context>
-          <context context-type="linenumber">218</context>
+          <context context-type="linenumber">245</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.toast.deleteError" datatype="html">
         <source>La suppression a échoué.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/products/products.ts</context>
-          <context context-type="linenumber">227</context>
+          <context context-type="linenumber">258</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.rentals.eyebrow" datatype="html">
@@ -2159,123 +2159,95 @@
           <context context-type="linenumber">162</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="home.heroStory.beat1" datatype="html">
-        <source>On ancre.</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/home/hero-story/hero-story.html</context>
-          <context context-type="linenumber">54,55</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="home.heroStory.beat2" datatype="html">
-        <source>On structure.</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/home/hero-story/hero-story.html</context>
-          <context context-type="linenumber">55,56</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="home.heroStory.beat3" datatype="html">
-        <source>On couvre.</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/home/hero-story/hero-story.html</context>
-          <context context-type="linenumber">56,57</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="home.heroStory.beat4" datatype="html">
-        <source> Protégé tout l&apos;hiver. </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/home/hero-story/hero-story.html</context>
-          <context context-type="linenumber">58,62</context>
-        </context-group>
-      </trans-unit>
       <trans-unit id="home.hero.badge" datatype="html">
         <source>Représentant officiel Tempo — Outaouais</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/hero-story/hero-story.html</context>
-          <context context-type="linenumber">66,69</context>
+          <context context-type="linenumber">13,16</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.hero.title" datatype="html">
         <source>Protégez votre véhicule</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/hero-story/hero-story.html</context>
-          <context context-type="linenumber">70,71</context>
+          <context context-type="linenumber">17,18</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.hero.titleAccent" datatype="html">
         <source>toute l&apos;année</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/hero-story/hero-story.html</context>
-          <context context-type="linenumber">71,74</context>
+          <context context-type="linenumber">18,21</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.hero.subtitle" datatype="html">
         <source> Vente, location et installation d&apos;abris d&apos;auto Tempo de qualité. Livraison partout en Outaouais — service local et personnalisé. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/hero-story/hero-story.html</context>
-          <context context-type="linenumber">75,79</context>
+          <context context-type="linenumber">22,26</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.hero.catalogAria" datatype="html">
         <source>Voir notre catalogue d&apos;abris</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/hero-story/hero-story.html</context>
-          <context context-type="linenumber">83,84</context>
+          <context context-type="linenumber">30,31</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.hero.catalogCta" datatype="html">
         <source>Voir le catalogue</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/hero-story/hero-story.html</context>
-          <context context-type="linenumber">86,88</context>
+          <context context-type="linenumber">33,35</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.hero.installAria" datatype="html">
         <source>Réserver une installation à domicile</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/hero-story/hero-story.html</context>
-          <context context-type="linenumber">103,104</context>
+          <context context-type="linenumber">50,51</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.hero.installCta" datatype="html">
         <source> Réserver une installation </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/hero-story/hero-story.html</context>
-          <context context-type="linenumber">107,111</context>
+          <context context-type="linenumber">54,58</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.hero.statsAria" datatype="html">
         <source>Chiffres clés</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/hero-story/hero-story.html</context>
-          <context context-type="linenumber">115,116</context>
+          <context context-type="linenumber">62,63</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.hero.stat1" datatype="html">
         <source>Abris installés</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/hero-story/hero-story.html</context>
-          <context context-type="linenumber">120,122</context>
+          <context context-type="linenumber">67,69</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.hero.stat2Number" datatype="html">
         <source>15 ans</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/hero-story/hero-story.html</context>
-          <context context-type="linenumber">124,125</context>
+          <context context-type="linenumber">71,72</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.hero.stat2" datatype="html">
         <source>D&apos;expérience</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/hero-story/hero-story.html</context>
-          <context context-type="linenumber">125,127</context>
+          <context context-type="linenumber">72,74</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.hero.stat3" datatype="html">
         <source>Clients satisfaits</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/home/hero-story/hero-story.html</context>
-          <context context-type="linenumber">130,132</context>
+          <context context-type="linenumber">77,79</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.services.eyebrow" datatype="html">
@@ -4293,7 +4265,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">302,304</context>
+          <context context-type="linenumber">301,303</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.rental" datatype="html">
@@ -4308,7 +4280,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">305,308</context>
+          <context context-type="linenumber">304,307</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.install" datatype="html">
@@ -4323,7 +4295,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">308,311</context>
+          <context context-type="linenumber">307,310</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.account" datatype="html">
@@ -4334,7 +4306,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">335,336</context>
+          <context context-type="linenumber">328,329</context>
         </context-group>
       </trans-unit>
       <trans-unit id="footer.legalNavAria" datatype="html">
@@ -4394,7 +4366,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">311,315</context>
+          <context context-type="linenumber">310,314</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.admin" datatype="html">
@@ -4422,68 +4394,57 @@
         <source>Connexion</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">170,171</context>
+          <context context-type="linenumber">170,173</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">322,324</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="navbar.register" datatype="html">
-        <source>S&apos;inscrire</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">171,174</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">328,330</context>
+          <context context-type="linenumber">321,323</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.profile" datatype="html">
         <source>Mon profil</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">224,226</context>
+          <context context-type="linenumber">223,225</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.myOrders" datatype="html">
         <source>Mes commandes</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">233,235</context>
+          <context context-type="linenumber">232,234</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.myReservations" datatype="html">
         <source>Mes réservations</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">242,244</context>
+          <context context-type="linenumber">241,243</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.logout" datatype="html">
         <source> Déconnexion </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">254,255</context>
+          <context context-type="linenumber">253,254</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">337,339</context>
+          <context context-type="linenumber">330,332</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.mobileMenuAria" datatype="html">
         <source>Menu mobile</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">294,295</context>
+          <context context-type="linenumber">293,294</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.home" datatype="html">
         <source>Accueil</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">299,301</context>
+          <context context-type="linenumber">298,300</context>
         </context-group>
       </trans-unit>
       <trans-unit id="skipNav.link" datatype="html">
