@@ -290,13 +290,20 @@ locales d'`orders.scss`/`products.scss` ; aligner le nommage sur le global (`--s
 
 ### Tableau récapitulatif — passe fraîche F2
 
-| # | Surface | Constat | Sévérité | Reco clé |
-|---|---------|---------|:--------:|----------|
-| F2-A | Admin /products | Dialogue de suppression sans gestion du focus (incohérent vs bookings/rentals) | **3** | Reprendre le pattern focus-géré (ouverture/piège/retour) + test clavier |
-| F2-B | `/mesurer` | Adresse manuelle → carte sur défaut Gatineau sans avertir | 2 | Indice « non localisé » + inciter la suggestion / géocoder au submit |
-| F2-C | Admin | `.btn--small`/`.btn--danger` dupliquées ×3 + divergence `--sm` | 1–2 | Une seule définition partagée + aligner le nommage |
+| # | Surface | Constat | Sévérité | Reco clé | État |
+|---|---------|---------|:--------:|----------|:----:|
+| F2-A | Admin /products | Dialogue de suppression sans gestion du focus (incohérent vs bookings/rentals) | **3** | Reprendre le pattern focus-géré (ouverture/piège/retour) + test clavier | ✅ corrigé |
+| F2-B | `/mesurer` | Adresse manuelle → carte sur défaut Gatineau sans avertir | 2 | Indice « non localisé » + inciter la suggestion / géocoder au submit | ouvert |
+| F2-C | Admin | `.btn--small`/`.btn--danger` dupliquées ×3 + divergence `--sm` | 1–2 | Une seule définition partagée + aligner le nommage | ouvert |
 
 **Lecture d'ensemble** : les surfaces nouvelles sont **globalement saines** (le système de design
 tokenisé, les patrons APG et la discipline focus des Épics C→E paient). **Un seul majeur (3)** : un
 oubli ponctuel de focus géré sur le dialogue admin/products — corrigeable en réutilisant le pattern
 déjà présent dans deux écrans admin voisins. Aucun catastrophique (4).
+
+**Remédiation F2-A livrée (2026-06-14).** `admin/products` aligné sur `admin/bookings`/`admin/rentals` :
+`effect()` qui déplace le focus dans l'`alertdialog` à l'ouverture (focus piégé, Échap opérant), retour
+du focus au bouton « Supprimer » déclencheur à l'annulation/erreur, et focus sur le titre de la liste
+**après le rendu** (L-006) quand la ligne supprimée disparaît du DOM. 3 tests vitest ajoutés
+(ouverture→dialogue, annulation→déclencheur, confirmation→titre — assertions `toHaveFocus()`).
+F2-B et F2-C restent **ouverts** (mineurs, candidats de suivi).

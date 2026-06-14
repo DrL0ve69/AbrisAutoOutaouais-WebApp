@@ -199,7 +199,7 @@
 
       <!-- ===== Liste des produits ===== -->
       <section class="adminp__panel" aria-labelledby="adminp-list-heading">
-        <h2 id="adminp-list-heading" i18n="@@admin.products.list.heading">Produits du catalogue</h2>
+        <h2 #listHeading tabindex="-1" id="adminp-list-heading" i18n="@@admin.products.list.heading">Produits du catalogue</h2>
 
         @if (loading()) {
           <output class="adminp__status" i18n="@@admin.products.list.loading">Chargement…</output>
@@ -249,7 +249,7 @@
                       <button
                         type="button"
                         class="btn btn--small btn--danger"
-                        (click)="askDelete(p.id)"
+                        (click)="askDelete(p.id, $event)"
                         [attr.aria-label]="'Supprimer ' + p.name"
                       >
                         <span i18n="@@admin.products.table.delete">Supprimer</span>
@@ -269,6 +269,7 @@
   @if (pendingDeleteId(); as delId) {
     <div class="adminp__overlay" (click)="cancelDelete()" (keydown.escape)="cancelDelete()">
       <div
+        #delDialog
         class="adminp__dialog"
         role="alertdialog"
         aria-modal="true"
