@@ -1,15 +1,42 @@
 # Program status — pointeur de reprise
 
-> **But.** Fichier de reprise unique pour le programme « Compléter + Adresse + Mesurer + Redesign 10k ».
-> Quand une session redémarre (gestion du contexte), dis simplement **« continue la prochaine tâche »**
-> ou lance **`/next-task`** : l'assistant lit ce fichier + le plan, vérifie l'état git, puis enchaîne.
+> **But.** Fichier de reprise unique. Quand une session redémarre (gestion du contexte), dis
+> simplement **« continue la prochaine tâche »** ou lance **`/next-task`** : l'assistant lit ce
+> fichier + le plan actif, vérifie l'état git, puis enchaîne.
 >
-> **Plan complet (6 épics A→F) :** `C:\Users\phili\.claude\plans\1-i-want-you-glistening-barto.md`
+> **🟢 Programme ACTIF — Programme G (corrections post-navigation locale, épics A→H) :**
+> `C:\Users\phili\.claude\plans\majestic-soaring-sprout.md`
+> **Programme précédent (terminé, A→F) :** `C:\Users\phili\.claude\plans\1-i-want-you-glistening-barto.md`
 > Maintiens ce pointeur à jour à la fin de chaque sous-tâche (c'est ce que l'assistant relit).
 
 ---
 
-## Curseur courant
+## 🟢 Programme G — curseur ACTIF
+
+> Plan : `majestic-soaring-sprout.md`. Ordre : A (contraste) → B (curseur) → C (langue locale) →
+> D (adresse) → E (premier utilisateur) → F (invité) → G (catalogue/fit) → H (déploiement manuel).
+> Flow par sous-tâche : `/feature-cycle` (architect→dev→reviewer→mentor), commit local ; fin d'épic :
+> review → PR → CI verte → merge `master`.
+
+| Épic | Sujet | État |
+|------|-------|------|
+| **A** | Contraste & lisibilité boutons (`.btn--primary` texte invisible en sombre) | **🔵 EN COURS — prochaine sous-tâche** |
+| B | Curseur custom : point + anneau magnétique | ⚪ à faire |
+| C | Bascule langue (EN) en local (serveur localisé dev) | ⚪ à faire |
+| D | Système d'adresse unifié (champ unique intelligent) + zone 100 km | ⚪ à faire |
+| E | Parcours premier utilisateur (register→profil ; alerte adresse) | ⚪ à faire |
+| F | Accès invité (compte express silencieux à la confirmation) | ⚪ à faire |
+| G | Catalogue marques/modèles + dimensions (installation & fit mesurer) | ⚪ à faire |
+| H | Déploiement (région SWA Canada + backend) — **manuel utilisateur** | ⚪ à faire |
+
+**Décisions utilisateur figées** : adresse = **champ unique intelligent** → champs structurés
+éditables ; curseur = **point + anneau magnétique** ; invité = **compte express silencieux**
+(clé courriel, sans mot de passe) créé **à la confirmation**, coordonnées+adresse saisies seulement
+à ce moment → `CustomerId` réel partout.
+
+---
+
+## Curseur courant (Programme A→F — TERMINÉ, conservé pour traçabilité)
 
 - **🎉 PROGRAMME TERMINÉ (Épics A→F tous mergés vers `master`).** **Épic F mergé — PR #19 (`62e6981`)**, branche `docs/program-wrapup` supprimée, CI verte (Backend / Frontend / Build & Deploy / Sonar). *(1 flake CI confirmé : `webgl.util.spec` — mock pur déterministe — a échoué une fois sur un hoquet vite « dependency scan failed » ; re-run vert, L-017.)* Revue indépendante APPROVE WITH NITS (nits clôturés `5adb1f3`), L-018 capturée. Il ne reste **aucune sous-tâche de programme**.
 - **✅ F2-B + F2-C livrés et MERGÉS vers `master` (2026-06-14).** **PR #21 mergée (`5665677`)**, branche `fix/f2-heuristics-followup` supprimée, **CI verte** (Backend / Frontend+axe / Build & Deploy / SonarCloud). Revue indépendante **APPROVE WITH NITS** (nits clôturés), gates verts (`npm test` 202, `build:prod` 499,71 kB, e2e contraste dual-thème du bouton danger OK clair+sombre). Leçons **L-019**/**L-020** capturées.

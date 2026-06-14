@@ -11,6 +11,39 @@
 
 ---
 
+## L-023 · A global `a:visited`/`a:hover` rule overrides `.btn--primary` on anchor-buttons — and a `:visited`-only contrast bug is INVISIBLE to axe/wave by design
+
+- **Symptom.** G-A: primary CTAs styled as anchors (`<a class="btn btn--primary">` on the home hero
+  and empty cart) rendered with illegible/invisible text — the user reported « le texte ne s'affiche
+  pas » and suspected a z-index issue, yet axe AND wave (run manually) both passed, so it looked like
+  a non-issue to tooling. Two compounding causes (both fixed). (1) `.btn--primary` used
+  `color: var(--color-text-inverse)`, a **theme-SWAPPING** token that resolves to dark navy `#0f1923`
+  in dark mode over the dark-theme primary background `#f87171` (light red). (2) The decisive one: the
+  **global `a:visited` / `a:hover` rules** (specificity 0,1,1) **override** `.btn--primary`'s `color`
+  (specificity 0,1,0) on anchor-styled buttons. Once the user had visited `/boutique`, the CTA text
+  took `--color-link-hover` — `#991b1b` (dark red, barely visible on red) in light theme and `#f87171`
+  (**identical** to the red button background → fully invisible) in dark theme. Tooling missed it
+  because `:visited` styles are **not readable via `getComputedStyle`** (browser privacy returns the
+  unvisited color), so axe/wave/Playwright color reads are **structurally blind** to a `:visited`-only
+  regression — a vacuity cousin of [[L-016]] (contrast off in vitest) / [[L-009]] (assertion that
+  cannot fire).
+- **Rule.** (a) **Scope global link-color rules to `a:not(.btn)`** so anchors styled as buttons never
+  inherit `:link`/`:visited`/`:hover` link colors — a class selector (0,1,0) always loses to
+  `a:visited` (0,1,1), so an unscoped link rule silently wins on every `<a class="btn">`. (b) Style
+  brand CTAs with **theme-FIXED** tokens (`--color-red-600/700` bg + `--color-on-brand` white text),
+  never theme-SWAPPING ones (`--color-primary` / `--color-text-inverse`) — mirror `.btn--danger` /
+  `.cta-banner` / `--gradient-brand`, which are correct precisely because they don't flip per theme.
+  (c) Know that a `:visited`-only contrast regression **cannot** be caught by axe/vitest/Playwright
+  color reads (privacy): verify it with a **live visual round-trip in BOTH themes after marking the
+  target visited** ([[L-001]]), and **document the limitation honestly** in any regression guard — the
+  guard can only assert the unvisited/token half (same honesty bar as [[L-016]]). The right fix lives
+  in the **global** stylesheet, not a per-component patch (cousin of [[L-020]]: get the rule onto the
+  element that actually wins by specificity).
+- **Refs.** `src/AbrisAutoOutaouais-WebApp.Client/src/styles.scss` (`a:not(.btn)` scoping +
+  `.btn--primary` fixed-brand tokens), `e2e/button-contrast.spec.ts` (regression guard + honest
+  `:visited` disclaimer), `src/.../_tokens.scss` (`--color-red-600/700`, `--color-on-brand`),
+  branch `fix/epic-a-button-contrast`.
+
 ## L-022 · Container Apps : migration EF au démarrage OFF par défaut (sinon InMemory casse les tests), et le flag forwarded-headers évite la boucle 307 sans code
 
 - **Symptom.** Préparation du déploiement backend sur Azure Container Apps. Deux pièges. (a) Une
