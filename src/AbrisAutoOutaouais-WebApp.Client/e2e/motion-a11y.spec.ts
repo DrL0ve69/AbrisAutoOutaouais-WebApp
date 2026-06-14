@@ -105,7 +105,7 @@ test.describe('Mouvement réduit (prefers-reduced-motion: reduce)', () => {
     await mockApi(page);
   });
 
-  test('Accueil : hero figé (pas d’épinglage GSAP, data-motion=reduced) + cursor-ring inactif', async ({
+  test('Accueil : hero statique (aucun épinglage au défilement) + cursor-ring inactif', async ({
     page,
   }) => {
     await page.goto('/');
@@ -115,19 +115,17 @@ test.describe('Mouvement réduit (prefers-reduced-motion: reduce)', () => {
       page.getByRole('heading', { level: 1, name: /protégez votre véhicule/i }),
     ).toBeVisible();
 
-    // (2) Hero figé. POSITIF : le composant hero est présent et reflète son hook E5 `data-motion`.
+    // (2) Hero statique. POSITIF : le composant hero est présent et visible.
     const hero = page.locator('app-hero-story');
     await expect(hero).toBeVisible();
-    await expect(hero).toHaveAttribute('data-motion', 'reduced');
 
-    // NÉGATIF : aucun épinglage GSAP (ScrollTrigger pin) → aucun `.pin-spacer` injecté.
+    // NÉGATIF : plus aucune animation au défilement → aucun `.pin-spacer` injecté.
     await expect(page.locator('.pin-spacer')).toHaveCount(0);
 
-    // Défiler ne doit RIEN épingler ni scrubber : on reste sans pin-spacer après scroll.
+    // Défiler ne doit RIEN épingler : on reste sans pin-spacer après scroll, hero monté.
     await page.evaluate(() => window.scrollTo(0, 1200));
     await expect(page.locator('.pin-spacer')).toHaveCount(0);
-    // Le hero reste monté et figé (data-motion inchangé).
-    await expect(hero).toHaveAttribute('data-motion', 'reduced');
+    await expect(hero).toBeVisible();
 
     // (3) Cursor-ring inactif : le composant reste MONTÉ (positif) mais son anneau n'apparaît
     //     jamais, même après un déplacement du pointeur (négatif — on n'asserte QUE le comportement).
