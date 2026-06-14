@@ -6,7 +6,7 @@
         <source>Langue changée : <x id="label" equiv-text="label"/></source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/core/services/locale.service.ts</context>
-          <context context-type="linenumber">124</context>
+          <context context-type="linenumber">137</context>
         </context-group>
       </trans-unit>
       <trans-unit id="account.back" datatype="html">
@@ -3836,21 +3836,21 @@
         <source>Chargement des produits…</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/catalog/catalog.html</context>
-          <context context-type="linenumber">105,106</context>
+          <context context-type="linenumber">106,107</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.catalog.emptySearch" datatype="html">
         <source> Aucun produit ne correspond à votre recherche. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/catalog/catalog.html</context>
-          <context context-type="linenumber">137,139</context>
+          <context context-type="linenumber">138,140</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.catalog.empty" datatype="html">
         <source> Aucun produit dans cette catégorie pour le moment. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/catalog/catalog.html</context>
-          <context context-type="linenumber">141,143</context>
+          <context context-type="linenumber">142,144</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.catalog.resultsNone" datatype="html">
@@ -4272,7 +4272,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">301,303</context>
+          <context context-type="linenumber">321,323</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.rental" datatype="html">
@@ -4287,7 +4287,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">304,307</context>
+          <context context-type="linenumber">324,327</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.install" datatype="html">
@@ -4302,7 +4302,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">307,310</context>
+          <context context-type="linenumber">327,330</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.account" datatype="html">
@@ -4313,7 +4313,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">328,329</context>
+          <context context-type="linenumber">348,349</context>
         </context-group>
       </trans-unit>
       <trans-unit id="footer.legalNavAria" datatype="html">
@@ -4373,7 +4373,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">310,314</context>
+          <context context-type="linenumber">330,334</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.admin" datatype="html">
@@ -4387,71 +4387,82 @@
         <source>Passer en anglais</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">84,85</context>
+          <context context-type="linenumber">95,96</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.langToFr" datatype="html">
         <source>Passer en français</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">95,96</context>
+          <context context-type="linenumber">110,111</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="navbar.langUnavailable" datatype="html">
+        <source>Disponible uniquement dans la version localisée (build bilingue).</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
+          <context context-type="linenumber">119,122</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.ts</context>
+          <context context-type="linenumber">58</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.login" datatype="html">
         <source>Connexion</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">170,173</context>
+          <context context-type="linenumber">190,193</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">321,323</context>
+          <context context-type="linenumber">341,343</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.profile" datatype="html">
         <source>Mon profil</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">223,225</context>
+          <context context-type="linenumber">243,245</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.myOrders" datatype="html">
         <source>Mes commandes</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">232,234</context>
+          <context context-type="linenumber">252,254</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.myReservations" datatype="html">
         <source>Mes réservations</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">241,243</context>
+          <context context-type="linenumber">261,263</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.logout" datatype="html">
         <source> Déconnexion </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">253,254</context>
+          <context context-type="linenumber">273,274</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">330,332</context>
+          <context context-type="linenumber">350,352</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.mobileMenuAria" datatype="html">
         <source>Menu mobile</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">293,294</context>
+          <context context-type="linenumber">313,314</context>
         </context-group>
       </trans-unit>
       <trans-unit id="navbar.home" datatype="html">
         <source>Accueil</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/layout/navbar/navbar.html</context>
-          <context context-type="linenumber">298,300</context>
+          <context context-type="linenumber">318,320</context>
         </context-group>
       </trans-unit>
       <trans-unit id="skipNav.link" datatype="html">

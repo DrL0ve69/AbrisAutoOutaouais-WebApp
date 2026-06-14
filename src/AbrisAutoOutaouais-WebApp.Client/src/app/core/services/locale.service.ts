@@ -7,6 +7,7 @@ import {
   PLATFORM_ID,
   signal,
 } from '@angular/core';
+import { environment } from '../../../environments/environment';
 
 export type AppLocale = 'fr' | 'en';
 
@@ -64,6 +65,15 @@ export class LocaleService {
   readonly other = computed<AppLocale>(() => (this.current() === 'fr' ? 'en' : 'fr'));
 
   /**
+   * Vrai quand le build sert RÉELLEMENT les deux locales (prod/staging localisés),
+   * faux en dev mono-locale (`ng serve`, seul le français existe). Drapeau injecté
+   * au build via `environment` (import statique → SSR-safe, aucun accès `window`).
+   * Quand il est faux, la bascule de langue est un no-op et le bouton est dégradé
+   * (annoncé indisponible) plutôt que de rediriger silencieusement vers l'accueil fr.
+   */
+  readonly localized = computed(() => environment.localized);
+
+  /**
    * Confirmation de changement de langue, annoncée via une région `aria-live`
    * (H1). Vide en temps normal ; renseignée une seule fois au chargement qui
    * suit une bascule, puis remise à vide.
@@ -86,6 +96,9 @@ export class LocaleService {
    * un marqueur sessionStorage pour annoncer la confirmation après rechargement.
    */
   switchTo(lang: AppLocale): void {
+    // Build mono-locale (dev) : aucune cible localisée à servir → no-op. On ne
+    // touche PAS `location.href` (sinon repli SPA = redirection vers l'accueil fr).
+    if (!this.localized()) return;
     if (!isPlatformBrowser(this.platform) || lang === this.current()) return;
     try {
       this.document.defaultView!.sessionStorage.setItem(PENDING_SWITCH_KEY, lang);

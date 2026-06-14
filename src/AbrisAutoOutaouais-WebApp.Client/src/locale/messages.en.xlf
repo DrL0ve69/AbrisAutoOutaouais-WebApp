@@ -1185,6 +1185,10 @@
         <source>Passer en français</source>
         <target>Switch to French</target>
       </trans-unit>
+      <trans-unit id="navbar.langUnavailable" datatype="html">
+        <source>Disponible uniquement dans la version localisée (build bilingue).</source>
+        <target>Available only in the localized (bilingual) build.</target>
+      </trans-unit>
       <trans-unit id="skipNav.link" datatype="html">
         <source> Aller au contenu principal
 </source>

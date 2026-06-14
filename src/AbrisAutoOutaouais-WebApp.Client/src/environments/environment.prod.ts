@@ -6,4 +6,7 @@
 export const environment = {
   production: true,
   apiUrl: 'https://REMPLACER-PAR-LE-FQDN-CONTAINERAPP/api/v1',
+  // Build localisé (`localize: true`) : les deux langues sont servies (fr « / », en « /en/ »).
+  // La bascule de langue est donc pleinement active.
+  localized: true,
 } as const;

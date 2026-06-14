@@ -29,11 +29,14 @@ dotnet test --filter "DisplayName~returns_404"                               # s
 
 # Frontend (from src/AbrisAutoOutaouais-WebApp.Client)
 npm install
-npm start              # ng serve --host=127.0.0.1 → http://localhost:4200
+npm start              # ng serve --host=127.0.0.1 → http://localhost:4200 (FR only, mono-locale)
+npm run dev:i18n       # build bilingue + hôte local (FR « / » + EN « /en/ ») → tester les 2 langues
 npm test               # vitest run
 npm run build:prod     # production build (SSR)
 npm run i18n:extract   # extract i18n strings → src/locale (xlf)
 ```
+
+> `npm start` ne sert que le **français** (i18n compile-time) : le bouton « EN » de la navbar y est volontairement **dégradé** (focusable mais annoncé indisponible). Pour exercer la **bascule de langue** en local, lance `npm run dev:i18n` (= `build:i18n` + `serve-i18n.mjs`, fr à `/`, en à `/en/`) — l'équivalent dev du démarrage prod bilingue.
 
 ### EF Core migrations — single context
 

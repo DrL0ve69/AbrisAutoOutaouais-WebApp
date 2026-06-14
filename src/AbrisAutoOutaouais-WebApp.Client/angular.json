@@ -103,6 +103,7 @@
             "staging": {
               "optimization": true,
               "outputHashing": "all",
+              "localize": true,
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
