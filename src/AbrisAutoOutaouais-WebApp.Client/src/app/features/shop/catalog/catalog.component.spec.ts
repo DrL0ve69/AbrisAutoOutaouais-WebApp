@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/angular';
 import { userEvent } from '@testing-library/user-event';
 import { provideRouter } from '@angular/router';
 import { describe, it, expect, vi } from 'vitest';
-import { of } from 'rxjs';
+import { NEVER, of } from 'rxjs';
 import { registerLocaleData } from '@angular/common';
 import localeFrCa from '@angular/common/locales/fr-CA';
 import { CatalogComponent } from './catalog';
@@ -94,6 +94,28 @@ describe('CatalogComponent', () => {
     expect(getProducts).toHaveBeenLastCalledWith(
       expect.objectContaining({ category: 'toiles-remplacement' }),
     );
+  });
+
+  it("annonce le chargement sans violation axe (grille role=status)", async () => {
+    // `getProducts` n'émet jamais → `loading()` reste vrai : la grille squelette
+    // (aria-busy + aria-label) est rendue. Sans `role`, axe lève `aria-prohibited-attr`
+    // (aria-label interdit sur un <div> générique) — la garde verrouille le `role="status"`.
+    const serviceStub: Partial<ProductService> = {
+      getCategories: () => of(categories),
+      getProducts: () => NEVER,
+    };
+
+    const { container } = await render(CatalogComponent, {
+      providers: [
+        provideRouter([]),
+        { provide: ProductService, useValue: serviceStub },
+      ],
+    });
+
+    const loadingGrid = container.querySelector('.catalog__grid[aria-busy="true"]');
+    expect(loadingGrid).not.toBeNull();
+    expect(loadingGrid).toHaveAttribute('role', 'status');
+    await expectNoA11yViolations(container);
   });
 
   it('ne présente aucune violation WCAG A/AA (axe)', async () => {
