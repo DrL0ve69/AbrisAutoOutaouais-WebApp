@@ -217,3 +217,86 @@ patrons de champ/bouton réutilisés.
 
 **Tous les constats heuristiques (H1–H10) sont désormais remédiés.**
 Vérification : `dotnet test` (UT 106 / IT 59) ✅, `npm test` 100 (zéro violation axe) ✅, `npm run e2e` 48 ✅.
+
+---
+
+## Passe heuristique fraîche (2026-06-14) — Épic F / F2
+
+> **Périmètre nouveau** (livré par les Épics C→E, non couvert par la passe H1–H10 d'origine) :
+> autocomplétion d'adresse (`shared/components/a11y-components/autocomplete`), outil **`/mesurer`**
+> (`features/mesurer/*`), **administration** (`features/admin/*`), et redesign v2
+> (`features/home/hero-story`, micro-interactions, viewer 3D). Même méthode/échelle Nielsen-Molich.
+> Constats vérifiés contre le code réel (composant cité). Cette passe **documente** ; les correctifs
+> sont listés comme recommandations (suivi possible en remédiation dédiée).
+
+### F2-A — Admin : dialogue de suppression sans gestion du focus *(H3 — Contrôle & liberté)*
+
+**Constat.** `features/admin/products/products.html` ouvre une confirmation `role="alertdialog"`
+`aria-modal="true"` correcte **mais** `products.ts` ne **déplace jamais le focus** dans le dialogue à
+l'ouverture et ne le **renvoie pas** au bouton déclencheur à la fermeture (0 occurrence de `.focus()`/
+`viewChild`/`afterNextRender`). Conséquence : au clavier, le focus reste sur la ligne du tableau
+*derrière* l'overlay, et le `(keydown.escape)` posé sur le `<div>` du dialogue **ne peut pas se
+déclencher** (le focus n'y est jamais entré) → pas de fermeture clavier, pas de piège de focus.
+**Incohérence interne** : `admin/bookings` et `admin/rentals` gèrent correctement le focus de leur
+dialogue (pattern L-006) — seul `admin/products` a manqué le geste.
+
+**Sévérité : 3 (majeur)** — WCAG 2.4.3 (Focus Order) / APG *Modal Dialog*. Staff-only (trafic faible)
+mais c'est la barre dure du projet.
+**Recommandation** : reprendre le pattern de `bookings/rentals` — focus sur le dialogue à l'ouverture
+(`effect()` lisant un `viewChild` du dialogue, focus **après rendu** L-006), piège de focus tant qu'il
+est ouvert, renvoi au déclencheur mémorisé à la fermeture. Ajouter un test clavier (Échap ferme +
+`toHaveFocus()` sur le déclencheur).
+
+### F2-B — `/mesurer` : adresse tapée à la main → carte centrée sur un défaut, sans avertir *(H2/H5)*
+
+**Constat.** `address-step.ts submit()` autorise la poursuite avec `lat/lng = null` (l'utilisateur tape
+une adresse sans **choisir** une suggestion d'autocomplétion). Or le texte d'intro promet « *Choisissez
+une suggestion pour situer la carte satellite* ». À l'étape 2, si l'utilisateur choisit « Mesurer sur la
+carte », `map-measure.ts` retombe **silencieusement** sur **Gatineau** (`45.4765, -75.7013`) — aucun
+message indiquant que l'adresse n'a pas été localisée. Risque de mesurer le **mauvais emplacement**.
+
+**Sévérité : 2 (mineur)** — atténué : le **calculateur** (méthode par défaut, clavier) ne dépend pas
+des coordonnées, et le défaut régional est sensé.
+**Recommandation** : quand `lat/lng` sont nuls, afficher un indice dans le placeholder/la carte
+(« Adresse non localisée précisément — déplacez la carte sur votre stationnement ») et/ou inciter à
+choisir une suggestion ; option : géocoder l'adresse tapée au submit.
+
+### F2-C — Admin : variantes de boutons dupliquées et divergentes du design system *(H4 — Cohérence)*
+
+**Constat.** `.btn--small` et `.btn--danger` sont **redéfinies trois fois** (`admin-shared.scss` **plus**
+`orders.scss` **plus** `products.scss`) et **divergent** du système global (`styles.scss` n'expose que
+`.btn--sm`, pas `.btn--small`). Dette de cohérence + duplication (les redéfinitions locales masquent la
+version partagée).
+
+**Sévérité : 1–2 (cosmétique→mineur)**.
+**Recommandation** : garder **une seule** définition (`admin-shared.scss`), supprimer les redéfinitions
+locales d'`orders.scss`/`products.scss` ; aligner le nommage sur le global (`--sm`) **ou** promouvoir
+`.btn--danger` au design system global s'il est réutilisé hors admin.
+
+### Surfaces saines confirmées (constats positifs)
+
+- **Autocomplétion** : combobox **APG complet** (`role="combobox"` + `aria-expanded`/`aria-controls`/
+  `aria-activedescendant`, `role="listbox"`/`option`, statut `aria-live` scopé L-010, `mousedown`+
+  `preventDefault` pour ne pas voler le focus). Rien à corriger.
+- **`/mesurer`** : stepper accessible (`<ol>` + `aria-current="step"`, annonce `role="status"`, focus
+  du titre d'étape post-rendu L-006), bascule de méthode **radiogroup APG** (roving tabindex + flèches,
+  L-015), carte lourde en `@defer` SSR-safe — le **calculateur clavier** est le repli de la carte
+  souris. Architecture solide.
+- **Admin** : sémantique de tableau exemplaire (`<caption>` SR-only, `scope="col"`/`scope="row"`),
+  champs étiquetés + erreurs `role="alert"`/`aria-describedby`, badges de disponibilité explicites.
+- **Redesign** : le hero a été **simplifié en section statique** cette session (`cf0bf64`, retrait du
+  récit GSAP épinglé) — défile normalement, contraste dual-thème vert (`motion-a11y.spec.ts`). Le
+  showcase « GSAP scroll-craft » est donc retiré (cf. F3 README).
+
+### Tableau récapitulatif — passe fraîche F2
+
+| # | Surface | Constat | Sévérité | Reco clé |
+|---|---------|---------|:--------:|----------|
+| F2-A | Admin /products | Dialogue de suppression sans gestion du focus (incohérent vs bookings/rentals) | **3** | Reprendre le pattern focus-géré (ouverture/piège/retour) + test clavier |
+| F2-B | `/mesurer` | Adresse manuelle → carte sur défaut Gatineau sans avertir | 2 | Indice « non localisé » + inciter la suggestion / géocoder au submit |
+| F2-C | Admin | `.btn--small`/`.btn--danger` dupliquées ×3 + divergence `--sm` | 1–2 | Une seule définition partagée + aligner le nommage |
+
+**Lecture d'ensemble** : les surfaces nouvelles sont **globalement saines** (le système de design
+tokenisé, les patrons APG et la discipline focus des Épics C→E paient). **Un seul majeur (3)** : un
+oubli ponctuel de focus géré sur le dialogue admin/products — corrigeable en réutilisant le pattern
+déjà présent dans deux écrans admin voisins. Aucun catastrophique (4).
