@@ -104,7 +104,14 @@ p {
 }
 
 // ── Liens ────────────────────────────────────────────────────
-a {
+// `:not(.btn)` — un lien stylé en BOUTON (`<a class="btn btn--primary">`, ex. CTA
+// accueil/panier) NE doit PAS hériter des couleurs de lien : `a:visited`/`a:hover`
+// ont une spécificité (0,1,1) qui BAT la classe `.btn--primary` (0,1,0), donc une
+// fois le lien visité, le texte du bouton prenait `--color-link-hover` (rouge sombre
+// #991b1b en clair → quasi illisible sur le rouge ; #f87171 en sombre → identique au
+// fond → INVISIBLE). C'était la vraie cause du « texte de bouton absent » signalé
+// (axe ne le voyait pas : il faut que le lien soit `:visited`). On exclut donc `.btn`.
+a:not(.btn) {
   color: var(--color-primary);
   text-decoration: underline;
   text-underline-offset: 3px;
@@ -261,17 +268,24 @@ select {
   }
 }
 
+// Action principale : bouton-marque PLEIN, rouge FIXE dans les deux thèmes (même
+// stratégie que `.cta-banner` / `--gradient-brand` / `.btn--danger`). On N'UTILISE
+// PAS `--color-primary` ni `--color-text-inverse`, qui BASCULENT par thème : en sombre
+// le fond devient #f87171 (rouge-lien clair) et le texte #0f1923 (navy) → texte foncé
+// invisible sur rouge clair (le bug signalé : CTA accueil/panier illisibles en sombre).
+// Rouge `red-600/700` FIXE + blanc fixe `--color-on-brand` : ≈5.9:1 (base) / ≈8.3:1
+// (hover) sur blanc ✅ WCAG AA, identique en clair ET sombre.
 .btn--primary {
-  background: var(--color-primary);
-  color: var(--color-text-inverse);
-  border-color: var(--color-primary);
+  background: var(--color-red-600);
+  color: var(--color-on-brand);
+  border-color: var(--color-red-600);
 
   &:hover:not(:disabled) {
-    background: var(--color-primary-dark);
-    border-color: var(--color-primary-dark);
+    background: var(--color-red-700);
+    border-color: var(--color-red-700);
     transform: translateY(-1px);
     box-shadow: var(--shadow-md);
-    color: var(--color-text-inverse);
+    color: var(--color-on-brand);
   }
 
   &:active:not(:disabled) {
