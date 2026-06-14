@@ -6,8 +6,27 @@ import AxeBuilder from '@axe-core/playwright';
 // dialogue de confirmation (role="alertdialog") qui capture le focus, retour du focus
 // sur le bouton déclencheur à la fermeture (WCAG 2.4.3), et l'appel réel
 // POST /api/v1/rentals/{id}/cancel à la confirmation. API simulée via page.route.
+//
+// CONTRASTE (F2-C) : la promotion globale de `.btn--danger` (styles.scss) rend ROUGE pour la 1re
+// fois le bouton « Confirmer l'annulation » de ce composant non-admin (template inline). Comme
+// `color-contrast` est désactivé en vitest (L-016), un test e2e DUAL-THÈME (couleurs réelles
+// composées) verrouille ce nouveau rendu rouge — voir le 2e test plus bas.
 
 const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
+
+/**
+ * Force le thème AVANT le 1er rendu via localStorage (même mécanisme que `motion-a11y.spec.ts`).
+ * `ThemeService` lit `abristempo-theme` à l'init et pose `html[data-theme]` ; on l'asserte avant axe.
+ */
+function forceTheme(page: Page, theme: 'light' | 'dark'): Promise<void> {
+  return page.addInitScript((t) => {
+    try {
+      localStorage.setItem('abristempo-theme', t);
+    } catch {
+      /* localStorage indisponible — ignoré */
+    }
+  }, theme);
+}
 
 const AUTH_USER = {
   id: '11111111-1111-1111-1111-111111111111',
@@ -40,6 +59,20 @@ async function signInWithRental(page: Page): Promise<void> {
     route.fulfill({ json: { ...AUTH_USER, defaultDeliveryAddress: null, preferredLanguage: 'fr' } }),
   );
   await page.route('**/api/v1/rentals/mine', (route) => route.fulfill({ json: [ACTIVE_RENTAL] }));
+}
+
+/**
+ * Navigue jusqu'à « Mes locations » DANS le SPA (clics) — /mon-compte/* est protégé par
+ * authGuard et le SSR n'a pas le localStorage, donc on part d'une page publique hydratée.
+ */
+async function gotoMesLocations(page: Page): Promise<void> {
+  await page.goto('/');
+  await page.getByRole('button', { name: /menu de/i }).click();
+  await page.getByRole('menuitem', { name: /mon profil/i }).click();
+  await expect(page).toHaveURL(/\/mon-compte\/profil$/);
+  await page.getByRole('link', { name: /mes locations/i }).click();
+  await expect(page).toHaveURL(/\/mon-compte\/locations$/);
+  await expect(page.getByText('Abri simple Tempo')).toBeVisible();
 }
 
 test.beforeEach(async ({ page }) => {
@@ -98,3 +131,36 @@ test('Mes locations — annulation accessible (focus + POST /cancel)', async ({ 
   await expect(page.getByText('Annulée')).toBeVisible();
   await expect(page.getByRole('button', { name: /annuler la location/i })).toHaveCount(0);
 });
+
+// ── Contraste DUAL-THÈME du bouton « Confirmer l'annulation » (.btn--danger, F2-C). ──────────
+// La promotion globale de `.btn--danger` rend ce bouton rouge (texte blanc sur #b91c1c ≈ 5.9:1)
+// pour la 1re fois sur un composant non-admin. `color-contrast` étant désactivé en vitest (L-016),
+// on le valide ICI sur les couleurs RÉELLES composées, dans les DEUX thèmes (clair + sombre — la
+// couleur de marque est fixe, mais le fond du dialogue bascule par thème, d'où le double scan).
+for (const theme of ['light', 'dark'] as const) {
+  test(`Annulation — contraste color-contrast du bouton danger ouvert (thème ${theme})`, async ({
+    page,
+  }) => {
+    await forceTheme(page, theme);
+    await gotoMesLocations(page);
+    await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+
+    // Ouvre la boîte de confirmation → le bouton rouge .btn--danger est rendu et scannable.
+    await page.getByRole('button', { name: /annuler la location/i }).click();
+    const dialog = page.getByRole('alertdialog');
+    await expect(dialog).toBeVisible();
+    const confirmer = page.getByRole('button', { name: /confirmer l.annulation/i });
+    await expect(confirmer).toBeVisible();
+
+    // Scan axe CIBLÉ color-contrast sur la page entière (couvre le bouton rouge ouvert, son
+    // hover #991b1b restant ≥ 4.5:1, et le reste du dialogue/contenu). Inclut explicitement la
+    // règle color-contrast (app réelle, styles globaux chargés — contrairement à vitest).
+    const results = await new AxeBuilder({ page })
+      .options({ runOnly: { type: 'rule', values: ['color-contrast'] } })
+      .analyze();
+    expect(
+      results.violations,
+      JSON.stringify(results.violations.map((v) => ({ id: v.id, nodes: v.nodes.length })), null, 2),
+    ).toEqual([]);
+  });
+}

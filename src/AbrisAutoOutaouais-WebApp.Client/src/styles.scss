@@ -371,9 +371,13 @@ select {
   font-size: var(--font-size-sm);
 }
 
-// Action destructive (suppression / annulation). Texte blanc sur --color-danger (#b91c1c ≈ 6.8:1
-// AA). Promu globalement depuis les mêmes 3 copies admin ; remplace aussi le `.btn--danger` qui
-// n'était jusqu'ici stylé nulle part pour `features/account/rentals` (qui l'utilisait déjà).
+// Action destructive (suppression / annulation). `--color-danger` n'est PAS un jeton sémantique
+// défini dans _tokens.scss : il n'existe nulle part, donc `var(--color-danger, …)` retombe TOUJOURS
+// sur le littéral de repli #b91c1c — une couleur de MARQUE rouge danger FIXE, identique en thème
+// clair et sombre (elle NE bascule PAS par thème). Texte blanc sur #b91c1c ≈ 5.9:1 sur blanc — AA OK
+// (> 4.5:1 ; cf. la table de jetons _tokens.scss). Promu globalement depuis les mêmes 3 copies admin ;
+// remplace aussi le `.btn--danger` qui n'était jusqu'ici stylé nulle part pour `features/account/rentals`
+// (qui l'utilisait déjà).
 .btn--danger {
   color: #fff;
   background: var(--color-danger, #b91c1c);
