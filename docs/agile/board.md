@@ -231,3 +231,23 @@ Branche `feat/epic-d-address-unified` (Épic D, suite de D1–D3). **D4** : la c
 
 > **Vérification** : `netstat` ports e2e propres (L-017) ✅ ; backend `dotnet test` **211 unit + 72 integration / 0 échec** (7 `GeoDistanceTests` + non-rejet hors-zone) ✅ ; `npm run build` (typecheck) ✅ ; `npm test` **234 / 0 échec** (service-area Haversine/seuil, address-step géocode mocké, measure-step avertissement) — zéro violation axe vitest (`color-contrast` non couvert, L-016) ✅ ; `npm run i18n:extract` — 2 nouveaux ids (`mesurer.address.geocoding`, `mesurer.address.outOfZone`) **symétriques** dans `messages.xlf` + `messages.en.xlf` (L-018), `build:i18n` bilingue OK ✅ ; `npm run e2e mesurer` **6 / 0 échec** — **D4 centrage capacité** via `window.ng.getComponent()` (lat/lng = valeurs géocodées, **pas** Gatineau, L-019) ; **D5 dual-thème** sur l'étape mesure (contraste de l'avertissement OK clair **et** sombre) + mesure jusqu'aux résultats non bloquée ✅.
 > **Suite** : revue indépendante `code-reviewer` → commit → PR → CI → merge. **Bug-09** : suivi ouvert (cycle dédié).
+
+---
+
+## ✅ Épic D — Système d'adresse unifié : CLÔTURÉ (2026-06-15)
+
+Branche `feat/epic-d-address-unified` — 3 commits (`240e46a` D1–D3, `6354645` D4–D5, `997feaf` D6). Boucle complète *architecte → développeur (1 à la fois) → revue indépendante `code-reviewer` à la frontière d'épic → mentor*. **Décisions utilisateur figées respectées** : champ adresse intelligent → champs structurés éditables ; deux choix d'adresse connecté (pastille profil **ou** parcours anonyme).
+
+| ID | Sous-tâche | Statut |
+|----|-----------|--------|
+| D1 | N° civique préservé quand la suggestion Photon n'en fournit pas (cascade `s.civicNumber \|\| parseCivicFromLabel(label) \|\| valeur saisie`) | ✅ |
+| D2 | Code postal : `applySuggestion` retourne `PostalFillResult` (`filled`/`unavailable`), court-circuit sans réseau si la suggestion porte déjà le code, feedback `aria-live` dans les 4 formulaires | ✅ |
+| D3 | Province/ville verrouillées par tests (province ≠ défaut + fallback QC) ; normalisation 2-lettres reste côté serveur (`CanadianProvinceCodes`), **aucune** whitelist (L-004 §C1) | ✅ |
+| D4 | Carte `/mesurer` centrée sur l'adresse géocodée (`PlacesService.geocode` + `invalidateSize`) — plus de repli silencieux sur Gatineau | ✅ |
+| D5 | Zone de service 100 km : avertissement **doux non bloquant** (`role="status"`) ; util client `service-area.util` + Domain `GeoDistance` **miroir** (L-007) ; test serveur de **non-rejet** | ✅ |
+| D6 | Composant partagé `app-address-choice` (pastille `role="group"` lecture seule **ou** bascule `<ng-content>` vers le parcours anonyme) câblé sur les 4 écrans ; focus post-rendu L-006 + `aria-live` scopée L-010 ; parcours anonyme strictement inchangé quand `profileAddress` est null | ✅ |
+
+> **Revue indépendante `code-reviewer`** (diff `master..HEAD`) : **APPROVE WITH NITS** — zéro Critical/Major ; miroir client↔serveur `45.4765/-75.7013/100` vérifié identique + verrou bilatéral ; warning non bloquant confirmé (aucun `RuleFor` distance) ; SOLID `GeoDistance` OK (pur Domain) ; focus L-006/live-region L-010/44px/dual-thème tenus. 2 nits optionnels non bloquants (setup de spec à resserrer ; duplication du câblage `addressMode` sur 4 écrans = dette future).
+> **Mentor** : **L-026** (wrapper `<ng-content>` derrière `@if/@else` masque les champs en mode pastille + route auth-gardée intestable anonymement) et **L-027** (live-region pilotée par signal ne ré-annonce pas une valeur identique → repasser par un état neutre) capturées ; **L-016** affûtée (composant à fond teinté → contraste vérifié en axe e2e dual-thème).
+> **Gates finales** : `npm run build` ✅ · `npm test` **244 / 0** ✅ · `npm run i18n:extract` (9 ids `address.*`/`mesurer.address.*` symétriques) ✅ · `npm run e2e` (address-choice 10 + régression dual-thème, 0 axe) ✅ · `dotnet test` **211 + 72 / 0** ✅.
+> **Suite** : PR `feat/epic-d-address-unified` → `master` → CI verte → merge (prod auto-déployée). **Reste ouvert** : Bug-09 (badge sombre, cycle dédié) ; **Épic E** (parcours premier utilisateur) = prochain épic du Programme G.
