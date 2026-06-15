@@ -118,6 +118,13 @@ non-trivial work through it (the `feature-cycle` skill / `/feature-cycle` runs t
   lessons in `.claude/rules/lessons-learned.md`. Subagents can't call each other — **you (the main
   thread) are the coordinator**: delegate each step in turn, and never let the implementer sign off
   on its own diff.
+- **Cost tiering — reasoning on Opus, mechanical on Sonnet** (full table in `.claude/README.md` §7):
+  `solution-architect` runs on **opus**, `feature-developer`/`code-reviewer` on **inherit** (keep the
+  review net strong), and the mechanical agents — **`mentor`** and **`git-ops`** — on **sonnet**.
+  Offload routine git/GitHub plumbing (commit, branch, PR, CI watch, status-doc sync) to the
+  **`git-ops`** subagent instead of spending main-thread tokens; it never edits product code and never
+  merges/force-pushes without an explicit instruction. Keep sessions cheap: `/compact` after
+  MCP-heavy or large-diff steps, `/clear` when switching tasks.
 - **`.claude/rules/lessons-learned.md` is required reading** — it's a list of mistakes not to repeat
   and is auto-injected each session by the `SessionStart` hook. Check changes against it.
 - **Hooks make the rules automatic:** `SessionStart` injects the lessons; `PostToolUse` reminds you,

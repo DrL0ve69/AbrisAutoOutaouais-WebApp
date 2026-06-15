@@ -25,12 +25,20 @@ L'utilisateur veut que tu enchaînes la prochaine tâche en attente. Procède ai
    systémique. Respecte `lessons-learned.md` (injecté au démarrage). Codebase en **français**, WCAG 2.2 AA.
    - *Économie de crédits (préférence utilisateur)* : un seul `feature-developer` à la fois ; revue
      complète aux **frontières d'épic** plutôt qu'à chaque sous-phase, sauf si l'utilisateur demande
-     la batterie complète.
+     la batterie complète. **Délègue la plomberie git (commit/PR/sync) à l'agent `git-ops` (Sonnet)**
+     plutôt que de la faire sur le fil principal (Opus) — voir étape 5. **Contexte** : la MCP
+     `angular-cli` et les gros diffs gonflent le contexte (chaque token relu est facturé) ; après une
+     étape MCP-lourde ou avant de basculer de tâche, propose un `/compact` ; reste sous ~150k quand
+     possible (au-delà, même caché, ça coûte plus).
 
 5. **Workflow standard de fin de tâches liées** (instruction permanente de l'utilisateur — voir
    `[[program-git-flow]]` en mémoire) : quand une **série de tâches liées est terminée** (typiquement
    la clôture d'un épic), enchaîne **revue → commit → PR → revue CI → sync/push vers `master`**.
    Pour une simple sous-tâche intermédiaire, **commit local** suffit (ne pas merger un épic à moitié).
+   - **Délègue cette plomberie à l'agent `git-ops` (Sonnet)** : branche, commit (Conventional Commits
+     FR), PR `gh`, surveillance CI, et maj du pointeur de statut. Donne-lui le résumé du diff + les
+     preuves (gates verts) ; il ne touche **pas** au code produit et ne merge/force-push **jamais**
+     sans instruction explicite. Garde la décision *quoi committer/merger* sur le fil principal.
 
 6. **Ferme la boucle** : retourne les statuts (`docs/agile/board.md`, `product-backlog.md`, README
    roadmap, avant/après dans les audits), puis **mets à jour `docs/agile/PROGRAM-STATUS.md`** (curseur
