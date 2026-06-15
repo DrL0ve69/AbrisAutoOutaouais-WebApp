@@ -254,4 +254,4 @@ Branche `feat/epic-d-address-unified` — 3 commits (`240e46a` D1–D3, `6354645
 
 ---
 
-**✅ Épic E (parcours premier utilisateur) MERGÉ** — PR #__, CI verte. E1 redirection profil (verrou e2e) + E2 alerte adresse 1re connexion (scopée profil, sans migration). **Reste ouvert** : Bug-09 (badge sombre) ; bug contraste onglet actif profil sombre 2.76:1 (préexistant, découvert en Épic E) ; **Épic F** (accès invité) = prochain.
+**✅ Épic E (parcours premier utilisateur) MERGÉ** — PR #37 (`233a388`), CI verte. E1 redirection profil (verrou e2e) + E2 alerte adresse 1re connexion (scopée profil, sans migration). **Reste ouvert** : Bug-09 (badge sombre) ; bug contraste onglet actif profil sombre 2.76:1 (préexistant, découvert en Épic E) ; **Épic F** (accès invité) = prochain.
