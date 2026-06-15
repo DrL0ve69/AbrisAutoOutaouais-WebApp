@@ -1,4 +1,14 @@
 <div class="measure">
+  <!-- D5 — avertissement DOUX, NON bloquant : l'adresse géolocalisée est hors zone de service
+       (~100 km). Statut scopé annoncé poliment (PAS de live-region globale — L-010). La mesure
+       reste entièrement possible. -->
+  @if (outOfServiceArea()) {
+  <p class="measure__zone-warning" role="status" aria-live="polite" i18n="@@mesurer.address.outOfZone">
+    Cette adresse semble hors de notre zone de livraison et d'installation (rayon d'environ 100&nbsp;km).
+    Pour les cas spéciaux, contactez-nous : nous vérifierons la faisabilité.
+  </p>
+  }
+
   <!-- Choix de méthode : calculateur (clavier, défaut) ⇄ carte (pointer). -->
   <div class="measure__methods" role="radiogroup" aria-label="Méthode de mesure" i18n-aria-label="@@mesurer.method.group">
     <button

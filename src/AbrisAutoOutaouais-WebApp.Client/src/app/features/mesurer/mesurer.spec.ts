@@ -38,10 +38,16 @@ async function setup() {
   const places: Partial<PlacesService> = {
     suggest: vi.fn().mockReturnValue(of([])),
     lookupPostalCode: vi.fn().mockReturnValue(of({ postalCode: null })),
+    // D4 — l'adresse est saisie manuellement (sans suggestion) → `submit()` géocode avant d'émettre.
+    // On renvoie `null` (géocodage infructueux) : la carte retombe sur le repli, le flux continue.
+    geocode: vi.fn().mockReturnValue(of(null)),
   };
   const profile: Partial<ProfileService> = {
     ensureLoaded: vi.fn(),
     applyDefaultAddress: vi.fn(),
+    // D6 — pas d'adresse de profil ici : l'étape adresse rend le formulaire directement (le
+    // parcours de saisie manuelle exercé par ces tests reste inchangé). Computed-like → fonction.
+    defaultDeliveryAddress: (() => null) as ProfileService['defaultDeliveryAddress'],
   };
   const shelters: Partial<ShelterSuggestionService> = {
     suggestShelters: vi.fn().mockReturnValue(of([SHELTER])),

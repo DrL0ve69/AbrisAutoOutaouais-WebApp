@@ -48,8 +48,8 @@ export class ProfileComponent implements OnInit {
   protected readonly activeTab = signal<ActiveTab>('info');
   protected readonly saveSuccess = signal(false);
   protected readonly saveError = signal<string | null>(null);
-  /** Annonce (aria-live) : le code postal vient d'être rempli automatiquement. */
-  protected readonly postalAutofilled = signal(false);
+  /** Annonce (aria-live) : issue de la résolution du code postal après choix d'une suggestion. */
+  protected readonly postalFill = signal<'idle' | 'filled' | 'unavailable'>('idle');
 
   // ── Avatar (photo de profil) ─────────────────────────────────
   protected readonly avatarUploading = signal(false);
@@ -231,11 +231,13 @@ export class ProfileComponent implements OnInit {
    * null → aucun patch.
    */
   protected onSuggestionSelected(s: PlaceSuggestionDto): void {
-    this.postalAutofilled.set(false);
+    // Réinitialiser AVANT chaque sélection : sans repassage par 'idle', deux résolutions
+    // successives au même statut n'émettraient pas (signal idempotent) → pas de ré-annonce.
+    this.postalFill.set('idle');
     this.addressAutofill
       .applySuggestion(this.addressForm, s)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.postalAutofilled.set(true));
+      .subscribe(result => this.postalFill.set(result.status));
   }
 
   /** Frappe libre dans le combobox : synchronise le contrôle « rue ». */

@@ -1,30 +1,26 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   OnInit,
   computed,
-  effect,
   inject,
   signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { BookingService } from '../../core/services/booking.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
-import { ProfileService } from '../../core/services/profile.service';
-import { AddressAutofillService } from '../../core/services/address-autofill.service';
+import { createAddressFormController } from '../../core/services/address-form.controller';
 import {
   AvailableSlotDto,
   BookingType,
   CreateBookingRequest,
 } from '../../core/models/booking.model';
-import { PlaceSuggestionDto } from '../../core/models/place.model';
 import { FaqComponent } from '../../shared/components/faq/faq.component';
 import { AddressAutocompleteComponent } from '../../shared/components/a11y-components/autocomplete/address-autocomplete.component';
+import { AddressChoiceComponent } from '../../shared/components/a11y-components/address-choice/address-choice.component';
 import { INSTALLATION_FAQ } from '../../shared/content/faq.data';
 import { CIVIC_PATTERN, POSTAL_PATTERN, normalizePostal } from '../../core/validators/address.validators';
 import { excludedBrandValidator } from '../../core/validators/brand.validators';
@@ -44,7 +40,13 @@ interface SlotGroup {
 @Component({
   selector: 'app-installation',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, DatePipe, FaqComponent, AddressAutocompleteComponent],
+  imports: [
+    ReactiveFormsModule,
+    DatePipe,
+    FaqComponent,
+    AddressAutocompleteComponent,
+    AddressChoiceComponent,
+  ],
   templateUrl: './installation.html',
   styleUrl: './installation.scss',
 })
@@ -57,14 +59,9 @@ export class InstallationComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
-  private readonly profile = inject(ProfileService);
-  private readonly addressAutofill = inject(AddressAutofillService);
-  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(true);
   protected readonly submitting = signal(false);
-  /** Annonce (aria-live) : le code postal vient d'être rempli automatiquement. */
-  protected readonly postalAutofilled = signal(false);
   protected readonly groups = signal<readonly SlotGroup[]>([]);
   protected readonly selectedSlot = signal<string | null>(null);
   protected readonly hasSlots = computed(() => this.groups().length > 0);
@@ -88,11 +85,13 @@ export class InstallationComponent implements OnInit {
     notes: [''],
   });
 
-  constructor() {
-    // Pré-remplit l'adresse d'installation avec l'adresse par défaut enregistrée.
-    this.profile.ensureLoaded();
-    effect(() => this.profile.applyDefaultAddress(this.form));
-  }
+  /**
+   * Câblage « adresse » mutualisé (pastille profil, recopie force D6, suggestions + code postal).
+   * Voir `AddressFormController`. Instancié en initialiseur de champ (pendant la construction) : la
+   * fabrique résout elle-même ses dépendances par `inject()`. Le template référence directement
+   * `addr.*` (pas de ré-exposition — PR #34, dé-duplication SonarCloud).
+   */
+  protected readonly addr = createAddressFormController(this.form);
 
   protected get f() {
     return this.form.controls;
@@ -114,25 +113,6 @@ export class InstallationComponent implements OnInit {
 
   protected selectSlot(start: string): void {
     this.selectedSlot.set(start);
-  }
-
-  /**
-   * Choix explicite d'une suggestion d'adresse — délègue à `AddressAutofillService` (logique
-   * partagée par les 4 formulaires). Patch civic/rue/ville/province INCONDITIONNEL (action
-   * utilisateur, hors garde pristine de L-002), code postal résolu/normalisé (L-004) et resté
-   * éditable ; si le proxy renvoie null, on ne patche rien.
-   */
-  protected onSuggestionSelected(s: PlaceSuggestionDto): void {
-    this.postalAutofilled.set(false);
-    this.addressAutofill
-      .applySuggestion(this.form, s)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.postalAutofilled.set(true));
-  }
-
-  /** Frappe libre dans le combobox : synchronise le contrôle « rue ». */
-  protected onStreetInput(value: string): void {
-    this.addressAutofill.syncStreet(this.form, value);
   }
 
   protected confirm(): void {

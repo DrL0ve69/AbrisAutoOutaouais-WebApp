@@ -1,0 +1,36 @@
+.address-choice {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+// Pastille « adresse de profil » : carte neutre en jetons sémantiques (bascule par thème).
+.address-choice__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background: var(--color-bg-muted);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.address-choice__label {
+  margin: 0;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.address-choice__line {
+  // L'adresse est du contenu ESSENTIEL : jeton de texte PRINCIPAL (et non `--color-text-muted`,
+  // qui ne fait que 4.39:1 sur `--color-bg-muted` — sous le seuil AA 4.5:1, détecté en e2e axe ;
+  // L-016 : le contraste n'est pas couvert en vitest). `--color-text` bascule par thème.
+  margin: 0;
+  color: var(--color-text);
+}
+
+// Boutons de bascule : cible tactile ≥ 44px (WCAG 2.2 AA), alignés à gauche.
+.address-choice__toggle {
+  align-self: flex-start;
+  min-height: 44px;
+}

@@ -1,5 +1,6 @@
 using AbrisAutoOutaouais_WebApp.Application.Auth.DTOs;
 using AbrisAutoOutaouais_WebApp.Application.Orders.Commands.PlaceOrder;
+using AbrisAutoOutaouais_WebApp.Domain.Common;
 using FluentValidation.TestHelper;
 
 namespace AbrisAutoOutaouais_WebApp.UnitTest.Application.Validators;
@@ -49,6 +50,28 @@ public sealed class PlaceOrderCommandValidatorTests
     {
         _validator.TestValidate(DeliveryWithProvince(province, postalCode))
             .ShouldNotHaveAnyValidationErrors();
+    }
+
+    /// <summary>
+    /// Garde-fou D5 (zone de service NON bloquante). Une adresse de livraison VALIDE mais
+    /// géographiquement HORS de la zone de service (~100 km de la base — ici Montréal, confirmé
+    /// hors zone par <see cref="GeoDistance.IsWithinServiceArea"/>) doit passer la validation SANS
+    /// erreur : l'avertissement « hors zone » est purement informatif côté client (signal +
+    /// aria-live). Y ajouter un <c>RuleFor(distance)</c> rééditerait la régression « → 422 » (L-004).
+    /// </summary>
+    [Fact]
+    public void Validate_DeliveryToAddressOutsideServiceArea_HasNoValidationErrors()
+    {
+        // Montréal — adresse réelle et valide, mais hors zone (preuve via l'util Domain miroir).
+        GeoDistance.IsWithinServiceArea(45.5019, -73.5674).Should().BeFalse();
+
+        var cmd = new PlaceOrderCommand(
+            Lines: [new OrderLineRequest(Guid.NewGuid(), 1)],
+            DeliveryType: DeliveryType.Delivery,
+            ShippingAddress: new AddressDto(
+                "1000", "rue Sainte-Catherine", null, "Montréal", "QC", "H3B 4W5", "Canada"));
+
+        _validator.TestValidate(cmd).ShouldNotHaveAnyValidationErrors();
     }
 
     [Theory]

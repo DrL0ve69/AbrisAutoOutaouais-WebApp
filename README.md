@@ -232,6 +232,7 @@ AbrisAutoOutaouais-WebApp.slnx
 - [x] Aide & UX : FAQ accessible (`/installation`, `/location`) · vérif. de disponibilité username/courriel · confirmation du changement de langue
 - [x] **Adresse structurée** (numéro civique / appartement / rue) + **autocomplétion accessible** (combobox APG, proxy Places Photon/Radar/Google, code postal pré‑rempli éditable) · marque/modèle d'abri à l'installation (autres marques sauf ShelterLogic)
 - [x] Outil **« mesurer mon stationnement »** (carte satellite Leaflet à dessiner **ou** calculateur de véhicules au clavier) → **suggestion d'abri adapté** (mesures en pieds, calcul interne en cm, badge « ajusté serré »)
+- [x] **Système d'adresse unifié** (Épic D) — autofill robuste (n° civique préservé, code postal annoncé en `aria-live`) ; carte « mesurer » **centrée sur l'adresse géocodée** (plus de repli silencieux sur Gatineau) ; **zone de service 100 km** (avertissement doux non bloquant, util Haversine miroir client/serveur) ; **deux choix d'adresse pour l'utilisateur connecté** (pastille profil lecture seule **ou** bascule vers le parcours anonyme, focus/`aria-live` gérés)
 - [x] **Redesign v2** — système de **jetons sémantiques** clair/sombre, **viewer 3D d'abri** (three.js, montage `@defer`/lazy, repli image, contrôles clavier), micro‑interactions respectant `prefers-reduced-motion`, contraste vérifié **axe dual‑thème** ; hero d'accueil en section statique (défilement normal)
 - [ ] Déploiement (Vercel + Azure App Service) via GitHub Actions
 

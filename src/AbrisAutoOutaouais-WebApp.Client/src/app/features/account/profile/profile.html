@@ -42,6 +42,8 @@
               type="file"
               hidden
               accept="image/png,image/jpeg,image/webp"
+              aria-label="Choisir une photo de profil"
+              i18n-aria-label="@@profile.avatar.inputLabel"
               (change)="onAvatarSelected($event)"
             />
 
@@ -485,8 +487,13 @@
                     }
                     <!-- Annonce locale (scopée) du remplissage auto du code postal — L-010. -->
                     <p class="sr-only" role="status" aria-live="polite" aria-atomic="true">
-                      @if (postalAutofilled()) {
-                        Code postal rempli automatiquement — vérifiez-le.
+                      @switch (postalFill()) {
+                        @case ('filled') {
+                        <ng-container i18n="@@address.postalAutofilled">Code postal rempli automatiquement — vérifiez-le.</ng-container>
+                        }
+                        @case ('unavailable') {
+                        <ng-container i18n="@@address.postalUnavailable">Code postal introuvable — saisissez-le manuellement.</ng-container>
+                        }
                       }
                     </p>
                   </div>

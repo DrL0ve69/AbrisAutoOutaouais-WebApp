@@ -184,7 +184,7 @@ test('Échap ferme la liste et garde le focus sur l’input', async ({ page }) =
   await expect(combo).toBeFocused();
 });
 
-test('lookup null → le code postal n’est pas patché et rien n’est annoncé', async ({ page }) => {
+test('lookup null → le code postal n’est pas patché et l’indisponibilité est annoncée (D2)', async ({ page }) => {
   await mockPlaces(page, null); // le proxy ne résout aucun code postal
   await gotoLocation(page);
 
@@ -195,12 +195,67 @@ test('lookup null → le code postal n’est pas patché et rien n’est annonc�
   await page.keyboard.press('Enter');
 
   await expect(page.locator('#city')).toHaveValue('Ottawa');
-  // Aucun code postal patché.
+  // Aucun code postal patché — mais le champ reste éditable pour la saisie manuelle.
   await expect(page.locator('#postalCode')).toHaveValue('');
-  // Aucune annonce de remplissage auto.
+  await expect(page.locator('#postalCode')).toBeEditable();
+  // Pas d'annonce « rempli automatiquement »…
   await expect(
     page.getByRole('status').filter({ hasText: /code postal rempli automatiquement/i }),
   ).toHaveCount(0);
+  // …mais une annonce POSITIVE d'indisponibilité, scopée par texte (L-002/L-009/L-010).
+  await expect(
+    page.getByRole('status').filter({ hasText: /code postal introuvable/i }),
+  ).toBeVisible();
+});
+
+test('suggestion sans civicNumber + civique pré-saisi → la valeur saisie est conservée (D1)', async ({
+  page,
+}) => {
+  // Suggestion SANS numéro civique ni numéro en tête de libellé : la cascade D1 doit retomber
+  // sur la valeur déjà saisie dans le champ « N° civique » et ne jamais l'écraser par ''.
+  await page.route('**/api/v1/products*', (route) => route.fulfill({ json: RENTABLE_PRODUCTS }));
+  await page.route('**/api/v1/places/suggest*', (route) =>
+    route.fulfill({
+      json: [
+        {
+          label: 'rue Wellington, Ottawa, ON', // pas de numéro en tête
+          civicNumber: null,
+          street: 'rue Wellington',
+          city: 'Ottawa',
+          province: 'ON',
+          postalCode: null,
+          lat: null,
+          lng: null,
+        },
+      ],
+    }),
+  );
+  await page.route('**/api/v1/places/lookup-postal-code*', (route) =>
+    route.fulfill({ json: { postalCode: null } }),
+  );
+
+  await gotoLocation(page);
+
+  // L'utilisateur saisit d'abord son numéro civique.
+  await page.locator('#civicNumber').fill('77');
+
+  const combo = page.locator('#street');
+  await expect(async () => {
+    await combo.fill('');
+    const suggestResponse = page.waitForResponse('**/api/v1/places/suggest*', { timeout: 5000 });
+    await combo.pressSequentially('rue Well');
+    await suggestResponse;
+    await expect(combo).toHaveAttribute('aria-expanded', 'true', { timeout: 5000 });
+    await expect(page.getByRole('option')).toHaveCount(1, { timeout: 5000 });
+  }).toPass({ timeout: 25000 });
+
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Enter');
+
+  // Rue/ville/province patchées, mais le civique saisi est PRÉSERVÉ (jamais écrasé par '').
+  await expect(combo).toHaveValue('rue Wellington');
+  await expect(page.locator('#city')).toHaveValue('Ottawa');
+  await expect(page.locator('#civicNumber')).toHaveValue('77');
 });
 
 test('aucune violation axe (page entière, listbox ouverte)', async ({ page }) => {

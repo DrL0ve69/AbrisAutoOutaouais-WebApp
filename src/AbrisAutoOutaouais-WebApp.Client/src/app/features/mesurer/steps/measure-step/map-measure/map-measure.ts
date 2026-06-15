@@ -12,6 +12,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { Footprint, footprintFromManual } from '../../../util/footprint.util';
+import { SERVICE_BASE } from '../../../util/service-area.util';
 import {
   SATELLITE_MAX_ZOOM,
   SATELLITE_TILE_ATTRIBUTION,
@@ -41,7 +42,7 @@ import {
 export class MapMeasureComponent {
   private readonly destroyRef = inject(DestroyRef);
 
-  /** Centre initial de la carte (issu du géocodage de l'adresse) ; défaut Gatineau. */
+  /** Centre initial de la carte (issu du géocodage de l'adresse) ; repli `SERVICE_BASE` (Gatineau). */
   readonly lat = input<number | null>(null);
   readonly lng = input<number | null>(null);
 
@@ -99,12 +100,18 @@ export class MapMeasureComponent {
     (globalThis as { L?: unknown }).L = L;
     await import('@geoman-io/leaflet-geoman-free'); // effet de bord : pose l'init hook `pm` sur L.Map
 
-    const center: [number, number] = [this.lat() ?? 45.4765, this.lng() ?? -75.7013];
+    // Coordonnées réelles de l'adresse géocodée (D4). Repli sur la base de service (Gatineau) —
+    // `SERVICE_BASE`, miroir de la const serveur (motion-a11y §2 : pas de littéral en dur). Quand
+    // l'adresse est localisée, on cadre serré (zoom stationnement) ; sinon vue régionale par défaut.
+    const lat = this.lat();
+    const lng = this.lng();
+    const located = lat !== null && lng !== null;
+    const center: [number, number] = located ? [lat, lng] : [SERVICE_BASE.lat, SERVICE_BASE.lng];
 
     // Création de la carte APRÈS geoman → l'init hook attache `map.pm` à la construction.
     const map = L.map(this.mapHost().nativeElement, {
       center,
-      zoom: 19,
+      zoom: located ? 20 : 19,
       attributionControl: true,
     });
 
@@ -115,6 +122,12 @@ export class MapMeasureComponent {
 
     this.map = map;
     this.ready.set(true);
+
+    // D4 — recalcul de la taille du conteneur : monté en `@defer`, le `<div>` peut avoir une taille
+    // nulle/instable au 1er rendu → tuiles grises. `invalidateSize()` force Leaflet à relire ses
+    // dimensions une fois le conteneur peint (le centrage « stationnement » est déjà posé par
+    // `center`/`zoom` à la construction). Reste dans `afterNextRender` (navigateur), donc SSR-safe.
+    (map as unknown as { invalidateSize(animate?: boolean): void }).invalidateSize(false);
 
     // Mesure turf chargée à la demande (calcul d'aire/bbox du tracé).
     const area = (await import('@turf/area')).default;

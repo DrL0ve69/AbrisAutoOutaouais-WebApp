@@ -11,6 +11,55 @@
 
 ---
 
+## L-027 · A signal-driven `aria-live` region won't RE-announce the same value — reset to a neutral state first
+
+- **Symptom.** Épic D (unified address). A screen-reader **re-announcement** silently dropped whenever
+  the live-region's backing signal was `.set(...)` to the **same value** it already held: Angular's
+  signal equality skips the no-op write, so the bound `role="status"` text node never changes and the
+  AT has nothing to re-read. Hit **twice**, independently: (a) the postal-code feedback on all 4 address
+  forms — a `postalFill` 3-state signal where selecting a second QC address re-set `'filled'` over
+  `'filled'` and announced nothing; (b) the new `app-address-choice` live-region, where toggling back to
+  a mode already announced (`'other'`→…→`'other'`) re-set an identical message. Same « state didn't
+  re-fire » family as [[L-006]] but on the **re-announce** axis, not focus — and invisible to axe (which
+  checks the static `aria-live` attribute, not whether the text actually changed — [[L-009]]/[[L-015]]).
+- **Rule.** Any `aria-live`/`role="status"` region driven by a signal must **pass through a neutral
+  state before each trigger** so the bound text genuinely changes and the AT re-reads it — `set('')`
+  (or `'idle'`) then `set(message)` in the same handler (the two writes flush as one render; the empty
+  string is never voiced). Do this for **every** announcement path, including « announce the same thing
+  again ». A live-region that only changes value on *distinct* states will skip legitimate repeat
+  announcements — assert the re-announce in a spec (trigger the SAME state twice, expect the message to
+  re-appear), or the gap is silent.
+- **Refs.** `shared/components/a11y-components/address-choice/address-choice.component.ts`
+  (`announce()` = `set('')` then `set(message)`),
+  `features/{checkout,location,installation}/*.ts` (`postalFill` reset to `'idle'` before each lookup),
+  branch `feat/epic-d-address-unified`.
+
+## L-026 · A wrapper that projects a form via `<ng-content>` behind `@if/@else` hides those fields in one branch — and an auth-guarded route makes the anonymous path untestable
+
+- **Symptom.** Épic D introduced `app-address-choice`, which wraps each screen's structured address
+  form as projected `<ng-content>` and, in « pastille profil » mode, renders an `@else` branch that
+  **removes the projected form from the DOM** (it's masked, not just hidden). Two consequences. (a) Any
+  spec/e2e asserting the inner fields directly (`#street`, `#civicNumber`, `#mesurer-rue`…) now has to
+  first click « Utiliser une autre adresse » to bring them back — a test that pins the *old* direct
+  access breaks (same hunt-the-pinned-spec discipline as [[L-008]]). (b) The « anonymous user sees the
+  form directly » non-regression could be covered on the **public** routes (`/location`,
+  `/installation`, `/mesurer`) but **NOT on `/panier/caisse`**: checkout is behind the auth guard, so a
+  guest is redirected to `/auth` and never reaches the address form at all — the anonymous-checkout
+  e2e was correctly **removed** (it asserted an unreachable state), with a comment citing the guard.
+- **Rule.** When a wrapper conditionally projects a form via `<ng-content>` behind `@if/@else`, remember
+  the projected fields are **absent from the DOM in the non-default branch** — grep every spec touching
+  those fields and gate them on the toggle that reveals them (assert the *behaviour*: pastille →
+  click → fields visible, not a bare `#field`). And before writing an « anonymous / unauthenticated
+  parcours » test, confirm the route is actually **reachable** while logged out — an `authGuard`-protected
+  route (checkout) redirects a guest to `/auth`, so that path can't be exercised anonymously; cover the
+  guest non-regression only on genuinely public routes and document why the guarded one is excluded
+  ([[L-005]]: don't ship a guard that asserts an impossible state). Pre-fill still tests with a value
+  ≠ the form default ([[L-002]]).
+- **Refs.** `shared/components/a11y-components/address-choice/address-choice.component.{ts,html}`
+  (`@if hasProfileAddress` → pastille `@else` projects `<ng-content>`),
+  `e2e/address-choice.spec.ts` (anonymous test only on public routes; checkout-anonymous removed with
+  guard note ~l.235), branch `feat/epic-d-address-unified`.
+
 ## L-025 · An `environment.*` flag tied to a build option must match the `angular.json` config of EVERY configuration that replicates it — sibling configs don't merge
 
 - **Symptom.** Épic C (local EN language switch). `environment.staging.ts` set `localized: true`, but
@@ -253,14 +302,19 @@
   and across several consecutive sub-tasks.
 - **Rule.** Any sub-task touching **colors / tokens / backgrounds** (theme, `_tokens.scss`,
   translucent/glass fills, gradients, hover states) **cannot** rely on `npm test` (vitest) for
-  contrast — `color-contrast` is off there by design. Contrast MUST be verified by Playwright e2e +
-  axe (`npm run e2e`, real composed colors) AND a live round-trip ([[L-001]]) **in BOTH themes**. When
-  reporting a « zéro axe » gate on a color diff, qualify it — « (vitest — color-contrast NON couvert;
-  contraste validé en e2e/live) » — so the gate isn't over-credited (same honesty as [[L-005]]: a
-  guard that can't fire guards nothing). Best: add an e2e scenario that axe-scans the redesigned routes
-  for contrast on both themes (the intended E5 « axe both themes » gate).
+  contrast — `color-contrast` is off there by design. **This includes any NEW component that puts text
+  on a tinted background token** (e.g. Épic D's `app-address-choice` card on `--color-bg-muted`, whose
+  `--color-text-muted` line came out at **4.39:1 < AA** and was caught *only* by the dual-theme e2e
+  axe scan) — a fresh surface re-opens the contrast question even when the tokens are « semantic ».
+  Contrast MUST be verified by Playwright e2e + axe (`npm run e2e`, real composed colors) AND a live
+  round-trip ([[L-001]]) **in BOTH themes**. When reporting a « zéro axe » gate on a color diff,
+  qualify it — « (vitest — color-contrast NON couvert; contraste validé en e2e/live) » — so the gate
+  isn't over-credited (same honesty as [[L-005]]: a guard that can't fire guards nothing). Best: every
+  new tinted-background component ships its own dual-theme axe e2e (the E5 « axe both themes » gate).
 - **Refs.** `src/testing/axe-helper.ts:14` (`color-contrast` disabled),
-  `src/app/shared/layout/navbar/navbar.scss` (`.navbar--scrolled`), Épic-E commits `cdd82a4` / `1e38a4d`.
+  `src/app/shared/layout/navbar/navbar.scss` (`.navbar--scrolled`), Épic-E commits `cdd82a4` / `1e38a4d`;
+  `e2e/address-choice.spec.ts` (per-theme `for (const theme of ['light','dark'])` axe scan of the
+  pastille on `--color-bg-muted`, Épic D).
 
 ## L-015 · `role="radio"`/`radiogroup` without roving `tabindex` + arrow keys is keyboard-broken — and AXE passes anyway
 

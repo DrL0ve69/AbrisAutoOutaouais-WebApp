@@ -55,7 +55,7 @@
 
       <!-- ÉTAPE 2 : type + adresse -->
       <fieldset class="booking__fieldset">
-        <legend class="booking__legend" i18n="@@installation.details.legend">
+        <legend id="inst-details-legend" class="booking__legend" i18n="@@installation.details.legend">
           2. Détails de l'intervention
         </legend>
 
@@ -98,6 +98,10 @@
           </div>
         </div>
 
+        <app-address-choice
+          [profileAddress]="addr.profileAddress()"
+          headingId="inst-details-legend"
+          (modeChange)="addr.onAddressMode($event)">
         <div class="form-row form-row--two">
           <div class="form-field">
             <label for="civicNumber" i18n="@@installation.field.civic">Numéro civique</label>
@@ -122,8 +126,8 @@
               [provinceHint]="f.province.value"
               [invalid]="f.street.touched && f.street.invalid"
               describedBy="inst-street-err"
-              (valueChange)="onStreetInput($event)"
-              (suggestionSelected)="onSuggestionSelected($event)" />
+              (valueChange)="addr.onStreetInput($event)"
+              (suggestionSelected)="addr.onSuggestionSelected($event)" />
             @if (f.street.touched && f.street.invalid) {
             <p id="inst-street-err" class="form-field__error" role="alert" i18n="@@installation.field.streetRequired">
               L'adresse est requise.
@@ -168,12 +172,18 @@
             }
             <!-- Annonce locale (scopée) du remplissage auto du code postal — L-010. -->
             <p class="sr-only" role="status" aria-live="polite" aria-atomic="true">
-              @if (postalAutofilled()) {
+              @switch (addr.postalFill()) {
+                @case ('filled') {
               <ng-container i18n="@@address.postalAutofilled">Code postal rempli automatiquement — vérifiez-le.</ng-container>
+                }
+                @case ('unavailable') {
+              <ng-container i18n="@@address.postalUnavailable">Code postal introuvable — saisissez-le manuellement.</ng-container>
+                }
               }
             </p>
           </div>
         </div>
+        </app-address-choice>
 
         <div class="form-field">
           <label for="notes" i18n="@@installation.field.notes">Notes (optionnel)</label>

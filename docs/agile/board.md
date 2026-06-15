@@ -218,3 +218,36 @@ Branche `fix/f2d-mesurer-geoman-draw` (cycle dédié, post-programme). Boucle *a
 > **Revue indépendante** : **APPROVE WITH NITS** — zéro Critical, 1 Major (commentaire smoke périmé contredisant le fix, L-008) + nits, **tous clôturés** (commentaire e2e réécrit ; doc `@defer on viewport`→`on immediate` corrigée ×2). **Leçon L-021** capturée (plugin `addInitHook` : importer avant construction + `globalThis.L` ; sonder la capacité sur l'instance vivante, pas seulement le global) ; **L-019 corrigée** (ancien diagnostic CJS/ESM marqué supersédé).
 > **Vérification** : `netstat` ports e2e propres (L-017) ✅ ; `npm run build` (typecheck) ✅ ; `npm test` **202** (zéro violation axe vitest) ✅ ; `npm run build:prod` (geoman reste chunk lazy 359,97 kB, hors bundle initial) ✅ ; `npm run e2e` **73 passées / 0 échec** — le test ex-`fixme` « CARTE dessinable » passe (barre geoman + bouton de dessin visibles), smoke + parcours clavier verts. *Note L-001 : vérif live faite côté dev (vite, 4200) via sonde avant/après ; le fix est runtime/bundler-agnostique (ordre d'import, pas une astuce vite-vs-esbuild) → attendu identique en prod, `build:prod` confirmé compilant.*
 > **Suite** : ✅ **mergé vers `master` — PR #23 (`a57ed5e`)**, branche supprimée, CI verte. Reste ouvert : **Flake-01 (catalog)** + redéploiement prod (gated secret).
+
+---
+
+## Mise à jour — D4/D5 livrés : carte centrée sur l'adresse + zone de service (2026-06-15)
+
+Branche `feat/epic-d-address-unified` (Épic D, suite de D1–D3). **D4** : la carte `/mesurer` se centre désormais sur l'adresse réelle même sans choix de suggestion — `submit()` géocode (réutilise `places/suggest`, 1re entrée) avant d'émettre lat/lng ; `map.setView(zoom 20)` + `invalidateSize()` au montage `@defer` ; repli `SERVICE_BASE` (plus de littéral Gatineau en dur). **D5** : avertissement **doux, NON bloquant** « hors zone de service (~100 km) » (`role="status"`, mesure toujours possible) ; socle serveur `GeoDistance` (Haversine + base/rayon, **miroir** de `service-area.util.ts`, L-007/L-004) **sans** `RuleFor` distance (évite la régression « → 422 » L-004 §C1) ; test serveur de **non-rejet** d'une adresse hors-zone.
+
+| ID | Constat | WCAG / réf | Statut |
+|----|---------|-----------|--------|
+| Bug-09 | `/mesurer` étape Résultats : badge « Ajusté serré » (`.shelter-card__badge`) illisible en **thème sombre** — `#fff` sur `--color-warning` amber `#fbbf24` = **1.66:1** (< 4.5:1) | 1.4.3 contraste | 🟠 **Ouvert (suivi)** — **préexistant** (résultats-step non touché par D4/D5 ; clean `git status`), **découvert** par le scan axe dual-thème ajouté pour D5. Invisible jusqu'ici car aucun e2e ne balayait `/mesurer` résultats en thème sombre (famille L-016). Correctif attendu : fond amber **fixe** + texte **sombre fixe** (le fond ne doit pas basculer de clarté par thème — cousin L-023). Hors périmètre D4/D5 : à planifier en cycle dédié |
+
+> **Vérification** : `netstat` ports e2e propres (L-017) ✅ ; backend `dotnet test` **211 unit + 72 integration / 0 échec** (7 `GeoDistanceTests` + non-rejet hors-zone) ✅ ; `npm run build` (typecheck) ✅ ; `npm test` **234 / 0 échec** (service-area Haversine/seuil, address-step géocode mocké, measure-step avertissement) — zéro violation axe vitest (`color-contrast` non couvert, L-016) ✅ ; `npm run i18n:extract` — 2 nouveaux ids (`mesurer.address.geocoding`, `mesurer.address.outOfZone`) **symétriques** dans `messages.xlf` + `messages.en.xlf` (L-018), `build:i18n` bilingue OK ✅ ; `npm run e2e mesurer` **6 / 0 échec** — **D4 centrage capacité** via `window.ng.getComponent()` (lat/lng = valeurs géocodées, **pas** Gatineau, L-019) ; **D5 dual-thème** sur l'étape mesure (contraste de l'avertissement OK clair **et** sombre) + mesure jusqu'aux résultats non bloquée ✅.
+> **Suite** : revue indépendante `code-reviewer` → commit → PR → CI → merge. **Bug-09** : suivi ouvert (cycle dédié).
+
+---
+
+## ✅ Épic D — Système d'adresse unifié : CLÔTURÉ (2026-06-15)
+
+Branche `feat/epic-d-address-unified` — 3 commits (`240e46a` D1–D3, `6354645` D4–D5, `997feaf` D6). Boucle complète *architecte → développeur (1 à la fois) → revue indépendante `code-reviewer` à la frontière d'épic → mentor*. **Décisions utilisateur figées respectées** : champ adresse intelligent → champs structurés éditables ; deux choix d'adresse connecté (pastille profil **ou** parcours anonyme).
+
+| ID | Sous-tâche | Statut |
+|----|-----------|--------|
+| D1 | N° civique préservé quand la suggestion Photon n'en fournit pas (cascade `s.civicNumber \|\| parseCivicFromLabel(label) \|\| valeur saisie`) | ✅ |
+| D2 | Code postal : `applySuggestion` retourne `PostalFillResult` (`filled`/`unavailable`), court-circuit sans réseau si la suggestion porte déjà le code, feedback `aria-live` dans les 4 formulaires | ✅ |
+| D3 | Province/ville verrouillées par tests (province ≠ défaut + fallback QC) ; normalisation 2-lettres reste côté serveur (`CanadianProvinceCodes`), **aucune** whitelist (L-004 §C1) | ✅ |
+| D4 | Carte `/mesurer` centrée sur l'adresse géocodée (`PlacesService.geocode` + `invalidateSize`) — plus de repli silencieux sur Gatineau | ✅ |
+| D5 | Zone de service 100 km : avertissement **doux non bloquant** (`role="status"`) ; util client `service-area.util` + Domain `GeoDistance` **miroir** (L-007) ; test serveur de **non-rejet** | ✅ |
+| D6 | Composant partagé `app-address-choice` (pastille `role="group"` lecture seule **ou** bascule `<ng-content>` vers le parcours anonyme) câblé sur les 4 écrans ; focus post-rendu L-006 + `aria-live` scopée L-010 ; parcours anonyme strictement inchangé quand `profileAddress` est null | ✅ |
+
+> **Revue indépendante `code-reviewer`** (diff `master..HEAD`) : **APPROVE WITH NITS** — zéro Critical/Major ; miroir client↔serveur `45.4765/-75.7013/100` vérifié identique + verrou bilatéral ; warning non bloquant confirmé (aucun `RuleFor` distance) ; SOLID `GeoDistance` OK (pur Domain) ; focus L-006/live-region L-010/44px/dual-thème tenus. 2 nits optionnels non bloquants (setup de spec à resserrer ; duplication du câblage `addressMode` sur 4 écrans = dette future).
+> **Mentor** : **L-026** (wrapper `<ng-content>` derrière `@if/@else` masque les champs en mode pastille + route auth-gardée intestable anonymement) et **L-027** (live-region pilotée par signal ne ré-annonce pas une valeur identique → repasser par un état neutre) capturées ; **L-016** affûtée (composant à fond teinté → contraste vérifié en axe e2e dual-thème).
+> **Gates finales** : `npm run build` ✅ · `npm test` **244 / 0** ✅ · `npm run i18n:extract` (9 ids `address.*`/`mesurer.address.*` symétriques) ✅ · `npm run e2e` (address-choice 10 + régression dual-thème, 0 axe) ✅ · `dotnet test` **211 + 72 / 0** ✅.
+> **Suite** : PR `feat/epic-d-address-unified` → `master` → CI verte → merge (prod auto-déployée). **Reste ouvert** : Bug-09 (badge sombre, cycle dédié) ; **Épic E** (parcours premier utilisateur) = prochain épic du Programme G.

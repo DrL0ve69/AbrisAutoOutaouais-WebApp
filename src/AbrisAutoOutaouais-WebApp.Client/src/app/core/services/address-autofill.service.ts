@@ -1,9 +1,20 @@
 import { Injectable, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { Observable, EMPTY, catchError, filter, map } from 'rxjs';
+import { Observable, of, catchError, map } from 'rxjs';
 import { PlacesService } from './places.service';
 import { PlaceSuggestionDto } from '../models/place.model';
-import { normalizePostal } from '../validators/address.validators';
+import { normalizePostal, parseCivicFromLabel } from '../validators/address.validators';
+
+/**
+ * Résultat de la résolution du code postal après le choix d'une suggestion :
+ *  - `filled`      : un code postal a été résolu, normalisé (« A1A 1A1 », L-004) et patché dans
+ *                    le contrôle `postalCode` — le composant annonce le remplissage auto.
+ *  - `unavailable` : le proxy n'a renvoyé aucun code postal (ou a échoué) → le contrôle reste
+ *                    vide et éditable ; le composant invite à la saisie manuelle.
+ */
+export type PostalFillResult =
+  | { readonly status: 'filled'; readonly postalCode: string }
+  | { readonly status: 'unavailable' };
 
 /**
  * Logique d'autocomplétion d'adresse partagée par la caisse, la location, l'installation
@@ -30,29 +41,51 @@ export class AddressAutofillService {
    * Applique une suggestion d'adresse au formulaire et déclenche la résolution du code postal.
    *
    * Patche civic/rue/ville/province immédiatement (synchronement), marque « rue » dirty, puis
-   * retourne un `Observable<string>` qui émet UNE fois le code postal normalisé déjà patché dans
-   * le contrôle `postalCode` — le composant s'y abonne (avec `takeUntilDestroyed`) pour lever son
-   * signal `postalAutofilled` (aria-live). N'émet jamais si le code postal est absent/erroné.
+   * retourne un `Observable<PostalFillResult>` qui émet UNE fois l'issue de la résolution du code
+   * postal — le composant s'y abonne (avec `takeUntilDestroyed`) pour annoncer soit le remplissage
+   * auto (`filled`), soit l'indisponibilité (`unavailable`, saisie manuelle).
+   *
+   * D1 — cascade civique : le numéro saisi par l'utilisateur n'est JAMAIS écrasé par une chaîne
+   * vide. Photon renvoie souvent `civicNumber: null` tout en incluant le numéro dans `label` ; on
+   * tente donc, dans l'ordre : la valeur de la suggestion, le numéro parsé du libellé, puis la
+   * valeur déjà saisie dans le formulaire.
+   *
+   * D3 — la normalisation province (code 2 lettres canonique) vit côté serveur dans
+   * `CanadianProvinceCodes` (L-004/L-011) : chaque adaptateur `IPlacesService` émet déjà le format
+   * canonique. Le patch civic/ville/province est donc INCONDITIONNEL ici (action utilisateur
+   * explicite, hors garde pristine de L-002 qui appartient à `ProfileService.applyDefaultAddress`),
+   * SANS whitelist côté client (la réintroduire régresserait Ontario → 400, L-004 §C1).
    */
-  applySuggestion(form: FormGroup, s: PlaceSuggestionDto): Observable<string> {
+  applySuggestion(form: FormGroup, s: PlaceSuggestionDto): Observable<PostalFillResult> {
+    const civic =
+      s.civicNumber?.trim() || parseCivicFromLabel(s.label) || (form.get('civicNumber')?.value ?? '');
     form.patchValue({
-      civicNumber: s.civicNumber ?? '',
+      civicNumber: civic,
       street: s.street,
       city: s.city,
       province: s.province || 'QC',
     });
     form.get('street')?.markAsDirty();
 
-    return this.places.lookupPostalCode(s.civicNumber ?? '', s.street, s.city, s.province).pipe(
-      map(({ postalCode }) => postalCode),
-      filter((postalCode): postalCode is string => !!postalCode),
-      map(normalizePostal),
-      map(normalized => {
+    // D2 — Photon fournit souvent `postcode` dans `suggest` mais pas dans le lookup limit=1 :
+    // si la suggestion porte déjà un code postal, on le normalise sans appel réseau.
+    if (s.postalCode && s.postalCode.trim()) {
+      const normalized = normalizePostal(s.postalCode);
+      form.get('postalCode')?.setValue(normalized);
+      return of<PostalFillResult>({ status: 'filled', postalCode: normalized });
+    }
+
+    return this.places.lookupPostalCode(civic, s.street, s.city, s.province).pipe(
+      map(({ postalCode }): PostalFillResult => {
+        if (!postalCode) {
+          return { status: 'unavailable' };
+        }
+        const normalized = normalizePostal(postalCode);
         form.get('postalCode')?.setValue(normalized);
-        return normalized;
+        return { status: 'filled', postalCode: normalized };
       }),
-      // Silencieux : l'utilisateur peut saisir le code postal manuellement.
-      catchError(() => EMPTY),
+      // Échec réseau → indisponible (l'utilisateur peut saisir le code postal manuellement).
+      catchError(() => of<PostalFillResult>({ status: 'unavailable' })),
     );
   }
 
