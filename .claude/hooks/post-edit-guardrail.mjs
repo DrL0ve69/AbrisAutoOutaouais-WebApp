@@ -90,8 +90,10 @@ process.stdin.on('end', () => {
       'Backend edit detected (' +
         p.split('/').slice(-1)[0] +
         '). Respect Clean Architecture (Domain ← Application ← Infrastructure/API), custom Mediator ' +
-        '(DispatchAsync/HandleAsync), sealed-record DTOs, validator beside its command. Run `dotnet test` ' +
-        'and give the diff a `solid-review` pass before claiming done.',
+        '(DispatchAsync/HandleAsync), sealed-record DTOs, validator beside its command. Reuse the ' +
+        "repo's existing pattern idiom and hand-roll a simple pattern rather than adding a dependency " +
+        '(see `.claude/rules/design-patterns.md` + `docs/design-patterns.md`; MediatR → custom ' +
+        'Dispatcher precedent). Run `dotnet test` and give the diff a `solid-review` pass before claiming done.',
     );
   }
 

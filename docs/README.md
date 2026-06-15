@@ -24,6 +24,15 @@ le critère correspondant.
 | [`agile/definition-of-done.md`](agile/definition-of-done.md) | **DoD** : tests verts, **axe 0 violation**, build OK, i18n balisé, revue de code, vérifs clavier/lecteur d'écran. | (3) Agile ; (4) gestion défauts/tests |
 | [`agile/board.md`](agile/board.md) | **Snapshot de tableau** Scrum/Kanban (Backlog / À faire / En cours / Revue / Terminé) avec items et **bugs a11y réels** corrigés. | (4) gestion des défauts et artefacts de test (style Azure DevOps) |
 
+### Architecture & ingénierie
+
+| Document | Contenu |
+|----------|---------|
+| [`design-patterns.md`](design-patterns.md) | Les **23 patrons de conception (GoF)** ancrés au code réel du dépôt : intention, fichier(s) où chaque patron vit, et étude de cas **« MediatR → Dispatcher maison »**. Pose la règle *coder le patron soi-même vs. ajouter une dépendance*. |
+| [`architecture-microservices.md`](architecture-microservices.md) | **Microservices** : définition, quand (ne pas) les utiliser, coût réel, et **meilleure option par cas** — pourquoi ce projet est un **monolithe modulaire** (et le reste par choix). |
+| [`infra-terraform.md`](infra-terraform.md) | **Terraform & IaC** : déclaratif vs impératif, le cycle `plan`/`apply`, mapping **1:1 de nos commandes `az` → Terraform**, et le multi-fournisseurs. |
+| [`deployment.md`](deployment.md) | Déploiement réel : front (Azure Static Web Apps) + API (Azure Container Apps + Azure SQL), CI/CD GitHub Actions. |
+
 ---
 
 ## Correspondance avec les compétences (offres HoC & Ville de Gatineau)
