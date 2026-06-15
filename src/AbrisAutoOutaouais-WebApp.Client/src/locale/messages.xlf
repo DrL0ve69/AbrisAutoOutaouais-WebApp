@@ -1969,35 +1969,28 @@
         <source>Quantité de <x id="name" equiv-text="product.name"/> augmentée.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/cart/cart.ts</context>
-          <context context-type="linenumber">54</context>
+          <context context-type="linenumber">50</context>
         </context-group>
       </trans-unit>
       <trans-unit id="cart.announce.decreased" datatype="html">
         <source>Quantité de <x id="name" equiv-text="product.name"/> diminuée.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/cart/cart.ts</context>
-          <context context-type="linenumber">66</context>
+          <context context-type="linenumber">62</context>
         </context-group>
       </trans-unit>
       <trans-unit id="cart.announce.removed" datatype="html">
         <source><x id="name" equiv-text="product.name"/> retiré du panier.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/cart/cart.ts</context>
-          <context context-type="linenumber">73</context>
+          <context context-type="linenumber">69</context>
         </context-group>
       </trans-unit>
       <trans-unit id="cart.announce.cleared" datatype="html">
         <source>Le panier a été vidé.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/cart/cart.ts</context>
-          <context context-type="linenumber">79</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="cart.loginRequired" datatype="html">
-        <source>Connectez-vous pour passer une commande.</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/cart/cart.ts</context>
-          <context context-type="linenumber">87</context>
+          <context context-type="linenumber">75</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.eyebrow" datatype="html">
@@ -2123,91 +2116,91 @@
         <source>Carte de paiement (démo)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.html</context>
-          <context context-type="linenumber">116,118</context>
+          <context context-type="linenumber">121,123</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.card.name" datatype="html">
         <source>Nom sur la carte</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.html</context>
-          <context context-type="linenumber">119,120</context>
+          <context context-type="linenumber">124,125</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.card.number" datatype="html">
         <source>Numéro de carte</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.html</context>
-          <context context-type="linenumber">126,127</context>
+          <context context-type="linenumber">131,132</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.card.expiry" datatype="html">
         <source>Expiration (MM/AA)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.html</context>
-          <context context-type="linenumber">134,135</context>
+          <context context-type="linenumber">139,140</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.card.cvc" datatype="html">
         <source>CVC</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.html</context>
-          <context context-type="linenumber">140,141</context>
+          <context context-type="linenumber">145,146</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.card.invalid" datatype="html">
         <source> Vérifiez les informations de carte (numéro, expiration MM/AA, CVC). </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.html</context>
-          <context context-type="linenumber">149,151</context>
+          <context context-type="linenumber">154,156</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.processing" datatype="html">
         <source>Traitement du paiement…</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.html</context>
-          <context context-type="linenumber">157,159</context>
+          <context context-type="linenumber">162,164</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.pay" datatype="html">
         <source>Payer</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.html</context>
-          <context context-type="linenumber">159,160</context>
+          <context context-type="linenumber">164,165</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.back" datatype="html">
         <source>← Retour au panier</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.html</context>
-          <context context-type="linenumber">164,167</context>
+          <context context-type="linenumber">169,172</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.summary.title" datatype="html">
         <source>Récapitulatif</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.html</context>
-          <context context-type="linenumber">169,170</context>
+          <context context-type="linenumber">174,175</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.summary.total" datatype="html">
         <source>Total</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.html</context>
-          <context context-type="linenumber">179,180</context>
+          <context context-type="linenumber">184,185</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.success" datatype="html">
         <source>Paiement (démo) accepté — commande confirmée !</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.ts</context>
-          <context context-type="linenumber">133</context>
+          <context context-type="linenumber">153</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.error" datatype="html">
         <source>Le paiement a échoué. Veuillez réessayer.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.ts</context>
-          <context context-type="linenumber">141</context>
+          <context context-type="linenumber">163</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.hero.badge" datatype="html">
@@ -2760,35 +2753,28 @@
         <source> Confirmer la réservation </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">199,201</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="installation.authRequired" datatype="html">
-        <source>Connectez-vous pour réserver une installation.</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/installation/installation.ts</context>
-          <context context-type="linenumber">123</context>
+          <context context-type="linenumber">204,206</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.noSlot" datatype="html">
         <source>Veuillez choisir un créneau.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.ts</context>
-          <context context-type="linenumber">133</context>
+          <context context-type="linenumber">136</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.success" datatype="html">
         <source>Réservation confirmée !</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.ts</context>
-          <context context-type="linenumber">167</context>
+          <context context-type="linenumber">176</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.error" datatype="html">
         <source>La réservation a échoué. Veuillez réessayer.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.ts</context>
-          <context context-type="linenumber">175</context>
+          <context context-type="linenumber">185</context>
         </context-group>
       </trans-unit>
       <trans-unit id="legal.eyebrow" datatype="html">
@@ -3372,42 +3358,35 @@
         <source> Confirmer la location </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.html</context>
-          <context context-type="linenumber">172,174</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="location.authRequired" datatype="html">
-        <source>Connectez-vous pour louer un abri.</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/location/location.ts</context>
-          <context context-type="linenumber">105</context>
+          <context context-type="linenumber">177,179</context>
         </context-group>
       </trans-unit>
       <trans-unit id="location.noProduct" datatype="html">
         <source>Veuillez choisir un abri à louer.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.ts</context>
-          <context context-type="linenumber">115</context>
+          <context context-type="linenumber">118</context>
         </context-group>
       </trans-unit>
       <trans-unit id="location.badDates" datatype="html">
         <source>La date de fin doit être après la date de début.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.ts</context>
-          <context context-type="linenumber">129</context>
+          <context context-type="linenumber">137</context>
         </context-group>
       </trans-unit>
       <trans-unit id="location.success" datatype="html">
         <source>Location confirmée !</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.ts</context>
-          <context context-type="linenumber">155</context>
+          <context context-type="linenumber">164</context>
         </context-group>
       </trans-unit>
       <trans-unit id="location.error" datatype="html">
         <source>La location a échoué. Veuillez réessayer.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.ts</context>
-          <context context-type="linenumber">163</context>
+          <context context-type="linenumber">173</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.eyebrow" datatype="html">
@@ -4126,6 +4105,76 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/components/a11y-components/autocomplete/address-autocomplete.component.ts</context>
           <context context-type="linenumber">96</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="guestContact.legend" datatype="html">
+        <source>Vos coordonnées</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/a11y-components/guest-contact/guest-contact.component.html</context>
+          <context context-type="linenumber">2,3</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="guestContact.hint" datatype="html">
+        <source> Pas besoin de créer un compte : nous utilisons ces informations pour vous contacter au sujet de votre demande. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/a11y-components/guest-contact/guest-contact.component.html</context>
+          <context context-type="linenumber">4,8</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="guestContact.firstName" datatype="html">
+        <source> Prénom </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/a11y-components/guest-contact/guest-contact.component.html</context>
+          <context context-type="linenumber">11,14</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="guestContact.firstNameRequired" datatype="html">
+        <source> Le prénom est requis. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/a11y-components/guest-contact/guest-contact.component.html</context>
+          <context context-type="linenumber">27,32</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="guestContact.lastName" datatype="html">
+        <source> Nom </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/a11y-components/guest-contact/guest-contact.component.html</context>
+          <context context-type="linenumber">34,37</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="guestContact.lastNameRequired" datatype="html">
+        <source> Le nom est requis. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/a11y-components/guest-contact/guest-contact.component.html</context>
+          <context context-type="linenumber">50,54</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="guestContact.email" datatype="html">
+        <source> Courriel </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/a11y-components/guest-contact/guest-contact.component.html</context>
+          <context context-type="linenumber">58,61</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="guestContact.emailInvalid" datatype="html">
+        <source> Saisissez un courriel valide (p. ex. : nom@exemple.com). </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/a11y-components/guest-contact/guest-contact.component.html</context>
+          <context context-type="linenumber">75,78</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="guestContact.phone" datatype="html">
+        <source> Téléphone (optionnel) </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/a11y-components/guest-contact/guest-contact.component.html</context>
+          <context context-type="linenumber">82,85</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="guestContact.phoneInvalid" datatype="html">
+        <source> Format de téléphone invalide (10 à 20 caractères, chiffres et séparateurs). </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/a11y-components/guest-contact/guest-contact.component.html</context>
+          <context context-type="linenumber">100,104</context>
         </context-group>
       </trans-unit>
       <trans-unit id="faq.title" datatype="html">

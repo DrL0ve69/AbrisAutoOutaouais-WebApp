@@ -1,4 +1,5 @@
 import { AddressDto } from './booking.model';
+import { GuestContactRequest } from './guest-contact.model';
 
 export type RentalStatus = 'Active' | 'Expired' | 'Cancelled';
 
@@ -8,6 +9,8 @@ export interface CreateRentalContractRequest {
   readonly startDate: string; // ISO date (yyyy-MM-dd)
   readonly endDate: string;
   readonly address: AddressDto;
+  /** Contact invité (Épic F) — rempli pour un visiteur non connecté, omis si connecté. */
+  readonly guestContact?: GuestContactRequest | null;
 }
 
 /** Correspond au RentalSummaryDto C# (GET /rentals/mine). */

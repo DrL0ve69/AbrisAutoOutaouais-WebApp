@@ -14,11 +14,16 @@ namespace AbrisAutoOutaouais_WebApp.Application.Rentals.Commands.CreateRentalCon
 /// </summary>
 internal sealed class CreateRentalContractCommandHandler(
     IApplicationDbContext db,
-    ICurrentUserService currentUser) : ICommandHandler<CreateRentalContractCommand, Guid>
+    ICurrentUserService currentUser,
+    IExpressAccountService express) : ICommandHandler<CreateRentalContractCommand, Guid>
 {
     public async Task<Guid> HandleAsync(CreateRentalContractCommand cmd, CancellationToken ct)
     {
-        var userId = currentUser.UserId ?? Guid.Empty;
+        // Utilisateur connecté → son Id ; sinon visiteur → compte express trouvé-ou-créé par courriel.
+        var userId = currentUser.UserId
+            ?? (cmd.GuestContact is not null
+                ? await express.FindOrCreateByEmailAsync(cmd.GuestContact, ct)
+                : throw new BusinessRuleException("Coordonnées requises pour créer un contrat de location."));
 
         var product = await db.Products
             .FirstOrDefaultAsync(p => p.Id == cmd.ProductId, ct)

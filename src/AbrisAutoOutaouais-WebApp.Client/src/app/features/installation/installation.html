@@ -191,6 +191,11 @@
         </div>
       </fieldset>
 
+      <!-- Coordonnées invité (visiteur non connecté uniquement — Épic F) -->
+      @if (isGuest()) {
+      <app-guest-contact [group]="guestForm" idPrefix="inst" />
+      }
+
       <button
         type="submit"
         class="btn btn--primary booking__submit"

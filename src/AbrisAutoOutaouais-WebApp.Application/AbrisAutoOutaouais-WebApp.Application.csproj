@@ -12,6 +12,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Les handlers CQRS sont « internal sealed » ; les tests unitaires les instancient
+         directement (même idiome que Infrastructure). -->
+    <InternalsVisibleTo Include="AbrisAutoOutaouais-WebApp.UnitTest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="FluentValidation" Version="12.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.8" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.8" />

@@ -34,5 +34,12 @@ public sealed class CreateBookingCommandValidator : AbstractValidator<CreateBook
 
         RuleFor(x => x.Model)
             .MaximumLength(100).WithMessage("Le modèle ne doit pas dépasser 100 caractères.");
+
+        // Parcours invité : contact validé seulement s'il est fourni (connecté → null), par la
+        // source canonique unique GuestContactValidator (leçon L-004).
+        When(x => x.GuestContact is not null, () =>
+        {
+            RuleFor(x => x.GuestContact!).SetValidator(new GuestContactValidator());
+        });
     }
 }

@@ -16,8 +16,12 @@ namespace AbrisAutoOutaouais_WebApp.API.Controllers;
 [Authorize] // toutes les routes nécessitent une authentification
 public sealed class RentalsController(IDispatcher dispatcher) : ControllerBase
 {
-    /// <summary>Créer un contrat de location.</summary>
+    /// <summary>
+    /// Créer un contrat de location. Accessible aux visiteurs non connectés : ils fournissent un
+    /// <c>GuestContact</c> qui crée/réutilise un compte express (parcours invité, Épic F).
+    /// </summary>
     [HttpPost]
+    [AllowAnonymous]
     [ProducesResponseType(201)]
     [ProducesResponseType<ProblemDetails>(404)]
     [ProducesResponseType<ProblemDetails>(422)]

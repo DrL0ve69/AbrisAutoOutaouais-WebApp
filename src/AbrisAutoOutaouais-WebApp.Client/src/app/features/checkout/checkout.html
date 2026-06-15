@@ -111,6 +111,11 @@
         </app-address-choice>
         }
 
+        <!-- Coordonnées invité (visiteur non connecté uniquement — Épic F) -->
+        @if (isGuest()) {
+        <app-guest-contact [group]="guestForm" idPrefix="co" />
+        }
+
         <!-- Paiement (démo) -->
         <fieldset class="checkout__group">
           <legend i18n="@@checkout.payment.legend">Carte de paiement (démo)</legend>

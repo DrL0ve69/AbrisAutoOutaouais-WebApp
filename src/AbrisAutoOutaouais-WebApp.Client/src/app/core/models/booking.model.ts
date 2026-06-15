@@ -1,3 +1,5 @@
+import { GuestContactRequest } from './guest-contact.model';
+
 export type BookingType = 'Installation' | 'Delivery' | 'Removal';
 export type BookingStatus = 'Pending' | 'Confirmed' | 'Completed' | 'Cancelled';
 
@@ -26,6 +28,8 @@ export interface CreateBookingRequest {
   readonly brand?: string | null;
   /** Modèle de l'abri (optionnel). */
   readonly model?: string | null;
+  /** Contact invité (Épic F) — rempli pour un visiteur non connecté, omis si connecté. */
+  readonly guestContact?: GuestContactRequest | null;
 }
 
 /** Charge utile pour POST /bookings/{id}/reschedule — correspond au RescheduleBookingRequest C#. */

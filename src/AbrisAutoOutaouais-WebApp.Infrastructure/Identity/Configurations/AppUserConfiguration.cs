@@ -30,6 +30,10 @@ internal sealed class AppUserConfiguration : IEntityTypeConfiguration<AppUser>
             .IsRequired()
             .HasDefaultValue("fr");
 
+        // Compte express (visiteur non connecté) — défaut false pour tous les comptes normaux.
+        builder.Property(u => u.IsExpress)
+            .HasDefaultValue(false);
+
         // Owned Entity — Address de Domain.ValueObjects
         // Stockée dans AspNetUsers avec colonnes préfixées "DefaultAddress_"
         builder.OwnsOne(u => u.DefaultDeliveryAddress, addr =>

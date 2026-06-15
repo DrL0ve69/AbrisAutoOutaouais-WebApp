@@ -26,5 +26,12 @@ public sealed class CreateRentalContractCommandValidator : AbstractValidator<Cre
         RuleFor(x => x.Address)
             .NotNull().WithMessage("L'adresse est requise.")
             .SetValidator(new AddressDtoValidator());
+
+        // Parcours invité : contact validé seulement s'il est fourni (connecté → null), par la
+        // source canonique unique GuestContactValidator (leçon L-004).
+        When(x => x.GuestContact is not null, () =>
+        {
+            RuleFor(x => x.GuestContact!).SetValidator(new GuestContactValidator());
+        });
     }
 }

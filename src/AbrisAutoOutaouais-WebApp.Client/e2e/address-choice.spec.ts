@@ -232,10 +232,10 @@ test.describe('anonyme (aucune adresse de profil)', () => {
     await expect(page.getByText('Adresse de mon profil')).toHaveCount(0);
   });
 
-  // NB : pas de test anonyme pour /panier/caisse — la route caisse est protégée par le garde
-  // d'authentification (un invité y est redirigé vers /auth). Un utilisateur anonyme n'atteint
-  // donc jamais le formulaire d'adresse de la caisse ; la pastille D6 n'y est pas en jeu pour lui.
-  // Le parcours invité est couvert sur /location, /installation et /mesurer (routes publiques).
+  // NB : depuis l'Épic F, la caisse (/panier/caisse) est OUVERTE aux invités (garde retiré, L-026) :
+  // un visiteur anonyme y atteint bien le formulaire d'adresse (aucune pastille, frontière dure). Ce
+  // parcours invité bout-en-bout (contact + adresse → POST /orders) est couvert par checkout-guest.spec.ts.
+  // Le parcours invité du formulaire direct est aussi couvert ici sur /location, /installation et /mesurer.
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

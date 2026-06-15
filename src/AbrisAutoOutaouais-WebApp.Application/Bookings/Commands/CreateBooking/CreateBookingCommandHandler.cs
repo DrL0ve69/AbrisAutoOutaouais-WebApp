@@ -1,5 +1,6 @@
 using AbrisAutoOutaouais_WebApp.Application.Common.Interfaces;
 using AbrisAutoOutaouais_WebApp.Application.Common.Mediator;
+using AbrisAutoOutaouais_WebApp.Domain.Exceptions;
 using Domain.Entities;
 using Domain.ValueObjects;
 
@@ -11,13 +12,18 @@ namespace AbrisAutoOutaouais_WebApp.Application.Bookings.Commands.CreateBooking;
 /// </summary>
 internal sealed class CreateBookingCommandHandler(
     IApplicationDbContext db,
-    ICurrentUserService currentUser) : ICommandHandler<CreateBookingCommand, Guid>
+    ICurrentUserService currentUser,
+    IExpressAccountService express) : ICommandHandler<CreateBookingCommand, Guid>
 {
     private const int DurationMin = 120;
 
     public async Task<Guid> HandleAsync(CreateBookingCommand cmd, CancellationToken ct)
     {
-        var userId = currentUser.UserId ?? Guid.Empty;
+        // Utilisateur connecté → son Id ; sinon visiteur → compte express trouvé-ou-créé par courriel.
+        var userId = currentUser.UserId
+            ?? (cmd.GuestContact is not null
+                ? await express.FindOrCreateByEmailAsync(cmd.GuestContact, ct)
+                : throw new BusinessRuleException("Coordonnées requises pour réserver un créneau."));
 
         var address = Address.Create(
             cmd.Address.CivicNumber,

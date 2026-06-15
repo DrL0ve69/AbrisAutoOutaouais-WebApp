@@ -1,0 +1,14 @@
+// Bloc « coordonnées invité » — jetons sémantiques uniquement (bascule par thème ; contraste
+// validé en e2e dual-thème, pas en vitest — L-016). Cohérent avec les autres fieldsets d'écran.
+.guest-contact {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin: 0;
+}
+
+.guest-contact__hint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}

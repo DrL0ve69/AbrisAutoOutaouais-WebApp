@@ -24,5 +24,12 @@ public sealed class PlaceOrderCommandValidator : AbstractValidator<PlaceOrderCom
                 .WithMessage("Adresse requise pour la livraison.");
             RuleFor(x => x.ShippingAddress!).SetValidator(new AddressDtoValidator());
         });
+
+        // Parcours invité : le contact n'est validé que s'il est fourni (utilisateur connecté → null),
+        // par la source canonique unique GuestContactValidator (leçon L-004).
+        When(x => x.GuestContact is not null, () =>
+        {
+            RuleFor(x => x.GuestContact!).SetValidator(new GuestContactValidator());
+        });
     }
 }

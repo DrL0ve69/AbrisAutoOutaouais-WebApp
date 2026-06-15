@@ -8,8 +8,6 @@ import {
 import { CurrencyPipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { CartService } from '../../core/services/cart.service';
-import { AuthService } from '../../core/services/auth.service';
-import { ToastService } from '../../core/services/toast.service';
 import {
   ProductSummaryDto,
   resolveProductImage,
@@ -30,8 +28,6 @@ import {
 })
 export class CartComponent {
   private readonly cart = inject(CartService);
-  private readonly auth = inject(AuthService);
-  private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
 
   protected readonly items = this.cart.items;
@@ -79,17 +75,12 @@ export class CartComponent {
     this.announce($localize`:@@cart.announce.cleared:Le panier a été vidé.`);
   }
 
-  /** Dirige vers la caisse (paiement démo). Connexion requise pour commander. */
+  /**
+   * Dirige vers la caisse (paiement démo). Ouverte aux invités (Épic F) : plus de redirection vers
+   * /auth ici — un visiteur non connecté finalise en fournissant ses coordonnées à la caisse (L-026).
+   */
   protected checkout(): void {
     if (this.isEmpty()) return;
-    if (!this.auth.isAuthenticated()) {
-      this.toast.show(
-        $localize`:@@cart.loginRequired:Connectez-vous pour passer une commande.`,
-        'info',
-      );
-      this.router.navigateByUrl('/auth');
-      return;
-    }
     this.router.navigateByUrl('/panier/caisse');
   }
 
