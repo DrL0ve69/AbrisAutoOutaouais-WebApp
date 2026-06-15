@@ -17,11 +17,17 @@ import { Router, RouterLink } from '@angular/router';
 import { CartService } from '../../core/services/cart.service';
 import { OrderService } from '../../core/services/order.service';
 import { ToastService } from '../../core/services/toast.service';
+import { AuthService } from '../../core/services/auth.service';
 import { createAddressFormController } from '../../core/services/address-form.controller';
 import { DeliveryType } from '../../core/models/order.model';
 import { AddressAutocompleteComponent } from '../../shared/components/a11y-components/autocomplete/address-autocomplete.component';
 import { AddressChoiceComponent } from '../../shared/components/a11y-components/address-choice/address-choice.component';
+import { GuestContactComponent } from '../../shared/components/a11y-components/guest-contact/guest-contact.component';
 import { CIVIC_PATTERN, POSTAL_PATTERN, normalizePostal } from '../../core/validators/address.validators';
+import {
+  buildGuestContactGroup,
+  toGuestContactRequest,
+} from '../../core/validators/guest-contact.validators';
 
 /** Adresse requise uniquement si le mode de réception est « Livraison ». */
 function addressRequiredIfDelivery(g: AbstractControl): ValidationErrors | null {
@@ -51,6 +57,7 @@ function addressRequiredIfDelivery(g: AbstractControl): ValidationErrors | null 
     RouterLink,
     AddressAutocompleteComponent,
     AddressChoiceComponent,
+    GuestContactComponent,
   ],
 })
 export class CheckoutComponent {
@@ -58,6 +65,7 @@ export class CheckoutComponent {
   private readonly cart = inject(CartService);
   private readonly orders = inject(OrderService);
   private readonly toast = inject(ToastService);
+  private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
   protected readonly items = this.cart.items;
@@ -65,6 +73,12 @@ export class CheckoutComponent {
   protected readonly count = this.cart.count;
   protected readonly isEmpty = computed(() => this.items().length === 0);
   protected readonly processing = signal(false);
+
+  /** Visiteur non connecté : on affiche et exige le bloc « coordonnées invité » (Épic F). */
+  protected readonly isGuest = computed(() => !this.auth.isAuthenticated());
+
+  /** Coordonnées invité — uniquement utilisées et validées quand `isGuest()`. */
+  protected readonly guestForm = buildGuestContactGroup(this.fb);
 
   protected readonly form = this.fb.nonNullable.group(
     {
@@ -101,9 +115,15 @@ export class CheckoutComponent {
       this.form.markAllAsTouched();
       return;
     }
+    // Invité : ses coordonnées sont requises avant de soumettre.
+    if (this.isGuest() && this.guestForm.invalid) {
+      this.guestForm.markAllAsTouched();
+      return;
+    }
 
     this.processing.set(true);
     const v = this.form.getRawValue();
+    const guestContact = this.isGuest() ? toGuestContactRequest(this.guestForm) : null;
     const lines = this.items().map(i => ({
       productId: i.product.id,
       quantity: i.quantity,
@@ -124,7 +144,7 @@ export class CheckoutComponent {
     // Paiement simulé (aucun appel réseau de paiement) — voir le commentaire de classe.
     this.simulatePayment().then(() =>
       this.orders
-        .placeOrder({ lines, deliveryType: v.deliveryType, shippingAddress })
+        .placeOrder({ lines, deliveryType: v.deliveryType, shippingAddress, guestContact })
         .subscribe({
           next: () => {
             this.cart.clear();
@@ -133,7 +153,9 @@ export class CheckoutComponent {
               $localize`:@@checkout.success:Paiement (démo) accepté — commande confirmée !`,
               'success',
             );
-            this.router.navigateByUrl('/mon-compte/commandes');
+            // Invité : « mes commandes » est protégé par le garde d'auth (il y serait redirigé
+            // vers /auth). On le renvoie à l'accueil ; le connecté va voir sa commande (Épic F).
+            this.router.navigateByUrl(this.isGuest() ? '/' : '/mon-compte/commandes');
           },
           error: () => {
             this.processing.set(false);

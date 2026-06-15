@@ -11,6 +11,57 @@
 
 ---
 
+## L-029 · Removing the declarative `authGuard` from a route is NOT enough — grep for imperative guards and post-action navigations too
+
+- **Symptom.** Épic F: opening `/panier/caisse` to guests required removing `canActivate: [authGuard]`
+  from `app.routes.ts`. Two **hidden doors** still blocked the guest path after that change. (a) An
+  **imperative guard** in `cart.ts`: the `checkout()` method redirected to `/auth` unconditionally
+  before the route was even activated — guests never reached the form. (b) A **post-action
+  navigation**: on order success, the redirect pointed to `/mon-compte/commandes` (an auth-protected
+  route), sending the newly-created guest straight back to `/auth`. Both were invisible to a route-level
+  grep for `authGuard` — one lived in a click handler, the other in a success callback.
+- **Rule.** When you open a route to anonymous users, do three things beyond removing the route guard:
+  (1) grep the **service / component methods** that trigger navigation TO that route for any
+  imperative `if (!user) router.navigate(['/auth'])` (or equivalent) — those are invisible to
+  `app.routes.ts`; (2) grep every **success / post-action navigation** inside handlers that run on that
+  route for redirects that land on a **protected** destination — a guest completing an action must have
+  somewhere reachable to go; (3) confirm the anonymous e2e actually exercises the full happy path
+  (entry → fill → submit → success page), not just that the route loads ([[L-005]]). Same "hunt the
+  old mechanism everywhere" discipline as [[L-008]], extended to the auth axis; and the companion to
+  [[L-026]] (which covers why the *test* for this path is also constrained by the guard).
+- **Refs.** `src/AbrisAutoOutaouais-WebApp.Client/src/app/features/cart/cart.ts` (imperative
+  `/auth` redirect removed from `checkout()`),
+  `features/{checkout,location,installation}` (post-success navigation to a guest-reachable page),
+  `src/app/app.routes.ts` (`canActivate: [authGuard]` removed from `/panier/caisse`),
+  branch `feat/epic-f-guest-checkout`.
+
+## L-028 · Opening an endpoint to `[AllowAnonymous]` requires a two-part security review: JWT-emission reachability AND sibling-action coverage
+
+- **Symptom.** Épic F: `OrdersController.PlaceOrder`, `RentalsController.Create`, and
+  `BookingsController.Create` were opened to guests via `[AllowAnonymous]` on the action, with
+  `[Authorize]` still at the class level. Two things had to be verified in the same review but are
+  easy to miss independently. (a) The express (passwordless) account created by
+  `FindOrCreateByEmail` must never be able to obtain a JWT — `IdentityService.Login` gates on
+  `CheckPasswordAsync` (returns false for `PasswordHash == null`), and no handler in the guest flow
+  calls `BuildAuthResponse` / returns a token. (b) Every **sibling action** on the same controller
+  (e.g. `GetMine`, `Cancel`, `Reschedule`, admin reads) must still be auth-protected by the
+  class-level `[Authorize]` — adding `[AllowAnonymous]` to one action must not silently widen another.
+  Neither gap was caught by the automated tests; both were caught by the independent code-reviewer.
+- **Rule.** Any time `[AllowAnonymous]` is added to an action on a class decorated with `[Authorize]`,
+  run a two-part security review before merging: (1) **JWT-emission reachability** — trace every code
+  path reachable from the anonymous entry point and confirm none calls `BuildAuthResponse`/returns
+  a token; a passwordless account (`PasswordHash == null`) must fail `CheckPasswordAsync` and the
+  login gate must be the only barrier; (2) **sibling-action coverage** — grep `[AllowAnonymous]`
+  across **all** controllers after the change and confirm no adjacent action on the same class lost
+  its auth requirement. Add an integration test asserting the anonymous action succeeds (2xx) AND a
+  sibling protected action returns 401 for an unauthenticated caller ([[L-005]]: the guard only guards
+  if CI runs it).
+- **Refs.** `src/AbrisAutoOutaouais-WebApp.API/Controllers/{Orders,Rentals,Bookings}Controller.cs`
+  (`[AllowAnonymous]` on create actions; `[Authorize]` at class level covers siblings),
+  `Infrastructure/Identity/ExpressAccountService.cs` (`FindOrCreateByEmail`, `IsExpress` flag),
+  `Infrastructure/Identity/IdentityService.cs` (`CheckPasswordAsync` login gate),
+  branch `feat/epic-f-guest-checkout`.
+
 ## L-027 · A signal-driven `aria-live` region won't RE-announce the same value — reset to a neutral state first
 
 - **Symptom.** Épic D (unified address). A screen-reader **re-announcement** silently dropped whenever

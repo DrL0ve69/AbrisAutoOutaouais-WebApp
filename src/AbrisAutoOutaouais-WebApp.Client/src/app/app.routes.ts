@@ -30,8 +30,9 @@ export const routes: Routes = [
     title: 'AbrisTempo Local — Mon panier',
   },
   {
+    // Caisse ouverte aux invités (Épic F) : un visiteur non connecté finalise sa commande en
+    // fournissant ses coordonnées (compte express). Plus de `authGuard` ici (cf. L-026).
     path: 'panier/caisse',
-    canActivate: [authGuard],
     loadComponent: () => import('./features/checkout/checkout').then(m => m.CheckoutComponent),
     title: 'AbrisTempo Local — Caisse',
   },

@@ -1,3 +1,5 @@
+import { GuestContactRequest } from './guest-contact.model';
+
 export interface OrderSummaryDto {
   readonly id: string;
   readonly reference: string;
@@ -53,4 +55,6 @@ export interface PlaceOrderRequest {
   readonly lines: readonly OrderLineRequest[];
   readonly deliveryType: DeliveryType;
   readonly shippingAddress: ShippingAddressRequest | null;
+  /** Contact invité (Épic F) — rempli pour un visiteur non connecté, omis si connecté. */
+  readonly guestContact?: GuestContactRequest | null;
 }

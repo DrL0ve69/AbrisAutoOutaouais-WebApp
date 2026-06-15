@@ -26,8 +26,12 @@ public sealed class BookingsController(IDispatcher dispatcher) : ControllerBase
         [FromQuery] DateOnly from, [FromQuery] DateOnly to, CancellationToken ct)
         => Ok(await dispatcher.DispatchAsync(new GetAvailableSlotsQuery(from, to), ct));
 
-    /// <summary>Réserver un créneau.</summary>
+    /// <summary>
+    /// Réserver un créneau. Accessible aux visiteurs non connectés : ils fournissent un
+    /// <c>GuestContact</c> qui crée/réutilise un compte express (parcours invité, Épic F).
+    /// </summary>
     [HttpPost]
+    [AllowAnonymous]
     [ProducesResponseType(201)]
     [ProducesResponseType<ProblemDetails>(422)]
     public async Task<IActionResult> Create([FromBody] CreateBookingCommand cmd, CancellationToken ct)

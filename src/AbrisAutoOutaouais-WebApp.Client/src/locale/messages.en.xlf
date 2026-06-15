@@ -738,10 +738,6 @@
         <source> Confirmer la réservation </source>
         <target> Confirm booking </target>
       </trans-unit>
-      <trans-unit id="installation.authRequired" datatype="html">
-        <source>Connectez-vous pour réserver une installation.</source>
-        <target>Sign in to book an installation.</target>
-      </trans-unit>
       <trans-unit id="installation.noSlot" datatype="html">
         <source>Veuillez choisir un créneau.</source>
         <target>Please choose a time slot.</target>
@@ -1090,10 +1086,6 @@
         <source> Confirmer la location </source>
         <target> Confirm rental </target>
       </trans-unit>
-      <trans-unit id="location.authRequired" datatype="html">
-        <source>Connectez-vous pour louer un abri.</source>
-        <target>Sign in to rent a shelter.</target>
-      </trans-unit>
       <trans-unit id="location.noProduct" datatype="html">
         <source>Veuillez choisir un abri à louer.</source>
         <target>Please choose a shelter to rent.</target>
@@ -1238,10 +1230,6 @@
       </trans-unit>
 
       <!-- ===== PANIER — caisse ===== -->
-      <trans-unit id="cart.loginRequired" datatype="html">
-        <source>Connectez-vous pour passer une commande.</source>
-        <target>Log in to place an order.</target>
-      </trans-unit>
       <trans-unit id="cart.orderPlaced" datatype="html">
         <source>Commande passée avec succès !</source>
         <target>Order placed successfully!</target>
@@ -1252,6 +1240,46 @@
       </trans-unit>
 
       <!-- ===== CAISSE (paiement démo) ===== -->
+      <trans-unit id="guestContact.legend" datatype="html">
+        <source>Vos coordonnées</source>
+        <target>Your contact details</target>
+      </trans-unit>
+      <trans-unit id="guestContact.hint" datatype="html">
+        <source> Pas besoin de créer un compte : nous utilisons ces informations pour vous contacter au sujet de votre demande. </source>
+        <target> No account needed: we use this information to contact you about your request. </target>
+      </trans-unit>
+      <trans-unit id="guestContact.firstName" datatype="html">
+        <source> Prénom </source>
+        <target> First name </target>
+      </trans-unit>
+      <trans-unit id="guestContact.firstNameRequired" datatype="html">
+        <source> Le prénom est requis. </source>
+        <target> First name is required. </target>
+      </trans-unit>
+      <trans-unit id="guestContact.lastName" datatype="html">
+        <source> Nom </source>
+        <target> Last name </target>
+      </trans-unit>
+      <trans-unit id="guestContact.lastNameRequired" datatype="html">
+        <source> Le nom est requis. </source>
+        <target> Last name is required. </target>
+      </trans-unit>
+      <trans-unit id="guestContact.email" datatype="html">
+        <source> Courriel </source>
+        <target> Email </target>
+      </trans-unit>
+      <trans-unit id="guestContact.emailInvalid" datatype="html">
+        <source> Saisissez un courriel valide (p. ex. : nom@exemple.com). </source>
+        <target> Enter a valid email (e.g. name@example.com). </target>
+      </trans-unit>
+      <trans-unit id="guestContact.phone" datatype="html">
+        <source> Téléphone (optionnel) </source>
+        <target> Phone (optional) </target>
+      </trans-unit>
+      <trans-unit id="guestContact.phoneInvalid" datatype="html">
+        <source> Format de téléphone invalide (10 à 20 caractères, chiffres et séparateurs). </source>
+        <target> Invalid phone format (10 to 20 characters, digits and separators). </target>
+      </trans-unit>
       <trans-unit id="checkout.eyebrow" datatype="html">
         <source>Paiement</source>
         <target>Payment</target>

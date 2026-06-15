@@ -19,8 +19,13 @@ import { CreateRentalContractRequest } from '../../core/models/rental.model';
 import { FaqComponent } from '../../shared/components/faq/faq.component';
 import { AddressAutocompleteComponent } from '../../shared/components/a11y-components/autocomplete/address-autocomplete.component';
 import { AddressChoiceComponent } from '../../shared/components/a11y-components/address-choice/address-choice.component';
+import { GuestContactComponent } from '../../shared/components/a11y-components/guest-contact/guest-contact.component';
 import { LOCATION_FAQ } from '../../shared/content/faq.data';
 import { CIVIC_PATTERN, POSTAL_PATTERN, normalizePostal } from '../../core/validators/address.validators';
+import {
+  buildGuestContactGroup,
+  toGuestContactRequest,
+} from '../../core/validators/guest-contact.validators';
 
 /**
  * Location saisonnière d'abris.
@@ -36,6 +41,7 @@ import { CIVIC_PATTERN, POSTAL_PATTERN, normalizePostal } from '../../core/valid
     FaqComponent,
     AddressAutocompleteComponent,
     AddressChoiceComponent,
+    GuestContactComponent,
   ],
   templateUrl: './location.html',
   styleUrl: './location.scss',
@@ -79,6 +85,12 @@ export class LocationComponent implements OnInit {
    */
   protected readonly addr = createAddressFormController(this.form);
 
+  /** Visiteur non connecté : on affiche et exige le bloc « coordonnées invité » (Épic F). */
+  protected readonly isGuest = computed(() => !this.auth.isAuthenticated());
+
+  /** Coordonnées invité — uniquement utilisées et validées quand `isGuest()`. */
+  protected readonly guestForm = buildGuestContactGroup(this.fb);
+
   protected get f() {
     return this.form.controls;
   }
@@ -100,15 +112,6 @@ export class LocationComponent implements OnInit {
   protected confirm(): void {
     if (this.submitting()) return;
 
-    if (!this.auth.isAuthenticated()) {
-      this.toast.show(
-        $localize`:@@location.authRequired:Connectez-vous pour louer un abri.`,
-        'info',
-      );
-      this.router.navigateByUrl('/auth');
-      return;
-    }
-
     const productId = this.selectedId();
     if (!productId) {
       this.toast.show(
@@ -120,6 +123,11 @@ export class LocationComponent implements OnInit {
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      return;
+    }
+    // Invité : ses coordonnées sont requises avant de soumettre (Épic F).
+    if (this.isGuest() && this.guestForm.invalid) {
+      this.guestForm.markAllAsTouched();
       return;
     }
 
@@ -146,6 +154,7 @@ export class LocationComponent implements OnInit {
         postalCode: normalizePostal(v.postalCode),
         country: 'Canada',
       },
+      guestContact: this.isGuest() ? toGuestContactRequest(this.guestForm) : null,
     };
 
     this.rentals.createRental(request).subscribe({
@@ -155,7 +164,8 @@ export class LocationComponent implements OnInit {
           $localize`:@@location.success:Location confirmée !`,
           'success',
         );
-        this.router.navigateByUrl('/mon-compte/locations');
+        // Invité : « mes locations » est protégé par le garde d'auth → on le renvoie à l'accueil.
+        this.router.navigateByUrl(this.isGuest() ? '/' : '/mon-compte/locations');
       },
       error: () => {
         this.submitting.set(false);

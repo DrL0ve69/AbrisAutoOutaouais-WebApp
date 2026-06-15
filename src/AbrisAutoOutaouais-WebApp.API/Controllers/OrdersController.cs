@@ -16,8 +16,12 @@ namespace AbrisAutoOutaouais_WebApp.API.Controllers;
 [Authorize] // toutes les routes nécessitent une authentification
 public sealed class OrdersController(IDispatcher dispatcher) : ControllerBase
 {
-    /// <summary>Passer une commande (persistée).</summary>
+    /// <summary>
+    /// Passer une commande (persistée). Accessible aux visiteurs non connectés : ils fournissent
+    /// un <c>GuestContact</c> qui crée/réutilise un compte express (parcours invité, Épic F).
+    /// </summary>
     [HttpPost]
+    [AllowAnonymous]
     [ProducesResponseType(201)]
     [ProducesResponseType<ProblemDetails>(422)]
     public async Task<IActionResult> PlaceOrder([FromBody] PlaceOrderCommand cmd, CancellationToken ct)

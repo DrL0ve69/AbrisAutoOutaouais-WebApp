@@ -100,6 +100,7 @@ public static class DependencyInjection
         // ── Services Identity ─────────────────────────────────────────────────
         services.AddScoped<TokenService>();
         services.AddScoped<IIdentityService, IdentityService>();
+        services.AddScoped<IExpressAccountService, ExpressAccountService>();
 
         // ── Services métier ───────────────────────────────────────────────────
         services.AddHttpContextAccessor();

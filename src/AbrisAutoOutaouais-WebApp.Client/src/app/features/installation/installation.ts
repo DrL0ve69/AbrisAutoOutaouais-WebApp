@@ -21,8 +21,13 @@ import {
 import { FaqComponent } from '../../shared/components/faq/faq.component';
 import { AddressAutocompleteComponent } from '../../shared/components/a11y-components/autocomplete/address-autocomplete.component';
 import { AddressChoiceComponent } from '../../shared/components/a11y-components/address-choice/address-choice.component';
+import { GuestContactComponent } from '../../shared/components/a11y-components/guest-contact/guest-contact.component';
 import { INSTALLATION_FAQ } from '../../shared/content/faq.data';
 import { CIVIC_PATTERN, POSTAL_PATTERN, normalizePostal } from '../../core/validators/address.validators';
+import {
+  buildGuestContactGroup,
+  toGuestContactRequest,
+} from '../../core/validators/guest-contact.validators';
 import { excludedBrandValidator } from '../../core/validators/brand.validators';
 
 /** Créneaux regroupés par jour pour l'affichage. */
@@ -46,6 +51,7 @@ interface SlotGroup {
     FaqComponent,
     AddressAutocompleteComponent,
     AddressChoiceComponent,
+    GuestContactComponent,
   ],
   templateUrl: './installation.html',
   styleUrl: './installation.scss',
@@ -93,6 +99,12 @@ export class InstallationComponent implements OnInit {
    */
   protected readonly addr = createAddressFormController(this.form);
 
+  /** Visiteur non connecté : on affiche et exige le bloc « coordonnées invité » (Épic F). */
+  protected readonly isGuest = computed(() => !this.auth.isAuthenticated());
+
+  /** Coordonnées invité — uniquement utilisées et validées quand `isGuest()`. */
+  protected readonly guestForm = buildGuestContactGroup(this.fb);
+
   protected get f() {
     return this.form.controls;
   }
@@ -118,15 +130,6 @@ export class InstallationComponent implements OnInit {
   protected confirm(): void {
     if (this.submitting()) return;
 
-    if (!this.auth.isAuthenticated()) {
-      this.toast.show(
-        $localize`:@@installation.authRequired:Connectez-vous pour réserver une installation.`,
-        'info',
-      );
-      this.router.navigateByUrl('/auth');
-      return;
-    }
-
     const slot = this.selectedSlot();
     if (!slot) {
       this.toast.show(
@@ -138,6 +141,11 @@ export class InstallationComponent implements OnInit {
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      return;
+    }
+    // Invité : ses coordonnées sont requises avant de soumettre (Épic F).
+    if (this.isGuest() && this.guestForm.invalid) {
+      this.guestForm.markAllAsTouched();
       return;
     }
 
@@ -158,6 +166,7 @@ export class InstallationComponent implements OnInit {
       notes: v.notes.trim() || null,
       brand: v.brand?.trim() || null,
       model: v.model?.trim() || null,
+      guestContact: this.isGuest() ? toGuestContactRequest(this.guestForm) : null,
     };
 
     this.bookings.createBooking(request).subscribe({
@@ -167,7 +176,8 @@ export class InstallationComponent implements OnInit {
           $localize`:@@installation.success:Réservation confirmée !`,
           'success',
         );
-        this.router.navigateByUrl('/mon-compte/reservations');
+        // Invité : « mes réservations » est protégé par le garde d'auth → on le renvoie à l'accueil.
+        this.router.navigateByUrl(this.isGuest() ? '/' : '/mon-compte/reservations');
       },
       error: () => {
         this.submitting.set(false);

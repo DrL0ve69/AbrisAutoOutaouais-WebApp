@@ -1,0 +1,112 @@
+<fieldset class="guest-contact" [formGroup]="group()">
+  <legend id="{{ idPrefix() }}-guest-legend" i18n="@@guestContact.legend">Vos coordonnées</legend>
+  <p class="guest-contact__hint" i18n="@@guestContact.hint">
+    Pas besoin de créer un compte&nbsp;: nous utilisons ces informations pour vous contacter au sujet
+    de votre demande.
+  </p>
+
+  <div class="field-row">
+    <div class="field">
+      <label class="field__label" for="{{ idPrefix() }}-guest-first" i18n="@@guestContact.firstName">
+        Prénom
+      </label>
+      <input
+        id="{{ idPrefix() }}-guest-first"
+        class="field__input"
+        type="text"
+        formControlName="firstName"
+        autocomplete="given-name"
+        [attr.aria-invalid]="c.firstName.invalid && c.firstName.touched"
+        [attr.aria-describedby]="
+          c.firstName.invalid && c.firstName.touched ? idPrefix() + '-guest-first-err' : null
+        " />
+      @if (c.firstName.invalid && c.firstName.touched) {
+        <p
+          id="{{ idPrefix() }}-guest-first-err"
+          class="field__error"
+          role="alert"
+          i18n="@@guestContact.firstNameRequired">
+          Le prénom est requis.
+        </p>
+      }
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="{{ idPrefix() }}-guest-last" i18n="@@guestContact.lastName">
+        Nom
+      </label>
+      <input
+        id="{{ idPrefix() }}-guest-last"
+        class="field__input"
+        type="text"
+        formControlName="lastName"
+        autocomplete="family-name"
+        [attr.aria-invalid]="c.lastName.invalid && c.lastName.touched"
+        [attr.aria-describedby]="
+          c.lastName.invalid && c.lastName.touched ? idPrefix() + '-guest-last-err' : null
+        " />
+      @if (c.lastName.invalid && c.lastName.touched) {
+        <p
+          id="{{ idPrefix() }}-guest-last-err"
+          class="field__error"
+          role="alert"
+          i18n="@@guestContact.lastNameRequired">
+          Le nom est requis.
+        </p>
+      }
+    </div>
+  </div>
+
+  <div class="field">
+    <label class="field__label" for="{{ idPrefix() }}-guest-email" i18n="@@guestContact.email">
+      Courriel
+    </label>
+    <input
+      id="{{ idPrefix() }}-guest-email"
+      class="field__input"
+      type="email"
+      formControlName="email"
+      autocomplete="email"
+      inputmode="email"
+      [attr.aria-invalid]="c.email.invalid && c.email.touched"
+      [attr.aria-describedby]="
+        c.email.invalid && c.email.touched ? idPrefix() + '-guest-email-err' : null
+      " />
+    @if (c.email.invalid && c.email.touched) {
+      <p
+        id="{{ idPrefix() }}-guest-email-err"
+        class="field__error"
+        role="alert"
+        i18n="@@guestContact.emailInvalid">
+        Saisissez un courriel valide (p.&nbsp;ex.&nbsp;: nom&#64;exemple.com).
+      </p>
+    }
+  </div>
+
+  <div class="field">
+    <label class="field__label" for="{{ idPrefix() }}-guest-phone" i18n="@@guestContact.phone">
+      Téléphone (optionnel)
+    </label>
+    <input
+      id="{{ idPrefix() }}-guest-phone"
+      class="field__input"
+      type="tel"
+      formControlName="phone"
+      autocomplete="tel"
+      inputmode="tel"
+      placeholder="819 555-0123"
+      [attr.aria-invalid]="c.phone.invalid && c.phone.touched"
+      [attr.aria-describedby]="
+        c.phone.invalid && c.phone.touched ? idPrefix() + '-guest-phone-err' : null
+      " />
+    @if (c.phone.invalid && c.phone.touched) {
+      <p
+        id="{{ idPrefix() }}-guest-phone-err"
+        class="field__error"
+        role="alert"
+        i18n="@@guestContact.phoneInvalid">
+        Format de téléphone invalide (10 à 20 caractères, chiffres et séparateurs).
+      </p>
+    }
+  </div>
+</fieldset>

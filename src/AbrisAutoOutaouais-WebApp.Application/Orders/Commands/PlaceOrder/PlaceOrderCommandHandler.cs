@@ -15,12 +15,19 @@ namespace AbrisAutoOutaouais_WebApp.Application.Orders.Commands.PlaceOrder;
 internal sealed class PlaceOrderCommandHandler(
     IApplicationDbContext db,
     ICurrentUserService currentUser,
+    IExpressAccountService express,
     IEmailService email) : ICommandHandler<PlaceOrderCommand, Guid>
 {
     public async Task<Guid> HandleAsync(PlaceOrderCommand cmd, CancellationToken ct)
     {
         if (cmd.Lines is null || cmd.Lines.Count == 0)
             throw new BusinessRuleException("Le panier est vide.");
+
+        // Utilisateur connecté → son Id ; sinon visiteur → compte express trouvé-ou-créé par courriel.
+        var customerId = currentUser.UserId
+            ?? (cmd.GuestContact is not null
+                ? await express.FindOrCreateByEmailAsync(cmd.GuestContact, ct)
+                : throw new BusinessRuleException("Coordonnées requises pour passer une commande."));
 
         var productIds = cmd.Lines.Select(l => l.ProductId).Distinct().ToList();
         var products = await db.Products
@@ -43,7 +50,7 @@ internal sealed class PlaceOrderCommandHandler(
             : null;
 
         // Règles métier (panier non vide, adresse si livraison, dispo) dans Order.Create()
-        var order = Order.Create(currentUser.UserId!.Value, cmd.DeliveryType, items, address);
+        var order = Order.Create(customerId, cmd.DeliveryType, items, address);
 
         foreach (var (product, qty) in items)
             product.AdjustStock(-qty);
@@ -52,7 +59,9 @@ internal sealed class PlaceOrderCommandHandler(
         await db.SaveChangesAsync(ct);
 
         // L'échec d'envoi du courriel ne doit pas annuler une commande déjà persistée.
-        try { await email.SendOrderConfirmationAsync(order.Id, currentUser.Email!, ct); }
+        // Destinataire : courriel du connecté, sinon celui du contact invité.
+        var recipient = currentUser.Email ?? cmd.GuestContact!.Email;
+        try { await email.SendOrderConfirmationAsync(order.Id, recipient, ct); }
         catch { /* journalisé ailleurs ; commande conservée */ }
 
         return order.Id;
