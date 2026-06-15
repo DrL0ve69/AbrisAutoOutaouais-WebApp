@@ -38,8 +38,12 @@
 
         <!-- Adresse de livraison (si livraison) -->
         @if (f.deliveryType.value === 'Delivery') {
+        <app-address-choice
+          [profileAddress]="profileAddress()"
+          headingId="co-address-legend"
+          (modeChange)="onAddressMode($event)">
         <fieldset class="checkout__group">
-          <legend i18n="@@checkout.address.legend">Adresse de livraison</legend>
+          <legend id="co-address-legend" i18n="@@checkout.address.legend">Adresse de livraison</legend>
           <div class="field-row">
             <div class="field">
               <label class="field__label" for="co-civic" i18n="@@checkout.address.civic">Numéro civique</label>
@@ -104,6 +108,7 @@
           </p>
           }
         </fieldset>
+        </app-address-choice>
         }
 
         <!-- Paiement (démo) -->

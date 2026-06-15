@@ -4,6 +4,10 @@
     carte satellite à l'étape suivante.
   </p>
 
+  <app-address-choice
+    [profileAddress]="profileAddress()"
+    headingId="mesurer-heading"
+    (modeChange)="onAddressMode($event)">
   <div class="form-row form-row--two">
     <div class="form-field">
       <label for="mesurer-civic" i18n="@@mesurer.address.civic">Numéro civique</label>
@@ -59,6 +63,7 @@
       <input id="mesurer-province" type="text" formControlName="province" autocomplete="address-level1" />
     </div>
   </div>
+  </app-address-choice>
 
   <!-- Feedback de géocodage (D4) : pendant la localisation de l'adresse, statut scopé annoncé
        poliment (PAS de landmark/live-region global — L-010). -->

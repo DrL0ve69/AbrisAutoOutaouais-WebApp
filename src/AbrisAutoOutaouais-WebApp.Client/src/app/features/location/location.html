@@ -50,7 +50,7 @@
 
       <!-- ÉTAPE 2 : période + adresse -->
       <fieldset class="rental__fieldset">
-        <legend class="rental__legend" i18n="@@location.details.legend">
+        <legend id="loc-details-legend" class="rental__legend" i18n="@@location.details.legend">
           2. Période et adresse
         </legend>
 
@@ -76,6 +76,10 @@
           </div>
         </div>
 
+        <app-address-choice
+          [profileAddress]="profileAddress()"
+          headingId="loc-details-legend"
+          (modeChange)="onAddressMode($event)">
         <div class="form-row form-row--two">
           <div class="form-field">
             <label for="civicNumber" i18n="@@location.field.civic">Numéro civique</label>
@@ -157,6 +161,7 @@
             </p>
           </div>
         </div>
+        </app-address-choice>
       </fieldset>
 
       <button

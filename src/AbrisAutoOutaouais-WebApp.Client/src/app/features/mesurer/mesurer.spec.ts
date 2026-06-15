@@ -45,6 +45,9 @@ async function setup() {
   const profile: Partial<ProfileService> = {
     ensureLoaded: vi.fn(),
     applyDefaultAddress: vi.fn(),
+    // D6 — pas d'adresse de profil ici : l'étape adresse rend le formulaire directement (le
+    // parcours de saisie manuelle exercé par ces tests reste inchangé). Computed-like → fonction.
+    defaultDeliveryAddress: (() => null) as ProfileService['defaultDeliveryAddress'],
   };
   const shelters: Partial<ShelterSuggestionService> = {
     suggestShelters: vi.fn().mockReturnValue(of([SHELTER])),

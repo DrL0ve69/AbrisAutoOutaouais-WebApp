@@ -66,10 +66,18 @@ export class ProfileService {
    * porte une valeur par défaut (« QC », « Canada ») : un défaut n'est pas une saisie. Dès que
    * l'utilisateur édite un champ (dirty), on ne l'écrase jamais (voir leçon L-002). À appeler
    * dans un `effect()` du composant.
+   *
+   * `force` (D6) : copie l'adresse de profil dans TOUS les contrôles d'adresse, sans la garde
+   * pristine. Utilisé par la pastille « Adresse de mon profil » (`app-address-choice`) : en mode
+   * profil, la pastille est en lecture seule à l'écran mais le formulaire sous-jacent DOIT porter
+   * la valeur pour qu'une soumission parte valide (frontière dure). On COPIE l'adresse — l'écran
+   * ne l'édite pas. Distinct de L-002 : ce n'est pas un autofill silencieux mais le reflet d'un
+   * choix utilisateur explicite (« utiliser l'adresse de mon profil »).
    */
   applyDefaultAddress(
     form: FormGroup,
     address: AddressDto | null = this.defaultDeliveryAddress(),
+    force = false,
   ): void {
     if (!address) return;
     const values: Record<string, string> = {
@@ -83,7 +91,7 @@ export class ProfileService {
     };
     for (const [name, value] of Object.entries(values)) {
       const control = form.get(name);
-      if (control && control.pristine) {
+      if (control && (force || control.pristine)) {
         control.setValue(value);
       }
     }

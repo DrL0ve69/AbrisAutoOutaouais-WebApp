@@ -104,15 +104,16 @@ test('Caisse (/panier/caisse) — commande Livraison avec adresse Ontario pré-r
   await page.getByRole('button', { name: /passer à la caisse/i }).click();
   await expect(page).toHaveURL(/\/panier\/caisse$/);
 
-  // Choisir « Livraison » → la section adresse s'affiche, pré-remplie depuis le profil.
+  // Choisir « Livraison » → la section adresse s'affiche. D6 : par défaut, la PASTILLE « Adresse
+  // de mon profil » (Ontario) est sélectionnée, en lecture seule. On NE bascule PAS vers le
+  // formulaire : c'est précisément le test de la FRONTIÈRE DURE — en mode profil, le formulaire
+  // sous-jacent porte déjà l'adresse profil (recopie force), donc la soumission part valide et le
+  // POST /orders doit porter « province: ON » sans qu'on touche un seul champ d'adresse.
   await page.getByRole('radio', { name: /livraison/i }).check();
-
-  await expect(page.locator('#co-civic')).toHaveValue(SAVED_ADDRESS.civicNumber);
-  await expect(page.locator('#co-street')).toHaveValue(SAVED_ADDRESS.street);
-  await expect(page.locator('#co-apartment')).toHaveValue(SAVED_ADDRESS.apartment);
-  await expect(page.locator('#co-city')).toHaveValue(SAVED_ADDRESS.city);
-  await expect(page.locator('#co-province')).toHaveValue(SAVED_ADDRESS.province);
-  await expect(page.locator('#co-postal')).toHaveValue(SAVED_ADDRESS.postalCode);
+  await expect(page.getByText('Adresse de mon profil')).toBeVisible();
+  await expect(
+    page.getByText(`${SAVED_ADDRESS.civicNumber} ${SAVED_ADDRESS.street}`, { exact: false }),
+  ).toBeVisible();
 
   // Carte de paiement (démo) valide.
   await page.locator('#co-card-name').fill('Camille Client');

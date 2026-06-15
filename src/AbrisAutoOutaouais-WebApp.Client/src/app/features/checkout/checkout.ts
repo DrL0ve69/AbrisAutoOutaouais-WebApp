@@ -25,6 +25,7 @@ import { AddressAutofillService } from '../../core/services/address-autofill.ser
 import { DeliveryType } from '../../core/models/order.model';
 import { PlaceSuggestionDto } from '../../core/models/place.model';
 import { AddressAutocompleteComponent } from '../../shared/components/a11y-components/autocomplete/address-autocomplete.component';
+import { AddressChoiceComponent } from '../../shared/components/a11y-components/address-choice/address-choice.component';
 import { CIVIC_PATTERN, POSTAL_PATTERN, normalizePostal } from '../../core/validators/address.validators';
 
 /** Adresse requise uniquement si le mode de réception est « Livraison ». */
@@ -49,7 +50,13 @@ function addressRequiredIfDelivery(g: AbstractControl): ValidationErrors | null 
   templateUrl: './checkout.html',
   styleUrl: './checkout.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, CurrencyPipe, RouterLink, AddressAutocompleteComponent],
+  imports: [
+    ReactiveFormsModule,
+    CurrencyPipe,
+    RouterLink,
+    AddressAutocompleteComponent,
+    AddressChoiceComponent,
+  ],
 })
 export class CheckoutComponent {
   private readonly fb = inject(FormBuilder);
@@ -68,6 +75,10 @@ export class CheckoutComponent {
   protected readonly processing = signal(false);
   /** Annonce (aria-live) : issue de la résolution du code postal après choix d'une suggestion. */
   protected readonly postalFill = signal<'idle' | 'filled' | 'unavailable'>('idle');
+  /** Adresse de profil pour la pastille `app-address-choice` (null = invité ⇒ formulaire direct). */
+  protected readonly profileAddress = this.profile.defaultDeliveryAddress;
+  /** Mode de choix d'adresse : « profile » (pastille) ou « other » (formulaire éditable). */
+  protected readonly addressMode = signal<'profile' | 'other'>('profile');
 
   protected readonly form = this.fb.nonNullable.group(
     {
@@ -87,14 +98,33 @@ export class CheckoutComponent {
   );
 
   constructor() {
-    // Pré-remplit l'adresse de livraison avec l'adresse par défaut enregistrée
-    // (sans écraser une saisie en cours — voir ProfileService.applyDefaultAddress).
+    // D6 — utilisateur connecté avec adresse de profil : mode « profile » par défaut (pastille).
+    // En mode profil, on COPIE l'adresse de profil dans le formulaire (force) pour qu'une
+    // soumission parte valide même si la pastille est en lecture seule. L'adresse arrive de façon
+    // asynchrone (/auth/me) : l'effet la recopie dès qu'elle est disponible. Invité (adresse null)
+    // ⇒ `applyDefaultAddress` no-op et `app-address-choice` rend le formulaire direct (inchangé).
     this.profile.ensureLoaded();
-    effect(() => this.profile.applyDefaultAddress(this.form));
+    effect(() => {
+      if (this.addressMode() === 'profile') {
+        this.profile.applyDefaultAddress(this.form, undefined, true);
+      }
+    });
   }
 
   protected get f() {
     return this.form.controls;
+  }
+
+  /**
+   * Bascule de la pastille d'adresse (`app-address-choice`). En passant à « other », on pré-remplit
+   * les champs encore intacts avec l'adresse de profil comme point de départ éditable (garde
+   * pristine de L-002). Le retour à « profile » est traité par l'effet (recopie force).
+   */
+  protected onAddressMode(mode: 'profile' | 'other'): void {
+    this.addressMode.set(mode);
+    if (mode === 'other') {
+      this.profile.applyDefaultAddress(this.form);
+    }
   }
 
   /**

@@ -25,6 +25,7 @@ import {
 import { PlaceSuggestionDto } from '../../core/models/place.model';
 import { FaqComponent } from '../../shared/components/faq/faq.component';
 import { AddressAutocompleteComponent } from '../../shared/components/a11y-components/autocomplete/address-autocomplete.component';
+import { AddressChoiceComponent } from '../../shared/components/a11y-components/address-choice/address-choice.component';
 import { INSTALLATION_FAQ } from '../../shared/content/faq.data';
 import { CIVIC_PATTERN, POSTAL_PATTERN, normalizePostal } from '../../core/validators/address.validators';
 import { excludedBrandValidator } from '../../core/validators/brand.validators';
@@ -44,7 +45,13 @@ interface SlotGroup {
 @Component({
   selector: 'app-installation',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, DatePipe, FaqComponent, AddressAutocompleteComponent],
+  imports: [
+    ReactiveFormsModule,
+    DatePipe,
+    FaqComponent,
+    AddressAutocompleteComponent,
+    AddressChoiceComponent,
+  ],
   templateUrl: './installation.html',
   styleUrl: './installation.scss',
 })
@@ -65,6 +72,10 @@ export class InstallationComponent implements OnInit {
   protected readonly submitting = signal(false);
   /** Annonce (aria-live) : issue de la résolution du code postal après choix d'une suggestion. */
   protected readonly postalFill = signal<'idle' | 'filled' | 'unavailable'>('idle');
+  /** Adresse de profil pour la pastille `app-address-choice` (null = invité ⇒ formulaire direct). */
+  protected readonly profileAddress = this.profile.defaultDeliveryAddress;
+  /** Mode de choix d'adresse : « profile » (pastille) ou « other » (formulaire éditable). */
+  protected readonly addressMode = signal<'profile' | 'other'>('profile');
   protected readonly groups = signal<readonly SlotGroup[]>([]);
   protected readonly selectedSlot = signal<string | null>(null);
   protected readonly hasSlots = computed(() => this.groups().length > 0);
@@ -89,13 +100,31 @@ export class InstallationComponent implements OnInit {
   });
 
   constructor() {
-    // Pré-remplit l'adresse d'installation avec l'adresse par défaut enregistrée.
+    // D6 — voir CheckoutComponent : mode « profile » par défaut (pastille) avec recopie force de
+    // l'adresse de profil (formulaire valide même si la pastille est en lecture seule) ; invité
+    // (adresse null) ⇒ no-op et `app-address-choice` rend le formulaire direct (inchangé).
     this.profile.ensureLoaded();
-    effect(() => this.profile.applyDefaultAddress(this.form));
+    effect(() => {
+      if (this.addressMode() === 'profile') {
+        this.profile.applyDefaultAddress(this.form, undefined, true);
+      }
+    });
   }
 
   protected get f() {
     return this.form.controls;
+  }
+
+  /**
+   * Bascule de la pastille d'adresse (`app-address-choice`). En passant à « other », pré-remplit
+   * les champs intacts avec l'adresse de profil comme point de départ éditable (garde pristine
+   * L-002). Le retour à « profile » est traité par l'effet (recopie force).
+   */
+  protected onAddressMode(mode: 'profile' | 'other'): void {
+    this.addressMode.set(mode);
+    if (mode === 'other') {
+      this.profile.applyDefaultAddress(this.form);
+    }
   }
 
   ngOnInit(): void {

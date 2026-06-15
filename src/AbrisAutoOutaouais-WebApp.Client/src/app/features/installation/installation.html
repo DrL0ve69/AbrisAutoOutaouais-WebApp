@@ -55,7 +55,7 @@
 
       <!-- ÉTAPE 2 : type + adresse -->
       <fieldset class="booking__fieldset">
-        <legend class="booking__legend" i18n="@@installation.details.legend">
+        <legend id="inst-details-legend" class="booking__legend" i18n="@@installation.details.legend">
           2. Détails de l'intervention
         </legend>
 
@@ -98,6 +98,10 @@
           </div>
         </div>
 
+        <app-address-choice
+          [profileAddress]="profileAddress()"
+          headingId="inst-details-legend"
+          (modeChange)="onAddressMode($event)">
         <div class="form-row form-row--two">
           <div class="form-field">
             <label for="civicNumber" i18n="@@installation.field.civic">Numéro civique</label>
@@ -179,6 +183,7 @@
             </p>
           </div>
         </div>
+        </app-address-choice>
 
         <div class="form-field">
           <label for="notes" i18n="@@installation.field.notes">Notes (optionnel)</label>

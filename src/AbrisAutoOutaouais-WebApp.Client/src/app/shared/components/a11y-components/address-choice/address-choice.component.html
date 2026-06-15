@@ -1,0 +1,37 @@
+@if (effectiveMode() === 'profile') {
+<!-- Pastille en lecture seule : adresse de profil. role="group" NEUTRE (jamais un live-region),
+     étiqueté par le titre de section de l'écran (headingId). -->
+<div class="address-choice">
+  <div class="address-choice__card" role="group" [attr.aria-labelledby]="headingId() || null">
+    <p class="address-choice__label" i18n="@@address.choice.profileLabel">Adresse de mon profil</p>
+    <p class="address-choice__line">{{ formattedAddress() }}</p>
+    <button
+      #useOtherButton
+      type="button"
+      class="btn btn--ghost btn--sm address-choice__toggle"
+      (click)="switchToOther()"
+      i18n="@@address.choice.useOther">
+      Utiliser une autre adresse
+    </button>
+  </div>
+</div>
+} @else {
+<!-- Mode « autre adresse » : on rend le formulaire structuré projeté par l'écran. En parcours
+     anonyme (pas d'adresse profil), on arrive ici directement, SANS bouton retour. -->
+<div class="address-choice">
+  @if (hasProfileAddress()) {
+  <button
+    #useProfileButton
+    type="button"
+    class="btn btn--ghost btn--sm address-choice__toggle"
+    (click)="switchToProfile()"
+    i18n="@@address.choice.useProfile">
+    Utiliser l'adresse de mon profil
+  </button>
+  }
+  <ng-content />
+</div>
+}
+
+<!-- Annonce de bascule SCOPÉE au composant (L-010 : jamais un landmark global). -->
+<p class="sr-only" role="status" aria-live="polite" aria-atomic="true">{{ announcement() }}</p>
