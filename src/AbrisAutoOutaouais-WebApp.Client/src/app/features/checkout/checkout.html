@@ -39,9 +39,9 @@
         <!-- Adresse de livraison (si livraison) -->
         @if (f.deliveryType.value === 'Delivery') {
         <app-address-choice
-          [profileAddress]="profileAddress()"
+          [profileAddress]="addr.profileAddress()"
           headingId="co-address-legend"
-          (modeChange)="onAddressMode($event)">
+          (modeChange)="addr.onAddressMode($event)">
         <fieldset class="checkout__group">
           <legend id="co-address-legend" i18n="@@checkout.address.legend">Adresse de livraison</legend>
           <div class="field-row">
@@ -65,8 +65,8 @@
                 [value]="f.street.value"
                 [cityHint]="f.city.value"
                 [provinceHint]="f.province.value"
-                (valueChange)="onStreetInput($event)"
-                (suggestionSelected)="onSuggestionSelected($event)" />
+                (valueChange)="addr.onStreetInput($event)"
+                (suggestionSelected)="addr.onSuggestionSelected($event)" />
             </div>
           </div>
           <div class="field">
@@ -91,7 +91,7 @@
                      autocomplete="postal-code" />
               <!-- Annonce locale (scopée) du remplissage auto du code postal — L-010. -->
               <p class="sr-only" role="status" aria-live="polite" aria-atomic="true">
-                @switch (postalFill()) {
+                @switch (addr.postalFill()) {
                   @case ('filled') {
                 <ng-container i18n="@@address.postalAutofilled">Code postal rempli automatiquement — vérifiez-le.</ng-container>
                   }

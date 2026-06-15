@@ -77,9 +77,9 @@
         </div>
 
         <app-address-choice
-          [profileAddress]="profileAddress()"
+          [profileAddress]="addr.profileAddress()"
           headingId="loc-details-legend"
-          (modeChange)="onAddressMode($event)">
+          (modeChange)="addr.onAddressMode($event)">
         <div class="form-row form-row--two">
           <div class="form-field">
             <label for="civicNumber" i18n="@@location.field.civic">Numéro civique</label>
@@ -104,8 +104,8 @@
               [provinceHint]="f.province.value"
               [invalid]="f.street.touched && f.street.invalid"
               describedBy="loc-street-err"
-              (valueChange)="onStreetInput($event)"
-              (suggestionSelected)="onSuggestionSelected($event)" />
+              (valueChange)="addr.onStreetInput($event)"
+              (suggestionSelected)="addr.onSuggestionSelected($event)" />
             @if (f.street.touched && f.street.invalid) {
             <p id="loc-street-err" class="form-field__error" role="alert" i18n="@@location.field.streetRequired">
               L'adresse est requise.
@@ -150,7 +150,7 @@
             }
             <!-- Annonce locale (scopée) du remplissage auto du code postal — L-010. -->
             <p class="sr-only" role="status" aria-live="polite" aria-atomic="true">
-              @switch (postalFill()) {
+              @switch (addr.postalFill()) {
                 @case ('filled') {
               <ng-container i18n="@@address.postalAutofilled">Code postal rempli automatiquement — vérifiez-le.</ng-container>
                 }

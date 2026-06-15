@@ -5,9 +5,9 @@
   </p>
 
   <app-address-choice
-    [profileAddress]="profileAddress()"
+    [profileAddress]="addr.profileAddress()"
     headingId="mesurer-heading"
-    (modeChange)="onAddressMode($event)">
+    (modeChange)="addr.onAddressMode($event)">
   <div class="form-row form-row--two">
     <div class="form-field">
       <label for="mesurer-civic" i18n="@@mesurer.address.civic">Numéro civique</label>
@@ -37,7 +37,7 @@
         [provinceHint]="f.province.value"
         [invalid]="f.street.touched && f.street.invalid"
         describedBy="mesurer-street-err"
-        (valueChange)="onStreetInput($event)"
+        (valueChange)="addr.onStreetInput($event)"
         (suggestionSelected)="onSuggestionSelected($event)" />
       @if (f.street.touched && f.street.invalid) {
       <p id="mesurer-street-err" class="form-field__error" role="alert" i18n="@@mesurer.address.streetRequired">

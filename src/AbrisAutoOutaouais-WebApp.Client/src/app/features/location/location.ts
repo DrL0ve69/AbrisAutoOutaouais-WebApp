@@ -1,8 +1,6 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
-  Injector,
   OnInit,
   computed,
   inject,
@@ -15,12 +13,9 @@ import { ProductService } from '../../core/services/product.service';
 import { RentalService } from '../../core/services/rental.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
-import { ProfileService } from '../../core/services/profile.service';
-import { AddressAutofillService } from '../../core/services/address-autofill.service';
 import { createAddressFormController } from '../../core/services/address-form.controller';
 import { ProductSummaryDto } from '../../core/models/product.model';
 import { CreateRentalContractRequest } from '../../core/models/rental.model';
-import { PlaceSuggestionDto } from '../../core/models/place.model';
 import { FaqComponent } from '../../shared/components/faq/faq.component';
 import { AddressAutocompleteComponent } from '../../shared/components/a11y-components/autocomplete/address-autocomplete.component';
 import { AddressChoiceComponent } from '../../shared/components/a11y-components/address-choice/address-choice.component';
@@ -55,10 +50,6 @@ export class LocationComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
-  private readonly profile = inject(ProfileService);
-  private readonly addressAutofill = inject(AddressAutofillService);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly injector = inject(Injector);
 
   protected readonly loading = signal(true);
   protected readonly submitting = signal(false);
@@ -82,24 +73,11 @@ export class LocationComponent implements OnInit {
 
   /**
    * Câblage « adresse » mutualisé (pastille profil, recopie force D6, suggestions + code postal).
-   * Voir `AddressFormController`. Instancié en initialiseur de champ (pendant la construction) ; on
-   * lui passe l'`Injector` que son `effect` interne consomme explicitement (contexte garanti).
+   * Voir `AddressFormController`. Instancié en initialiseur de champ (pendant la construction) : la
+   * fabrique résout elle-même ses dépendances par `inject()`. Le template référence directement
+   * `addr.*` (pas de ré-exposition — PR #34, dé-duplication SonarCloud).
    */
-  private readonly addr = createAddressFormController(this.form, {
-    addressAutofill: this.addressAutofill,
-    profile: this.profile,
-    destroyRef: this.destroyRef,
-    injector: this.injector,
-  });
-
-  // Membres ré-exposés tels quels pour le template (zéro churn HTML/spec).
-  protected readonly postalFill = this.addr.postalFill;
-  protected readonly profileAddress = this.addr.profileAddress;
-  protected readonly addressMode = this.addr.addressMode;
-  protected readonly onAddressMode = (mode: 'profile' | 'other'): void => this.addr.onAddressMode(mode);
-  protected readonly onSuggestionSelected = (s: PlaceSuggestionDto): void =>
-    this.addr.onSuggestionSelected(s);
-  protected readonly onStreetInput = (value: string): void => this.addr.onStreetInput(value);
+  protected readonly addr = createAddressFormController(this.form);
 
   protected get f() {
     return this.form.controls;

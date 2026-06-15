@@ -10,6 +10,10 @@
         <source>Code postal introuvable — saisissez-le manuellement.</source>
         <target>Postal code not found — please enter it manually.</target>
       </trans-unit>
+      <trans-unit id="profile.avatar.inputLabel" datatype="html">
+        <source>Choisir une photo de profil</source>
+        <target>Choose a profile picture</target>
+      </trans-unit>
       <trans-unit id="address.choice.profileLabel" datatype="html">
         <source>Adresse de mon profil</source>
         <target>My profile address</target>

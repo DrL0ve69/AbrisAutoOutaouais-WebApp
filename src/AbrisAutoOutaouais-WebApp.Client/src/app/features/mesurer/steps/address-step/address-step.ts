@@ -2,15 +2,12 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
-  Injector,
   inject,
   output,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ProfileService } from '../../../../core/services/profile.service';
-import { AddressAutofillService } from '../../../../core/services/address-autofill.service';
 import { createAddressFormController } from '../../../../core/services/address-form.controller';
 import { PlacesService } from '../../../../core/services/places.service';
 import { PlaceSuggestionDto } from '../../../../core/models/place.model';
@@ -48,11 +45,8 @@ export interface MesurerAddress {
 })
 export class AddressStepComponent {
   private readonly fb = inject(FormBuilder);
-  private readonly profile = inject(ProfileService);
-  private readonly addressAutofill = inject(AddressAutofillService);
   private readonly places = inject(PlacesService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly injector = inject(Injector);
 
   /** Adresse validée (avec lat/lng éventuels) prête pour l'étape mesure. */
   readonly addressSelected = output<MesurerAddress>();
@@ -79,22 +73,12 @@ export class AddressStepComponent {
    * réinitialise les coordonnées mémorisées à chaque bascule (l'adresse profil n'a pas de lat/lng,
    * donc la soumission repassera par le géocodage D4, sauf si une suggestion est ensuite choisie).
    */
-  private readonly addr = createAddressFormController(this.form, {
-    addressAutofill: this.addressAutofill,
-    profile: this.profile,
-    destroyRef: this.destroyRef,
-    injector: this.injector,
+  protected readonly addr = createAddressFormController(this.form, {
     onModeChange: () => {
       this.lat = null;
       this.lng = null;
     },
   });
-
-  // Membres ré-exposés tels quels pour le template (zéro churn HTML/spec).
-  protected readonly profileAddress = this.addr.profileAddress;
-  protected readonly addressMode = this.addr.addressMode;
-  protected readonly onAddressMode = (mode: 'profile' | 'other'): void => this.addr.onAddressMode(mode);
-  protected readonly onStreetInput = (value: string): void => this.addr.onStreetInput(value);
 
   protected get f() {
     return this.form.controls;

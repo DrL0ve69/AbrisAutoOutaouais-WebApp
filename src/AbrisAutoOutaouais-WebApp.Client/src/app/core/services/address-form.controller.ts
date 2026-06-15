@@ -1,4 +1,4 @@
-import { DestroyRef, Injector, effect, signal } from '@angular/core';
+import { DestroyRef, Injector, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup } from '@angular/forms';
 import { Observable } from 'rxjs';
@@ -12,17 +12,16 @@ export type PostalFillState = 'idle' | 'filled' | 'unavailable';
 /** Mode de choix d'adresse : « profile » (pastille) ou « other » (formulaire éditable). */
 export type AddressMode = 'profile' | 'other';
 
-/** Dépendances + options du contrôleur — fournies par le composant hôte. */
-export interface AddressFormControllerDeps {
+/** Dépendances résolues par injection — internes au contrôleur, non fournies par l'écran. */
+interface AddressFormControllerDeps {
   readonly addressAutofill: AddressAutofillService;
   readonly profile: ProfileService;
   readonly destroyRef: DestroyRef;
-  /**
-   * Contexte d'injection pour l'`effect` de recopie force. À passer explicitement car le contrôleur
-   * peut être instancié hors du constructeur du composant — `effect(fn, { injector })` lève alors
-   * « NG0203 » si l'injecteur manque. (Voir piège « effect hors contexte d'injection ».)
-   */
   readonly injector: Injector;
+}
+
+/** Options spécifiques à l'écran hôte — tout ce qui n'est PAS une dépendance injectable. */
+export interface AddressFormControllerOptions {
   /**
    * Crochet optionnel exécuté à chaque bascule de mode, AVANT la recopie éventuelle. Permet à un
    * écran qui mémorise un état dérivé de l'adresse (ex. `address-step` : lat/lng de la dernière
@@ -63,6 +62,7 @@ export class AddressFormController {
   constructor(
     private readonly form: FormGroup,
     private readonly deps: AddressFormControllerDeps,
+    private readonly options: AddressFormControllerOptions,
   ) {
     // D6 — utilisateur connecté avec adresse de profil : mode « profile » par défaut (pastille).
     // En mode profil, on COPIE l'adresse de profil dans le formulaire (force) pour qu'une
@@ -87,7 +87,7 @@ export class AddressFormController {
    */
   onAddressMode(mode: AddressMode): void {
     this.addressMode.set(mode);
-    this.deps.onModeChange?.(mode);
+    this.options.onModeChange?.(mode);
     if (mode === 'other') {
       this.deps.profile.applyDefaultAddress(this.form);
     }
@@ -123,13 +123,22 @@ export class AddressFormController {
 
 /**
  * Fabrique le contrôleur d'adresse pour un composant. À appeler PENDANT la construction du composant
- * (initialiseur de champ ou corps du constructeur) ; l'`injector` passé est utilisé explicitement par
- * le `effect` interne de recopie force (`effect(fn, { injector })`), ce qui rend l'appel valide même
- * depuis un initialiseur de champ — sans dépendre du contexte d'injection ambiant (pas de NG0203).
+ * (initialiseur de champ ou corps du constructeur) : la fabrique résout elle-même ses dépendances via
+ * `inject()` (contexte d'injection garanti pendant la construction), ce qui dispense chaque écran de
+ * les ré-injecter puis de les transmettre (PR #34, dé-duplication SonarCloud). L'`Injector` ainsi
+ * obtenu est passé explicitement à l'`effect` interne de recopie force (`effect(fn, { injector })`),
+ * ce qui rend l'appel valide même depuis un initialiseur de champ (pas de NG0203). `options` ne porte
+ * que le spécifique à l'écran (ex. crochet `onModeChange`).
  */
 export function createAddressFormController(
   form: FormGroup,
-  deps: AddressFormControllerDeps,
+  options: AddressFormControllerOptions = {},
 ): AddressFormController {
-  return new AddressFormController(form, deps);
+  const deps: AddressFormControllerDeps = {
+    addressAutofill: inject(AddressAutofillService),
+    profile: inject(ProfileService),
+    destroyRef: inject(DestroyRef),
+    injector: inject(Injector),
+  };
+  return new AddressFormController(form, deps, options);
 }

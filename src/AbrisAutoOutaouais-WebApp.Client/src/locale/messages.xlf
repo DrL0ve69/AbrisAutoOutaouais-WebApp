@@ -59,11 +59,18 @@
           <context context-type="linenumber">71,72</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="profile.avatar.inputLabel" datatype="html">
+        <source>Choisir une photo de profil</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/account/profile/profile.html</context>
+          <context context-type="linenumber">45,46</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="address.postalAutofilled" datatype="html">
         <source>Code postal rempli automatiquement — vérifiez-le.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/account/profile/profile.html</context>
-          <context context-type="linenumber">490,491</context>
+          <context context-type="linenumber">492,493</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.html</context>
@@ -82,7 +89,7 @@
         <source>Code postal introuvable — saisissez-le manuellement.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/account/profile/profile.html</context>
-          <context context-type="linenumber">493,494</context>
+          <context context-type="linenumber">495,496</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.html</context>
@@ -2172,14 +2179,14 @@
         <source>Paiement (démo) accepté — commande confirmée !</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.ts</context>
-          <context context-type="linenumber">186</context>
+          <context context-type="linenumber">133</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.error" datatype="html">
         <source>Le paiement a échoué. Veuillez réessayer.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.ts</context>
-          <context context-type="linenumber">194</context>
+          <context context-type="linenumber">141</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.hero.badge" datatype="html">
@@ -2739,28 +2746,28 @@
         <source>Connectez-vous pour réserver une installation.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.ts</context>
-          <context context-type="linenumber">174</context>
+          <context context-type="linenumber">123</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.noSlot" datatype="html">
         <source>Veuillez choisir un créneau.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.ts</context>
-          <context context-type="linenumber">184</context>
+          <context context-type="linenumber">133</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.success" datatype="html">
         <source>Réservation confirmée !</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.ts</context>
-          <context context-type="linenumber">218</context>
+          <context context-type="linenumber">167</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.error" datatype="html">
         <source>La réservation a échoué. Veuillez réessayer.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.ts</context>
-          <context context-type="linenumber">226</context>
+          <context context-type="linenumber">175</context>
         </context-group>
       </trans-unit>
       <trans-unit id="legal.eyebrow" datatype="html">
@@ -3351,35 +3358,35 @@
         <source>Connectez-vous pour louer un abri.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.ts</context>
-          <context context-type="linenumber">156</context>
+          <context context-type="linenumber">105</context>
         </context-group>
       </trans-unit>
       <trans-unit id="location.noProduct" datatype="html">
         <source>Veuillez choisir un abri à louer.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.ts</context>
-          <context context-type="linenumber">166</context>
+          <context context-type="linenumber">115</context>
         </context-group>
       </trans-unit>
       <trans-unit id="location.badDates" datatype="html">
         <source>La date de fin doit être après la date de début.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.ts</context>
-          <context context-type="linenumber">180</context>
+          <context context-type="linenumber">129</context>
         </context-group>
       </trans-unit>
       <trans-unit id="location.success" datatype="html">
         <source>Location confirmée !</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.ts</context>
-          <context context-type="linenumber">206</context>
+          <context context-type="linenumber">155</context>
         </context-group>
       </trans-unit>
       <trans-unit id="location.error" datatype="html">
         <source>La location a échoué. Veuillez réessayer.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.ts</context>
-          <context context-type="linenumber">214</context>
+          <context context-type="linenumber">163</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.eyebrow" datatype="html">
