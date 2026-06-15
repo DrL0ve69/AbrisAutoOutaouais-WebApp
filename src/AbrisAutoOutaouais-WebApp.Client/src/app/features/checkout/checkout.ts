@@ -2,12 +2,11 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  Injector,
   computed,
-  effect,
   inject,
   signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   AbstractControl,
   FormBuilder,
@@ -22,6 +21,7 @@ import { OrderService } from '../../core/services/order.service';
 import { ToastService } from '../../core/services/toast.service';
 import { ProfileService } from '../../core/services/profile.service';
 import { AddressAutofillService } from '../../core/services/address-autofill.service';
+import { createAddressFormController } from '../../core/services/address-form.controller';
 import { DeliveryType } from '../../core/models/order.model';
 import { PlaceSuggestionDto } from '../../core/models/place.model';
 import { AddressAutocompleteComponent } from '../../shared/components/a11y-components/autocomplete/address-autocomplete.component';
@@ -67,18 +67,13 @@ export class CheckoutComponent {
   private readonly profile = inject(ProfileService);
   private readonly addressAutofill = inject(AddressAutofillService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
 
   protected readonly items = this.cart.items;
   protected readonly subtotal = this.cart.subtotal;
   protected readonly count = this.cart.count;
   protected readonly isEmpty = computed(() => this.items().length === 0);
   protected readonly processing = signal(false);
-  /** Annonce (aria-live) : issue de la résolution du code postal après choix d'une suggestion. */
-  protected readonly postalFill = signal<'idle' | 'filled' | 'unavailable'>('idle');
-  /** Adresse de profil pour la pastille `app-address-choice` (null = invité ⇒ formulaire direct). */
-  protected readonly profileAddress = this.profile.defaultDeliveryAddress;
-  /** Mode de choix d'adresse : « profile » (pastille) ou « other » (formulaire éditable). */
-  protected readonly addressMode = signal<'profile' | 'other'>('profile');
 
   protected readonly form = this.fb.nonNullable.group(
     {
@@ -97,55 +92,29 @@ export class CheckoutComponent {
     { validators: addressRequiredIfDelivery },
   );
 
-  constructor() {
-    // D6 — utilisateur connecté avec adresse de profil : mode « profile » par défaut (pastille).
-    // En mode profil, on COPIE l'adresse de profil dans le formulaire (force) pour qu'une
-    // soumission parte valide même si la pastille est en lecture seule. L'adresse arrive de façon
-    // asynchrone (/auth/me) : l'effet la recopie dès qu'elle est disponible. Invité (adresse null)
-    // ⇒ `applyDefaultAddress` no-op et `app-address-choice` rend le formulaire direct (inchangé).
-    this.profile.ensureLoaded();
-    effect(() => {
-      if (this.addressMode() === 'profile') {
-        this.profile.applyDefaultAddress(this.form, undefined, true);
-      }
-    });
-  }
+  /**
+   * Câblage « adresse » mutualisé (pastille profil, recopie force D6, suggestions + code postal).
+   * Voir `AddressFormController`. Instancié en initialiseur de champ (pendant la construction) ; on
+   * lui passe l'`Injector` que son `effect` interne consomme explicitement (contexte garanti).
+   */
+  private readonly addr = createAddressFormController(this.form, {
+    addressAutofill: this.addressAutofill,
+    profile: this.profile,
+    destroyRef: this.destroyRef,
+    injector: this.injector,
+  });
+
+  // Membres ré-exposés tels quels pour le template (zéro churn HTML/spec).
+  protected readonly postalFill = this.addr.postalFill;
+  protected readonly profileAddress = this.addr.profileAddress;
+  protected readonly addressMode = this.addr.addressMode;
+  protected readonly onAddressMode = (mode: 'profile' | 'other'): void => this.addr.onAddressMode(mode);
+  protected readonly onSuggestionSelected = (s: PlaceSuggestionDto): void =>
+    this.addr.onSuggestionSelected(s);
+  protected readonly onStreetInput = (value: string): void => this.addr.onStreetInput(value);
 
   protected get f() {
     return this.form.controls;
-  }
-
-  /**
-   * Bascule de la pastille d'adresse (`app-address-choice`). En passant à « other », on pré-remplit
-   * les champs encore intacts avec l'adresse de profil comme point de départ éditable (garde
-   * pristine de L-002). Le retour à « profile » est traité par l'effet (recopie force).
-   */
-  protected onAddressMode(mode: 'profile' | 'other'): void {
-    this.addressMode.set(mode);
-    if (mode === 'other') {
-      this.profile.applyDefaultAddress(this.form);
-    }
-  }
-
-  /**
-   * Choix explicite d'une suggestion d'adresse — délègue à `AddressAutofillService` (logique
-   * partagée par les 4 formulaires). Patch civic/rue/ville/province INCONDITIONNEL (action
-   * utilisateur, hors garde pristine de L-002), code postal résolu/normalisé (L-004) et resté
-   * éditable. `patchValue` re-déclenche le validateur de groupe `addressRequiredIfDelivery`.
-   */
-  protected onSuggestionSelected(s: PlaceSuggestionDto): void {
-    // Réinitialiser AVANT chaque sélection : sans repassage par 'idle', deux résolutions
-    // successives au même statut n'émettraient pas (signal idempotent) → pas de ré-annonce.
-    this.postalFill.set('idle');
-    this.addressAutofill
-      .applySuggestion(this.form, s)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(result => this.postalFill.set(result.status));
-  }
-
-  /** Frappe libre dans le combobox : synchronise le contrôle « rue ». */
-  protected onStreetInput(value: string): void {
-    this.addressAutofill.syncStreet(this.form, value);
   }
 
   protected pay(): void {

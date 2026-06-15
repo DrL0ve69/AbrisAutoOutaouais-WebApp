@@ -2,7 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
-  effect,
+  Injector,
   inject,
   output,
   signal,
@@ -11,6 +11,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ProfileService } from '../../../../core/services/profile.service';
 import { AddressAutofillService } from '../../../../core/services/address-autofill.service';
+import { createAddressFormController } from '../../../../core/services/address-form.controller';
 import { PlacesService } from '../../../../core/services/places.service';
 import { PlaceSuggestionDto } from '../../../../core/models/place.model';
 import { AddressAutocompleteComponent } from '../../../../shared/components/a11y-components/autocomplete/address-autocomplete.component';
@@ -51,6 +52,7 @@ export class AddressStepComponent {
   private readonly addressAutofill = inject(AddressAutofillService);
   private readonly places = inject(PlacesService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
 
   /** Adresse validée (avec lat/lng éventuels) prête pour l'étape mesure. */
   readonly addressSelected = output<MesurerAddress>();
@@ -62,11 +64,6 @@ export class AddressStepComponent {
   /** D4 — vrai pendant le géocodage à la soumission (désactive le bouton + `aria-busy`). */
   protected readonly geocoding = signal(false);
 
-  /** Adresse de profil pour la pastille `app-address-choice` (null = invité ⇒ formulaire direct). */
-  protected readonly profileAddress = this.profile.defaultDeliveryAddress;
-  /** Mode de choix d'adresse : « profile » (pastille) ou « other » (formulaire éditable). */
-  protected readonly addressMode = signal<'profile' | 'other'>('profile');
-
   protected readonly form = this.fb.nonNullable.group({
     civicNumber: ['', [Validators.required, Validators.pattern(CIVIC_PATTERN)]],
     street: ['', Validators.required],
@@ -74,52 +71,42 @@ export class AddressStepComponent {
     province: ['QC', Validators.required],
   });
 
-  constructor() {
-    // D6 — voir CheckoutComponent : mode « profile » par défaut (pastille) avec recopie force de
-    // l'adresse de profil dans le formulaire (les contrôles absents — code postal/appartement —
-    // sont simplement ignorés). En mode profil, le bouton « Continuer » exécute la MÊME logique
-    // `submit()` → géocodage (D4) → émission. Invité (adresse null) ⇒ no-op et `app-address-choice`
-    // rend le formulaire direct (parcours anonyme inchangé).
-    this.profile.ensureLoaded();
-    effect(() => {
-      if (this.addressMode() === 'profile') {
-        this.profile.applyDefaultAddress(this.form, undefined, true);
-      }
-    });
-  }
+  /**
+   * Câblage « adresse » mutualisé (pastille profil + recopie force D6). Le code postal est
+   * OPTIONNEL : ce formulaire n'a pas de contrôle `postalCode` (non requis pour mesurer un
+   * stationnement) — `AddressAutofillService` ignore alors silencieusement le code postal et le
+   * contrôleur expose tout de même `postalFill`, qu'on n'affiche pas ici. Le crochet `onModeChange`
+   * réinitialise les coordonnées mémorisées à chaque bascule (l'adresse profil n'a pas de lat/lng,
+   * donc la soumission repassera par le géocodage D4, sauf si une suggestion est ensuite choisie).
+   */
+  private readonly addr = createAddressFormController(this.form, {
+    addressAutofill: this.addressAutofill,
+    profile: this.profile,
+    destroyRef: this.destroyRef,
+    injector: this.injector,
+    onModeChange: () => {
+      this.lat = null;
+      this.lng = null;
+    },
+  });
+
+  // Membres ré-exposés tels quels pour le template (zéro churn HTML/spec).
+  protected readonly profileAddress = this.addr.profileAddress;
+  protected readonly addressMode = this.addr.addressMode;
+  protected readonly onAddressMode = (mode: 'profile' | 'other'): void => this.addr.onAddressMode(mode);
+  protected readonly onStreetInput = (value: string): void => this.addr.onStreetInput(value);
 
   protected get f() {
     return this.form.controls;
-  }
-
-  /**
-   * Bascule de la pastille d'adresse (`app-address-choice`). En passant à « other », pré-remplit
-   * les champs intacts avec l'adresse de profil comme point de départ éditable (garde pristine
-   * L-002). On réinitialise les coordonnées mémorisées : l'adresse profil n'a pas de lat/lng, donc
-   * la soumission passera par le géocodage D4 (sauf si l'utilisateur choisit ensuite une suggestion).
-   */
-  protected onAddressMode(mode: 'profile' | 'other'): void {
-    this.addressMode.set(mode);
-    this.lat = null;
-    this.lng = null;
-    if (mode === 'other') {
-      this.profile.applyDefaultAddress(this.form);
-    }
-  }
-
-  protected onStreetInput(value: string): void {
-    this.addressAutofill.syncStreet(this.form, value);
   }
 
   protected onSuggestionSelected(s: PlaceSuggestionDto): void {
     this.lat = s.lat;
     this.lng = s.lng;
     // Patch civic/rue/ville/province (action utilisateur, hors garde pristine). On ignore le
-    // code postal : non requis pour mesurer un stationnement.
-    this.addressAutofill
-      .applySuggestion(this.form, s)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe();
+    // code postal : non requis pour mesurer un stationnement. Pas d'annonce postale ici (le
+    // contrôleur gère l'abonnement/`takeUntilDestroyed`).
+    this.addr.applySuggestion(s).subscribe();
   }
 
   protected submit(): void {
