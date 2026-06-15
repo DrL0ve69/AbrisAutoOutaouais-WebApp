@@ -54,7 +54,9 @@ catches things the author rationalised away. This is the single most effective q
 | `skills/feature-cycle/SKILL.md` | One entrypoint that runs the whole loop | `/feature-cycle …` or auto |
 | `skills/solid-review/SKILL.md` | SOLID audit of a diff (pre-existing) | Backend reviews |
 | `skills/a11y-ux-pass/SKILL.md` | Turn docs/ audits into code (pre-existing) | Accessibility work |
+| `skills/design-patterns/SKILL.md` | Verify/implement GoF patterns; hand-roll over a dependency | Pattern checks & wiring a use-case |
 | `rules/lessons-learned.md` | The team's living gotcha list | Auto-injected every session |
+| `rules/design-patterns.md` | Hand-roll-vs-dependency rule + repo pattern idioms | Pointed to on every backend edit |
 | `hooks/inject-context.mjs` | Loads the rules into context at session start | `SessionStart` hook |
 | `hooks/post-edit-guardrail.mjs` | Reminds which check/skill fits each edit | `PostToolUse` hook |
 | `settings.json` | Wires the hooks + auto-approves the Angular MCP | Always (committed) |

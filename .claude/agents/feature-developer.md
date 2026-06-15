@@ -38,6 +38,16 @@ MediatR. Validators live beside their command. EF config via `IEntityTypeConfigu
 annotations; read queries use `.AsNoTracking()`. Migrations go in `Infrastructure/Persistence/Migrations`
 (use the exact `dotnet ef` commands in `CLAUDE.md`).
 
+**Design patterns (hand-roll over dependency):** prefer coding a simple pattern yourself to pulling a
+package — the founding example is **MediatR replaced by the custom `Dispatcher`**. Before any
+`dotnet add package` / `npm i`, apply the decision in `.claude/rules/design-patterns.md` §1 and justify
+the dep in your report; *keep* the vast/battle-hardened ones (FluentValidation, Scrutor, EF, Identity —
+never reinvent an ORM/crypto/parser). **Reuse the repo's existing pattern idiom** (Command+Mediator for
+a use-case, Decorator/Chain for cross-cutting concerns, Adapter+Strategy for a third-party service via a
+config-selected port, `IDomainEvent`/signals for Observer, domain factory methods, DI for Singleton) —
+don't invent a second mechanism. The full map is `docs/design-patterns.md`; the `design-patterns` skill
+implements a pattern the repo way.
+
 **Frontend (Angular 21 / TS):** standalone components (do NOT set `standalone: true`); signals
 (`signal`/`computed`/`input()`/`output()`); `ChangeDetectionStrategy.OnPush`; `inject()` (not
 constructor DI); native control flow (`@if`/`@for`/`@switch`); `[class]`/`[style]` bindings (never

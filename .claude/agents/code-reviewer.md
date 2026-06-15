@@ -35,6 +35,14 @@ reasoning — that independence is the point. You **only read and report**; you 
    (`DispatchAsync`/`HandleAsync`); validator beside its command; EF via `IEntityTypeConfiguration`,
    `.AsNoTracking()` on reads; **owned-entity / nullability / migration** correctness (see L-001).
 2b. **SOLID** — SRP/OCP/LSP/ISP/DIP violations worth a refactor (lean on the `solid-review` skill).
+2c. **Patterns & dependencies** — flag an **unjustified new dependency** for a pattern simple enough to
+   hand-roll, or where only a fraction would be used (the MediatR → custom `Dispatcher` precedent); a
+   **reinvented wheel** (a 2nd mechanism beside an existing idiom — a parallel dispatch, a home-grown
+   event bus beside `IDomainEvent`, a classic static Singleton beside DI); and an **anti-pattern** (a
+   growing `if/else`/`switch` on a type/enum → Strategy/OCP; business logic in a controller). Do NOT
+   flag deps that are vast/battle-hardened (FluentValidation, Scrutor, EF, Identity), nor a pragmatic
+   enum+guard State. See `.claude/rules/design-patterns.md` and `docs/design-patterns.md`; you may
+   invoke the `design-patterns` skill (VERIFY mode).
 3. **Security & authz** — endpoints not `[AllowAnonymous]` unless intended; roles/policies correct;
    no secrets in code; input validated; no injection/overposting.
 4. **Angular conventions** — standalone (no `standalone: true`), signals, `OnPush`, `inject()`,

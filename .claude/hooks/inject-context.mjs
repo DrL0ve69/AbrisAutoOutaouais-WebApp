@@ -34,7 +34,10 @@ out.push(
   'Route real work through the agent loop: solution-architect (plan) → feature-developer ' +
     '(implement) → code-reviewer (independent review) → mentor (capture lessons). Backend changes ' +
     'get a solid-review pass; frontend changes follow the `angular` skill + the angular-cli MCP. ' +
-    'Verify with build + tests before claiming done. Codebase language is French. WCAG 2.2 AA is a hard bar.',
+    'Verify with build + tests before claiming done. Codebase language is French. WCAG 2.2 AA is a hard bar. ' +
+    'Prefer hand-rolling a simple design pattern over adding a dependency (the MediatR → custom Dispatcher ' +
+    'precedent) and reuse the repo’s existing pattern idioms — see `.claude/rules/design-patterns.md` and ' +
+    '`docs/design-patterns.md`.',
 );
 out.push('');
 
