@@ -38,6 +38,12 @@ bld/
 # Uncomment if you have tasks that create the project's static files in wwwroot
 #wwwroot/
 
+# Fichiers téléversés à l'exécution (avatars, images produits) — on garde la structure (.gitkeep), pas le contenu
+src/AbrisAutoOutaouais-WebApp.API/wwwroot/uploads/**
+!src/AbrisAutoOutaouais-WebApp.API/wwwroot/uploads/
+!src/AbrisAutoOutaouais-WebApp.API/wwwroot/uploads/**/
+!src/AbrisAutoOutaouais-WebApp.API/wwwroot/uploads/**/.gitkeep
+
 # Visual Studio 2017 auto generated files
 Generated\ Files/
 
