@@ -66,8 +66,8 @@ export class CheckoutComponent {
   protected readonly count = this.cart.count;
   protected readonly isEmpty = computed(() => this.items().length === 0);
   protected readonly processing = signal(false);
-  /** Annonce (aria-live) : le code postal vient d'être rempli automatiquement. */
-  protected readonly postalAutofilled = signal(false);
+  /** Annonce (aria-live) : issue de la résolution du code postal après choix d'une suggestion. */
+  protected readonly postalFill = signal<'idle' | 'filled' | 'unavailable'>('idle');
 
   protected readonly form = this.fb.nonNullable.group(
     {
@@ -104,11 +104,13 @@ export class CheckoutComponent {
    * éditable. `patchValue` re-déclenche le validateur de groupe `addressRequiredIfDelivery`.
    */
   protected onSuggestionSelected(s: PlaceSuggestionDto): void {
-    this.postalAutofilled.set(false);
+    // Réinitialiser AVANT chaque sélection : sans repassage par 'idle', deux résolutions
+    // successives au même statut n'émettraient pas (signal idempotent) → pas de ré-annonce.
+    this.postalFill.set('idle');
     this.addressAutofill
       .applySuggestion(this.form, s)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.postalAutofilled.set(true));
+      .subscribe(result => this.postalFill.set(result.status));
   }
 
   /** Frappe libre dans le combobox : synchronise le contrôle « rue ». */

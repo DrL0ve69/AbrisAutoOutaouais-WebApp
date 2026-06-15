@@ -6,6 +6,10 @@
         <source>Code postal rempli automatiquement — vérifiez-le.</source>
         <target>Postal code filled in automatically — please verify it.</target>
       </trans-unit>
+      <trans-unit id="address.postalUnavailable" datatype="html">
+        <source>Code postal introuvable — saisissez-le manuellement.</source>
+        <target>Postal code not found — please enter it manually.</target>
+      </trans-unit>
       <trans-unit id="loadingOverlay.label" datatype="html">
         <source>Chargement de la page…</source>
         <target>Loading page…</target>

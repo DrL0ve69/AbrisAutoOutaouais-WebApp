@@ -63,8 +63,8 @@ export class InstallationComponent implements OnInit {
 
   protected readonly loading = signal(true);
   protected readonly submitting = signal(false);
-  /** Annonce (aria-live) : le code postal vient d'être rempli automatiquement. */
-  protected readonly postalAutofilled = signal(false);
+  /** Annonce (aria-live) : issue de la résolution du code postal après choix d'une suggestion. */
+  protected readonly postalFill = signal<'idle' | 'filled' | 'unavailable'>('idle');
   protected readonly groups = signal<readonly SlotGroup[]>([]);
   protected readonly selectedSlot = signal<string | null>(null);
   protected readonly hasSlots = computed(() => this.groups().length > 0);
@@ -123,11 +123,13 @@ export class InstallationComponent implements OnInit {
    * éditable ; si le proxy renvoie null, on ne patche rien.
    */
   protected onSuggestionSelected(s: PlaceSuggestionDto): void {
-    this.postalAutofilled.set(false);
+    // Réinitialiser AVANT chaque sélection : sans repassage par 'idle', deux résolutions
+    // successives au même statut n'émettraient pas (signal idempotent) → pas de ré-annonce.
+    this.postalFill.set('idle');
     this.addressAutofill
       .applySuggestion(this.form, s)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.postalAutofilled.set(true));
+      .subscribe(result => this.postalFill.set(result.status));
   }
 
   /** Frappe libre dans le combobox : synchronise le contrôle « rue ». */

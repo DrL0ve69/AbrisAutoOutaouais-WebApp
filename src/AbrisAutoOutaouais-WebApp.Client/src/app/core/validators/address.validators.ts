@@ -32,3 +32,19 @@ export function normalizePostal(value: string): string {
   const compact = (value ?? '').replace(/\s+/g, '').toUpperCase();
   return compact.length === 6 ? `${compact.slice(0, 3)} ${compact.slice(3)}` : (value ?? '').trim();
 }
+
+/**
+ * Extrait le numéro civique en tête d'un libellé d'adresse (« 123 rue des Abris » → « 123 »,
+ * « 123A boul. Saint-Joseph » → « 123A »). Repli quand le provider (Photon) renvoie un
+ * `civicNumber` null mais inclut le numéro dans `label` (D1). Retourne `null` si le libellé
+ * ne commence pas par un numéro. Pure et testable.
+ */
+export function parseCivicFromLabel(label: string): string | null {
+  const match = (label ?? '').match(/^\s*(\d+[A-Za-z]?)\b/);
+  if (match === null) {
+    return null;
+  }
+  const civic = match[1];
+  // Garde l'invariant partagé : ne renvoyer qu'un civique au format canonique (L-004).
+  return CIVIC_PATTERN.test(civic) ? civic : null;
+}
