@@ -251,3 +251,7 @@ Branche `feat/epic-d-address-unified` — 3 commits (`240e46a` D1–D3, `6354645
 > **Mentor** : **L-026** (wrapper `<ng-content>` derrière `@if/@else` masque les champs en mode pastille + route auth-gardée intestable anonymement) et **L-027** (live-region pilotée par signal ne ré-annonce pas une valeur identique → repasser par un état neutre) capturées ; **L-016** affûtée (composant à fond teinté → contraste vérifié en axe e2e dual-thème).
 > **Gates finales** : `npm run build` ✅ · `npm test` **244 / 0** ✅ · `npm run i18n:extract` (9 ids `address.*`/`mesurer.address.*` symétriques) ✅ · `npm run e2e` (address-choice 10 + régression dual-thème, 0 axe) ✅ · `dotnet test` **211 + 72 / 0** ✅.
 > **Suite** : PR `feat/epic-d-address-unified` → `master` → CI verte → merge (prod auto-déployée). **Reste ouvert** : Bug-09 (badge sombre, cycle dédié) ; **Épic E** (parcours premier utilisateur) = prochain épic du Programme G.
+
+---
+
+**✅ Épic E (parcours premier utilisateur) MERGÉ** — PR #__, CI verte. E1 redirection profil (verrou e2e) + E2 alerte adresse 1re connexion (scopée profil, sans migration). **Reste ouvert** : Bug-09 (badge sombre) ; bug contraste onglet actif profil sombre 2.76:1 (préexistant, découvert en Épic E) ; **Épic F** (accès invité) = prochain.

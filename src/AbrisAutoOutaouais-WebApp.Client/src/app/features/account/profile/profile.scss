@@ -313,6 +313,48 @@
   }
 }
 
+// ── Alerte « entrez votre adresse » (première connexion, E2) ───
+// Jetons SÉMANTIQUES uniquement (basculent par thème) — aucune couleur en dur.
+// Texte en --color-text (PAS --color-text-muted) sur --color-bg-muted : le muet
+// sort sous AA sur ce fond (leçon L-016). Contraste validé en e2e/live, pas vitest.
+.profile-hint {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-bg-muted);
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--color-primary);
+  border-radius: var(--radius-lg);
+  color: var(--color-text);
+}
+
+.profile-hint__icon {
+  flex-shrink: 0;
+  color: var(--color-primary);
+}
+
+.profile-hint__text {
+  flex: 1 1 16rem;
+  margin: 0;
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text);
+}
+
+.profile-hint__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+
+  // Cibles ≥ 44px (WCAG 2.5.8) — garde la hauteur même avec .btn--sm.
+  .btn {
+    min-height: 44px;
+  }
+}
+
 // ── Panel — role="tabpanel" ───────────────────────────────────
 .profile-panel {
   background: var(--color-surface);
