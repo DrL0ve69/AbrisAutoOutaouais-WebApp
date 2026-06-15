@@ -38,6 +38,9 @@ async function setup() {
   const places: Partial<PlacesService> = {
     suggest: vi.fn().mockReturnValue(of([])),
     lookupPostalCode: vi.fn().mockReturnValue(of({ postalCode: null })),
+    // D4 — l'adresse est saisie manuellement (sans suggestion) → `submit()` géocode avant d'émettre.
+    // On renvoie `null` (géocodage infructueux) : la carte retombe sur le repli, le flux continue.
+    geocode: vi.fn().mockReturnValue(of(null)),
   };
   const profile: Partial<ProfileService> = {
     ensureLoaded: vi.fn(),

@@ -2444,6 +2444,14 @@
         <source>Province</source>
         <target>Province</target>
       </trans-unit>
+      <trans-unit id="mesurer.address.geocoding" datatype="html">
+        <source> Localisation de l&apos;adresse… </source>
+        <target> Locating address… </target>
+      </trans-unit>
+      <trans-unit id="mesurer.address.outOfZone" datatype="html">
+        <source> Cette adresse semble hors de notre zone de livraison et d&apos;installation (rayon d&apos;environ 100 km). Pour les cas spéciaux, contactez-nous : nous vérifierons la faisabilité. </source>
+        <target> This address appears to be outside our delivery and installation area (≈100 km radius). For special cases, contact us and we will check feasibility. </target>
+      </trans-unit>
       <trans-unit id="mesurer.address.next" datatype="html">
         <source> Continuer vers la mesure </source>
         <target> Continue to measurement </target>

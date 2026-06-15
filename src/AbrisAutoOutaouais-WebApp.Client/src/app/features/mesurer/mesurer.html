@@ -42,6 +42,7 @@
       <app-measure-step
         [lat]="address()?.lat ?? null"
         [lng]="address()?.lng ?? null"
+        [outOfServiceArea]="address()?.outOfServiceArea ?? false"
         (footprintComputed)="onFootprintComputed($event)" />
       }
       @case (3) {

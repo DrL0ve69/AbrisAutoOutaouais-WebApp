@@ -4,6 +4,21 @@
   gap: var(--space-5);
 }
 
+// D5 — avertissement « hors zone » : texte sur la surface de page (jetons qui BASCULENT par
+// thème, jamais de couleur en dur — motion-a11y §2). `--color-text` reste lisible dans les deux
+// thèmes ; l'accent latéral utilise `--color-warning` (lui aussi surchargé en thème sombre). Le
+// contraste se valide en e2e dual-thème (color-contrast désactivé en vitest — L-016).
+.measure__zone-warning {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border-left: 4px solid var(--color-warning);
+  border-radius: var(--radius-sm, var(--radius-md));
+  background: var(--color-bg-muted, var(--color-surface));
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+}
+
 .measure__methods {
   display: flex;
   gap: var(--space-2);

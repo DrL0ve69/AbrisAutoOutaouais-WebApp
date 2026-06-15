@@ -32,6 +32,9 @@ export class MeasureStepComponent {
   readonly lat = input<number | null>(null);
   readonly lng = input<number | null>(null);
 
+  /** D5 — adresse géolocalisée HORS zone de service (~100 km) : avertissement doux, non bloquant. */
+  readonly outOfServiceArea = input<boolean>(false);
+
   /** Gabarit calculé (toujours dans la plage `[1, 2000]`). */
   readonly footprintComputed = output<Footprint>();
 

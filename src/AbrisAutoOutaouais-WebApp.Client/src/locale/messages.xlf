@@ -3421,7 +3421,7 @@
         <source> ← Refaire la mesure </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/mesurer.html</context>
-          <context context-type="linenumber">49,51</context>
+          <context context-type="linenumber">50,52</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.step.address" datatype="html">
@@ -3508,11 +3508,18 @@
           <context context-type="linenumber">58,59</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="mesurer.address.geocoding" datatype="html">
+        <source> Localisation de l&apos;adresse… </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/mesurer/steps/address-step/address-step.html</context>
+          <context context-type="linenumber">67,72</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="mesurer.address.next" datatype="html">
         <source> Continuer vers la mesure </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/address-step/address-step.html</context>
-          <context context-type="linenumber">64,67</context>
+          <context context-type="linenumber">77,80</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.map.instructions" datatype="html">
@@ -3543,39 +3550,46 @@
           <context context-type="linenumber">41,44</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="mesurer.address.outOfZone" datatype="html">
+        <source> Cette adresse semble hors de notre zone de livraison et d&apos;installation (rayon d&apos;environ 100 km). Pour les cas spéciaux, contactez-nous : nous vérifierons la faisabilité. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/measure-step.html</context>
+          <context context-type="linenumber">7,12</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="mesurer.method.group" datatype="html">
         <source>Méthode de mesure</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/measure-step.html</context>
-          <context context-type="linenumber">3</context>
+          <context context-type="linenumber">13</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.method.calculator" datatype="html">
         <source> Calculateur de véhicules </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/measure-step.html</context>
-          <context context-type="linenumber">15,18</context>
+          <context context-type="linenumber">25,28</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.method.map" datatype="html">
         <source> Mesurer sur la carte </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/measure-step.html</context>
-          <context context-type="linenumber">28,31</context>
+          <context context-type="linenumber">38,41</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.method.mapPlaceholder" datatype="html">
         <source>Préparation de la carte satellite…</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/measure-step.html</context>
-          <context context-type="linenumber">44,47</context>
+          <context context-type="linenumber">54,57</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.method.mapLoading" datatype="html">
         <source>Chargement de la carte…</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/measure-step.html</context>
-          <context context-type="linenumber">48,53</context>
+          <context context-type="linenumber">58,63</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.calc.modeGroup" datatype="html">

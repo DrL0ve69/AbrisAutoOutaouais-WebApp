@@ -5,14 +5,17 @@ import {
   effect,
   inject,
   output,
+  signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ProfileService } from '../../../../core/services/profile.service';
 import { AddressAutofillService } from '../../../../core/services/address-autofill.service';
+import { PlacesService } from '../../../../core/services/places.service';
 import { PlaceSuggestionDto } from '../../../../core/models/place.model';
 import { AddressAutocompleteComponent } from '../../../../shared/components/a11y-components/autocomplete/address-autocomplete.component';
 import { CIVIC_PATTERN } from '../../../../core/validators/address.validators';
+import { isWithinServiceArea } from '../../util/service-area.util';
 
 /** Adresse choisie à l'étape 1, transmise au shell (porte lat/lng pour centrer la carte). */
 export interface MesurerAddress {
@@ -22,6 +25,8 @@ export interface MesurerAddress {
   readonly province: string;
   readonly lat: number | null;
   readonly lng: number | null;
+  /** D5 — adresse géolocalisée HORS zone de service (~100 km) : avertissement doux, non bloquant. */
+  readonly outOfServiceArea: boolean;
 }
 
 /**
@@ -43,6 +48,7 @@ export class AddressStepComponent {
   private readonly fb = inject(FormBuilder);
   private readonly profile = inject(ProfileService);
   private readonly addressAutofill = inject(AddressAutofillService);
+  private readonly places = inject(PlacesService);
   private readonly destroyRef = inject(DestroyRef);
 
   /** Adresse validée (avec lat/lng éventuels) prête pour l'étape mesure. */
@@ -51,6 +57,9 @@ export class AddressStepComponent {
   /** lat/lng issus de la dernière suggestion choisie (null si saisie purement manuelle). */
   private lat: number | null = null;
   private lng: number | null = null;
+
+  /** D4 — vrai pendant le géocodage à la soumission (désactive le bouton + `aria-busy`). */
+  protected readonly geocoding = signal(false);
 
   protected readonly form = this.fb.nonNullable.group({
     civicNumber: ['', [Validators.required, Validators.pattern(CIVIC_PATTERN)]],
@@ -85,18 +94,51 @@ export class AddressStepComponent {
   }
 
   protected submit(): void {
-    if (this.form.invalid) {
+    if (this.form.invalid || this.geocoding()) {
       this.form.markAllAsTouched();
       return;
     }
+
+    // Cas nominal : une suggestion a été choisie → lat/lng connus, on émet directement.
+    if (this.lat !== null && this.lng !== null) {
+      this.emitAddress(this.lat, this.lng);
+      return;
+    }
+
+    // D4 — adresse saisie/préremplie SANS suggestion (pas de lat/lng) : on géocode avant d'émettre
+    // pour centrer la carte sur la vraie adresse (sinon repli Gatineau). On réutilise `suggest` via
+    // `places.geocode` (pas d'endpoint dédié). Busy state pendant l'appel (bouton désactivé).
     const v = this.form.getRawValue();
+    this.geocoding.set(true);
+    this.places
+      .geocode(v.civicNumber, v.street, v.city, v.province || 'QC')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (suggestion) => {
+          this.geocoding.set(false);
+          // Géocodage infructueux → lat/lng null : la carte retombe sur Gatineau et `notLocated()`
+          // (map-measure) affiche déjà un indice. On émet quand même pour ne pas bloquer le flux.
+          this.emitAddress(suggestion?.lat ?? null, suggestion?.lng ?? null);
+        },
+        error: () => {
+          this.geocoding.set(false);
+          this.emitAddress(null, null);
+        },
+      });
+  }
+
+  /** Calcule `outOfServiceArea` (D5) pour les coordonnées données puis émet l'adresse vers le shell. */
+  private emitAddress(lat: number | null, lng: number | null): void {
+    const v = this.form.getRawValue();
+    const outOfZone = !isWithinServiceArea(lat, lng);
     this.addressSelected.emit({
       civicNumber: v.civicNumber,
       street: v.street,
       city: v.city,
       province: v.province || 'QC',
-      lat: this.lat,
-      lng: this.lng,
+      lat,
+      lng,
+      outOfServiceArea: outOfZone,
     });
   }
 }
