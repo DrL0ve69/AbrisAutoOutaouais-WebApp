@@ -1,12 +1,15 @@
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   computed,
   DestroyRef,
   ElementRef,
   inject,
+  Injector,
   OnInit,
   signal,
+  viewChild,
   viewChildren,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -15,6 +18,7 @@ import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { ProfileService } from '../../../core/services/profile.service';
+import { FirstLoginHintService } from '../../../core/services/first-login-hint.service';
 import { AddressAutofillService } from '../../../core/services/address-autofill.service';
 import { LocaleService, AppLocale } from '../../../core/services/locale.service';
 import { environment } from '../../../../environments/environment';
@@ -36,9 +40,11 @@ export class ProfileComponent implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly fb = inject(FormBuilder);
   private readonly profileStore = inject(ProfileService);
+  private readonly firstLoginHint = inject(FirstLoginHintService);
   private readonly addressAutofill = inject(AddressAutofillService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly locale = inject(LocaleService);
+  private readonly injector = inject(Injector);
   protected readonly auth = inject(AuthService);
 
   // ── État ────────────────────────────────────────────────────
@@ -51,6 +57,16 @@ export class ProfileComponent implements OnInit {
   /** Annonce (aria-live) : issue de la résolution du code postal après choix d'une suggestion. */
   protected readonly postalFill = signal<'idle' | 'filled' | 'unavailable'>('idle');
 
+  /**
+   * Texte de l'alerte non bloquante « entrez votre adresse » (E2), affichée à la
+   * première connexion tant que l'adresse de profil est vide et que l'utilisateur ne
+   * l'a pas rejetée. Vide = pas d'alerte. La bannière est `role="status"` scopée DANS
+   * la page (pas une 3ᵉ région globale dans app.html, leçon L-010). On passe par un
+   * état neutre `''` avant chaque message pour garantir la (ré)annonce du lecteur
+   * d'écran même si le texte est identique (leçon L-027).
+   */
+  protected readonly addressHint = signal('');
+
   // ── Avatar (photo de profil) ─────────────────────────────────
   protected readonly avatarUploading = signal(false);
   protected readonly avatarError = signal<string | null>(null);
@@ -58,6 +74,13 @@ export class ProfileComponent implements OnInit {
   // Ordre des onglets pour la navigation clavier (ARIA APG : flèches + Home/End).
   protected readonly tabOrder: readonly ActiveTab[] = ['info', 'address', 'security'];
   private readonly tabButtons = viewChildren<ElementRef<HTMLButtonElement>>('tabBtn');
+  /**
+   * Onglet « Adresse de livraison » — cible STABLE (toujours montée) du retour de
+   * focus quand l'alerte « entrez votre adresse » est fermée : son bouton de
+   * fermeture disparaît avec elle (`@if`), donc on ne peut pas y laisser le focus
+   * (leçon L-006). On renvoie vers l'onglet adresse, qui est aussi le raccourci utile.
+   */
+  private readonly addressTabBtn = viewChild<ElementRef<HTMLButtonElement>>('addressTabBtn');
 
   protected readonly initials = computed(() => {
     const p = this.profile();
@@ -160,6 +183,7 @@ export class ProfileComponent implements OnInit {
         this.profileStore.setProfile(profile);
         this.patchForms(profile);
         this.loading.set(false);
+        this.evaluateAddressHint(profile);
       },
       error: () => {
         // Fallback : utiliser les données du token JWT
@@ -212,6 +236,44 @@ export class ProfileComponent implements OnInit {
     event.preventDefault();
     this.setTab(tabs[next]);
     this.tabButtons()[next]?.nativeElement.focus();
+  }
+
+  // ── Alerte « entrez votre adresse » (première connexion, E2) ─────────────────
+  /**
+   * Calcule s'il faut afficher l'alerte d'adresse à partir du profil chargé. La
+   * source de l'adresse est le profil (`defaultDeliveryAddress`), JAMAIS `AuthUser`
+   * (qui ne la transporte pas, leçon L-003). On passe par `''` avant le message pour
+   * forcer la ré-annonce du lecteur d'écran (leçon L-027) ; l'`userId` vient du token.
+   */
+  private evaluateAddressHint(profile: UserProfileDto): void {
+    const userId = this.auth.user()?.id ?? profile.id;
+    const hasAddress = profile.defaultDeliveryAddress !== null;
+    this.addressHint.set('');
+    if (this.firstLoginHint.shouldShowAddressHint(userId, hasAddress)) {
+      this.addressHint.set(
+        $localize`:@@profile.addressHint:Bienvenue ! Ajoutez votre adresse de livraison pour accélérer vos commandes et réservations.`,
+      );
+    }
+  }
+
+  /** Raccourci de l'alerte : bascule sur l'onglet « Adresse de livraison ». */
+  protected goToAddressTab(): void {
+    this.setTab('address');
+  }
+
+  /**
+   * Ferme l'alerte d'adresse, mémorise le rejet (par compte) et renvoie le focus
+   * vers une cible STABLE — l'onglet « Adresse » — APRÈS le rendu qui retire le
+   * bouton de fermeture du DOM (`@if`), jamais dans le même tick (leçon L-006).
+   */
+  protected dismissAddressHint(): void {
+    const userId = this.auth.user()?.id ?? this.profile()?.id;
+    if (userId) this.firstLoginHint.dismiss(userId);
+    this.addressHint.set('');
+    afterNextRender(
+      () => this.addressTabBtn()?.nativeElement.focus(),
+      { injector: this.injector },
+    );
   }
 
   // ── Sauvegarde informations ──────────────────────────────────

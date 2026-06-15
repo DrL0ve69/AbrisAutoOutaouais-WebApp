@@ -66,11 +66,25 @@
           <context context-type="linenumber">45,46</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="profile.addressHintCta" datatype="html">
+        <source> Aller à mon adresse </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/account/profile/profile.html</context>
+          <context context-type="linenumber">196,197</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="profile.addressHintDismiss" datatype="html">
+        <source> J&apos;ai compris </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/account/profile/profile.html</context>
+          <context context-type="linenumber">204,205</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="address.postalAutofilled" datatype="html">
         <source>Code postal rempli automatiquement — vérifiez-le.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/account/profile/profile.html</context>
-          <context context-type="linenumber">492,493</context>
+          <context context-type="linenumber">536,537</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.html</context>
@@ -89,7 +103,7 @@
         <source>Code postal introuvable — saisissez-le manuellement.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/account/profile/profile.html</context>
-          <context context-type="linenumber">495,496</context>
+          <context context-type="linenumber">539,540</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.html</context>
@@ -102,6 +116,13 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.html</context>
           <context context-type="linenumber">158,160</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="profile.addressHint" datatype="html">
+        <source>Bienvenue ! Ajoutez votre adresse de livraison pour accélérer vos commandes et réservations.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/account/profile/profile.ts</context>
+          <context context-type="linenumber">254</context>
         </context-group>
       </trans-unit>
       <trans-unit id="account.rentals.title" datatype="html">
@@ -4055,14 +4076,14 @@
         <source> Utiliser une autre adresse </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/components/a11y-components/address-choice/address-choice.component.html</context>
-          <context context-type="linenumber">14,18</context>
+          <context context-type="linenumber">14,17</context>
         </context-group>
       </trans-unit>
       <trans-unit id="address.choice.useProfile" datatype="html">
         <source> Utiliser l&apos;adresse de mon profil </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/components/a11y-components/address-choice/address-choice.component.html</context>
-          <context context-type="linenumber">29,33</context>
+          <context context-type="linenumber">29,32</context>
         </context-group>
       </trans-unit>
       <trans-unit id="address.choice.switchedToOther" datatype="html">

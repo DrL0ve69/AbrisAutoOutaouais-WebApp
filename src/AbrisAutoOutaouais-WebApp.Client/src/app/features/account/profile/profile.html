@@ -165,6 +165,49 @@
 
         <!-- ── CONTENU PRINCIPAL ──────────────────────────────────── -->
         <main class="profile-main" aria-label="Paramètres du profil">
+          <!-- ── Alerte « entrez votre adresse » (première connexion, E2) ──────────
+               Bannière NON bloquante, SCOPÉE dans la page (role="status" local — pas
+               une 3ᵉ région globale dans app.html, leçon L-010). Annoncée poliment ;
+               la ré-annonce est garantie par le passage par '' (leçon L-027). -->
+          <div role="status" aria-live="polite" aria-atomic="true">
+            @if (addressHint()) {
+              <aside class="profile-hint">
+                <svg
+                  class="profile-hint__icon"
+                  aria-hidden="true"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+                <p class="profile-hint__text">{{ addressHint() }}</p>
+                <div class="profile-hint__actions">
+                  <button
+                    type="button"
+                    class="btn btn--primary btn--sm"
+                    (click)="goToAddressTab()"
+                    i18n="@@profile.addressHintCta"
+                  >
+                    Aller à mon adresse
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn--ghost btn--sm"
+                    (click)="dismissAddressHint()"
+                    i18n="@@profile.addressHintDismiss"
+                  >
+                    J'ai compris
+                  </button>
+                </div>
+              </aside>
+            }
+          </div>
+
           <!-- Onglets ─────────────────────────────────────────────── -->
           <div
             role="tablist"
@@ -189,6 +232,7 @@
             <button
               role="tab"
               #tabBtn
+              #addressTabBtn
               class="profile-tab"
               [class.is-active]="activeTab() === 'address'"
               [attr.aria-selected]="activeTab() === 'address'"
