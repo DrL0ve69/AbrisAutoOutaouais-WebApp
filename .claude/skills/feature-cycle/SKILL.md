@@ -45,6 +45,10 @@ a contract, an endpoint, an entity, or a migration.
 
 6. **Wrap up.** Summarize what changed, the evidence (commands + results), and any lesson captured.
    Feature branch only, never `master`; Conventional Commit; only commit/push when the user asks.
+   **Delegate the git plumbing — staging, the Conventional-Commit message (FR), the branch, the `gh`
+   PR, CI watching, and the status-doc sync — to the `git-ops` subagent (Sonnet)** instead of spending
+   main-thread (Opus) tokens on it. Hand it the diff summary + green-gate evidence; keep the decision
+   of *what* to commit/merge on the main thread (it never merges/force-pushes without an explicit ask).
 
 ## Notes
 - Newly-created/edited agent files load on the **next** Claude Code session (restart), not mid-session.

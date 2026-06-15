@@ -7,7 +7,8 @@ description: >-
   .claude/rules/lessons-learned.md — adds, sharpens, merges, and prunes entries.
 # Can edit ONLY the lessons file. It teaches; it does not change product code.
 tools: Read, Grep, Glob, Edit, Write
-model: inherit
+# Curation mécanique d'un markdown sous instructions strictes → Sonnet suffit (économie de crédits).
+model: sonnet
 color: cyan
 ---
 

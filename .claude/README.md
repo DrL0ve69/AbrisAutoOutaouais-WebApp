@@ -47,10 +47,11 @@ catches things the author rationalised away. This is the single most effective q
 
 | Path | What it is | When it runs |
 |------|------------|--------------|
-| `agents/solution-architect.md` | Planner (read-only, model: opus) | Proactively, before non-trivial work |
-| `agents/feature-developer.md` | Implementer (all tools) | When implementing an agreed change |
-| `agents/code-reviewer.md` | Independent reviewer (read-only) | After any change, before commit |
-| `agents/mentor.md` | Lesson-keeper (edits only the lessons file) | After a review / a tricky fix |
+| `agents/solution-architect.md` | Planner (read-only, **model: opus**) | Proactively, before non-trivial work |
+| `agents/feature-developer.md` | Implementer (all tools, **model: inherit**) | When implementing an agreed change |
+| `agents/code-reviewer.md` | Independent reviewer (read-only, **model: inherit**) | After any change, before commit |
+| `agents/mentor.md` | Lesson-keeper (edits only the lessons file, **model: sonnet**) | After a review / a tricky fix |
+| `agents/git-ops.md` | Git/GitHub plumbing — commit/PR/CI/status-sync (**model: sonnet**) | To offload routine VCS work from the main thread |
 | `skills/feature-cycle/SKILL.md` | One entrypoint that runs the whole loop | `/feature-cycle …` or auto |
 | `skills/solid-review/SKILL.md` | SOLID audit of a diff (pre-existing) | Backend reviews |
 | `skills/a11y-ux-pass/SKILL.md` | Turn docs/ audits into code (pre-existing) | Accessibility work |
@@ -138,7 +139,34 @@ and where the saved address actually lives). Add to it via the mentor, or by han
 
 ---
 
-## 7. Optional: stop being prompted for routine commands
+## 7. Cost & context — which model runs where, and keeping sessions cheap
+
+Subagents each run their **own** requests, so a loop of them is where credits go. The fix isn't fewer
+agents — it's the **right model per job** plus disciplined context. Rule of thumb: **reasoning →
+Opus; mechanical → Sonnet.**
+
+| Agent | Model | Why |
+|-------|-------|-----|
+| `solution-architect` | **opus** | Planning/architecture trade-offs — the most reasoning-heavy step. |
+| `feature-developer` | **inherit** | Implementation quality matters; `inherit` follows the session model (Opus by default), so you choose per session. |
+| `code-reviewer` | **inherit** | The independent diff review is the main quality net (it caught L-015, L-024, L-004 §C1). Keep it strong. |
+| `mentor` | **sonnet** | Mechanical curation of one markdown file under strict instructions — Sonnet is plenty. |
+| `git-ops` | **sonnet** | Deterministic git/`gh` plumbing — no product reasoning. |
+
+To change a tier, edit the agent's `model:` frontmatter (`opus` / `sonnet` / `haiku` / `inherit`).
+Changes load on the **next** session (restart).
+
+**Context hygiene (the other half of the bill — even cached tokens are re-read every turn):**
+- **`/compact` after MCP-heavy or large-diff steps.** `angular-cli` MCP results and big diffs stay in
+  context for the rest of the session; compact to flush them once you've used them.
+- **`/clear` when switching to an unrelated task** instead of carrying a stale 150k-token history.
+- **One `feature-developer` at a time**, and run the full review at **epic boundaries**, not every
+  sub-phase (already the `next-task` default) — fewer subagent spin-ups.
+- **Delegate git plumbing to `git-ops`** so commit/PR/sync don't burn main-thread (Opus) tokens.
+
+---
+
+## 8. Optional: stop being prompted for routine commands
 
 Left out of the committed `settings.json` on purpose (a committed file shouldn't silently widen what
 the agent may auto-run). If **you** want fewer "allow this command?" prompts, paste this into
@@ -162,7 +190,7 @@ the agent may auto-run). If **you** want fewer "allow this command?" prompts, pa
 
 ---
 
-## 8. Reusing this in future projects
+## 9. Reusing this in future projects
 
 The system is deliberately portable. To seed a new repo:
 1. Copy `.claude/agents/`, `.claude/hooks/`, `.claude/settings.json`, and `.claude/rules/` (start the
