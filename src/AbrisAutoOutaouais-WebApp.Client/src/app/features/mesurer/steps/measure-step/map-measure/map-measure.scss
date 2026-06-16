@@ -4,6 +4,18 @@
   gap: var(--space-3);
 }
 
+// G3a — la carte vit dans `.container--narrow` (max 720px). Une zone de dessin large EXIGE de
+// sortir de ce cadre étroit : on élargit la SEULE carte jusqu'à 1100px (centrée), bornée à la
+// largeur réelle du viewport (`min()` → jamais de débordement horizontal). Le reste de l'étape
+// (instructions, statut) reste dans la colonne lisible. `invalidateSize()` (ResizeObserver, TS)
+// recalcule les tuiles après ce changement de largeur.
+.map-measure__canvas {
+  --map-breakout-max: 1100px;
+  width: min(var(--map-breakout-max), calc(100vw - 2 * var(--space-5)));
+  max-width: var(--map-breakout-max);
+  margin-inline: calc(50% - min(var(--map-breakout-max), calc(100vw - 2 * var(--space-5))) / 2);
+}
+
 .map-measure__instructions {
   margin: 0;
   color: var(--color-text-muted);
@@ -11,9 +23,10 @@
 }
 
 .map-measure__canvas {
-  width: 100%;
-  height: 60vh;
-  min-height: 24rem;
+  // G3a — zone de dessin GÉNÉREUSE : hauteur ample et responsive (28rem → 75vh → 60rem). La
+  // largeur (breakout hors `.container--narrow`) est posée plus haut. `invalidateSize()` est
+  // rappelé au montage ET via un ResizeObserver (TS) pour éviter les tuiles grises au resize.
+  height: clamp(28rem, 75vh, 60rem);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   // Le conteneur Leaflet pose son propre fond ; on garde un fond neutre avant init.

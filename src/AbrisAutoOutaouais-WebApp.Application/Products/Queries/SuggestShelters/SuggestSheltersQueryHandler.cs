@@ -43,7 +43,9 @@ public sealed class SuggestSheltersQueryHandler(IApplicationDbContext db)
                 p.WidthCm!.Value - query.RequiredWidthCm,
                 p.LengthCm!.Value - query.RequiredLengthCm,
                 p.WidthCm!.Value - query.RequiredWidthCm < ProductDimensions.TightFitMarginCm
-                    || p.LengthCm!.Value - query.RequiredLengthCm < ProductDimensions.TightFitMarginCm))
+                    || p.LengthCm!.Value - query.RequiredLengthCm < ProductDimensions.TightFitMarginCm,
+                p.Brand,
+                p.Model))
             .ToListAsync(ct);
     }
 

@@ -84,6 +84,22 @@
   }
 }
 
+// G3 — ligne marque/modèle : jetons SÉMANTIQUES qui basculent par thème (motion-a11y §2),
+// jamais de couleur en dur. Contraste validé en e2e dual-thème (color-contrast OFF en vitest — L-016).
+.shelter-card__brand {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--color-text);
+}
+
+.shelter-card__brand-name {
+  font-weight: 600;
+}
+
+.shelter-card__model {
+  color: var(--color-text-muted);
+}
+
 .shelter-card__badge {
   align-self: flex-start;
   padding: 0.15rem var(--space-2);

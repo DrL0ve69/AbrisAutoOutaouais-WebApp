@@ -8,10 +8,45 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence;
 /// <summary>
 /// Seeder du catalogue — crée les catégories et les produits inspirés de la gamme
 /// Abris Tempo (https://www.abristempo.com/en) au premier démarrage si la table est vide.
-/// Idempotent : ne fait rien si des produits existent déjà.
+///
+/// Idempotent à DEUX niveaux :
+///  1. Premier démarrage (table vide) → crée catégories + produits.
+///  2. Table déjà peuplée → BACKFILL (G3) : les dimensions hors-tout et la marque/modèle ont
+///     été ajoutées APRÈS le premier seed (D1 puis G1) ; un dev DB déjà semé portait donc des
+///     produits aux <c>WidthCm</c>/<c>Brand</c> NULL, ce qui faisait retourner « suggest-shelters »
+///     systématiquement vide (la proposition d'abris ne fonctionnait pas). Le backfill renseigne
+///     ces champs, par SLUG (donc seulement le catalogue connu — jamais un produit créé/édité par
+///     un admin), et UNIQUEMENT quand ils sont absents (n'écrase pas une valeur déjà saisie).
 /// </summary>
 public static class ProductSeeder
 {
+    /// <summary>Gabarit canonique d'un abri du catalogue (dimensions + marque/modèle), clé du backfill.</summary>
+    private sealed record ShelterSpec(
+        string Slug, int WidthCm, int LengthCm, int HeightCm, string Brand, string Model);
+
+    /// <summary>
+    /// Dimensions/marque/modèle canoniques des abris réels (les toiles/accessoires/petits formats
+    /// n'en ont pas). Référence du BACKFILL d'un DB déjà peuplé. Le premier seed (table vide) pose
+    /// les mêmes valeurs via les appels <c>Add(...)</c> ci-dessous — garder les deux en phase.
+    /// </summary>
+    private static readonly IReadOnlyList<ShelterSpec> ShelterSpecs =
+    [
+        new("abri-simple-une-voiture", 335, 488, 244, "Abris Tempo", "Tempo Auto 11x16"),
+        new("abri-pente-unique", 335, 610, 274, "Abris Tempo", "Tempo Mono-Pente 11x20"),
+        new("abri-double-pic", 549, 610, 305, "Abris Tempo", "Tempo Duo 18x20"),
+        new("abri-double-rond", 610, 610, 305, "Abris Tempo", "Tempo Duo Rond 20x20"),
+        new("abri-rangement-atelier", 335, 488, 244, "Abris Tempo", "Tempo Storage 11x16"),
+        new("abri-industriel-commercial", 610, 610, 305, "Abris Tempo", "Tempo Industriel 20x20"),
+    ];
+
+    /// <summary>Marque/modèle des petits abris (dimensions hors-tout non publiées).</summary>
+    private static readonly IReadOnlyDictionary<string, (string Brand, string Model)> SmallShelterBrands =
+        new Dictionary<string, (string, string)>
+        {
+            ["abri-entree"] = ("Abris Tempo", "Tempo Entrée"),
+            ["abri-passage-cloture"] = ("Abris Tempo", "Tempo Passage"),
+        };
+
     public static async Task SeedAsync(IServiceProvider services)
     {
         using var scope = services.CreateScope();
@@ -23,7 +58,12 @@ public static class ProductSeeder
         try
         {
             if (await db.Products.AnyAsync())
+            {
+                // Table déjà peuplée : on ne recrée rien, mais on REMPLIT les dimensions/marque/modèle
+                // manquantes des abris connus (G3 — répare un DB semé avant D1/G1). Idempotent.
+                await BackfillShelterDataAsync(db, logger);
                 return;
+            }
 
             // ── Catégories (basées sur la navigation « Shop » d'Abris Tempo) ──────
             var categories = new[]
@@ -128,5 +168,83 @@ public static class ProductSeeder
             logger.LogError(ex, "Échec de l'initialisation du catalogue (ProductSeeder).");
             throw;
         }
+    }
+
+    /// <summary>
+    /// Renseigne dimensions/marque/modèle des abris connus (par slug) restés NULL sur un DB déjà
+    /// semé avant que ces champs n'existent (D1/G1). Ne touche QUE les valeurs absentes — n'écrase
+    /// jamais une donnée saisie par un admin. Idempotent : un 2e passage ne change rien.
+    /// </summary>
+    // internal (et non private) pour permettre un test de non-régression direct (L-005) : le
+    // backfill répare « suggest-shelters vide » et doit donc être gardé par CI. Cf.
+    // ProductSeederBackfillTests. InternalsVisibleTo est déjà posé sur le projet UnitTest.
+    internal static async Task BackfillShelterDataAsync(ApplicationDbContext db, ILogger logger)
+    {
+        var slugs = ShelterSpecs.Select(s => s.Slug)
+            .Concat(SmallShelterBrands.Keys)
+            .ToHashSet();
+
+        // Tracking (pas d'AsNoTracking) : on modifie puis on persiste.
+        var products = await db.Products
+            .Where(p => slugs.Contains(p.Slug))
+            .ToListAsync();
+
+        var specsBySlug = ShelterSpecs.ToDictionary(s => s.Slug);
+        var updated = 0;
+
+        foreach (var product in products)
+        {
+            var changed = false;
+
+            // Abris à dimensions publiées : compléter dims + marque/modèle CHAMP PAR CHAMP. On ne
+            // renseigne QUE les champs individuellement absents — un admin ayant saisi une largeur
+            // sans longueur (ou seulement la marque) garde sa valeur (n'écrase jamais une donnée
+            // saisie). `SetDimensions`/`SetBrandModel` écrivant les membres en bloc, on reconstruit
+            // l'appel avec la valeur existante pour les champs déjà renseignés.
+            if (specsBySlug.TryGetValue(product.Slug, out var spec))
+            {
+                if (product.WidthCm is null || product.LengthCm is null || product.HeightCm is null)
+                {
+                    product.SetDimensions(
+                        product.WidthCm ?? spec.WidthCm,
+                        product.LengthCm ?? spec.LengthCm,
+                        product.HeightCm ?? spec.HeightCm);
+                    changed = true;
+                }
+                if (FillBrandModel(product, spec.Brand, spec.Model)) changed = true;
+            }
+            // Petits abris (sans dimensions) : compléter seulement marque/modèle (par champ).
+            else if (SmallShelterBrands.TryGetValue(product.Slug, out var smallBrand)
+                     && FillBrandModel(product, smallBrand.Brand, smallBrand.Model))
+            {
+                changed = true;
+            }
+
+            if (changed) updated++;
+        }
+
+        if (updated > 0)
+        {
+            await db.SaveChangesAsync();
+            logger.LogInformation(
+                "Backfill catalogue (G3) : dimensions/marque/modèle complétés sur {Count} abri(s).",
+                updated);
+        }
+    }
+
+    /// <summary>
+    /// Renseigne marque/modèle CHAMP PAR CHAMP : ne remplit que celui qui est vide, en préservant
+    /// l'autre s'il a été saisi. Retourne vrai si au moins un champ a été modifié.
+    /// </summary>
+    private static bool FillBrandModel(Product product, string brand, string model)
+    {
+        var brandMissing = string.IsNullOrWhiteSpace(product.Brand);
+        var modelMissing = string.IsNullOrWhiteSpace(product.Model);
+        if (!brandMissing && !modelMissing) return false;
+
+        product.SetBrandModel(
+            brandMissing ? brand : product.Brand,
+            modelMissing ? model : product.Model);
+        return true;
     }
 }

@@ -31,6 +31,8 @@ const SHELTER: ShelterSuggestionDto = {
   widthMarginCm: 20,
   lengthMarginCm: 20,
   isTightFit: false,
+  brand: 'Abris Tempo',
+  model: 'Tempo Duo 18x20',
 };
 
 async function setup() {
