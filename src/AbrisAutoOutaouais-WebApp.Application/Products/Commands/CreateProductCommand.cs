@@ -13,5 +13,7 @@ public sealed record CreateProductCommand(
     Guid CategoryId,
     int? WidthCm = null,
     int? LengthCm = null,
-    int? HeightCm = null
+    int? HeightCm = null,
+    string? Brand = null,
+    string? Model = null
 ) : ICommand<Guid>;

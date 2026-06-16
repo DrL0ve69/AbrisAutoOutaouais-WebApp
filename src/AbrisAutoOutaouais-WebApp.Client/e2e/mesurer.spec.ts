@@ -30,6 +30,8 @@ const SHELTERS = [
     widthMarginCm: 10,
     lengthMarginCm: 20,
     isTightFit: true,
+    brand: 'Abris Tempo',
+    model: 'Tempo Duo 18x20',
   },
 ];
 
@@ -104,6 +106,9 @@ test('parcours CLAVIER-ONLY (calculateur) → résultats + aucune violation axe'
   await expect(page.getByRole('heading', { level: 2, name: /résultats/i })).toBeVisible();
   await expect(page.getByText('Abri double Tempo 18x20')).toBeVisible();
   await expect(page.getByText(/ajusté serré/i)).toBeVisible();
+  // G3 — marque + modèle du catalogue affichés tels quels (texte serveur, format inchangé).
+  await expect(page.getByText('Abris Tempo')).toBeVisible();
+  await expect(page.getByText('Tempo Duo 18x20')).toBeVisible();
 
   // axe : page entière, AUCUNE exclusion (pas de carte dans ce parcours).
   const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
@@ -185,6 +190,16 @@ test(
     await expect(
       page.locator('.leaflet-pm-icon-rectangle, .leaflet-pm-icon-polygon').first(),
     ).toBeVisible();
+
+    // G3a — la zone de dessin est GÉNÉREUSE : elle sort du conteneur étroit (`.container--narrow`,
+    // max 720px) en largeur ET offre une grande hauteur. On mesure le canvas réel : largeur > 720px
+    // (donc le breakout fonctionne, pas juste un width:100% dans la colonne étroite) et hauteur
+    // ample (≥ 28rem = 448px). Capacité réelle, pas l'enveloppe (L-019).
+    const box = await page.locator('.map-measure__canvas').boundingBox();
+    expect(box).not.toBeNull();
+    // Viewport e2e par défaut (1280px) : le breakout (1100px) dépasse nettement la colonne 720px.
+    expect(box!.width).toBeGreaterThan(720);
+    expect(box!.height).toBeGreaterThanOrEqual(448);
   },
 );
 

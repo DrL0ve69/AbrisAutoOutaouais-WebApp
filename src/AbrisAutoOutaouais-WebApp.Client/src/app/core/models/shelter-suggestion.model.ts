@@ -23,4 +23,8 @@ export interface ShelterSuggestionDto {
   readonly lengthMarginCm: number;
   /** Vrai si l'ajustement est serré (marge sous le seuil serveur) — affiché tel quel. */
   readonly isTightFit: boolean;
+  /** Marque du catalogue (G3) — texte serveur affiché tel quel ; `null` si non renseignée. */
+  readonly brand: string | null;
+  /** Modèle du catalogue (G3) — texte serveur affiché tel quel ; `null` si non renseigné. */
+  readonly model: string | null;
 }

@@ -6,10 +6,11 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { BookingService } from '../../core/services/booking.service';
+import { ShelterCatalogService } from '../../core/services/shelter-catalog.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { createAddressFormController } from '../../core/services/address-form.controller';
@@ -29,6 +30,8 @@ import {
   toGuestContactRequest,
 } from '../../core/validators/guest-contact.validators';
 import { excludedBrandValidator } from '../../core/validators/brand.validators';
+import { BrandCatalog, ModelCatalog } from '../../core/models/shelter-catalog.model';
+import { cmToFeet } from '../mesurer/util/units.util';
 
 /** Créneaux regroupés par jour pour l'affichage. */
 interface SlotGroup {
@@ -48,6 +51,7 @@ interface SlotGroup {
   imports: [
     ReactiveFormsModule,
     DatePipe,
+    DecimalPipe,
     FaqComponent,
     AddressAutocompleteComponent,
     AddressChoiceComponent,
@@ -62,6 +66,7 @@ export class InstallationComponent implements OnInit {
 
   private readonly fb = inject(FormBuilder);
   private readonly bookings = inject(BookingService);
+  private readonly catalog = inject(ShelterCatalogService);
   private readonly auth = inject(AuthService);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
@@ -71,6 +76,27 @@ export class InstallationComponent implements OnInit {
   protected readonly groups = signal<readonly SlotGroup[]>([]);
   protected readonly selectedSlot = signal<string | null>(null);
   protected readonly hasSlots = computed(() => this.groups().length > 0);
+
+  // ── Catalogue marque → modèle → dimensions (G2) ───────────────────────────
+  /** Catalogue chargé depuis le serveur (marques avec leurs modèles). */
+  protected readonly brands = signal<readonly BrandCatalog[]>([]);
+  /** Marque sélectionnée (valeur du select marque). '' = aucune. */
+  protected readonly selectedBrand = signal('');
+  /** Vrai si le catalogue est vide (aucune marque) → on dégrade proprement. */
+  protected readonly catalogEmpty = computed(() => this.brands().length === 0);
+
+  /** Modèles disponibles pour la marque choisie (vide tant qu'aucune marque). */
+  protected readonly availableModels = computed<readonly ModelCatalog[]>(() => {
+    const brand = this.selectedBrand();
+    if (!brand) return [];
+    return this.brands().find(b => b.brand === brand)?.models ?? [];
+  });
+
+  /** Modèle sélectionné (objet catalogue), pour afficher ses dimensions. `null` si aucun. */
+  protected readonly selectedModel = signal<ModelCatalog | null>(null);
+
+  /** Affichage : cm (canonique) → pieds (réutilise l'unique point de conversion, L-004). */
+  protected readonly toFeet = cmToFeet;
 
   protected readonly types: readonly BookingType[] = [
     'Installation',
@@ -121,6 +147,49 @@ export class InstallationComponent implements OnInit {
       },
       error: () => this.loading.set(false),
     });
+
+    // Catalogue marque/modèle — best-effort : en cas d'échec ou de catalogue vide, on
+    // dégrade vers des champs texte neutres (catalogEmpty), le submit reste possible.
+    this.catalog.getCatalog().subscribe({
+      next: brands => {
+        const list = brands ?? [];
+        this.brands.set(list);
+        // En mode catalogue, le select modèle reste désactivé tant qu'aucune marque
+        // n'est choisie (désactivation via le control reactive-forms, pas [disabled]).
+        if (list.length > 0) this.f.model.disable();
+      },
+      error: () => this.brands.set([]),
+    });
+  }
+
+  /**
+   * Sélection d'une marque : met à jour le control `brand` (chaîne exacte envoyée au serveur,
+   * L-004), réinitialise le modèle (les modèles dépendent de la marque) et vide les dimensions.
+   */
+  protected onBrandChange(brand: string): void {
+    this.selectedBrand.set(brand);
+    this.f.brand.setValue(brand);
+    this.f.brand.markAsDirty();
+    // Le modèle dépend de la marque : on le réinitialise et on active/désactive son select.
+    this.f.model.setValue('');
+    this.selectedModel.set(null);
+    if (brand) {
+      this.f.model.enable();
+    } else {
+      this.f.model.disable();
+    }
+  }
+
+  /**
+   * Sélection d'un modèle : met à jour le control `model` (chaîne exacte) et mémorise l'objet
+   * catalogue pour afficher ses dimensions hors-tout (lecture seule).
+   */
+  protected onModelChange(modelName: string): void {
+    this.f.model.setValue(modelName);
+    this.f.model.markAsDirty();
+    this.selectedModel.set(
+      this.availableModels().find(m => m.model === modelName) ?? null,
+    );
   }
 
   protected selectSlot(start: string): void {

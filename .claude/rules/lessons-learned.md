@@ -11,6 +11,57 @@
 
 ---
 
+## L-031 · An idempotent seeder + a late-added column = silently stale dev data — backfill per-key per-field when you add a column to a seeded entity
+
+- **Symptom.** G3: `/mesurer` shelter suggestions always returned an empty list. Root cause found by
+  querying the live dev DB ([[L-001]]): the 12 seeded products had `WidthCm`/`LengthCm` (Épic D/D1)
+  and `Brand`/`Model` (Épic G/G1) = **NULL** because the `ProductSeeder` is **idempotent**
+  (`if (await db.Products.AnyAsync()) return;`). The dev DB had been seeded before those columns
+  existed — the existing rows were never re-seeded, so every newly added column stayed NULL.
+  The `SuggestSheltersQueryHandler` filter `WHERE WidthCm != null` (correct, tested) silently
+  eliminated all rows → 0 results, no error. Tests were blind to this: the test DB always starts
+  empty, so seeds run in full and all columns land populated — a **fresh-DB/stale-dev-DB divergence**
+  that no test exercises.
+- **Rule.** Any time you add a column to an entity already covered by an idempotent seeder, add a
+  **backfill block** in the same change: look up each existing row **by its stable key** (slug,
+  code…) and fill the new field **only when it is still NULL** — never overwrite a value an admin
+  may have set. Run `SaveChanges` only if something actually changed; keep the whole block
+  idempotent so restarts are safe. Guard the backfill with CI tests (skip/fill/preserve/idempotence
+  — [[L-005]]: an unguarded "fix data" block has no regression net). Diagnose « 0 results /
+  unexpected NULL » by querying the **real running DB first** ([[L-001]]), not by reading tests
+  (fresh-DB seeds hide the gap). Same family as [[L-007]] (a correctness invariant lives far from
+  the code that depends on it) and [[L-018]] (adding a column is not done at the migration alone —
+  existing rows need populating too), on the **seeded-data** axis.
+- **Refs.** `src/AbrisAutoOutaouais-WebApp.Infrastructure/Persistence/ProductSeeder.cs`
+  (`BackfillShelterDataAsync` / `FillBrandModel`),
+  `src/AbrisAutoOutaouais-WebApp.UnitTest/Infrastructure/Persistence/ProductSeederBackfillTests.cs`
+  (6 tests: fill known, preserve admin data, unknown slug untouched, idempotence),
+  `src/AbrisAutoOutaouais-WebApp.Application/Products/Queries/SuggestShelters/SuggestSheltersQueryHandler.cs`
+  (`WidthCm != null` filter), branch `feat/epic-g-catalog`.
+
+## L-030 · A `.First()` after a partial `OrderBy` is non-deterministic if the projection reads fields NOT in the sort key — add a deterministic tie-break at the query
+
+- **Symptom.** G2: `GetShelterCatalogQueryHandler` ordered rows by `(Brand, Model)` then did
+  an in-memory `GroupBy(Brand)` → `GroupBy(Model)` → `m.First()` to pick the canonical
+  `Slug`/`WidthCm`/`LengthCm`/`HeightCm` for each distinct model. `Slug` and the dimension
+  fields are **not part of the sort key**, so when two products share the same brand+model but
+  differ in slug or dimensions, `First()` returns a **non-deterministic row** — whatever
+  EF/SQL happens to materialise first. The published slug and dims would flip between runs. A
+  comment even claimed « alphabetical order guaranteed by SQL » — overstating the guarantee.
+  The bug was latent because the seed has no duplicate brand+model pair; caught by the
+  independent reviewer, not by tests ([[L-005]]: no failing test ≠ correct).
+- **Rule.** Any `.First()`/`.FirstOrDefault()`/`[0]` after a LINQ `OrderBy` is only deterministic
+  if the sort key **pins every field the projection subsequently reads**. When it does not,
+  add a deterministic **tie-break** (e.g. `.ThenBy(p => p.Slug)`) at the query so the pick is
+  well-defined regardless of DB/SQL row order — and correct any comment that overstates the
+  ordering guarantee. Pin the uniqueness assumption with a unit test that seeds two rows with
+  the same group key but different tie-break values and asserts the expected pick, so a future
+  data-model change that would break it is caught at `dotnet test` time. Same family as
+  [[L-007]] (an invariant that makes a grouped/windowed query correct lives far from the query
+  — pin it there), on the **sort-stability** axis rather than the temporal one.
+- **Refs.** `src/AbrisAutoOutaouais-WebApp.Application/Products/Queries/GetShelterCatalog/GetShelterCatalogQueryHandler.cs`
+  (`.ThenBy(p => p.Slug)` tie-break + corrected comment), branch `feat/epic-g-catalog`.
+
 ## L-029 · Removing the declarative `authGuard` from a route is NOT enough — grep for imperative guards and post-action navigations too
 
 - **Symptom.** Épic F: opening `/panier/caisse` to guests required removing `canActivate: [authGuard]`
@@ -438,8 +489,22 @@
   as a **network barrier** before asserting the rendered suggestions — never a fixed `waitForTimeout`.
   Same vacuity/flake family as [[L-009]] (assertions made meaningless by environment timing), but the
   trigger here is hydration latency, not a CSS breakpoint.
-- **Refs.** `e2e/address-autocomplete.spec.ts` (`pressSequentially` + `waitForResponse` barrier),
-  commit `6e23b48`.
+  **Corollary — a one-shot `fill()` on a reactive-form control has the SAME race (Épic G).** The D1
+  civic-preservation test did `await page.locator('#civicNumber').fill('77')` once, **outside** any
+  retry, right after a `goto` that only awaited `#street` visibility. Before the civic field's
+  `ControlValueAccessor` is hydrated, `fill()` sets the *native* value but Angular's form model stays
+  `''` (control resolved `ng-pristine`/value `''`); the next CD cycle (the suggestion patch) writes the
+  empty model back over the DOM and ERASES the `77` → final assertion received `''`. **CI-only** (green
+  locally — faster hydration), reproducible there across runs (it reads like a regression, but isn't:
+  the spec is byte-identical to master and none of the `/location` cascade changed). Fix: wrap the
+  `fill` in `await expect(async () => { await ctrl.fill('77'); await expect(ctrl).toHaveValue('77'); }).toPass()`
+  so Playwright replays it until Angular actually registers the value — the same self-heal you already
+  apply to combobox typing. **Rule of thumb: every keystroke/`fill` that must land in a reactive form
+  on an SSR+hydrated page goes through a `toPass` (or a network/state barrier), never a bare one-shot.**
+  When triaging such a CI-only e2e red, get the REAL error from the CI log first ([[L-001]]) — the
+  `ng-pristine`/empty-value tell points straight at the hydration race, not at the diff under review.
+- **Refs.** `e2e/address-autocomplete.spec.ts` (`pressSequentially` + `waitForResponse` barrier;
+  civic `fill` wrapped in `expect(...).toPass()`), commits `6e23b48` (combobox), `feat/epic-g-catalog` (civic).
 
 ## L-011 · Interchangeable port implementations must each emit the CANONICAL format — and the test mock must mimic the DEFAULT provider, not a conformant one
 

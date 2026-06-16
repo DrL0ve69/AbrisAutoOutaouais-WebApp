@@ -30,6 +30,8 @@ const product: ProductDto = {
   widthCm: 335,
   lengthCm: 488,
   heightCm: 244,
+  brand: 'Abris Tempo',
+  model: 'Tempo Auto 11x16',
 };
 
 async function setup() {

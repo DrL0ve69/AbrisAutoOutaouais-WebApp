@@ -17,6 +17,9 @@ export interface ProductDto extends ProductSummaryDto {
   readonly widthCm: number | null;
   readonly lengthCm: number | null;
   readonly heightCm: number | null;
+  /** Marque et modèle — null si non renseignés (toiles, accessoires). */
+  readonly brand: string | null;
+  readonly model: string | null;
 }
 
 export interface PaginatedList<T> {
@@ -54,6 +57,9 @@ export interface CreateProductRequest {
   readonly widthCm: number | null;
   readonly lengthCm: number | null;
   readonly heightCm: number | null;
+  /** Marque et modèle — null si non renseignés. */
+  readonly brand: string | null;
+  readonly model: string | null;
 }
 
 /** Charge utile pour mettre à jour un produit (PUT /products/{id}). */
@@ -67,6 +73,9 @@ export interface UpdateProductRequest {
   readonly widthCm: number | null;
   readonly lengthCm: number | null;
   readonly heightCm: number | null;
+  /** Marque et modèle — null si non renseignés. */
+  readonly brand: string | null;
+  readonly model: string | null;
 }
 
 /**

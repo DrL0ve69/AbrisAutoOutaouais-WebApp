@@ -68,6 +68,14 @@ export class MapMeasureComponent {
   // Type lâche : la lib n'est chargée que côté navigateur (import dynamique).
   private map: unknown = null;
 
+  // G3a — observe le conteneur carte : tout redimensionnement (rotation, panneau latéral,
+  // breakout responsive) doit rappeler `invalidateSize()`, sinon Leaflet garde des tuiles grises.
+  // Déconnecté au `DestroyRef` (cf. `teardown`). `null` tant que la carte n'est pas montée / hors
+  // navigateur (créé seulement dans `initMap`, exécuté depuis `afterNextRender`, donc SSR-safe).
+  private resizeObserver: ResizeObserver | null = null;
+  /** rAF en vol pour le debounce du resize (annulé au teardown). */
+  private resizeRaf = 0;
+
   constructor() {
     afterNextRender(async () => {
       await this.initMap();
@@ -128,6 +136,20 @@ export class MapMeasureComponent {
     // dimensions une fois le conteneur peint (le centrage « stationnement » est déjà posé par
     // `center`/`zoom` à la construction). Reste dans `afterNextRender` (navigateur), donc SSR-safe.
     (map as unknown as { invalidateSize(animate?: boolean): void }).invalidateSize(false);
+
+    // G3a — ResizeObserver : la zone de dessin est large et responsive (breakout + clamp hauteur).
+    // À chaque changement de taille du conteneur, on rappelle `invalidateSize()` (debounce 1 frame
+    // via rAF) pour que Leaflet relise ses dimensions → pas de tuiles grises. SSR-safe (`ResizeObserver`
+    // n'existe que côté navigateur, et ce code n'est atteint que depuis `afterNextRender`).
+    if (typeof ResizeObserver !== 'undefined') {
+      this.resizeObserver = new ResizeObserver(() => {
+        cancelAnimationFrame(this.resizeRaf);
+        this.resizeRaf = requestAnimationFrame(() => {
+          (this.map as { invalidateSize?(animate?: boolean): void } | null)?.invalidateSize?.(false);
+        });
+      });
+      this.resizeObserver.observe(this.mapHost().nativeElement);
+    }
 
     // Mesure turf chargée à la demande (calcul d'aire/bbox du tracé).
     const area = (await import('@turf/area')).default;
@@ -191,6 +213,10 @@ export class MapMeasureComponent {
   }
 
   private teardown(): void {
+    // G3a — déconnecter l'observer + annuler le rAF en vol avant de détruire la carte.
+    cancelAnimationFrame(this.resizeRaf);
+    this.resizeObserver?.disconnect();
+    this.resizeObserver = null;
     const map = this.map as { remove?: () => void } | null;
     map?.remove?.();
     this.map = null;

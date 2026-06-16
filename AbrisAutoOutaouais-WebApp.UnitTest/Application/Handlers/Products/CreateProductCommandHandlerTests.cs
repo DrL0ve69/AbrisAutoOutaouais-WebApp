@@ -50,6 +50,46 @@ public sealed class CreateProductCommandHandlerTests : IDisposable
     }
 
     [Fact]
+    public async Task Handle_WithBrandAndModel_PersistsThemTrimmed()
+    {
+        var categoryId = await SeedCategoryAsync();
+        var cmd = new CreateProductCommand(
+            Name: "Abri marqué",
+            Description: "Un abri de marque",
+            Price: 599m,
+            StockQuantity: 4,
+            CategoryId: categoryId,
+            Brand: "  Abris Tempo  ",
+            Model: "  Tempo Auto 11x16  ");
+
+        var id = await CreateHandler().Handle(cmd, CancellationToken.None);
+
+        var saved = await _db.Products.FindAsync(id);
+        saved.Should().NotBeNull();
+        saved!.Brand.Should().Be("Abris Tempo");
+        saved.Model.Should().Be("Tempo Auto 11x16");
+    }
+
+    [Fact]
+    public async Task Handle_WithoutBrandOrModel_LeavesThemNull()
+    {
+        var categoryId = await SeedCategoryAsync();
+        var cmd = new CreateProductCommand(
+            Name: "Abri sans marque",
+            Description: "Un abri générique",
+            Price: 299m,
+            StockQuantity: 6,
+            CategoryId: categoryId);
+
+        var id = await CreateHandler().Handle(cmd, CancellationToken.None);
+
+        var saved = await _db.Products.FindAsync(id);
+        saved.Should().NotBeNull();
+        saved!.Brand.Should().BeNull();
+        saved.Model.Should().BeNull();
+    }
+
+    [Fact]
     public async Task Handle_WithDuplicateName_ThrowsConflictException()
     {
         var categoryId = await SeedCategoryAsync();

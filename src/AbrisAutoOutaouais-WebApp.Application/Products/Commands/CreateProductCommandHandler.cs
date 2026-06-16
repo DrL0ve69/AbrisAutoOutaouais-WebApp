@@ -36,7 +36,9 @@ public sealed class CreateProductCommandHandler(IApplicationDbContext db)
             description: command.Description,
             widthCm: command.WidthCm,
             lengthCm: command.LengthCm,
-            heightCm: command.HeightCm);
+            heightCm: command.HeightCm,
+            brand: command.Brand,
+            model: command.Model);
 
         db.Products.Add(product);
         await db.SaveChangesAsync(ct);

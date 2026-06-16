@@ -36,6 +36,16 @@
           <a [routerLink]="['/boutique', shelter.slug]">{{ shelter.name }}</a>
         </h3>
 
+        <!-- G3 — marque/modèle du catalogue (texte serveur affiché tel quel). Affiché seulement
+             si au moins l'un des deux est renseigné ; séparateur « · » uniquement entre les deux. -->
+        @if (shelter.brand || shelter.model) {
+        <p class="shelter-card__brand">
+          @if (shelter.brand) { <span class="shelter-card__brand-name">{{ shelter.brand }}</span> }
+          @if (shelter.brand && shelter.model) { <span aria-hidden="true"> · </span> }
+          @if (shelter.model) { <span class="shelter-card__model">{{ shelter.model }}</span> }
+        </p>
+        }
+
         @if (shelter.isTightFit) {
         <span class="shelter-card__badge" i18n="@@mesurer.results.tightFit">Ajusté serré</span>
         }

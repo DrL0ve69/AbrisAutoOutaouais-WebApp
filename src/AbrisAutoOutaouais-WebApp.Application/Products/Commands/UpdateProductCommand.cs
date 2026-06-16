@@ -16,5 +16,7 @@ public sealed record UpdateProductCommand(
     Guid CategoryId,
     int? WidthCm = null,
     int? LengthCm = null,
-    int? HeightCm = null
+    int? HeightCm = null,
+    string? Brand = null,
+    string? Model = null
 ) : ICommand<bool>;

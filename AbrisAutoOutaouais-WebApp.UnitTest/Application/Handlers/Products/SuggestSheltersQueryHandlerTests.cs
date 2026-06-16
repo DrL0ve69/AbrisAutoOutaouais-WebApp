@@ -23,11 +23,13 @@ public sealed class SuggestSheltersQueryHandlerTests : IDisposable
     }
 
     private async Task<Product> SeedAsync(
-        string name, string slug, int? widthCm, int? lengthCm, int? heightCm = null)
+        string name, string slug, int? widthCm, int? lengthCm, int? heightCm = null,
+        string? brand = null, string? model = null)
     {
         var product = Product.Create(
             name, slug, 199.99m, 5, _category.Id,
-            widthCm: widthCm, lengthCm: lengthCm, heightCm: heightCm);
+            widthCm: widthCm, lengthCm: lengthCm, heightCm: heightCm,
+            brand: brand, model: model);
         _db.Products.Add(product);
         await _db.SaveChangesAsync();
         return product;
@@ -122,6 +124,35 @@ public sealed class SuggestSheltersQueryHandlerTests : IDisposable
         dto.WidthMarginCm.Should().Be(49);
         dto.WidthMarginCm.Should().BeLessThan(ProductDimensions.TightFitMarginCm);
         dto.IsTightFit.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Handle_ProjectsBrandAndModel_FromCatalog()
+    {
+        // G3 — marque/modèle exposés tels quels (texte du catalogue, format inchangé — L-004/L-011).
+        await SeedAsync("Avec marque", "avec-marque", widthCm: 400, lengthCm: 500,
+            brand: "Abris Tempo", model: "Tempo Duo 18x20");
+
+        var result = await Handler.Handle(
+            new SuggestSheltersQuery(300, 400), CancellationToken.None);
+
+        var dto = result.Single(r => r.Slug == "avec-marque");
+        dto.Brand.Should().Be("Abris Tempo");
+        dto.Model.Should().Be("Tempo Duo 18x20");
+    }
+
+    [Fact]
+    public async Task Handle_ProductWithoutBrandModel_ProjectsNulls()
+    {
+        // Un abri sans marque/modèle (saisie partielle) → champs null, pas d'erreur.
+        await SeedAsync("Sans marque", "sans-marque", widthCm: 400, lengthCm: 500);
+
+        var result = await Handler.Handle(
+            new SuggestSheltersQuery(300, 400), CancellationToken.None);
+
+        var dto = result.Single(r => r.Slug == "sans-marque");
+        dto.Brand.Should().BeNull();
+        dto.Model.Should().BeNull();
     }
 
     [Fact]

@@ -7,6 +7,8 @@ namespace AbrisAutoOutaouais_WebApp.Application.Products.Queries.SuggestShelters
 /// <see cref="WidthMarginCm"/>/<see cref="LengthMarginCm"/> sont l'excédent par rapport
 /// aux dimensions requises (≥ 0). <see cref="IsTightFit"/> est vrai si l'une des marges
 /// est sous <see cref="Domain.Constants.ProductDimensions.TightFitMarginCm"/>.
+/// <see cref="Brand"/>/<see cref="Model"/> sont la marque et le modèle du catalogue (G3),
+/// repris tels quels (texte du catalogue, format inchangé — L-004/L-011) ; optionnels.
 /// </summary>
 public sealed record ShelterSuggestionDto(
     Guid Id,
@@ -21,4 +23,6 @@ public sealed record ShelterSuggestionDto(
     int? HeightCm,
     int WidthMarginCm,
     int LengthMarginCm,
-    bool IsTightFit);
+    bool IsTightFit,
+    string? Brand,
+    string? Model);
