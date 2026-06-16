@@ -237,7 +237,20 @@ test('suggestion sans civicNumber + civique pré-saisi → la valeur saisie est 
   await gotoLocation(page);
 
   // L'utilisateur saisit d'abord son numéro civique.
-  await page.locator('#civicNumber').fill('77');
+  // ⚠️ Page SSR + hydratée (L-012) : tant que le ControlValueAccessor du champ « N° civique »
+  // n'est pas (re)câblé par l'hydratation Angular, un `fill()` pose la valeur native mais le
+  // modèle de formulaire reste vide (contrôle `ng-pristine`/valeur '') ; au prochain cycle de
+  // détection (le patch de la suggestion), Angular réécrit son modèle vide par-dessus le DOM et
+  // EFFACE le « 77 » → l'assertion finale recevait '' (flake CI-only, vert en local car
+  // l'hydratation y est plus rapide). On enveloppe donc la saisie dans `expect(...).toPass()` :
+  // si l'hydratation avale la première frappe, Playwright la REJOUE jusqu'à ce qu'Angular ait
+  // réellement enregistré la valeur (contrôle devenu `dirty` + `toHaveValue('77')`), sans
+  // `waitForTimeout`. Même discipline anti-race que la frappe du combobox plus bas.
+  const civic = page.locator('#civicNumber');
+  await expect(async () => {
+    await civic.fill('77');
+    await expect(civic).toHaveValue('77', { timeout: 2000 });
+  }).toPass({ timeout: 15000 });
 
   const combo = page.locator('#street');
   await expect(async () => {

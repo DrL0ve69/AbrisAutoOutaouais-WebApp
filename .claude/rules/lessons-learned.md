@@ -489,8 +489,22 @@
   as a **network barrier** before asserting the rendered suggestions — never a fixed `waitForTimeout`.
   Same vacuity/flake family as [[L-009]] (assertions made meaningless by environment timing), but the
   trigger here is hydration latency, not a CSS breakpoint.
-- **Refs.** `e2e/address-autocomplete.spec.ts` (`pressSequentially` + `waitForResponse` barrier),
-  commit `6e23b48`.
+  **Corollary — a one-shot `fill()` on a reactive-form control has the SAME race (Épic G).** The D1
+  civic-preservation test did `await page.locator('#civicNumber').fill('77')` once, **outside** any
+  retry, right after a `goto` that only awaited `#street` visibility. Before the civic field's
+  `ControlValueAccessor` is hydrated, `fill()` sets the *native* value but Angular's form model stays
+  `''` (control resolved `ng-pristine`/value `''`); the next CD cycle (the suggestion patch) writes the
+  empty model back over the DOM and ERASES the `77` → final assertion received `''`. **CI-only** (green
+  locally — faster hydration), reproducible there across runs (it reads like a regression, but isn't:
+  the spec is byte-identical to master and none of the `/location` cascade changed). Fix: wrap the
+  `fill` in `await expect(async () => { await ctrl.fill('77'); await expect(ctrl).toHaveValue('77'); }).toPass()`
+  so Playwright replays it until Angular actually registers the value — the same self-heal you already
+  apply to combobox typing. **Rule of thumb: every keystroke/`fill` that must land in a reactive form
+  on an SSR+hydrated page goes through a `toPass` (or a network/state barrier), never a bare one-shot.**
+  When triaging such a CI-only e2e red, get the REAL error from the CI log first ([[L-001]]) — the
+  `ng-pristine`/empty-value tell points straight at the hydration race, not at the diff under review.
+- **Refs.** `e2e/address-autocomplete.spec.ts` (`pressSequentially` + `waitForResponse` barrier;
+  civic `fill` wrapped in `expect(...).toPass()`), commits `6e23b48` (combobox), `feat/epic-g-catalog` (civic).
 
 ## L-011 · Interchangeable port implementations must each emit the CANONICAL format — and the test mock must mimic the DEFAULT provider, not a conformant one
 
