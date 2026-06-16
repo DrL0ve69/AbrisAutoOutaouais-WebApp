@@ -38,7 +38,16 @@
 
 ## Curseur courant (Programme G)
 
-- **🔵 Épic G — PR OUVERTE sur branche `feat/epic-g-catalog`, en attente de CI/merge.**
+- **🔴 REPRENDRE ICI (session 2026-06-16) — Épic G : PR #39 ouverte, CI ROUGE sur 1 test e2e à diagnostiquer AVANT merge.**
+  - **État git** : branche `feat/epic-g-catalog` poussée, **working tree PROPRE** (rien en attente). 4 commits au-dessus de `master` : G1 `d19512f`, G2 `443afce`, G3 `fd693c2`, docs `e60d052`. **PR #39** : https://github.com/DrL0ve69/AbrisAutoOutaouais-WebApp/pull/39
+  - **CI (PR #39)** : Backend ✅ · SonarCloud ✅ · **Build & Deploy (SWA) ✅** (pas de 429 MCR cette fois) · **Frontend ❌ (99/100 e2e)** — **reproductible sur 2 runs, PAS un flake, PAS lié à MCR**.
+  - **Test qui échoue** : `src/AbrisAutoOutaouais-WebApp.Client/e2e/address-autocomplete.spec.ts:211` « suggestion sans civicNumber + civique pré-saisi → la valeur saisie est conservée (D1) ». Il `goto('/location')`, saisit civique `77`, tape « rue Well », sélectionne une suggestion sans n° civique, attend `#civicNumber` = `77` préservé.
+  - **⚠️ THÉORIE DE `git-ops` À REJETER** : git-ops a supposé que `/location` appelle `/api/v1/products/shelter-catalog` et que le mock générique `**/api/v1/products*` (ligne 216) le happe avec la mauvaise forme. **C'EST FAUX — vérifié** : `grep shelter-catalog` → l'endpoint n'est appelé QUE par `features/installation/installation.ts:153` (`ShelterCatalogService.getCatalog()`), **jamais** par `/location`. Ne pars donc PAS de cette piste.
+  - **PROCHAINE ACTION** : **reproduire l'échec en LOCAL d'abord** (L-001/L-017 : tuer tout `ng serve` zombie sur 4200/4300, `netstat` vide, `reuseExistingServer` peut servir un bundle périmé) — rouler `npm run e2e` ciblé sur `address-autocomplete.spec.ts` → lire l'**erreur réelle** (assertion ? civique écrasé ? hydratation SSR L-012 ? appel réseau non mocké qui pend ?). **Déterminer si l'échec est introduit par la branche G ou préexistant** (comparer à `master` : `git stash` n'aide pas, tree propre → checkout master et rouler le même spec, ou `git log` sur le spec). Vérifier ce que G a réellement changé qui toucherait la cascade D1 de `/location` (a priori RIEN — G a touché installation/mesurer/admin-products/seeder, pas /location ni address-autofill). **Hypothèse à tester en premier** : test **déjà flaky** (SSR+hydratation, machinerie anti-flake `toPass`/`waitForResponse` déjà présente, cf. L-012) qui tombe sous charge CI, et non une régression de G.
+  - **Une fois la cause RÉELLE trouvée + corrigée** (fix probablement dans le spec e2e si flake, ou dans le code si vraie régression) : commit (déléguer à `git-ops`), re-watch CI PR #39, puis **merge `master`** (merge `--admin` acceptable UNIQUEMENT si le seul rouge résiduel redevient le 429 MCR externe ; sinon CI doit être verte). Puis docs de clôture + curseur → **Épic H** (déploiement manuel).
+  - *Un `feature-developer` avait été lancé pour ce fix mais a planté sur une erreur serveur 500 (0 sortie, working tree resté propre) — rien d'appliqué, à relancer.*
+
+- **🔵 Épic G — PR OUVERTE sur branche `feat/epic-g-catalog` (détail des 3 sous-tâches ci-dessous).**
   - **✅ G1 — Catalogue marques/modèles sur `Product` : commit local `d19512f`.** `Brand`/`Model`
     (`string?` nullable, idiome **miroir de `BookingSlot.Brand/Model`** — pas d'entité séparée) ajoutés
     au domaine (`Product.Create` params en fin + `SetBrandModel`), config EF `nvarchar(100)`, migration
