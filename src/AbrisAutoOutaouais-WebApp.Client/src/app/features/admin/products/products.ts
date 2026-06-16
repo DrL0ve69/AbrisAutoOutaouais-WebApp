@@ -181,6 +181,9 @@ export class AdminProductsComponent {
           stock: v.stock,
           categoryId: v.categoryId,
           ...dims,
+          // Marque/modèle pas encore éditables dans ce formulaire (G1) — envoyés null.
+          brand: null,
+          model: null,
         })
         .subscribe({
           next: () => this.onSaved($localize`:@@admin.products.toast.updated:Produit mis à jour.`),
@@ -195,6 +198,9 @@ export class AdminProductsComponent {
           stockQuantity: v.stock,
           categoryId: v.categoryId,
           ...dims,
+          // Marque/modèle pas encore éditables dans ce formulaire (G1) — envoyés null.
+          brand: null,
+          model: null,
         })
         .subscribe({
           next: () => this.onSaved($localize`:@@admin.products.toast.created:Produit créé.`),

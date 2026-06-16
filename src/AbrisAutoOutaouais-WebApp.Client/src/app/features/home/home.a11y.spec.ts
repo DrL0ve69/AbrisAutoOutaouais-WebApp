@@ -30,6 +30,8 @@ const products: ProductDto[] = [
     widthCm: null,
     lengthCm: null,
     heightCm: null,
+    brand: null,
+    model: null,
   },
 ];
 

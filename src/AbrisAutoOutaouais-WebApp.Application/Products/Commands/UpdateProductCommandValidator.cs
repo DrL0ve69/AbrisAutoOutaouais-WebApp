@@ -38,5 +38,11 @@ public sealed class UpdateProductCommandValidator : AbstractValidator<UpdateProd
         RuleFor(x => x.HeightCm)
             .InclusiveBetween(ProductDimensions.MinCm, ProductDimensions.MaxCm)
             .When(x => x.HeightCm.HasValue);
+
+        // Marque / modèle : texte libre optionnel (pas de NotEmpty) — borne de longueur seulement.
+        RuleFor(x => x.Brand)
+            .MaximumLength(100);
+        RuleFor(x => x.Model)
+            .MaximumLength(100);
     }
 }

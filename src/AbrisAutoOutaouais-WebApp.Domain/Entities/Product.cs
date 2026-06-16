@@ -29,6 +29,12 @@ public sealed class Product : ISoftDeletable, IAuditableEntity
     public int? LengthCm { get; private set; }  // longueur (profondeur)
     public int? HeightCm { get; private set; }  // hauteur
 
+    /// <summary>Marque du produit (optionnel ; null pour une toile ou un accessoire).</summary>
+    public string? Brand { get; private set; }
+
+    /// <summary>Modèle du produit (optionnel).</summary>
+    public string? Model { get; private set; }
+
     public ProductCategory Category { get; private set; } = null!;
     public IReadOnlyList<ProductImage> Images => _images.AsReadOnly();
 
@@ -47,7 +53,8 @@ public sealed class Product : ISoftDeletable, IAuditableEntity
     public static Product Create(
         string name, string slug, decimal price, int stock,
         Guid categoryId, string? description = null, decimal? rentalPrice = null,
-        int? widthCm = null, int? lengthCm = null, int? heightCm = null)
+        int? widthCm = null, int? lengthCm = null, int? heightCm = null,
+        string? brand = null, string? model = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         ArgumentException.ThrowIfNullOrWhiteSpace(slug);
@@ -68,6 +75,8 @@ public sealed class Product : ISoftDeletable, IAuditableEntity
             WidthCm = widthCm,
             LengthCm = lengthCm,
             HeightCm = heightCm,
+            Brand = string.IsNullOrWhiteSpace(brand) ? null : brand.Trim(),
+            Model = string.IsNullOrWhiteSpace(model) ? null : model.Trim(),
         };
     }
 
@@ -84,6 +93,13 @@ public sealed class Product : ISoftDeletable, IAuditableEntity
         WidthCm = widthCm;
         LengthCm = lengthCm;
         HeightCm = heightCm;
+    }
+
+    /// <summary>Renseigne (ou efface, si null/vide) la marque et le modèle du produit.</summary>
+    public void SetBrandModel(string? brand, string? model)
+    {
+        Brand = string.IsNullOrWhiteSpace(brand) ? null : brand.Trim();
+        Model = string.IsNullOrWhiteSpace(model) ? null : model.Trim();
     }
 
     public void AdjustStock(int delta)

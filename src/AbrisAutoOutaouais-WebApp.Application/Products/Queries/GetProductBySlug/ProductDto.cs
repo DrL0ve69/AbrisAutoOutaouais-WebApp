@@ -13,5 +13,7 @@ public sealed record ProductDto(
     IReadOnlyList<string> ImageUrls,
     int? WidthCm,
     int? LengthCm,
-    int? HeightCm);
+    int? HeightCm,
+    string? Brand,
+    string? Model);
 

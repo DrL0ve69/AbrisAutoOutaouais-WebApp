@@ -26,7 +26,7 @@ public sealed class GetProductBySlugQueryHandler(IApplicationDbContext db)
                 p.Id, p.Name, p.Slug, p.Description, p.Price, p.RentalPrice,
                 p.Stock, p.IsAvailable, p.Category.Name,
                 p.Images.OrderBy(i => i.SortOrder).Select(i => i.Url).ToList(),
-                p.WidthCm, p.LengthCm, p.HeightCm))
+                p.WidthCm, p.LengthCm, p.HeightCm, p.Brand, p.Model))
             .FirstOrDefaultAsync(ct)
             ?? throw new NotFoundException(nameof(Product), query.Slug);
     }

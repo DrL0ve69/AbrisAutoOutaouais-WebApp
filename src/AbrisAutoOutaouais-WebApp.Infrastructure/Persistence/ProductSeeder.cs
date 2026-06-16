@@ -44,13 +44,16 @@ public static class ProductSeeder
 
             // Dimensions hors-tout (largeur × longueur × hauteur, cm) renseignées pour les
             // abris ; null pour toiles / accessoires / petits formats (cf. plan D1).
+            // Marque/modèle (brand/model) renseignés pour les abris réels (marque « Abris Tempo »
+            // + modèle de gamme) ; null pour toiles / accessoires / pièces souples.
             void Add(string name, string slug, decimal price, int stock, string categorySlug,
                      string description, decimal? rentalPrice, string image,
-                     int? widthCm = null, int? lengthCm = null, int? heightCm = null)
+                     int? widthCm = null, int? lengthCm = null, int? heightCm = null,
+                     string? brand = null, string? model = null)
             {
                 var product = Product.Create(
                     name, slug, price, stock, bySlug[categorySlug].Id, description, rentalPrice,
-                    widthCm, lengthCm, heightCm);
+                    widthCm, lengthCm, heightCm, brand, model);
                 product.AddImage(image, name);
                 products.Add(product);
             }
@@ -58,36 +61,44 @@ public static class ProductSeeder
             // Abris simples
             Add("Abri simple une voiture", "abri-simple-une-voiture", 349.00m, 25, "abris-simples",
                 "Abri d'auto temporaire pour un véhicule. Structure d'acier galvanisé et toile Tempo résistante à l'hiver québécois.",
-                39.00m, "/images/products/abri-simple-une-voiture.jpg", 335, 488, 244);
+                39.00m, "/images/products/abri-simple-une-voiture.jpg", 335, 488, 244,
+                "Abris Tempo", "Tempo Auto 11x16");
             Add("Abri à pente unique", "abri-pente-unique", 874.00m, 12, "abris-simples",
                 "Abri à toit à pente unique, idéal contre les murs et les contraintes de dégagement.",
-                79.00m, "/images/products/abri-pente-unique.jpg", 335, 610, 274);
+                79.00m, "/images/products/abri-pente-unique.jpg", 335, 610, 274,
+                "Abris Tempo", "Tempo Mono-Pente 11x20");
 
             // Abris doubles
             Add("Abri double à pic", "abri-double-pic", 724.00m, 15, "abris-doubles",
                 "Abri double à toit en pic pour deux véhicules. Excellente évacuation de la neige.",
-                69.00m, "/images/products/abri-double-pic.jpg", 549, 610, 305);
+                69.00m, "/images/products/abri-double-pic.jpg", 549, 610, 305,
+                "Abris Tempo", "Tempo Duo 18x20");
             Add("Abri double rond", "abri-double-rond", 1099.00m, 10, "abris-doubles",
                 "Abri double à toit arrondi, grande surface couverte et robustesse accrue.",
-                99.00m, "/images/products/abri-double-rond.jpg", 610, 610, 305);
+                99.00m, "/images/products/abri-double-rond.jpg", 610, 610, 305,
+                "Abris Tempo", "Tempo Duo Rond 20x20");
 
             // Abris de rangement
             Add("Abri de rangement / atelier", "abri-rangement-atelier", 899.00m, 8, "abris-rangement",
                 "Abri polyvalent pour le rangement saisonnier, l'atelier ou la remise.",
-                null, "/images/products/abri-rangement-atelier.jpg", 335, 488, 244);
+                null, "/images/products/abri-rangement-atelier.jpg", 335, 488, 244,
+                "Abris Tempo", "Tempo Storage 11x16");
 
             // Abris d'entrée et de passage (petits formats → dimensions non publiées)
             Add("Abri d'entrée", "abri-entree", 399.00m, 14, "abris-entree-passage",
                 "Petit abri protégeant l'entrée principale contre la neige et la pluie.",
-                null, "/images/products/abri-entree.jpg");
+                null, "/images/products/abri-entree.jpg",
+                brand: "Abris Tempo", model: "Tempo Entrée");
             Add("Abri de passage et clôture", "abri-passage-cloture", 324.00m, 18, "abris-entree-passage",
                 "Abri tunnel pour passages, allées et sections de clôture.",
-                null, "/images/products/abri-passage-cloture.jpg");
+                null, "/images/products/abri-passage-cloture.jpg",
+                brand: "Abris Tempo", model: "Tempo Passage");
 
             // Abris industriels et commerciaux
             Add("Abri industriel et commercial", "abri-industriel-commercial", 2499.00m, 4, "abris-industriels",
                 "Grand abri grand format pour usages commerciaux et industriels. Sur mesure disponible.",
-                249.00m, "/images/products/abri-industriel-commercial.jpg", 610, 610, 305);
+                249.00m, "/images/products/abri-industriel-commercial.jpg", 610, 610, 305,
+                "Abris Tempo", "Tempo Industriel 20x20");
 
             // Toiles de remplacement (pièce souple → pas de dimensions hors-tout)
             Add("Toile de remplacement — abri simple", "toile-remplacement-simple", 149.00m, 40, "toiles-remplacement",

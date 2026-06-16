@@ -47,6 +47,8 @@ const product = {
   widthCm: null,
   lengthCm: null,
   heightCm: null,
+  brand: null,
+  model: null,
 };
 
 const pageWithProduct = { ...emptyPage, items: [product], totalCount: 1, totalPages: 1 };
