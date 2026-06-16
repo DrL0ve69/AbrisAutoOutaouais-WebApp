@@ -3,6 +3,7 @@ using AbrisAutoOutaouais_WebApp.Application.Common.Models;
 using AbrisAutoOutaouais_WebApp.Application.Products.Commands;
 using AbrisAutoOutaouais_WebApp.Application.Products.Queries.GetAllProducts;
 using AbrisAutoOutaouais_WebApp.Application.Products.Queries.GetProductBySlug;
+using AbrisAutoOutaouais_WebApp.Application.Products.Queries.GetShelterCatalog;
 using AbrisAutoOutaouais_WebApp.Application.Products.Queries.SuggestShelters;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
@@ -40,6 +41,20 @@ public sealed class ProductsController(IDispatcher dispatcher) : ControllerBase
         CancellationToken ct = default)
         => Ok(await dispatcher.DispatchAsync(
             new SuggestSheltersQuery(requiredWidthCm, requiredLengthCm), ct));
+
+    /// <summary>
+    /// Catalogue marque → modèles → dimensions, dérivé des produits qui portent une marque.
+    /// Alimente les listes déroulantes du formulaire d'installation (G2). Le segment littéral
+    /// « shelter-catalog » l'emporte sur le paramètre <c>{slug}</c> par précédence de gabarit de
+    /// route (les segments littéraux priment sur les paramètres), pas par l'ordre de déclaration ;
+    /// on le garde tout de même placé AVANT par lisibilité, et un test IT verrouille le comportement
+    /// (même garde que « suggest-shelters »).
+    /// </summary>
+    [HttpGet("shelter-catalog")]
+    [AllowAnonymous]
+    [ProducesResponseType<IReadOnlyList<BrandCatalogDto>>(200)]
+    public async Task<IActionResult> GetShelterCatalog(CancellationToken ct)
+        => Ok(await dispatcher.DispatchAsync(new GetShelterCatalogQuery(), ct));
 
     /// <summary>Détail par slug (URL SEO-friendly).</summary>
     [HttpGet("{slug}")]

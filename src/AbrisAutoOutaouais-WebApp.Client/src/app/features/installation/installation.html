@@ -74,6 +74,9 @@
           </select>
         </div>
 
+        @if (catalogEmpty()) {
+        <!-- Catalogue indisponible/vide → repli champs texte neutres (le submit reste possible).
+             On conserve le validateur excludedBrand (L-008 : garde encore utile en saisie libre). -->
         <div class="form-row form-row--two">
           <div class="form-field">
             <label for="brand" i18n="@@installation.field.brand">Marque de l'abri (optionnel)</label>
@@ -97,6 +100,51 @@
                    autocomplete="off" placeholder="Garage 12x20" />
           </div>
         </div>
+        } @else {
+        <!-- Listes déroulantes marque → modèle → dimensions (G2). `<select>` natif = choix
+             accessible (clavier + lecteur d'écran natifs, pas de widget custom). -->
+        <div class="form-row form-row--two">
+          <div class="form-field">
+            <label for="brand" i18n="@@installation.field.brand">Marque de l'abri (optionnel)</label>
+            <select id="brand" formControlName="brand"
+                    aria-describedby="inst-brand-hint"
+                    (change)="onBrandChange($any($event.target).value)">
+              <option value="" i18n="@@installation.field.brandPlaceholder">— Choisir une marque —</option>
+              @for (b of brands(); track b.brand) {
+              <option [value]="b.brand">{{ b.brand }}</option>
+              }
+            </select>
+            <span id="inst-brand-hint" class="form-field__hint" i18n="@@installation.field.brandHint">
+              On installe d'autres marques, sauf ShelterLogic. <a href="#installation-faq-title">Voir la FAQ « marques ».</a>
+            </span>
+          </div>
+
+          <div class="form-field">
+            <label for="model" i18n="@@installation.field.model">Modèle (optionnel)</label>
+            <select id="model" formControlName="model"
+                    aria-describedby="inst-model-dims"
+                    (change)="onModelChange($any($event.target).value)">
+              <option value="" i18n="@@installation.field.modelPlaceholder">— Choisir un modèle —</option>
+              @for (m of availableModels(); track m.model) {
+              <option [value]="m.model">{{ m.model }}</option>
+              }
+            </select>
+            <!-- Dimensions du modèle choisi — lecture seule, pour information. -->
+            <p id="inst-model-dims" class="form-field__hint" role="status" aria-live="polite" aria-atomic="true">
+              @if (selectedModel(); as m) {
+                @if (m.widthCm !== null && m.lengthCm !== null) {
+                <ng-container i18n="@@installation.field.modelDims">Dimensions&nbsp;:</ng-container>
+                {{ toFeet(m.widthCm) | number: '1.1-1' }} ×
+                {{ toFeet(m.lengthCm) | number: '1.1-1' }}@if (m.heightCm !== null) { ×
+                {{ toFeet(m.heightCm) | number: '1.1-1' }}} <ng-container i18n="@@installation.field.modelDimsUnit">pi</ng-container>
+                } @else {
+                <ng-container i18n="@@installation.field.modelDimsUnknown">Dimensions non publiées pour ce modèle.</ng-container>
+                }
+              }
+            </p>
+          </div>
+        </div>
+        }
 
         <app-address-choice
           [profileAddress]="addr.profileAddress()"

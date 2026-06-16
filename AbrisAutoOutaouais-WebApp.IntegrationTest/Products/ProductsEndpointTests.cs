@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using AbrisAutoOutaouais_WebApp.Application.Common.Models;
+using AbrisAutoOutaouais_WebApp.Application.Products.Queries.GetShelterCatalog;
 using AbrisAutoOutaouais_WebApp.Application.Products.Queries.SuggestShelters;
 using AbrisAutoOutaouais_WebApp.Domain.Entities;
 
@@ -356,5 +357,64 @@ public sealed class ProductsEndpointTests : IClassFixture<WebAppFactory>
         response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
         var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>();
         problem!.Status.Should().Be(422);
+    }
+
+    // ── GET /api/v1/products/shelter-catalog ─────────────────────────────────
+
+    /// <summary>Seed direct d'un produit avec marque + modèle + dimensions (G2).</summary>
+    private async Task SeedBrandedShelterAsync(
+        string name, string slug, string brand, string model,
+        int? widthCm = null, int? lengthCm = null, int? heightCm = null)
+    {
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var category = ProductCategory.Create($"Cat {slug}", $"cat-{slug}");
+        var product = Product.Create(
+            name, slug, 199.99m, 5, category.Id,
+            widthCm: widthCm, lengthCm: lengthCm, heightCm: heightCm,
+            brand: brand, model: model);
+        db.ProductCategories.Add(category);
+        db.Products.Add(product);
+        await db.SaveChangesAsync();
+    }
+
+    [Fact]
+    public async Task ShelterCatalog_Anonymous_Returns200WithBrandsAndModels()
+    {
+        // Au moins une marque avec ses modèles + dimensions. Route littérale prime sur {slug}.
+        await SeedBrandedShelterAsync(
+            "Catalogue Abri A", "catalogue-abri-a", "Catalogue Tempo", "Modèle CA-100",
+            widthCm: 335, lengthCm: 488, heightCm: 244);
+
+        var response = await _client.GetAsync("/api/v1/products/shelter-catalog");
+
+        // On obtient bien une LISTE (200), pas un 404 GetBySlug.
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var body = await response.Content.ReadFromJsonAsync<List<BrandCatalogDto>>();
+        body.Should().NotBeNull();
+
+        var brand = body!.FirstOrDefault(b => b.Brand == "Catalogue Tempo");
+        brand.Should().NotBeNull();
+        brand!.Models.Should().NotBeEmpty();
+        var model = brand.Models.FirstOrDefault(m => m.Model == "Modèle CA-100");
+        model.Should().NotBeNull();
+        model!.Slug.Should().Be("catalogue-abri-a");
+        model.WidthCm.Should().Be(335);
+        model.LengthCm.Should().Be(488);
+        model.HeightCm.Should().Be(244);
+    }
+
+    [Fact]
+    public async Task ShelterCatalog_ExcludesProductsWithoutBrandOrModel()
+    {
+        // Un produit sans marque/modèle (toile, accessoire) ne doit pas apparaître au catalogue.
+        await DbHelper.SeedProductAsync(_factory.Services, slug: "catalogue-sans-marque");
+
+        var response = await _client.GetAsync("/api/v1/products/shelter-catalog");
+        var body = await response.Content.ReadFromJsonAsync<List<BrandCatalogDto>>();
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        body!.SelectMany(b => b.Models).Select(m => m.Slug)
+            .Should().NotContain("catalogue-sans-marque");
     }
 }

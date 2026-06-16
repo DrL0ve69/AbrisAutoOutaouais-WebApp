@@ -11,6 +11,29 @@
 
 ---
 
+## L-030 · A `.First()` after a partial `OrderBy` is non-deterministic if the projection reads fields NOT in the sort key — add a deterministic tie-break at the query
+
+- **Symptom.** G2: `GetShelterCatalogQueryHandler` ordered rows by `(Brand, Model)` then did
+  an in-memory `GroupBy(Brand)` → `GroupBy(Model)` → `m.First()` to pick the canonical
+  `Slug`/`WidthCm`/`LengthCm`/`HeightCm` for each distinct model. `Slug` and the dimension
+  fields are **not part of the sort key**, so when two products share the same brand+model but
+  differ in slug or dimensions, `First()` returns a **non-deterministic row** — whatever
+  EF/SQL happens to materialise first. The published slug and dims would flip between runs. A
+  comment even claimed « alphabetical order guaranteed by SQL » — overstating the guarantee.
+  The bug was latent because the seed has no duplicate brand+model pair; caught by the
+  independent reviewer, not by tests ([[L-005]]: no failing test ≠ correct).
+- **Rule.** Any `.First()`/`.FirstOrDefault()`/`[0]` after a LINQ `OrderBy` is only deterministic
+  if the sort key **pins every field the projection subsequently reads**. When it does not,
+  add a deterministic **tie-break** (e.g. `.ThenBy(p => p.Slug)`) at the query so the pick is
+  well-defined regardless of DB/SQL row order — and correct any comment that overstates the
+  ordering guarantee. Pin the uniqueness assumption with a unit test that seeds two rows with
+  the same group key but different tie-break values and asserts the expected pick, so a future
+  data-model change that would break it is caught at `dotnet test` time. Same family as
+  [[L-007]] (an invariant that makes a grouped/windowed query correct lives far from the query
+  — pin it there), on the **sort-stability** axis rather than the temporal one.
+- **Refs.** `src/AbrisAutoOutaouais-WebApp.Application/Products/Queries/GetShelterCatalog/GetShelterCatalogQueryHandler.cs`
+  (`.ThenBy(p => p.Slug)` tie-break + corrected comment), branch `feat/epic-g-catalog`.
+
 ## L-029 · Removing the declarative `authGuard` from a route is NOT enough — grep for imperative guards and post-action navigations too
 
 - **Symptom.** Épic F: opening `/panier/caisse` to guests required removing `canActivate: [authGuard]`

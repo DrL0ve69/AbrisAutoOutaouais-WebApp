@@ -702,6 +702,26 @@
         <source>Modèle (optionnel)</source>
         <target>Model (optional)</target>
       </trans-unit>
+      <trans-unit id="installation.field.brandPlaceholder" datatype="html">
+        <source>— Choisir une marque —</source>
+        <target>— Choose a brand —</target>
+      </trans-unit>
+      <trans-unit id="installation.field.modelPlaceholder" datatype="html">
+        <source>— Choisir un modèle —</source>
+        <target>— Choose a model —</target>
+      </trans-unit>
+      <trans-unit id="installation.field.modelDims" datatype="html">
+        <source>Dimensions :</source>
+        <target>Dimensions:</target>
+      </trans-unit>
+      <trans-unit id="installation.field.modelDimsUnit" datatype="html">
+        <source>pi</source>
+        <target>ft</target>
+      </trans-unit>
+      <trans-unit id="installation.field.modelDimsUnknown" datatype="html">
+        <source>Dimensions non publiées pour ce modèle.</source>
+        <target>Dimensions not published for this model.</target>
+      </trans-unit>
       <trans-unit id="installation.field.city" datatype="html">
         <source>Ville</source>
         <target>City</target>
