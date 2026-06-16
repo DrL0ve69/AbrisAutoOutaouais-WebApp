@@ -11,6 +11,34 @@
 
 ---
 
+## L-031 · An idempotent seeder + a late-added column = silently stale dev data — backfill per-key per-field when you add a column to a seeded entity
+
+- **Symptom.** G3: `/mesurer` shelter suggestions always returned an empty list. Root cause found by
+  querying the live dev DB ([[L-001]]): the 12 seeded products had `WidthCm`/`LengthCm` (Épic D/D1)
+  and `Brand`/`Model` (Épic G/G1) = **NULL** because the `ProductSeeder` is **idempotent**
+  (`if (await db.Products.AnyAsync()) return;`). The dev DB had been seeded before those columns
+  existed — the existing rows were never re-seeded, so every newly added column stayed NULL.
+  The `SuggestSheltersQueryHandler` filter `WHERE WidthCm != null` (correct, tested) silently
+  eliminated all rows → 0 results, no error. Tests were blind to this: the test DB always starts
+  empty, so seeds run in full and all columns land populated — a **fresh-DB/stale-dev-DB divergence**
+  that no test exercises.
+- **Rule.** Any time you add a column to an entity already covered by an idempotent seeder, add a
+  **backfill block** in the same change: look up each existing row **by its stable key** (slug,
+  code…) and fill the new field **only when it is still NULL** — never overwrite a value an admin
+  may have set. Run `SaveChanges` only if something actually changed; keep the whole block
+  idempotent so restarts are safe. Guard the backfill with CI tests (skip/fill/preserve/idempotence
+  — [[L-005]]: an unguarded "fix data" block has no regression net). Diagnose « 0 results /
+  unexpected NULL » by querying the **real running DB first** ([[L-001]]), not by reading tests
+  (fresh-DB seeds hide the gap). Same family as [[L-007]] (a correctness invariant lives far from
+  the code that depends on it) and [[L-018]] (adding a column is not done at the migration alone —
+  existing rows need populating too), on the **seeded-data** axis.
+- **Refs.** `src/AbrisAutoOutaouais-WebApp.Infrastructure/Persistence/ProductSeeder.cs`
+  (`BackfillShelterDataAsync` / `FillBrandModel`),
+  `src/AbrisAutoOutaouais-WebApp.UnitTest/Infrastructure/Persistence/ProductSeederBackfillTests.cs`
+  (6 tests: fill known, preserve admin data, unknown slug untouched, idempotence),
+  `src/AbrisAutoOutaouais-WebApp.Application/Products/Queries/SuggestShelters/SuggestSheltersQueryHandler.cs`
+  (`WidthCm != null` filter), branch `feat/epic-g-catalog`.
+
 ## L-030 · A `.First()` after a partial `OrderBy` is non-deterministic if the projection reads fields NOT in the sort key — add a deterministic tie-break at the query
 
 - **Symptom.** G2: `GetShelterCatalogQueryHandler` ordered rows by `(Brand, Model)` then did
