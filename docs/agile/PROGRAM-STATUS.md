@@ -8,6 +8,13 @@
 > `C:\Users\phili\.claude\plans\majestic-soaring-sprout.md`
 > **Programme précédent (terminé, A→F) :** `C:\Users\phili\.claude\plans\1-i-want-you-glistening-barto.md`
 > Maintiens ce pointeur à jour à la fin de chaque sous-tâche (c'est ce que l'assistant relit).
+>
+> **🗂️ Phase 2 planifiée (non engagée) — `docs/agile/ROADMAP-PHASE-2.md`.** Six épopées issues de la
+> demande utilisateur 2026-06-16 (`probleme abris-auto-outaouais.docx`) : EPIC 7 paiements (Interac),
+> EPIC 8 employés/paie, EPIC 9 catalogue par dimensions, EPIC 10 suggestion intelligente, EPIC 11
+> calendrier/planification, EPIC 12 contraste formulaires. **Planification SEULEMENT — aucun code
+> écrit.** À prioriser **après** l'Épic H (ordre conseillé : 12 → 9 → 10 → 11 → 8 → 7). Détail +
+> décisions à prendre dans la roadmap ; user stories EPIC 7→12 dans `product-backlog.md`.
 
 ---
 
@@ -27,7 +34,7 @@
 | E | Parcours premier utilisateur (register→profil ; alerte adresse) | **✅ MERGÉ — PR #37 (`233a388`), CI verte, prod auto-déployée** |
 | F | Accès invité (compte express silencieux à la confirmation) | **✅ MERGÉ — PR #38 (`e536cd2`), 3 gates code verts ; prod en attente re-run MCR** |
 | G | Catalogue marques/modèles + dimensions (installation & fit mesurer) | **✅ MERGÉ — PR #39 (`ed5f82e`), CI verte, prod auto-déployée** |
-| **H** | Déploiement (région SWA Canada + backend) — **manuel utilisateur** | **🔵 CURSEUR — à faire (manuel)** |
+| **H** | Déploiement (région SWA + backend Azure) — **manuel utilisateur** | **✅ FAIT (2026-06-16) — backend en ligne (Container Apps + Azure SQL S0), provisionné par Terraform `infra/`, image API déployée et vérifiée (`GET /api/v1/products` → 200), PR #40** |
 
 **Décisions utilisateur figées** : adresse = **champ unique intelligent** → champs structurés
 éditables ; curseur = **point + anneau magnétique** ; invité = **compte express silencieux**
@@ -38,10 +45,10 @@
 
 ## Curseur courant (Programme G)
 
-- **🔵 REPRENDRE ICI (session 2026-06-16) — Épic H : déploiement MANUEL utilisateur (seule tâche restante du programme).**
-  - **État git** : sur `master`, working tree propre, Épic G mergé (`ed5f82e`) et **prod déployée**. Front A→G entièrement livré + en ligne. Il ne reste QUE le provisioning Azure réel du **backend** (manuel, gated sur la connexion `az` de l'utilisateur ; tout est scripté).
-  - **Ce que H demande** : (a) confirmer/choisir la **région SWA Canada** pour le front (déjà déployé sur `kind-water-0efca2b10.7.azurestaticapps.net`) ; (b) **provisionner le backend** = dérouler `docs/deployment.md` §4.2 : `az login` → créer Container Apps + Azure SQL S0 → `gh secret set AZURE_CREDENTIALS` → substituer le FQDN backend dans `src/AbrisAutoOutaouais-WebApp.Client/src/environments/environment.prod.ts` (placeholder) → push `master` (le workflow `azure-container-app.yml`, gated sur `AZURE_CREDENTIALS`, build via ACR + `az containerapp update` ; migration EF opt-in `Database__MigrateOnStartup=true` sur le conteneur prod, OFF ailleurs L-022 ; `ASPNETCORE_FORWARDEDHEADERS_ENABLED=true` contre la boucle 307).
-  - **PROCHAINE ACTION** : c'est une tâche **manuelle utilisateur** (l'assistant ne peut pas faire `az login`). Quand l'utilisateur veut déployer le backend, lui proposer de lancer les commandes `az`/`gh secret` lui-même (préfixe `!` dans la session pour que la sortie revienne ici), puis l'assistant aide à substituer le FQDN + vérifier le run CD. **Rien à coder.** Si l'utilisateur ne veut pas provisionner maintenant → le programme A→H est fonctionnellement terminé côté livraison (seul le backend prod reste optionnel/manuel).
+- **✅ Épic H — Déploiement backend Azure : FAIT (2026-06-16) — PR #40 (`feat/epic-h-deploy`).**
+  - **Livré** : module **Terraform `infra/`** (RG + Azure SQL S0 + ACR + Container Apps, identité managée **user-assigned** + AcrPull) ; image API .NET 10 **buildée par le SDK** (`dotnet publish /t:PublishContainer`) + poussée dans ACR ; Container App déployée et **vérifiée live** (`GET https://abristempo-api.livelyforest-90718d07.canadacentral.azurecontainerapps.io/api/v1/products` → 200, migration EF + seeding OK) ; `environment.prod.ts apiUrl` substitué au FQDN réel ; workflow CD corrigé + `infra/deploy-backend.ps1`.
+  - **Contraintes abonnement étudiant rencontrées (importantes pour la suite)** : (1) **ACR Tasks DÉSACTIVÉ** (`TasksOperationsNotAllowed`) → `az acr build` impossible **et** le workflow GitHub d'origine inopérant → bascule sur **build SDK .NET sans Docker** (workflow réécrit `dotnet publish /t:PublishContainer`, gated `AZURE_CREDENTIALS`) ; (2) `registry { identity = "System" }` faisait **expirer** la révision → fix = identité managée **user-assigned** créée avant l'app (AcrPull pré-attribué) ; (3) image d'amorçage devait écouter sur **8080** (la `helloworld` écoute 80 → sonde KO) → `mcr.microsoft.com/dotnet/samples:aspnetapp` ; (4) **admin ACR activé** uniquement pour le PUSH (le pull runtime reste via l'identité managée). **CD automatique non câblé** : pas de service principal (tenant Cégep peut le bloquer) → redéploiements via **`infra/deploy-backend.ps1`** (manuel, reproductible). SWA frontend laissé en **Central US** (un SWA sert depuis l'edge mondial — la région n'affecte pas la latence ; Canada n'est pas une région SWA).
+  - **Reste optionnel** : si un service principal devient disponible → `gh secret set AZURE_CREDENTIALS` active le CD auto (workflow déjà prêt). Sinon, `deploy-backend.ps1` pour chaque redéploiement backend.
   - **Diagnostic clos (e2e PR #39)** : l'unique rouge CI était un **flake d'hydratation SSR pré-existant** (L-012), PAS une régression d'Épic G. `e2e/address-autocomplete.spec.ts:211` faisait un `fill('77')` one-shot sur `#civicNumber` avant l'hydratation du CVA → modèle de form vide → la suggestion réécrivait `''` (assertion recevait `''`, contrôle `ng-pristine`). Spec byte-identique à `master`, aucune touche G sur la cascade `/location` (la théorie git-ops « mock shelter-catalog » était bien fausse). Fix = `fill` enveloppé dans `expect(...).toPass()` (commit `1eb1321`), **L-012 affûtée** (corollaire `fill()` one-shot). CI repassée 100% verte → merge.
 
 - **✅ Épic G — MERGÉ vers `master` (2026-06-16) — PR #39 (`ed5f82e`), branche `feat/epic-g-catalog` supprimée, CI verte, prod auto-déployée (Build + Deploy verts, pas de 429 MCR). (détail des 3 sous-tâches ci-dessous.)**

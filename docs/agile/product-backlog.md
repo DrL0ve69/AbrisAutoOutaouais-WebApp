@@ -127,6 +127,61 @@ les critères a11y dans sa Definition of Done (voir `definition-of-done.md`).
 
 ---
 
+## Phase 2 — fonctionnalités métier avancées (⛔ À planifier)
+
+> **Statut : PLANIFICATION SEULEMENT — non engagé, aucun code.** Issu de la demande utilisateur du
+> 2026-06-16 (`probleme abris-auto-outaouais.docx`). Détail complet, architecture envisagée, options
+> gratuites, avertissements et **décisions à prendre** : **`docs/agile/ROADMAP-PHASE-2.md`**. À
+> prioriser avec l'utilisateur après l'Épic H (déploiement). **⚠️ Rappel** : la recherche paiements du
+> `.docx` suppose un backend Node/Express — **ce dépôt est .NET 10** ; suivre l'idiome port/adaptateur
+> (`IPlacesService`).
+
+### EPIC 7 — Paiements en ligne (Interac e-Transfer + cartes)
+
+| ID | User Story | Estimation | MoSCoW | Statut |
+|----|-----------|:----------:|:------:|--------|
+| US-7.1 | En tant que **client**, je veux **payer ma commande/location/installation par Interac e-Transfer** (demande par courriel/téléphone/ID) afin de payer sans carte de crédit. | 13 | **Could** | ⛔ À planifier (Phase 2) |
+| US-7.2 | En tant que **client**, je veux optionnellement **payer par redirection bancaire instantanée (Interac Debit / AccèsD Desjardins)** afin de confirmer le paiement immédiatement. | 8 | **Could** | ⛔ À planifier (Phase 2) |
+| US-7.3 | En tant qu'**équipe**, je veux un **port `IPaymentService` + adaptateurs** (manuel/VoPay/Paysafe) sélectionnés par config et des **webhooks signés idempotents** afin d'encaisser de façon asynchrone et fiable. | 13 | **Could** | ⛔ À planifier (Phase 2) |
+
+### EPIC 8 — Gestion des employés & paie (informative)
+
+| ID | User Story | Estimation | MoSCoW | Statut |
+|----|-----------|:----------:|:------:|--------|
+| US-8.1 | En tant qu'**admin**, je veux **suivre les heures travaillées par employé** et leur **statut de paie** (à payer / payée) afin d'avoir une vue claire de la masse salariale. | 8 | **Could** | ⛔ À planifier (Phase 2 ; ⚠️ informatif — paie réelle = conformité fiscale hors portée) |
+| US-8.2 | En tant qu'**admin**, je veux optionnellement **verser la paie** en réutilisant les rails de paiement (payout EPIC 7) afin d'automatiser le versement (mode démo). | 5 | **Won't (now)** | ⛔ À planifier (dépend EPIC 7 ; aucun calcul fiscal) |
+
+### EPIC 9 — Catalogue par dimensions configurables
+
+| ID | User Story | Estimation | MoSCoW | Statut |
+|----|-----------|:----------:|:------:|--------|
+| US-9.1 | En tant que **visiteur**, je veux, **après avoir choisi une catégorie d'abri, choisir les dimensions** (largeur fixe par catégorie, longueur configurable par pas de 4 pi, hauteur dégagée) afin de sélectionner le modèle exact. | 13 | **Should** | ⛔ À planifier (Phase 2 ; décision modèle : variantes vs paramétrique) |
+| US-9.2 | En tant qu'**admin**, je veux **saisir le référentiel dimensionnel** (largeurs/hauteurs/longueurs possibles par catégorie) afin que la sélection client soit exacte. | 5 | **Should** | ⛔ À planifier (Phase 2 ; compléter dims mono/double/autres depuis abristempo.com) |
+
+### EPIC 10 — Suggestion d'abris intelligente (mesure & véhicule)
+
+| ID | User Story | Estimation | MoSCoW | Statut |
+|----|-----------|:----------:|:------:|--------|
+| US-10.1 | En tant que **visiteur**, je veux que la mesure de mon entrée propose **toutes les catégories qui rentrent** (pas les dimensions exactes), puis me laisse choisir modèle + longueur (≤ longueur mesurée, max 40 pi), afin de trouver le bon abri sans erreur. | 5 | **Should** | ⛔ À planifier (Phase 2 ; dépend EPIC 9) |
+| US-10.2 | En tant que **visiteur**, je veux, lors de la **sélection de véhicules**, indiquer s'ils sont **côte à côte ou l'un derrière l'autre** afin que la suggestion calcule la bonne largeur/longueur. | 3 | **Should** | ⛔ À planifier (Phase 2 ; dépend EPIC 9) |
+
+### EPIC 11 — Calendrier & planification terrain
+
+| ID | User Story | Estimation | MoSCoW | Statut |
+|----|-----------|:----------:|:------:|--------|
+| US-11.1 | En tant qu'**admin/employé**, je veux un **calendrier** (mois/semaine/jour) montrant horaires et rendez-vous, accessible au clavier, afin de visualiser la charge. | 8 | **Could** | ⛔ À planifier (Phase 2 ; agréger les `Booking` existants, pas un 2e mécanisme) |
+| US-11.2 | En tant qu'**admin**, je veux **cliquer un jour** pour voir le détail (employés à l'horaire, RDV), **saisir les heures** et **ajouter RDV/employé** via un overlay accessible. | 8 | **Could** | ⛔ À planifier (Phase 2 ; alimente EPIC 8) |
+| US-11.3 | En tant qu'**admin**, je veux que l'app **optimise le trajet du jour** (plus court) à partir des lat/lng des RDV puis **propose les heures** afin de planifier la tournée. | 5 | **Could** | ⛔ À planifier (Phase 2 ; MVP heuristique maison via `GeoDistance`, ou OpenRouteService proxy) |
+
+### EPIC 12 — Correctifs de contraste formulaires/focus
+
+| ID | User Story | Estimation | MoSCoW | Statut |
+|----|-----------|:----------:|:------:|--------|
+| US-12.1 | En tant qu'**utilisateur à basse vision**, je veux **voir ce que je tape** dans tous les formulaires (au focus, dans les deux thèmes) afin de saisir sans erreur (WCAG 1.4.3 / 1.4.11). | 3 | **Should** | ⛔ À planifier (Phase 2 ; via skill `a11y-ux-pass`, corriger au niveau jeton, vérif e2e dual-thème L-016) |
+| US-12.2 | En tant qu'**utilisateur**, je veux que les **CTA primaires (boutons-ancres)** restent lisibles **même après visite** afin de toujours voir le libellé (WCAG 1.4.3). | 2 | **Should** | ⛔ À planifier (Phase 2 ; famille **L-023** — vérifier si déjà déployé ; `:visited` invisible à axe) |
+
+---
+
 ## Récapitulatif de priorisation (MoSCoW)
 
 | Catégorie | Stories | Total points | État |

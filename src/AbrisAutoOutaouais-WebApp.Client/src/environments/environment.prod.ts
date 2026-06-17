@@ -5,7 +5,7 @@
 // automatiquement le front (Azure Static Web Apps). Voir docs/deployment.md §4.2.
 export const environment = {
   production: true,
-  apiUrl: 'https://REMPLACER-PAR-LE-FQDN-CONTAINERAPP/api/v1',
+  apiUrl: 'https://abristempo-api.livelyforest-90718d07.canadacentral.azurecontainerapps.io/api/v1',
   // Build localisé (`localize: true`) : les deux langues sont servies (fr « / », en « /en/ »).
   // La bascule de langue est donc pleinement active.
   localized: true,
