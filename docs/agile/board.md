@@ -292,23 +292,60 @@ si un SP devient disponible. Détail : `PROGRAM-STATUS.md` (Épic H) + `docs/dep
 
 ## 🗂️ Phase 2 — backlog (non engagé, à planifier)
 
-> **Planification seulement — aucun code.** Demande utilisateur 2026-06-16
-> (`probleme abris-auto-outaouais.docx`). Détail complet : **`docs/agile/ROADMAP-PHASE-2.md`** ;
-> user stories : `product-backlog.md` (EPIC 7→12). À prioriser après l'Épic H. Ordre conseillé :
-> **EPIC 12 → 9 → 10 → 11 → 8 → 7**.
+> **Planification (en partie).** Demandes utilisateur **2026-06-16** (`…docx` → EPIC 7–12) **et
+> 2026-06-17** (`… (1).docx` → EPIC 13–16). Détail : **`docs/agile/ROADMAP-PHASE-2.md`** ; user
+> stories : `product-backlog.md` (EPIC 7→16). Ordre conseillé : **12(reste) → 15 → 9 → 10 → 13 → 14
+> → 11 → 8 → 7** (EPIC 16 diagramme déjà livré). **Quick wins 2026-06-17 livrés** : EPIC 12 partie 1
+> (contraste focus auth) + EPIC 16 diagramme — voir la mise à jour datée plus bas.
 
 | ID | Épopée | Source (point) | Dépend de | Estim. | MoSCoW | Note clé |
 |----|--------|:--------------:|-----------|:------:|:------:|----------|
-| EPIC 12 | Contraste formulaires/focus | 6 | — | 3 | Should | Bon 1er candidat ; au niveau jeton, vérif e2e dual-thème (L-016) ; CTA = famille L-023 |
+| EPIC 12 | Contraste formulaires/focus | 6 / (1)·2 | — | 3 | Should | 🟡 **partie 1 livrée** (auth focus) ; reste autres formulaires + Bug-09 + onglet profil |
 | EPIC 9 | Catalogue par dimensions configurables | 3 | — | 13 | Should | Refonte modèle (variantes vs paramétrique) ; touche home/boutique/location/installation/livraison/panier |
 | EPIC 10 | Suggestion d'abris intelligente (mesure/véhicule) | 4 | EPIC 9 | 8 | Should | Proposer **catégories qui rentrent** (≤ largeur, longueur ≤ mesure, max 40 pi) ; orientation véhicules |
 | EPIC 11 | Calendrier & planification terrain | 5 | — | 21 | Could | Agréger `Booking` existants ; routage MVP heuristique (`GeoDistance`) ou OpenRouteService |
 | EPIC 8 | Employés & paie (informative) | 2 | EPIC 11 | 8–13 | Could | ⚠️ Paie réelle = conformité fiscale hors portée ; viser informatif |
 | EPIC 7 | Paiements (Interac e-Transfer + cartes) | 1 | — | 21+ | Could | ⚠️ .NET (pas l'Express du `.docx`) ; spike d'abord ; MVP e-Transfer manuel gratuit |
+| EPIC 13 | Refonte parcours `/mesurer` (ordre + adresse optionnelle) | (1)·6 | 9·10·15 | 8 | Should | Dimension d'abord ; adresse seulement pour la carte ; regrouper Mesure+Conseil |
+| EPIC 14 | Carte satellite plus précise (zoom) | (1)·5.1 | — | 5 | Should | Over-zoom Esri d'abord ; sinon spike source HD payante via proxy |
+| EPIC 15 | Champ d'adresse unifié (spike→reco) | (1)·5.2 | — | 8 | Should | Un seul champ + lecture seule + code postal confirmé ; corrige autocomplete/code postal ; tous les formulaires |
+| EPIC 16 | Doc d'architecture + briques manquantes | (1)·3·4 | — | 3 | Could | ✅ **diagramme livré** ; reste backlog cache/cookies/rate-limit/secrets/observabilité |
 
 > **⚠️ Correction d'architecture** : la recherche paiements copiée dans le `.docx` suppose Node/Express.
 > **Le dépôt est .NET 10 / Mediator maison** — intégration via port `IPaymentService` + adaptateurs
 > (idiome `IPlacesService`), webhooks = contrôleur API. Voir `ROADMAP-PHASE-2.md` (EPIC 7).
+
+---
+
+## Mise à jour — 2ᵉ `.docx` : quick wins + nouveaux suivis (2026-06-17)
+
+Branche `docs/docx-followup-planning-and-epic12`. Suite à `probleme abris-auto-outaouais (1).docx` :
+planification enrichie (EPIC 13–16, cf. tableau ci-dessus) + **3 quick wins exécutés**.
+
+**Livré :**
+- **EPIC 12 partie 1** — « blanc sur blanc » à la frappe (register/login/reset) : `.field__input:focus`
+  posait `background: white` codé en dur → en sombre, blanc + `--color-text` (#f1f5f9) = 3.19:1.
+  Fix = jeton **`--color-surface`** (bascule par thème). Garde **`e2e/auth-input-contrast.spec.ts`**
+  (ratio contraste **direct** texte/fond, car axe n'évalue pas la valeur d'un input ; **non vacueux** —
+  prouvé en échec sur l'ancien code). Audit `wcag-2.2-audit.md` §5.11. Gates : `npm run build` ✅ ·
+  `npm test` **262/262** ✅ · e2e contraste dual-thème **4/4** ✅.
+- **EPIC 16 diagramme** — `docs/architecture/system-design.md` (Mermaid) + `system-design.drawio`
+  (éditable) : flux client→edge→API→couches→BD annoté, chemin d'une requête, règle des dépendances,
+  **table des briques manquantes + plan d'attaque**, inventaire par couche.
+- **Vérif PR #41** — la CI rouge post-merge n'était PAS une régression : 1 seul e2e flaky
+  (`mesurer.spec.ts:118` smoke carte `@defer`, famille L-019), build+262 unit verts ; **re-run vert**
+  (`27658589841`). PR #41 ne touchait que `azure-container-app.yml`.
+
+**Nouveaux suivis / dette (à planifier) :**
+
+| ID | Constat | Réf. | Recommandation | Statut |
+|----|---------|------|----------------|--------|
+| Flake-02 | `e2e/mesurer.spec.ts:118` smoke carte conteneur-only **flaky** (timing `@defer` Leaflet) | L-019 | Durcir : remplacer l'assertion conteneur par la **capacité** (déjà couverte par `:174` geoman) **ou** barrière réseau/état (L-012). Tuer le flake à la racine | 🟠 Ouvert |
+| Perf-01 | Bundle initial **503,76 kB > budget warn 500 kB** (avertissement, non bloquant CI) | budgets `angular.json` | Réduire l'initial **ou** relever le seuil justifié ; surveiller la marge | 🟠 Ouvert |
+| CI-01 | Annotation CI : **actions GitHub sur Node 20 dépréciées** (forçage Node 24 dès 2026-06-16) | `.github/workflows/*` | Bumper `actions/checkout@v4`/`setup-node@v4`/`setup-dotnet@v4` vers des versions Node 24 | 🟠 Ouvert |
+
+> **Suite** : commit docs → PR `docs/docx-followup-planning-and-epic12` → CI verte → merge `master`.
+> Reste Phase 2 (EPIC 12 partie 2 + 13–16) à dérouler via `/feature-cycle`.
 
 ---
 

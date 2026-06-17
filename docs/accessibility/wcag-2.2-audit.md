@@ -195,6 +195,31 @@ détection → recommandation → remédiation → re-test.
 - **Avant** : le repli `prefers-reduced-motion` du hero (pas d'épinglage GSAP), du cursor-ring et du viewer 3D était implémenté mais non **prouvé** en e2e sous émulation réelle (`emulateMedia`).
 - **Après** : `e2e/motion-a11y.spec.ts` (bloc A) émule `reducedMotion: 'reduce'` et vérifie — hero **figé** (`app-hero-story[data-motion=reduced]`, aucun `.pin-spacer` même après défilement), cursor-ring **inactif** (l'anneau reste masqué après déplacement du pointeur, le composant restant monté), viewer 3D **montable et stable** sans auto-rotation. Chaque assertion négative est doublée d'une positive (élément réellement rendu, pas de vacuité, L-002).
 
+### 5.11 EPIC 12 — texte saisi illisible (« blanc sur blanc ») dans les champs au focus, thème sombre
+- **Critère** : 1.4.3 Contraste (AA).
+- **Avant** : sur **register** et **login** (puis **réinitialisation** de mot de passe), `.field__input:focus`
+  (styles **scopés** `features/auth/auth.scss` et `features/auth/reset/reset.scss`) posait
+  `background: white` **codé en dur**, alors que `color` reste `var(--color-text)` (≈ `#f1f5f9` en
+  thème **sombre**). Au focus et à la frappe, le texte saisi devenait **quasi invisible** (blanc sur
+  blanc — mesuré **≈ 3.19:1 < 4.5:1**, sous le seuil AA). Le thème **clair** restait correct (texte
+  foncé sur blanc), d'où un bug visible uniquement en sombre. Invisible aux outils : axe `color-contrast`
+  **n'évalue pas la valeur d'un `<input>`** (ce n'est pas un nœud texte du DOM) — même famille de
+  cécité outillée que L-016/L-023.
+- **Après** : `background: var(--color-surface)` (jeton qui **bascule par thème** : `#ffffff` en clair —
+  identique à l'intention « éclaircir au focus » — et `#1a2736` en sombre, lisible avec
+  `--color-text`). Correction **au niveau jeton**, pas en patch local (motion-a11y §2). Les autres
+  formulaires (profil, caisse, location, installation, mesurer, admin) utilisent déjà la règle focus
+  **globale** de `styles.scss` (bordure + ombre, sans surcharge de fond) — non touchés.
+- **Re-test** : nouveau `e2e/auth-input-contrast.spec.ts` — calcule le **ratio de contraste WCAG
+  direct** (texte vs fond composés) du champ **focalisé + après saisie de « Membre10 »**, sur
+  **register et login**, dans les **deux thèmes**, assertion ≥ 4.5:1. Garde **non vacueuse**
+  (prouvée : repli temporaire vers `background: white` → 3.19:1 → échec ; corrigé → passe). Calcul
+  direct car axe ne couvre pas la valeur d'input (cf. ci-dessus). `color-contrast` reste **désactivé
+  en vitest** (L-016) → validation exclusivement en e2e + round-trip live L-001 (saisie « Membre10 »
+  lisible en sombre).
+- **Reste planifié (EPIC 12)** : balayage des autres formulaires + regroupement Bug-09 (badge « Ajusté
+  serré » sombre) et onglet `.profile-tab.is-active` (~2.76:1) — voir `docs/agile/ROADMAP-PHASE-2.md`.
+
 ---
 
 ## 6. Risques résiduels & recommandations

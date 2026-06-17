@@ -325,7 +325,10 @@ form {
   &:focus {
     outline: none;
     border-color: var(--color-focus, #1d4ed8);
-    background: white;
+    // Jeton de surface (bascule par thème) — PAS `white` codé en dur : en thème
+    // sombre, blanc + `color: var(--color-text)` (≈#f1f5f9) = texte illisible à la
+    // frappe (L-016/L-023). `--color-surface` = #fff en clair, #1a2736 en sombre.
+    background: var(--color-surface);
     box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.15);
   }
 

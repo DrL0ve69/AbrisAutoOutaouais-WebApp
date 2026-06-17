@@ -1,11 +1,18 @@
 # Roadmap — Phase 2 (fonctionnalités métier avancées)
 
-> **Statut : PLANIFICATION SEULEMENT — aucun code écrit.** Ce document capture six demandes
-> utilisateur (source : `probleme abris-auto-outaouais.docx`, 2026-06-16) comme **épopées à
-> compléter plus tard**. Il décrit le *quoi* et le *comment envisagé* ; il ne change **aucun**
-> comportement de l'application. Chaque épopée passera par la boucle habituelle
-> (`/feature-cycle` : architecte → développeur → revue indépendante → mentor) **au moment de son
-> implémentation**.
+> **Statut : PLANIFICATION (en grande partie).** Ce document capture les demandes utilisateur
+> (sources : `probleme abris-auto-outaouais.docx`, 2026-06-16 ; **`probleme abris-auto-outaouais (1).docx`,
+> 2026-06-17** — second jet, affine/ajoute) comme **épopées à compléter plus tard**. Il décrit le
+> *quoi* et le *comment envisagé*. Chaque épopée passe par la boucle habituelle (`/feature-cycle` :
+> architecte → développeur → revue indépendante → mentor) **au moment de son implémentation**.
+>
+> **⚙️ Déjà livré (session 2026-06-17, hors planification).** Suite au 2ᵉ `.docx` : (1) **diagramme de
+> design système** + briques manquantes → `docs/architecture/system-design.{md,drawio}` (EPIC 16) ;
+> (2) **EPIC 12 — partie 1 livrée** : correctif « blanc sur blanc » à la frappe (focus des champs
+> register/login/reset, `background: white` codé en dur → jeton `--color-surface`), gardé par
+> `e2e/auth-input-contrast.spec.ts` (cf. `wcag-2.2-audit.md` §5.11) ; (3) **vérif PR #41** : la CI
+> rouge post-merge était un **flake** e2e (`mesurer.spec.ts:118` smoke carte, L-019), pas une
+> régression — re-run **vert**.
 >
 > **Pré-requis de programme.** La Phase 1 (Programmes A→F puis G, épics A→H) est livrée et en ligne ;
 > la seule tâche restante du Programme G est **Épic H — déploiement backend manuel**
@@ -31,12 +38,20 @@
 | **EPIC 9** | Catalogue par dimensions configurables | 3 | — | 13 | Should | 🟠 Moyen (refonte modèle de données) |
 | **EPIC 10** | Suggestion d'abris intelligente (mesure & véhicule) | 4 | EPIC 9 | 8 | Should | 🟢 Faible (étend l'existant) |
 | **EPIC 11** | Calendrier & planification terrain (horaires, RDV, routage) | 5 | — | 21 | Could | 🟠 Moyen (nouveau domaine + routage) |
-| **EPIC 12** | Correctifs de contraste formulaires/focus | 6 | — | 3 | **Should** | 🟢 Faible (a11y ciblée) |
+| **EPIC 12** | Correctifs de contraste formulaires/focus | 6 / (1)·2 | — | 3 | **Should** | 🟢 Faible — **partie 1 LIVRÉE 2026-06-17** |
+| **EPIC 13** | Refonte du parcours `/mesurer` (ordre, adresse optionnelle, Mesure+Conseil) | (1)·6 | EPIC 9·10·15 | 8 | Should | 🟠 Moyen (UX + dépend du fit) |
+| **EPIC 14** | Carte satellite plus précise (zoom de mesure) | (1)·5.1 | — | 5 | Should | 🟠 Moyen (licence/coût tuiles HD) |
+| **EPIC 15** | Champ d'adresse : spike best-practices puis refonte (un seul champ + lecture seule) | (1)·5.2 | — | 8 | Should | 🟠 Moyen (touche tous les formulaires) |
+| **EPIC 16** | Documentation d'architecture vivante + backlog briques manquantes | (1)·3·4 | — | 3 | Could | 🟢 Faible — **diagramme LIVRÉ 2026-06-17** |
 
-**Ordre conseillé d'attaque** : **EPIC 12** (rapide, barre a11y dure, autonome) → **EPIC 9 → EPIC 10**
-(la chaîne catalogue/fit, valeur métier directe) → **EPIC 11** (calendrier, gros mais autonome) →
-**EPIC 8** (paie informative, s'appuie sur 11) → **EPIC 7** (paiements, le plus risqué — à traiter en
-*spike de recherche* d'abord, et probablement en mode bac-à-sable pour un portfolio).
+> Notation source : `(1)·N` = point N du 2ᵉ `.docx` (`… (1).docx`, 2026-06-17).
+
+**Ordre conseillé d'attaque** : **EPIC 12** (reste — autres formulaires, rapide) → **EPIC 15**
+(spike adresse — débloque la refonte mesurer) → **EPIC 9 → EPIC 10 → EPIC 13** (la chaîne
+catalogue/fit/parcours mesurer, valeur métier directe) → **EPIC 14** (précision carte) →
+**EPIC 11** (calendrier, gros mais autonome) → **EPIC 8** (paie informative, s'appuie sur 11) →
+**EPIC 7** (paiements, le plus risqué — *spike de recherche* d'abord, bac-à-sable pour un portfolio).
+**EPIC 16** est en partie déjà livré (diagramme) ; il reste à dérouler le backlog des briques.
 
 ---
 
@@ -271,8 +286,17 @@ ajout RDV/employé → optimisation tournée). MoSCoW : **Could**. **Alimente EP
 
 ## EPIC 12 — Correctifs de contraste formulaires/focus
 
-> **Source : point 6.** Problèmes de contraste dans **certains formulaires** : **au focus, on ne voit
-> pas ce qu'on écrit** (l'utilisateur cite **register** ; « il y en a peut-être d'autres »).
+> **Source : point 6 (1ᵉʳ .docx) + point 2 (2ᵉ .docx).** Problèmes de contraste dans **certains
+> formulaires** : **au focus, on ne voit pas ce qu'on écrit** (register/login ; « il y en a peut-être
+> d'autres »).
+
+> **✅ Partie 1 LIVRÉE (2026-06-17).** Cause racine confirmée + corrigée : `.field__input:focus`
+> (`features/auth/auth.scss`, `features/auth/reset/reset.scss`) posait **`background: white` codé en
+> dur** → en thème **sombre**, blanc + `color: var(--color-text)` (≈#f1f5f9) = **blanc sur blanc à la
+> frappe** (mesuré 3.19:1 < AA). Fix = jeton **`var(--color-surface)`** (bascule par thème). Gardé par
+> `e2e/auth-input-contrast.spec.ts` (contraste **direct** texte/fond, car axe n'évalue pas la valeur
+> d'un input ; non vacueux — prouvé en échec sur l'ancien code). Détail : `wcag-2.2-audit.md` §5.11.
+> **Reste (partie 2)** ci-dessous.
 
 ### Constats (confirmés par les captures du `.docx`)
 - **Champ d'adresse au focus** (capture 3) : le texte saisi (« mistral ») apparaît **sombre sur fond
@@ -294,7 +318,129 @@ ajout RDV/employé → optimisation tournée). MoSCoW : **Could**. **Alimente EP
   prouve **rien** sur le contraste) + round-trip live dans les deux thèmes (**L-001**). Pour les
   ancres-boutons, ajouter/confirmer la garde `:visited` honnête (L-023).
 
-### Estimation : 3 pts. MoSCoW : **Should** (barre a11y dure WCAG 2.2 AA). **Autonome — bon premier candidat.**
+### Partie 2 (reste à faire)
+- **Balayer tous les autres `<input>`/`<textarea>`/`<select>` au focus** dans les deux thèmes (profil,
+  caisse, location, installation, mesurer, admin) — ils utilisent la règle focus **globale** de
+  `styles.scss` (a priori saine), mais le confirmer en e2e dual-thème comme pour auth.
+- **Regrouper les bugs de contraste déjà loggés** : Bug-09 (badge « Ajusté serré » `/mesurer` résultats
+  ~1.66:1 en sombre) et onglet `.profile-tab.is-active` (~2.76:1 en sombre). Corriger **au niveau jeton**.
+- Vérif : `npm run e2e` axe dual-thème (`color-contrast` désactivé en vitest, L-016) + round-trip live L-001.
+
+### Estimation : 3 pts (partie 1 faite). MoSCoW : **Should** (barre a11y dure WCAG 2.2 AA).
+
+---
+
+## EPIC 13 — Refonte du parcours `/mesurer` (ordre des étapes + adresse optionnelle + Mesure/Conseil)
+
+> **Source : point 6 (2ᵉ .docx).** Les 3 étapes actuelles (`Adresse → Mesure → Résultats`) sont dans
+> le **mauvais ordre** et imposent l'adresse alors qu'elle n'est utile **que** pour mesurer sur carte.
+
+### État actuel
+- `features/mesurer` : stepper **1. Adresse → 2. Mesure (calculateur / carte) → 3. Résultats**
+  (`mesurer.ts`, `steps/address-step`, `measure-step`, `results-step`). L'**adresse est exigée**
+  avant de mesurer ; elle sert au **géocodage** pour centrer la carte (D4) et à l'avertissement zone
+  100 km (D5).
+
+### Ce qu'il faut faire (vision utilisateur)
+1. **Inverser la logique** : l'utilisateur **connaît peut-être déjà ses dimensions** ou veut juste
+   donner ses **modèles de véhicules** → ne **pas** lui imposer l'adresse.
+2. **Étape 1 = dimensions de l'entrée** : (a) je connais les dimensions (saisie directe), (b) par
+   **véhicules** (calculateur), (c) **mesurer sur carte**.
+3. **L'adresse n'est demandée qu'au choix (c)** « mesurer sur carte » : un **input dans le coin
+   gauche / au-dessus** de la carte ; si **connecté**, input pré-rempli **et carte centrée
+   automatiquement** sur l'adresse profil (modifiable). Formulaire **et** carte sur la **même page**.
+4. **Étape finale = Conseil** : la suggestion **par catégorie → modèle → dimension** (cf. EPIC 9/10 :
+   « Abris simple » = catégorie ; produits = `11x16`, `11x20`… ; proposer les catégories qui *rentrent*,
+   pas des dimensions exactes).
+5. **Trouver un terme regroupant « Mesure » + « Conseil »** (ex. « Dimensionner », « Trouver mon
+   abri », « Mesure & conseil »).
+
+### Dépendances & liens
+- **Dépend d'EPIC 9** (dimensions par catégorie) **et d'EPIC 10** (suggestion par catégorie) pour
+  l'étape Conseil, et **d'EPIC 15** (champ d'adresse unifié) pour l'input adresse de la carte.
+- Réutiliser l'idiome existant (radiogroups APG `radio-nav.util`, `@defer` carte SSR-safe) — ne pas
+  créer un 2ᵉ mécanisme.
+
+### Estimation : 8 pts. MoSCoW : **Should**. **Dépend d'EPIC 9, 10, 15.**
+
+---
+
+## EPIC 14 — Carte satellite plus précise (zoom de mesure)
+
+> **Source : point 5.1 (2ᵉ .docx).** Le zoom max de la carte `/mesurer` est **trop faible** pour des
+> mesures précises (l'utilisateur fournit 2 captures : actuel vs souhaité).
+
+### État actuel
+- `map-measure.ts` + `util/tile-provider.const.ts` : tuiles **Esri World Imagery**, `maxZoom = 19`
+  (« au-delà, tuiles absentes/floues »), zoom initial 20 si adresse localisée. Pas de `maxNativeZoom`.
+
+### Plan d'attaque (du moins risqué au plus lourd)
+1. **Over-zoom Leaflet** : définir `maxNativeZoom` (niveau réel des tuiles) **et** un `maxZoom`
+   supérieur → Leaflet **agrandit** les dernières tuiles natives (plus de détail visuel sans changer
+   de fournisseur ; un peu flou mais permet une mesure plus fine). Faible risque, gratuit.
+2. **Source de tuiles plus profonde** : évaluer Google/Mapbox/Bing satellite (zoom 21+) — **clé +
+   coût + licence** ; obligatoirement **via un proxy backend** (idiome `IPlacesService`, jamais
+   d'appel tiers direct du client). **Spike fournisseur** (gratuit vs payant, conditions d'usage).
+3. **Aide à la mesure** : envisager un contrôle de zoom plus fin / une échelle, pour fiabiliser le
+   tracé geoman.
+
+### Décisions à prendre
+- [ ] Over-zoom Esri (gratuit, légèrement flou) **suffit-il**, ou faut-il une source HD payante ?
+- [ ] Si source HD : budget/licence acceptables pour un portfolio ?
+
+### Estimation : 5 pts (1) / 8+ (avec fournisseur HD). MoSCoW : **Should**. Risque 🟠 (licence tuiles).
+
+---
+
+## EPIC 15 — Champ d'adresse : spike best-practices puis refonte (un seul champ + lecture seule)
+
+> **Source : points 5.2 / 6.4 (2ᵉ .docx).** Le **numéro civique séparé** casse l'autocomplétion ;
+> l'utilisateur veut **un seul champ** (n° civique + rue ensemble), province/pays/**code postal** en
+> **lecture seule** auto-remplis, et le **code postal affiché après sélection** pour confirmer tout
+> changement. Bugs constatés : mauvais codes postaux proposés ; on peut changer le n° civique sans que
+> la rue suive.
+
+### Décision figée actuelle (à reconsidérer)
+- Épic D a figé « **champ unique intelligent → champs structurés ÉDITABLES** ». Le 2ᵉ `.docx` propose
+  l'inverse (champs **lecture seule**). **L'utilisateur a choisi : SPIKE de recherche d'abord, puis
+  recommandation** — ne **pas** verrouiller l'approche avant le spike.
+
+### Spike (livrable = recommandation argumentée)
+- Comparer **un seul champ d'adresse** vs **champs séparés**, et **lecture seule** vs **éditable**,
+  aux **meilleures pratiques** (Google Address, **GOV.UK** address patterns, recommandations a11y
+  WCAG 2.2 — saisie, autocomplétion, `autocomplete` tokens 1.3.5).
+- Couvrir les **bugs** : autocomplétion cassée par le n° civique séparé ; code postal incorrect
+  renvoyé (ex. « 45 Atmosphère » → `J9A 2V9`) ; n° civique modifiable sans màj de la rue.
+- **Affichage du code postal après sélection** pour confirmation (probablement dans le même champ).
+
+### Surfaces impactées
+- **Tous** les formulaires d'adresse : `profil`, `caisse`, `location`, `installation`, `mesurer`
+  (composants partagés `address-autocomplete`, `address-choice`, `AddressFormController`,
+  `AddressAutofillService`). Forte cohésion avec **EPIC 13** (input adresse de la carte).
+
+### Estimation : 8 pts (spike 2 + refonte 6). MoSCoW : **Should**. Risque 🟠 (touche tous les écrans).
+
+---
+
+## EPIC 16 — Documentation d'architecture vivante + backlog des briques manquantes
+
+> **Source : points 3 & 4 (2ᵉ .docx).** Diagramme du système (client mobile/tablette/web → couches →
+> BD, annoté par couche) + identification des **briques manquantes** (cache, cookies, load balancer…).
+
+### ✅ Livré (2026-06-17)
+- **`docs/architecture/system-design.md`** (Mermaid — rendu GitHub) + **`system-design.drawio`**
+  (éditable diagrams.net) : vue d'ensemble déploiement/flux, chemin d'une requête par couche, règle
+  des dépendances Clean Architecture, **table des briques manquantes + plan d'attaque**, inventaire
+  par couche.
+
+### Reste à faire (backlog des briques transverses — détail dans `system-design.md` §4)
+- **Cache** (en-têtes HTTP/ETag sur GET catalogue → `OutputCache` → distribué si besoin) ·
+  **Cookies/session** (décision JWT localStorage vs cookie `httpOnly`+refresh ; consentement Loi 25 ;
+  anti-forgery) · **Rate limiting** étendu à l'auth · **Secrets** → Key Vault · **Observabilité**
+  (Application Insights) · **Health checks** `/health` · **WAF/DDoS** (optionnel) · **CD backend auto**.
+- Chacune devient une **user story priorisée** (`product-backlog.md`).
+
+### Estimation : 3 pts (diagramme fait ; reste = stories d'infra à dérouler). MoSCoW : **Could**.
 
 ---
 

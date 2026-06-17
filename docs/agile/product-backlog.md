@@ -177,8 +177,38 @@ les critères a11y dans sa Definition of Done (voir `definition-of-done.md`).
 
 | ID | User Story | Estimation | MoSCoW | Statut |
 |----|-----------|:----------:|:------:|--------|
-| US-12.1 | En tant qu'**utilisateur à basse vision**, je veux **voir ce que je tape** dans tous les formulaires (au focus, dans les deux thèmes) afin de saisir sans erreur (WCAG 1.4.3 / 1.4.11). | 3 | **Should** | ⛔ À planifier (Phase 2 ; via skill `a11y-ux-pass`, corriger au niveau jeton, vérif e2e dual-thème L-016) |
+| US-12.1 | En tant qu'**utilisateur à basse vision**, je veux **voir ce que je tape** dans tous les formulaires (au focus, dans les deux thèmes) afin de saisir sans erreur (WCAG 1.4.3 / 1.4.11). | 3 | **Should** | 🟡 **Partiel — register/login/reset LIVRÉS 2026-06-17** (`background:white` → `--color-surface` ; `e2e/auth-input-contrast.spec.ts`, audit §5.11). Reste : balayer les autres formulaires. |
 | US-12.2 | En tant qu'**utilisateur**, je veux que les **CTA primaires (boutons-ancres)** restent lisibles **même après visite** afin de toujours voir le libellé (WCAG 1.4.3). | 2 | **Should** | ⛔ À planifier (Phase 2 ; famille **L-023** — vérifier si déjà déployé ; `:visited` invisible à axe) |
+| US-12.3 | En tant qu'**utilisateur**, je veux que le **badge « Ajusté serré » (/mesurer)** et l'**onglet de profil actif** soient lisibles en thème sombre afin de tout lire (WCAG 1.4.3). | 2 | **Should** | ⛔ À planifier (Bug-09 ~1.66:1 + `.profile-tab.is-active` ~2.76:1 ; corriger au jeton) |
+
+### EPIC 13 — Refonte du parcours `/mesurer` (ordre + adresse optionnelle)
+
+| ID | User Story | Estimation | MoSCoW | Statut |
+|----|-----------|:----------:|:------:|--------|
+| US-13.1 | En tant que **visiteur**, je veux **commencer par les dimensions de mon entrée** (je les connais / par véhicules / mesurer sur carte) **sans avoir à saisir mon adresse** d'abord, afin d'aller au but. | 5 | **Should** | ⛔ À planifier (Phase 2 ; inverse l'ordre actuel Adresse→Mesure→Résultats) |
+| US-13.2 | En tant que **visiteur**, je veux que l'**adresse ne soit demandée qu'au moment de mesurer sur carte** (input au-dessus/à gauche ; pré-rempli + carte centrée si connecté, modifiable), afin de ne saisir l'adresse que si utile. | 3 | **Should** | ⛔ À planifier (Phase 2 ; dépend EPIC 15) |
+| US-13.3 | En tant que **visiteur**, je veux à la fin une **étape « Conseil »** qui propose les **catégories qui rentrent → modèle → longueur**, afin de choisir le bon abri (regrouper Mesure+Conseil sous un seul terme). | 3 | **Should** | ⛔ À planifier (Phase 2 ; dépend EPIC 9, 10) |
+
+### EPIC 14 — Carte satellite plus précise
+
+| ID | User Story | Estimation | MoSCoW | Statut |
+|----|-----------|:----------:|:------:|--------|
+| US-14.1 | En tant que **visiteur**, je veux **zoomer plus profond** sur la carte `/mesurer` afin de tracer une mesure précise de mon entrée. | 5 | **Should** | ⛔ À planifier (Phase 2 ; over-zoom Esri `maxNativeZoom` d'abord, sinon spike source HD payante via proxy) |
+
+### EPIC 15 — Champ d'adresse : spike best-practices puis refonte
+
+| ID | User Story | Estimation | MoSCoW | Statut |
+|----|-----------|:----------:|:------:|--------|
+| US-15.1 | En tant qu'**équipe**, je veux un **spike** comparant un seul champ d'adresse vs champs séparés, lecture seule vs éditable (best-practices Google/GOV.UK + a11y), afin de **recommander** l'approche. | 2 | **Should** | ⛔ À planifier (Phase 2 ; décision figée « éditable » à reconsidérer) |
+| US-15.2 | En tant que **client**, je veux **un seul champ d'adresse** (n° civique + rue) avec province/pays/**code postal** auto-remplis (lecture seule) et le **code postal affiché après sélection** pour confirmer, afin que l'autocomplétion fonctionne et que l'adresse soit fiable. | 5 | **Should** | ⛔ À planifier (Phase 2 ; corrige autocomplete cassée + mauvais code postal ; touche tous les formulaires) |
+| US-15.3 | En tant que **client**, je veux que **modifier le n° civique mette à jour la rue/le code postal** (cohérence) afin d'éviter une adresse incohérente. | 1 | **Should** | ⛔ À planifier (Phase 2 ; bug constaté) |
+
+### EPIC 16 — Documentation d'architecture vivante + briques manquantes
+
+| ID | User Story | Estimation | MoSCoW | Statut |
+|----|-----------|:----------:|:------:|--------|
+| US-16.1 | En tant qu'**équipe**, je veux un **diagramme de design système** (client mobile/tablette/web → couches → BD, annoté par couche) afin de comprendre/communiquer l'architecture. | 2 | **Could** | ✅ **LIVRÉ 2026-06-17** (`docs/architecture/system-design.{md,drawio}`) |
+| US-16.2 | En tant qu'**équipe**, je veux un **backlog des briques transverses manquantes** (cache, cookies, rate-limit, secrets Key Vault, observabilité, health checks, WAF) afin de durcir le système progressivement. | 3 | **Could** | 🟡 Identifiées (system-design §4) ; reste à dérouler chaque brique en story |
 
 ---
 

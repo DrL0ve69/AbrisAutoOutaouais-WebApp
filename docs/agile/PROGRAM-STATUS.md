@@ -9,12 +9,22 @@
 > **Programme précédent (terminé, A→F) :** `C:\Users\phili\.claude\plans\1-i-want-you-glistening-barto.md`
 > Maintiens ce pointeur à jour à la fin de chaque sous-tâche (c'est ce que l'assistant relit).
 >
-> **🗂️ Phase 2 planifiée (non engagée) — `docs/agile/ROADMAP-PHASE-2.md`.** Six épopées issues de la
-> demande utilisateur 2026-06-16 (`probleme abris-auto-outaouais.docx`) : EPIC 7 paiements (Interac),
-> EPIC 8 employés/paie, EPIC 9 catalogue par dimensions, EPIC 10 suggestion intelligente, EPIC 11
-> calendrier/planification, EPIC 12 contraste formulaires. **Planification SEULEMENT — aucun code
-> écrit.** À prioriser **après** l'Épic H (ordre conseillé : 12 → 9 → 10 → 11 → 8 → 7). Détail +
-> décisions à prendre dans la roadmap ; user stories EPIC 7→12 dans `product-backlog.md`.
+> **🗂️ Phase 2 planifiée — `docs/agile/ROADMAP-PHASE-2.md`.** Épopées issues de **deux** demandes :
+> `probleme abris-auto-outaouais.docx` (2026-06-16 → EPIC 7–12) **et `… (1).docx` (2026-06-17 →
+> EPIC 13–16 + affinages)**. EPIC 7 paiements (Interac), 8 employés/paie, 9 catalogue par dimensions,
+> 10 suggestion intelligente, 11 calendrier, 12 contraste formulaires, **13 refonte `/mesurer`
+> (ordre + adresse optionnelle), 14 carte plus précise (zoom), 15 champ d'adresse unifié (spike→reco),
+> 16 doc d'architecture + briques manquantes**. Ordre conseillé : 12(reste) → 15 → 9 → 10 → 13 → 14
+> → 11 → 8 → 7. User stories EPIC 7→16 dans `product-backlog.md`.
+>
+> **⚙️ Quick wins livrés 2026-06-17 (suite au 2ᵉ .docx), branche `docs/docx-followup-planning-and-epic12` :**
+> (1) **PR #41** « tests frontend » : vérifié = **flake** e2e post-merge (`mesurer.spec.ts:118` smoke
+> carte, L-019), pas une régression — **re-run CI vert** (`27658589841`) ; (2) **EPIC 12 partie 1** :
+> correctif « blanc sur blanc » au focus (register/login/reset : `background:white` codé en dur →
+> jeton `--color-surface`), gardé par `e2e/auth-input-contrast.spec.ts` (ratio direct, non vacueux ;
+> audit §5.11) ; (3) **EPIC 16 diagramme** : `docs/architecture/system-design.{md,drawio}` (flux
+> client→couches→BD + briques manquantes cache/cookies/LB…). Reste = dérouler EPIC 12 partie 2 + 13–16
+> via `/feature-cycle`.
 
 ---
 
