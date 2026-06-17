@@ -1,0 +1,19 @@
+# Gabarit de variables — COPIER en `terraform.tfvars` (gitignoré) puis remplir.
+#   Copy-Item terraform.tfvars.example terraform.tfvars
+#
+# Alternative sans fichier (CI / shell) : exporter TF_VAR_<nom>, p. ex.
+#   $env:TF_VAR_sql_admin_password = "..."   ;   $env:TF_VAR_jwt_key = "..."
+
+# OBLIGATOIRE — ID de l'abonnement Azure : az account show --query id -o tsv
+subscription_id = "00000000-0000-0000-0000-000000000000"
+
+# SECRETS — ne JAMAIS commiter (ce fichier .example ne contient que des placeholders).
+sql_admin_password = "Change-moi-Mot2PasseFort!"
+jwt_key            = "REMPLACER_PAR_UNE_CLE_JWT_DE_32_CARACTERES_MINIMUM"
+
+# Optionnel — décommenter pour surcharger les défauts (cf. variables.tf).
+# Les noms ci-dessous DOIVENT être globalement uniques (SQL, ACR) :
+# sql_server_name = "abristempo-sql-xxxx"   # si "abristempo-sql" est déjà pris
+# acr_name        = "abristempoacrxxxx"      # si "abristempoacr" est déjà pris (puis: gh variable set AZURE_ACR_NAME <nom>)
+# location        = "canadacentral"
+# swa_url         = "https://kind-water-0efca2b10.7.azurestaticapps.net"

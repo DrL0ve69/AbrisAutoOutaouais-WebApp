@@ -1,0 +1,14 @@
+# Terraform — ne JAMAIS commiter l'état (contient des secrets en clair) ni les vars.
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+.terraform/
+*.tfplan
+# NB : .terraform.lock.hcl (verrou des versions de providers) se COMMIT — non ignoré ici.
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json

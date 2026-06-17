@@ -276,4 +276,40 @@ Branche `feat/epic-g-catalog` — 3 commits feature (G1 `d19512f`, G2 `443afce`,
 
 ---
 
+## ✅ Épic H — Déploiement backend Azure (MERGÉ, PR #40)
+
+Backend **en ligne et vérifié** (`GET /api/v1/products` → 200, migration EF + seeding OK) sur
+`https://abristempo-api.livelyforest-90718d07.canadacentral.azurecontainerapps.io`.
+**Infra as Code** : module **Terraform `infra/`** (RG + Azure SQL S0 + ACR + Container Apps,
+identité managée user-assigned + AcrPull). Image API **buildée par le SDK .NET**
+(`dotnet publish /t:PublishContainer`) — **ACR Tasks désactivé** sur l'abonnement étudiant.
+Frontend SWA inchangé (Central US — un SWA sert depuis l'edge mondial). **CD auto non câblé**
+(pas de service principal — tenant Cégep) → redéploiements via **`infra/deploy-backend.ps1`**
+(reproductible) ; workflow `azure-container-app.yml` corrigé (build SDK, pas d'ACR Tasks) et prêt
+si un SP devient disponible. Détail : `PROGRAM-STATUS.md` (Épic H) + `docs/deployment.md` §4.2.
+
+---
+
+## 🗂️ Phase 2 — backlog (non engagé, à planifier)
+
+> **Planification seulement — aucun code.** Demande utilisateur 2026-06-16
+> (`probleme abris-auto-outaouais.docx`). Détail complet : **`docs/agile/ROADMAP-PHASE-2.md`** ;
+> user stories : `product-backlog.md` (EPIC 7→12). À prioriser après l'Épic H. Ordre conseillé :
+> **EPIC 12 → 9 → 10 → 11 → 8 → 7**.
+
+| ID | Épopée | Source (point) | Dépend de | Estim. | MoSCoW | Note clé |
+|----|--------|:--------------:|-----------|:------:|:------:|----------|
+| EPIC 12 | Contraste formulaires/focus | 6 | — | 3 | Should | Bon 1er candidat ; au niveau jeton, vérif e2e dual-thème (L-016) ; CTA = famille L-023 |
+| EPIC 9 | Catalogue par dimensions configurables | 3 | — | 13 | Should | Refonte modèle (variantes vs paramétrique) ; touche home/boutique/location/installation/livraison/panier |
+| EPIC 10 | Suggestion d'abris intelligente (mesure/véhicule) | 4 | EPIC 9 | 8 | Should | Proposer **catégories qui rentrent** (≤ largeur, longueur ≤ mesure, max 40 pi) ; orientation véhicules |
+| EPIC 11 | Calendrier & planification terrain | 5 | — | 21 | Could | Agréger `Booking` existants ; routage MVP heuristique (`GeoDistance`) ou OpenRouteService |
+| EPIC 8 | Employés & paie (informative) | 2 | EPIC 11 | 8–13 | Could | ⚠️ Paie réelle = conformité fiscale hors portée ; viser informatif |
+| EPIC 7 | Paiements (Interac e-Transfer + cartes) | 1 | — | 21+ | Could | ⚠️ .NET (pas l'Express du `.docx`) ; spike d'abord ; MVP e-Transfer manuel gratuit |
+
+> **⚠️ Correction d'architecture** : la recherche paiements copiée dans le `.docx` suppose Node/Express.
+> **Le dépôt est .NET 10 / Mediator maison** — intégration via port `IPaymentService` + adaptateurs
+> (idiome `IPlacesService`), webhooks = contrôleur API. Voir `ROADMAP-PHASE-2.md` (EPIC 7).
+
+---
+
 **✅ Épic F (accès invité — compte express silencieux) MERGÉ** — PR #38 (`e536cd2`, merge `--admin`), branche `feat/epic-f-guest-checkout` supprimée. Un visiteur **non connecté** peut acheter / louer / réserver ; à la confirmation il saisit nom/prénom/courriel/tél ; un **compte express passwordless** (`AppUser.IsExpress`, rôle `Customer`, migration `AddIsExpressToAppUser`) est **trouvé-ou-créé par courriel** → `CustomerId` réel partout, **aucun JWT émis** sur le parcours invité. Backend : `GuestContact` + `GuestContactValidator` + port `IExpressAccountService` (Application) / impl via `UserManager` (Infrastructure) ; les 3 commandes (`PlaceOrder`/`CreateRentalContract`/`CreateBooking`) reçoivent `GuestContact?` + `When(...)` + résolution `userId = connecté ?? express` ; `[AllowAnonymous]` sur les 3 POST de création (sœurs `GetMine`/`Cancel`/admin restent protégées). Frontend : composant réutilisable `app-guest-contact` (OnPush/signals/reactive, a11y labels+`aria-describedby` conditionnel+`role=alert` scopé, i18n `@@guestContact.*`), retrait `authGuard` de `panier/caisse` + retrait des gardes/redirections `/auth` impératives (cart/location/installation) + redirection post-succès invité→`/`. **Revue indépendante `code-reviewer` : APPROVE WITH NITS** (zéro bloquant ; sécurité passwordless+sibling-actions vérifiée ; non-régression `PlaceOrderCommandValidatorTests` Ontario→pass intacte L-004 ; nit `aria-describedby` conditionnel appliqué). **Mentor : L-028** (revue sécurité bipartite d'un endpoint `[AllowAnonymous]` : reachability JWT + couverture des actions sœurs) **et L-029** (retirer le `authGuard` de route ≠ suffisant — traquer gardes impératifs + navigations post-action vers routes protégées) capturées. **Gates** : `dotnet test` **315 / 0** (32 nouveaux Épic F) ✅ · `npm run build` ✅ · `npm test` **261 / 0** (guest-contact 5/5, 0 axe) ✅ · `npm run e2e` checkout-guest **2/2** (Ontario+QC) + non-régression 11 + a11y dual-thème 30 (0 axe) ✅ · i18n catalogues symétriques (10 ids ajoutés, 3 orphelins purgés). **Note CI** : les 3 gates de code (Backend / Frontend / SonarCloud) **verts** ; seul `Build & Deploy` (SWA) rouge sur un **rate-limit MCR externe** (429, incident Microsoft Container Registry) → merge `--admin` autorisé par l'utilisateur ; **déploiement prod en attente de récupération MCR** (re-run manuel `gh run rerun 27580207119 --failed` plus tard). **Reste ouvert** : Bug-09 (badge sombre) ; contraste onglet actif profil sombre 2.76:1 ; **Épic G** (catalogue marques/modèles + fit mesurer) = prochain.

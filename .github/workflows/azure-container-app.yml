@@ -1,8 +1,13 @@
 name: Azure Container Apps (API)
 
 # Déploiement de l'API .NET 10 en conteneur sur Azure Container Apps.
-# - push sur master (chemins backend/Dockerfile) → build image (ACR Tasks) + mise à jour de l'app
+# - push sur master (chemins backend/Dockerfile) → build image (SDK .NET) + mise à jour de l'app
 # - workflow_dispatch → déclenchement manuel
+#
+# ⚠️ ACR Tasks (`az acr build`) est DÉSACTIVÉ sur l'abonnement étudiant
+# (TasksOperationsNotAllowed) → l'image est construite avec `dotnet publish /t:PublishContainer`
+# (SDK .NET, le runner a Docker pour `az acr login` + le push) puis déployée via
+# `az containerapp update`. Pour un déploiement LOCAL sans CI, voir `infra/deploy-backend.ps1`.
 #
 # Inerte tant que le secret `AZURE_CREDENTIALS` n'est pas défini : les étapes Azure se sautent
 # (workflow vert, sans déploiement). Mise en place : voir docs/deployment.md §4.2.
@@ -36,7 +41,13 @@ jobs:
 
       - name: Déploiement sauté (non configuré)
         if: ${{ env.AZURE_CREDENTIALS == '' }}
-        run: echo "Secret AZURE_CREDENTIALS absent → étapes Azure sautées (workflow vert). Voir docs/deployment.md §4.2."
+        run: echo "Secret AZURE_CREDENTIALS absent → étapes Azure sautées (workflow vert). Déploiement local : infra/deploy-backend.ps1. Voir docs/deployment.md §4.2."
+
+      - name: Setup .NET 10
+        if: ${{ env.AZURE_CREDENTIALS != '' }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
 
       - name: Azure login
         if: ${{ env.AZURE_CREDENTIALS != '' }}
@@ -44,14 +55,18 @@ jobs:
         with:
           creds: ${{ env.AZURE_CREDENTIALS }}
 
-      - name: Build de l'image dans ACR (ACR Tasks — aucun Docker sur le runner)
+      - name: Connexion à l'ACR (le runner a Docker → écrit les creds de push)
+        if: ${{ env.AZURE_CREDENTIALS != '' }}
+        run: az acr login --name "$ACR_NAME"
+
+      - name: Build + push de l'image (SDK .NET — PAS d'ACR Tasks)
         if: ${{ env.AZURE_CREDENTIALS != '' }}
         run: |
-          az acr build \
-            --registry "$ACR_NAME" \
-            --image "$IMAGE_NAME:${{ github.sha }}" \
-            --image "$IMAGE_NAME:latest" \
-            --file Dockerfile .
+          dotnet publish src/AbrisAutoOutaouais-WebApp.API/AbrisAutoOutaouais-WebApp.API.csproj \
+            -c Release --os linux --arch x64 /t:PublishContainer \
+            -p:ContainerRegistry="$ACR_NAME.azurecr.io" \
+            -p:ContainerRepository="$IMAGE_NAME" \
+            -p:ContainerImageTags='"${{ github.sha }};latest"'
 
       - name: Mise à jour de la Container App
         if: ${{ env.AZURE_CREDENTIALS != '' }}
