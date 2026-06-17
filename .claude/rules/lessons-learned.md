@@ -11,6 +11,35 @@
 
 ---
 
+## L-032 · A hardcoded `background: white` on `:focus` in a SCOPED stylesheet makes typed text invisible in dark theme — and the regression is invisible to ALL tooling
+
+- **Symptom.** Épic 12: in register/login/reset forms, typed text was illegible (white-on-white)
+  **only in dark theme**. Root cause: `.field__input:focus` in the **scoped** auth stylesheets
+  (`features/auth/auth.scss` + `features/auth/reset/reset.scss`) hardcoded `background: white`.
+  `color` stayed `var(--color-text)` (≈`#f1f5f9` in dark mode), so the composed contrast was
+  ~3.19:1 < 4.5 AA. The global `styles.scss` focus rule was fine (border + shadow only); only the
+  scoped overrides introduced the bug. Invisible to ALL tooling: (a) **axe does not evaluate the
+  value-text of an `<input>`** — the typed value lives in `.value`, not a DOM text node, so axe has
+  nothing to scan; (b) **`color-contrast` is already disabled in vitest** ([[L-016]]); (c) a live
+  visual check in light theme looked clean. The regression only surfaced via direct WCAG-ratio
+  computation on the focused input in Playwright.
+- **Rule.** (1) Never hardcode `background: white`/`#fff` on a form control's `:focus` (or any
+  interactive state) — use a theme-SWITCHING surface token (`var(--color-surface)`) so dark theme
+  keeps `color` and `background` from the same palette. (2) A contrast regression on an input's
+  **typed value** cannot be caught by axe (value text isn't a DOM node) or vitest
+  ([[L-016]] `color-contrast` off) — gate it with a Playwright e2e that **computes the WCAG ratio
+  directly** from the focused input's composed `color` vs `background-color`, after focusing + typing,
+  in BOTH themes (`e2e/auth-input-contrast.spec.ts`); prove the test actually fails on a revert before
+  trusting it ([[L-005]]). (3) When fixing one scoped component, **grep ALL scoped form-control
+  stylesheets** for the same hardcoded color before closing — here auth + reset shared the bug while
+  the global was clean; a component-only fix leaves sibling scoped sheets broken. Extends [[L-016]]
+  (color-contrast vacuous in vitest) and [[L-023]] (theme-swapping token traps) onto the
+  **form-field-value** axis.
+- **Refs.** `src/AbrisAutoOutaouais-WebApp.Client/src/app/features/auth/auth.scss` +
+  `features/auth/reset/reset.scss` (`.field__input:focus` → `var(--color-surface)`),
+  `e2e/auth-input-contrast.spec.ts` (direct-compute dual-theme gate, proven non-vacuous),
+  `docs/accessibility/wcag-2.2-audit.md` §5.11, branch `docs/docx-followup-planning-and-epic12`.
+
 ## L-031 · An idempotent seeder + a late-added column = silently stale dev data — backfill per-key per-field when you add a column to a seeded entity
 
 - **Symptom.** G3: `/mesurer` shelter suggestions always returned an empty list. Root cause found by

@@ -242,7 +242,9 @@ form {
   &:focus {
     outline: none;
     border-color: var(--color-focus, #1d4ed8);
-    background: white;
+    // Jeton de surface (bascule par thème) — PAS `white` codé en dur (illisible à la
+    // frappe en thème sombre : blanc sur blanc, L-016/L-023). #fff clair / #1a2736 sombre.
+    background: var(--color-surface);
     box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.15);
   }
 
