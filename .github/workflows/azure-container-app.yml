@@ -41,7 +41,7 @@ jobs:
 
       - name: Déploiement sauté (non configuré)
         if: ${{ env.AZURE_CREDENTIALS == '' }}
-        run: echo "Secret AZURE_CREDENTIALS absent → étapes Azure sautées (workflow vert). Déploiement local : infra/deploy-backend.ps1. Voir docs/deployment.md §4.2."
+        run: echo "Secret AZURE_CREDENTIALS absent. Etapes Azure sautees (workflow vert). Deploiement local via infra/deploy-backend.ps1. Voir docs/deployment.md section 4.2."
 
       - name: Setup .NET 10
         if: ${{ env.AZURE_CREDENTIALS != '' }}
