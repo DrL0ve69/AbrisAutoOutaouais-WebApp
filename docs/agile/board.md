@@ -308,7 +308,7 @@ si un SP devient disponible. Détail : `PROGRAM-STATUS.md` (Épic H) + `docs/dep
 | EPIC 7 | Paiements (Interac e-Transfer + cartes) | 1 | — | 21+ | Could | ⚠️ .NET (pas l'Express du `.docx`) ; spike d'abord ; MVP e-Transfer manuel gratuit |
 | EPIC 13 | Refonte parcours `/mesurer` (ordre + adresse optionnelle) | (1)·6 | 9·10·15 | 8 | Should | Dimension d'abord ; adresse seulement pour la carte ; regrouper Mesure+Conseil |
 | EPIC 14 | Carte satellite plus précise (zoom) | (1)·5.1 | — | 5 | Should | Over-zoom Esri d'abord ; sinon spike source HD payante via proxy |
-| EPIC 15 | Champ d'adresse unifié (spike→reco) | (1)·5.2 | — | 8 | Should | Un seul champ + lecture seule + code postal confirmé ; corrige autocomplete/code postal ; tous les formulaires |
+| EPIC 15 | Champ d'adresse unifié (spike→reco) | (1)·5.2 | — | 8 | Should | 🟡 **spike US-15.1 LIVRÉ 2026-06-18** (`docs/spikes/epic-15-address-field-spike.md`) — **décision : champ unique « n°+rue » + auto-rempli ÉDITABLE** (lecture seule écartée). Reste US-15.2/15.3 (refonte, ~6 pts) — touche tous les formulaires |
 | EPIC 16 | Doc d'architecture + briques manquantes | (1)·3·4 | — | 3 | Could | ✅ **diagramme livré** ; reste backlog cache/cookies/rate-limit/secrets/observabilité |
 
 > **⚠️ Correction d'architecture** : la recherche paiements copiée dans le `.docx` suppose Node/Express.
@@ -365,6 +365,34 @@ planification enrichie (EPIC 13–16, cf. tableau ci-dessus) + **3 quick wins ex
 | CI-01 | Annotation CI : **actions GitHub sur Node 20 dépréciées** (forçage Node 24 dès 2026-06-16) | `.github/workflows/*` | Bumper `actions/checkout@v4`/`setup-node@v4`/`setup-dotnet@v4` vers des versions Node 24 | 🟠 Ouvert |
 
 > **Suite** : commit docs → PR `docs/docx-followup-planning-and-epic12` → CI verte → merge `master`.
+
+---
+
+## Mise à jour — EPIC 15 spike (US-15.1) livré (2026-06-18)
+
+Branche `docs/epic-15-address-spike`. **Spike best-practices « champ d'adresse »** terminé →
+`docs/spikes/epic-15-address-field-spike.md`. Comparé *un seul champ* vs *champs séparés* et *lecture
+seule* vs *éditable* aux meilleures pratiques (GOV.UK Design System, WCAG 2.2 SC 1.3.5, Baymard,
+web.dev), ancré dans le code réel (5 écrans, `AddressFormController` / `AddressAutofillService` /
+`PlacesService`, `AddressDto` serveur).
+
+**Décision utilisateur (2026-06-18) :**
+- ✅ **Un seul champ « Adresse (n° + rue) »** (= `autocomplete="address-line1"`), supprime le contrôle
+  `civicNumber` séparé → corrige *par construction* l'autocomplete cassée (US-15.2) et le civique
+  désynchronisé (US-15.3). Ville/province/CP restent des champs distincts.
+- ✅ **Auto-rempli mais ÉDITABLE** (le « lecture seule » du `.docx` est **écarté**) : le lookup renvoie
+  parfois un mauvais code postal (« 45 Atmosphère → J9A 2V9 ») → verrouiller piégerait l'erreur. CP
+  affiché pour confirmation ; ré-autofill pristine-only (L-002).
+- ✅ **Tokens `autocomplete` WCAG 1.3.5** à poser sur tous les champs (gap actuel).
+- Voie serveur **B1** recommandée (garder `AddressDto` découpé, scinder n°/rue à la présentation —
+  rayon de souffle minimal, qualité de données + L-004 intactes).
+
+**Implémentation US-15.2/15.3 différée** (décision « s'arrêter au spike »). Dettes à replier dans la
+refonte : province en `<select>` partout (code 2 lettres, L-011), préfixes d'`id` uniformisés (L-013),
+annonce code postal manquante sur installation, tokens WCAG 1.3.5.
+
+> **Suite** : commit docs `docs/epic-15-address-spike` → PR → CI verte → merge `master`. Curseur
+> Phase 2 → **EPIC 9** (catalogue par dimensions) ou US-15.2/15.3 si l'utilisateur veut la refonte.
 > Reste Phase 2 (EPIC 12 partie 2 + 13–16) à dérouler via `/feature-cycle`.
 
 ---
