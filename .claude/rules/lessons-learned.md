@@ -619,10 +619,24 @@
   contains more than one element » race and **~63 unrelated tests fail at host startup**. Rule:
   every class touching `WebAppFactory` must carry `[Collection("Integration")]` so they share one
   serialized context — never let a new IT class default into its own parallel collection.
+  **Second-order corollary — a seeder that reads from a SIBLING seeder must tolerate duplicates
+  (EPIC 9.1).** Every seeder registered in `Program.cs` runs inside `WebAppFactory` against the
+  shared InMemory DB. If seeder A runs first and seeder B subsequently queries A's rows by a key
+  that is logically unique in prod (e.g. `Slug`), that key can appear **duplicated** in the shared
+  InMemory store when two parallel test hosts each ran seeder A before serialization kicks in.
+  `ToDictionaryAsync(x => x.Slug)` throws « an item with the same key has already been added »,
+  crashing host startup and failing **15 unrelated IT tests** (Rentals/Users). Fix: replace any
+  `ToDictionary`/`Single`/`SingleOrDefault` lookup on such a key with a **duplicate-tolerant,
+  deterministic pick** — `GroupBy(slug).Select(g => g.OrderBy(x => x.Id).First())` — and seed only
+  rows whose key is not yet present. This is the [[L-030]] tie-break discipline applied to the
+  **seeder-reads-sibling** axis: the code must behave correctly whether it sees 1 or N rows for a
+  given key.
 - **Refs.** `src/app/app.html` (global `role="status"` language-switch live region),
   `e2e/password-reset.spec.ts` (locator re-scoped by text), `.gitignore` (client,
   `.vitest-attachments/`), `IntegrationTest/Common/WebAppFactory.cs` +
-  `IntegrationTest/Common/IntegrationCollection.cs` (`[Collection("Integration")]`).
+  `IntegrationTest/Common/IntegrationCollection.cs` (`[Collection("Integration")]`),
+  `src/AbrisAutoOutaouais-WebApp.Infrastructure/Persistence/ShelterModelSeeder.cs` +
+  `src/AbrisAutoOutaouais-WebApp.API/Program.cs` (duplicate-tolerant category lookup, EPIC 9.1).
 
 ## L-009 · Breakpoint-gated UI: pin the viewport in vitest browser specs, or assertions pass vacuously
 

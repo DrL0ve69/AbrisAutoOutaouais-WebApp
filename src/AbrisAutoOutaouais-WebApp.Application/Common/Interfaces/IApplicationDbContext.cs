@@ -22,6 +22,7 @@ public interface IApplicationDbContext
 {
     DbSet<Product> Products { get; }
     DbSet<ProductCategory> ProductCategories { get; }
+    DbSet<ShelterModel> ShelterModels { get; }
     DbSet<Order> Orders { get; }
     DbSet<OrderLine> OrderLines { get; }
     DbSet<RentalContract> RentalContracts { get; }

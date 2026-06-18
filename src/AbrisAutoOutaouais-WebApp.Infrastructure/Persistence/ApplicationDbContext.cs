@@ -33,6 +33,7 @@ public sealed class ApplicationDbContext(
     // ── Entités métier ──────────────────────────────────────────────────────
     public DbSet<Product> Products => Set<Product>();
     public DbSet<ProductCategory> ProductCategories => Set<ProductCategory>();
+    public DbSet<ShelterModel> ShelterModels => Set<ShelterModel>();
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderLine> OrderLines => Set<OrderLine>();
     public DbSet<RentalContract> RentalContracts => Set<RentalContract>();
