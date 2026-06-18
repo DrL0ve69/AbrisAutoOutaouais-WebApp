@@ -1,0 +1,28 @@
+<!-- ============================================================
+     Boutique — Page de configuration autonome (EPIC 9.3)
+     WCAG AA : h1 unique, fil d'Ariane, configurateur hébergé.
+============================================================ -->
+<section class="configure-page" aria-labelledby="configure-page-heading">
+  <div class="container container--narrow">
+    <nav class="configure__breadcrumb" aria-label="Fil d'Ariane" i18n-aria-label="@@shop.configure.breadcrumbAria">
+      <ol role="list">
+        <li><a routerLink="/" i18n="@@shop.configure.crumbHome">Accueil</a></li>
+        <li><a routerLink="/boutique" i18n="@@shop.configure.crumbShop">Boutique</a></li>
+        <li aria-current="page" i18n="@@shop.configure.crumbCurrent">Configurer</li>
+      </ol>
+    </nav>
+
+    <header class="section-header">
+      <p class="section-eyebrow" i18n="@@shop.configure.eyebrow">Sur mesure</p>
+      <h1 id="configure-page-heading" i18n="@@shop.configure.title">Configurez les dimensions</h1>
+      <p class="section-subtitle" i18n="@@shop.configure.subtitle">
+        Ajustez largeur, hauteur dégagée et longueur ; le prix se met à jour automatiquement.
+      </p>
+    </header>
+
+    <app-dimension-configurator
+      [slug]="slug()"
+      (configurationChange)="onConfigurationChange($event)"
+    />
+  </div>
+</section>
