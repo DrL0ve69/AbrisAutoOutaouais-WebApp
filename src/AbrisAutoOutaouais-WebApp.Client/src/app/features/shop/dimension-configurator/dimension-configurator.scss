@@ -1,0 +1,136 @@
+.configurator {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.configurator__loading,
+.configurator__error {
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.configurator__group {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.configurator__legend {
+  font-weight: 700;
+  padding: 0 var(--space-2);
+  color: var(--color-text);
+}
+
+.configurator__radios {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.configurator__radio {
+  flex: 1 1 8rem;
+  min-height: 44px; // cible tactile WCAG 2.5.8
+  padding: var(--space-3) var(--space-4);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+
+  &--active {
+    border-color: var(--color-primary);
+    background: var(--color-primary-soft, var(--color-surface));
+    color: var(--color-primary);
+  }
+}
+
+.configurator__length {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.configurator__range {
+  width: 100%;
+  min-height: 44px;
+  accent-color: var(--color-primary);
+}
+
+.configurator__length-value {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+
+  label {
+    font-weight: 600;
+    color: var(--color-text);
+  }
+}
+
+.configurator__number {
+  flex: 0 0 7rem;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.configurator__length-feet {
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.configurator__length-bounds {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.configurator__price {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-muted);
+}
+
+.configurator__price-label {
+  margin: 0;
+  // --color-text-muted (#6b7280) sur --color-bg-muted (#f3f4f6) = 4.39:1 < AA (L-016) :
+  // on prend --color-text (plein contraste) pour le libellé sur la surface teintée.
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.configurator__price-amount {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--color-text);
+
+  &--invalid {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-danger, #b00020);
+  }
+}
+
+.configurator__price-pending {
+  font-size: 0.85rem;
+  font-weight: 600;
+  // Sur la surface teintée --color-bg-muted : --color-text (plein contraste), pas le muted (L-016).
+  color: var(--color-text);
+}
