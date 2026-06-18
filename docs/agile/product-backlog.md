@@ -199,8 +199,8 @@ les critères a11y dans sa Definition of Done (voir `definition-of-done.md`).
 
 | ID | User Story | Estimation | MoSCoW | Statut |
 |----|-----------|:----------:|:------:|--------|
-| US-15.1 | En tant qu'**équipe**, je veux un **spike** comparant un seul champ d'adresse vs champs séparés, lecture seule vs éditable (best-practices Google/GOV.UK + a11y), afin de **recommander** l'approche. | 2 | **Should** | ⛔ À planifier (Phase 2 ; décision figée « éditable » à reconsidérer) |
-| US-15.2 | En tant que **client**, je veux **un seul champ d'adresse** (n° civique + rue) avec province/pays/**code postal** auto-remplis (lecture seule) et le **code postal affiché après sélection** pour confirmer, afin que l'autocomplétion fonctionne et que l'adresse soit fiable. | 5 | **Should** | ⛔ À planifier (Phase 2 ; corrige autocomplete cassée + mauvais code postal ; touche tous les formulaires) |
+| US-15.1 | En tant qu'**équipe**, je veux un **spike** comparant un seul champ d'adresse vs champs séparés, lecture seule vs éditable (best-practices Google/GOV.UK + a11y), afin de **recommander** l'approche. | 2 | **Should** | ✅ **LIVRÉ 2026-06-18** (`docs/spikes/epic-15-address-field-spike.md`) — **décision : champ unique « n°+rue » + auto-rempli ÉDITABLE** (lecture seule écartée ; un mauvais CP doit rester corrigeable). |
+| US-15.2 | En tant que **client**, je veux **un seul champ d'adresse** (n° civique + rue) avec province/pays/**code postal** auto-remplis **(éditables, pas lecture seule — voir spike)** et le **code postal affiché après sélection** pour confirmer, afin que l'autocomplétion fonctionne et que l'adresse soit fiable. | 5 | **Should** | ⛔ À planifier (Phase 2 ; corrige autocomplete cassée + mauvais code postal ; touche tous les formulaires ; voie serveur B1 recommandée — DTO découpé, split à la présentation) |
 | US-15.3 | En tant que **client**, je veux que **modifier le n° civique mette à jour la rue/le code postal** (cohérence) afin d'éviter une adresse incohérente. | 1 | **Should** | ⛔ À planifier (Phase 2 ; bug constaté) |
 
 ### EPIC 16 — Documentation d'architecture vivante + briques manquantes
