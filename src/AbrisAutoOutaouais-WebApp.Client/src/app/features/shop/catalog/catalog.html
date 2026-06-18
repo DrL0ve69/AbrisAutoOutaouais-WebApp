@@ -97,6 +97,33 @@
       </div>
     </div>
 
+    <!-- Configurateur de dimensions (EPIC 9.3) : pour les catégories paramétriques, on invite à
+         personnaliser largeur/hauteur/longueur plutôt que d'acheter une taille fixe. -->
+    @if (parametricCategories().length > 0) {
+      <aside class="catalog__configurator" aria-labelledby="catalog-configurator-heading">
+        <h2 id="catalog-configurator-heading" class="catalog__configurator-title" i18n="@@shop.catalog.configuratorTitle">
+          Besoin d'une taille sur mesure&nbsp;?
+        </h2>
+        <p class="catalog__configurator-text" i18n="@@shop.catalog.configuratorText">
+          Configurez largeur, hauteur et longueur, et obtenez le prix instantanément.
+        </p>
+        <ul class="catalog__configurator-actions" role="list">
+          @for (cat of parametricCategories(); track cat.id) {
+            <li>
+              <a
+                class="btn btn--primary"
+                [routerLink]="['/boutique/modeles', cat.slug]"
+                [attr.aria-label]="'Configurer les dimensions — ' + cat.name"
+              >
+                <span i18n="@@shop.catalog.configureCta">Configurer les dimensions</span>
+                — {{ cat.name }}
+              </a>
+            </li>
+          }
+        </ul>
+      </aside>
+    }
+
     <!-- Résultats -->
     @if (loading()) {
       <div
