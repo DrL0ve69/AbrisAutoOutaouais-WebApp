@@ -104,8 +104,11 @@
   align-self: flex-start;
   padding: 0.15rem var(--space-2);
   border-radius: var(--radius-sm);
-  background: var(--color-warning, #8a5a00);
-  color: #fff;
+  // Jetons « avertissement plein » FIXES : l'alias `--color-warning` bascule en amber clair
+  // (#fbbf24) en sombre → ≈1.67:1 avec du blanc (Bug-09, échec AA). Fond figé → ≈5:1 stable dans
+  // les deux thèmes (EPIC 12 partie 2, L-023).
+  background: var(--color-warning-solid);
+  color: var(--color-on-warning);
   font-size: 0.8rem;
   font-weight: 700;
 }

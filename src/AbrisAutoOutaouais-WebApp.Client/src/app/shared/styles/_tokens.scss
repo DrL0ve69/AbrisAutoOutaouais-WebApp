@@ -143,6 +143,14 @@
   --color-surface-on-brand: #ffffff; // fond d'un contrôle posé sur la marque
   --color-text-on-brand-inverse: #991b1b; // texte d'un contrôle clair sur la marque (≈8.3:1 sur blanc ✅)
 
+  // Jetons « avertissement plein » FIXES (identiques dans les deux thèmes — comme la marque rouge) :
+  // fond ambre sombre + texte blanc, pour les badges/pastilles d'avertissement. NON surchargés en
+  // sombre — l'alias sémantique `--color-warning` BASCULE (amber clair #fbbf24 en sombre), ce qui,
+  // avec un texte blanc, échouait l'AA (≈1.67:1). Ici on fige le fond → contraste stable AA dans les
+  // deux thèmes (EPIC 12 partie 2, L-023 : surface marque-fixe plutôt que jeton qui bascule).
+  --color-warning-solid: #b45309; // ambre fixe (2 thèmes) — fond badge (≈ 5:1 avec blanc ✅)
+  --color-on-warning: #ffffff; // blanc fixe — texte badge
+
   // ============================================================
   // Tokens v2 — Épic E / E1 (additif : aucun jeton existant n'est retiré)
   // ============================================================

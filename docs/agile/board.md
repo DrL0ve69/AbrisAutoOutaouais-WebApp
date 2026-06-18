@@ -300,7 +300,7 @@ si un SP devient disponible. Détail : `PROGRAM-STATUS.md` (Épic H) + `docs/dep
 
 | ID | Épopée | Source (point) | Dépend de | Estim. | MoSCoW | Note clé |
 |----|--------|:--------------:|-----------|:------:|:------:|----------|
-| EPIC 12 | Contraste formulaires/focus | 6 / (1)·2 | — | 3 | Should | 🟡 **partie 1 livrée** (auth focus) ; reste autres formulaires + Bug-09 + onglet profil |
+| EPIC 12 | Contraste formulaires/focus | 6 / (1)·2 | — | 3 | Should | ✅ **livré** — partie 1 (auth focus) + partie 2 (Bug-09 badge sombre + onglet profil actif, au jeton ; balayage formulaires publics) |
 | EPIC 9 | Catalogue par dimensions configurables | 3 | — | 13 | Should | Refonte modèle (variantes vs paramétrique) ; touche home/boutique/location/installation/livraison/panier |
 | EPIC 10 | Suggestion d'abris intelligente (mesure/véhicule) | 4 | EPIC 9 | 8 | Should | Proposer **catégories qui rentrent** (≤ largeur, longueur ≤ mesure, max 40 pi) ; orientation véhicules |
 | EPIC 11 | Calendrier & planification terrain | 5 | — | 21 | Could | Agréger `Booking` existants ; routage MVP heuristique (`GeoDistance`) ou OpenRouteService |
@@ -329,6 +329,26 @@ planification enrichie (EPIC 13–16, cf. tableau ci-dessus) + **3 quick wins ex
   (ratio contraste **direct** texte/fond, car axe n'évalue pas la valeur d'un input ; **non vacueux** —
   prouvé en échec sur l'ancien code). Audit `wcag-2.2-audit.md` §5.11. Gates : `npm run build` ✅ ·
   `npm test` **262/262** ✅ · e2e contraste dual-thème **4/4** ✅.
+- **EPIC 12 partie 2** — deux surfaces colorées illisibles en **sombre**, corrigées **au jeton** (L-023) :
+  **Bug-09** badge « Ajusté serré » (`/mesurer` résultats, `.shelter-card__badge`) `#fff` sur
+  `--color-warning` amber clair = **1.67:1** → `--color-warning-solid #b45309` + `--color-on-warning`
+  = **≈5.05:1** ; **onglet profil actif** (`.profile-tab.is-active`) blanc sur `--color-primary` rouge
+  clair = **2.77:1** → `--color-red-600` + `--color-on-brand` = **≈6.5:1**. Inventaire : aucune autre
+  feuille scopée ne reproduisait L-032. Gardes **`e2e/badge-tab-contrast.spec.ts`** (badge + onglet,
+  deux thèmes, **prouvées en échec** : 1.67 / 2.77) + **`e2e/form-focus-contrast.spec.ts`** (balayage
+  focus `/location`, deux thèmes) ; helpers factorisés dans `e2e/support/contrast.ts`. Audit §5.12.
+  Gates : `npm run build` ✅ · `npm test` **262/262** ✅ (contraste **non** couvert en vitest, L-016) ·
+  e2e contraste dual-thème **6/6** ✅ (badge/onglet/focus).
+- **EPIC 12 partie 2 (suite)** — revue indépendante : **deux surfaces de la même classe L-023/L-032**
+  restées non corrigées (blanc figé sur `--color-primary`, qui bascule en rouge clair `#f87171` en
+  sombre = **2.77:1**). **Créneau sélectionné** (`/installation`, `.booking__slot--selected`) +
+  **pastille d'étape courante** (`/mesurer`, `.mesurer__step--current .mesurer__step-num`) repointés
+  sur jetons marque-fixes **`--color-red-600` + `--color-on-brand`** = **≈6.5:1** stable dans les deux
+  thèmes (seule la teinte change ; forme/taille inchangées). Garde **`e2e/primary-surface-contrast.spec.ts`**
+  (deux cibles × deux thèmes, scope par classe + positif `toBeVisible()`, helpers `e2e/support/contrast.ts`),
+  **non vacueuse** : prouvée en échec sur l'ancien code (les deux cas **sombre** à 2.77, cas clair déjà
+  verts). Audit §5.13. Gates : `npm run build` ✅ · `npm test` **262/262** ✅ (contraste **non** couvert
+  en vitest, L-016) · e2e contraste (specs partie 2 + suite) **16/16** ✅.
 - **EPIC 16 diagramme** — `docs/architecture/system-design.md` (Mermaid) + `system-design.drawio`
   (éditable) : flux client→edge→API→couches→BD annoté, chemin d'une requête, règle des dépendances,
   **table des briques manquantes + plan d'attaque**, inventaire par couche.

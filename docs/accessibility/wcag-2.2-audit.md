@@ -217,8 +217,58 @@ détection → recommandation → remédiation → re-test.
   direct car axe ne couvre pas la valeur d'input (cf. ci-dessus). `color-contrast` reste **désactivé
   en vitest** (L-016) → validation exclusivement en e2e + round-trip live L-001 (saisie « Membre10 »
   lisible en sombre).
-- **Reste planifié (EPIC 12)** : balayage des autres formulaires + regroupement Bug-09 (badge « Ajusté
-  serré » sombre) et onglet `.profile-tab.is-active` (~2.76:1) — voir `docs/agile/ROADMAP-PHASE-2.md`.
+- **Reste planifié (EPIC 12)** : ~~balayage des autres formulaires + regroupement Bug-09 (badge « Ajusté
+  serré » sombre) et onglet `.profile-tab.is-active`~~ → **livré en partie 2 (§5.12)**.
+
+### 5.12 EPIC 12 partie 2 — badge « Ajusté serré » et onglet de profil actif illisibles, thème sombre
+- **Critère** : 1.4.3 Contraste (AA).
+- **Inventaire (préalable)** : confirmé qu'**aucune autre feuille scopée** ne reproduit le bug L-032
+  (`background: white` au focus) — tous les autres `:focus` de champ posent `background: var(--color-surface)`
+  (qui bascule par thème). Restaient deux surfaces **colorées** dont le texte échouait en sombre.
+- **Avant** (mesuré par calcul WCAG direct sur les couleurs composées réelles, thème **sombre**) :
+  - **Badge « Ajusté serré »** (`/mesurer` résultats, `.shelter-card__badge`, **Bug-09**) :
+    `color: #fff` sur `background: var(--color-warning, #8a5a00)`. En sombre `--color-warning` bascule
+    en amber **clair** `#fbbf24` → **≈ 1.67:1** (échec AA franc).
+  - **Onglet de profil actif** (`/mon-compte/profil`, `.profile-tab.is-active`) : `color: white` sur
+    `background: var(--color-primary)`. En sombre `--color-primary` bascule en rouge **clair** `#f87171`
+    → **≈ 2.77:1** (échec AA).
+- **Après** (correction **au niveau jeton**, motion-a11y §2 / L-023 — jetons **marque-fixes**, NON
+  surchargés en sombre, comme `--color-on-brand`/`--color-red-600`) :
+  - Deux nouveaux jetons figés : `--color-warning-solid: #b45309` (ambre fixe) + `--color-on-warning: #ffffff`.
+    Badge passé à `background: var(--color-warning-solid); color: var(--color-on-warning)` → **≈ 5.05:1**
+    stable dans les **deux thèmes** (vérifié ≥ 4.5:1 en e2e).
+  - Onglet actif passé à `background: var(--color-red-600); color: var(--color-on-brand)` (rouge marque
+    `#b91c1c` fixe + blanc) → **≈ 6.5:1** stable dans les deux thèmes (≥ 5.9:1 doc, vérifié ≥ 4.5:1 en e2e).
+- **Re-test** : nouveaux `e2e/badge-tab-contrast.spec.ts` (badge + onglet, calcul WCAG direct, deux
+  thèmes) et `e2e/form-focus-contrast.spec.ts` (balayage focus+frappe sur `/location`, deux thèmes —
+  verrouille que les formulaires publics restent sains). Helpers de calcul factorisés dans
+  `e2e/support/contrast.ts`. Gardes **non vacueuses** (prouvées en échec sur l'ancien code : badge 1.67:1,
+  onglet 2.77:1 — voir « Avant » ; `form-focus` déjà vert avant correction). `color-contrast` reste
+  **désactivé en vitest** (L-016) → validation exclusivement en e2e.
+
+### 5.13 EPIC 12 partie 2 (suite) — créneau sélectionné et pastille d'étape courante illisibles, thème sombre
+- **Critère** : 1.4.3 Contraste (AA).
+- **Inventaire (préalable)** : la revue indépendante a relevé **deux surfaces supplémentaires** de la
+  **même classe de bug** que §5.12 (texte blanc figé sur `--color-primary`, qui bascule en rouge
+  clair `#f87171` en sombre) restées non corrigées par le diff partie 2.
+- **Avant** (calcul WCAG direct sur couleurs composées réelles, thème **sombre**) :
+  - **Créneau sélectionné** (`/installation`, `.booking__slot--selected`) : `color: #fff` sur
+    `background: var(--color-primary)` → en sombre **≈ 2.77:1** (mesuré par le e2e ; échec AA).
+  - **Pastille d'étape courante** (`/mesurer`, `.mesurer__step--current .mesurer__step-num`) :
+    `color: #fff` sur `background: var(--color-primary)` → en sombre **≈ 2.77:1** (mesuré par le e2e ; échec AA).
+- **Après** (correction **au niveau jeton**, motion-a11y §2 / L-023/L-032 — jetons **marque-fixes**
+  NON surchargés en sombre, exactement comme l'onglet de profil §5.12) :
+  - Les deux surfaces passées à `background: var(--color-red-600); border-color: var(--color-red-600);
+    color: var(--color-on-brand)` (rouge marque `#b91c1c` fixe + blanc) → **≈ 6.5:1** stable dans les
+    **deux thèmes** (clair **et** sombre confirmés ≥ 4.5:1 en e2e). Seule la teinte de rouge change
+    (rouge-bascule → rouge marque-fixe) ; forme/taille inchangées.
+- **Re-test** : nouveau `e2e/primary-surface-contrast.spec.ts` (créneau sélectionné sur `/installation`
+  — créneaux mockés puis clic ; pastille d'étape courante sur `/mesurer` — étape 1 courante au
+  chargement, sans la carte pour éviter le flake Leaflet/geoman L-017/L-019). Chaque cible scopée par
+  classe (pas de `getByRole` nu — L-010), doublée d'un positif `toBeVisible()`. Helpers réutilisés de
+  `e2e/support/contrast.ts`. Garde **non vacueuse** : prouvée en échec sur l'ancien code (les deux
+  cas **sombre** à **2.77:1**, les cas **clair** déjà verts), verte dans les deux thèmes après
+  correction. `color-contrast` reste **désactivé en vitest** (L-016) → validation exclusivement en e2e.
 
 ---
 
