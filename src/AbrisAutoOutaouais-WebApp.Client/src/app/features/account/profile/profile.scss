@@ -274,8 +274,11 @@
   // (état visible par contraste DE FOND, pas seulement par couleur de texte)
   &.is-active,
   &[aria-selected="true"] {
-    background: var(--color-primary);
-    color: white;
+    // Rouge marque FIXE (non basculé par thème) + texte on-brand : le jeton qui bascule
+    // `--color-primary` vaut #f87171 (rouge clair) en sombre, donnant ≈2.77:1 avec du blanc
+    // (échec AA). #b91c1c fixe donne ≈5.9:1 avec blanc dans les deux thèmes (L-023, EPIC 12 p.2).
+    background: var(--color-red-600);
+    color: var(--color-on-brand);
     box-shadow: var(--shadow-sm);
   }
 

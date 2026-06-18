@@ -89,9 +89,11 @@
 }
 
 .booking__slot--selected {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-  color: #fff;
+  // Jetons marque-FIXES (non surchargés en thème sombre) : évite le blanc sur
+  // --color-primary qui devient #f87171 clair en sombre (≈2.77:1, échec AA — L-023/L-032).
+  background: var(--color-red-600);
+  border-color: var(--color-red-600);
+  color: var(--color-on-brand);
 }
 
 .form-field {

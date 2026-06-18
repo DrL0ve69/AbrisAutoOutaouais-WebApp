@@ -177,9 +177,9 @@ les critères a11y dans sa Definition of Done (voir `definition-of-done.md`).
 
 | ID | User Story | Estimation | MoSCoW | Statut |
 |----|-----------|:----------:|:------:|--------|
-| US-12.1 | En tant qu'**utilisateur à basse vision**, je veux **voir ce que je tape** dans tous les formulaires (au focus, dans les deux thèmes) afin de saisir sans erreur (WCAG 1.4.3 / 1.4.11). | 3 | **Should** | 🟡 **Partiel — register/login/reset LIVRÉS 2026-06-17** (`background:white` → `--color-surface` ; `e2e/auth-input-contrast.spec.ts`, audit §5.11). Reste : balayer les autres formulaires. |
+| US-12.1 | En tant qu'**utilisateur à basse vision**, je veux **voir ce que je tape** dans tous les formulaires (au focus, dans les deux thèmes) afin de saisir sans erreur (WCAG 1.4.3 / 1.4.11). | 3 | **Should** | ✅ **Fait** — register/login/reset (partie 1, `--color-surface` ; `e2e/auth-input-contrast.spec.ts`) + balayage des formulaires publics verrouillé en partie 2 (`e2e/form-focus-contrast.spec.ts`, `/location`, deux thèmes). Audit §5.11/§5.12. |
 | US-12.2 | En tant qu'**utilisateur**, je veux que les **CTA primaires (boutons-ancres)** restent lisibles **même après visite** afin de toujours voir le libellé (WCAG 1.4.3). | 2 | **Should** | ⛔ À planifier (Phase 2 ; famille **L-023** — vérifier si déjà déployé ; `:visited` invisible à axe) |
-| US-12.3 | En tant qu'**utilisateur**, je veux que le **badge « Ajusté serré » (/mesurer)** et l'**onglet de profil actif** soient lisibles en thème sombre afin de tout lire (WCAG 1.4.3). | 2 | **Should** | ⛔ À planifier (Bug-09 ~1.66:1 + `.profile-tab.is-active` ~2.76:1 ; corriger au jeton) |
+| US-12.3 | En tant qu'**utilisateur**, je veux que le **badge « Ajusté serré » (/mesurer)** et l'**onglet de profil actif** soient lisibles en thème sombre afin de tout lire (WCAG 1.4.3). | 2 | **Should** | ✅ **Fait (partie 2)** — Bug-09 badge 1.67:1 → ≈5.05:1 (`--color-warning-solid`) + onglet `.profile-tab.is-active` 2.77:1 → ≈6.5:1 (`--color-red-600`/`--color-on-brand`), au jeton (L-023). Garde `e2e/badge-tab-contrast.spec.ts` (deux thèmes, prouvée en échec). Audit §5.12. |
 
 ### EPIC 13 — Refonte du parcours `/mesurer` (ordre + adresse optionnelle)
 

@@ -11,6 +11,40 @@
 
 ---
 
+## L-033 · A contrast fix that targets only the NAMED items leaves the same faulty pattern dormant elsewhere — grep ALL consumers of the pattern before closing
+
+- **Symptom.** Épic 12 p2: the user story named two contrast failures — `/mesurer` badge
+  « Ajusté serré » (`--color-warning` #fbbf24 at 1.67:1 dark) and `.profile-tab.is-active`
+  (`--color-primary` #f87171 at 2.77:1 dark). Both were fixed at the token level (brand-fixed tokens
+  `--color-warning-solid`/`--color-on-warning` and `--color-red-600`/`--color-on-brand`). The
+  **independent reviewer** then found the **identical pattern** (`color: #fff` on
+  `background: var(--color-primary)`) dormant in two unrelated scoped stylesheets NOT named by the
+  story: `installation.scss` `.booking__slot--selected` and `mesurer.scss`
+  `.mesurer__step--current .mesurer__step-num` — both also ~2.77:1 in dark theme. The faulty pattern
+  is: **hardcoded light text** (`#fff`/`white`) over a **theme-SWAPPING background token**
+  (`--color-primary`, `--color-warning`, `--color-secondary`…) that resolves to a light colour in dark
+  mode — making the composed contrast fail. The story names a symptom (these two elements), not the
+  class of bug (the pattern), so a targeted fix leaves all sibling occurrences broken.
+- **Rule.** When fixing a contrast regression caused by a **pattern** (light fixed text on a
+  theme-swapping background token), treat the story's named items as a **sample**, not the inventory.
+  Before closing the change: (1) **grep ALL scoped stylesheets** for the faulty pattern —
+  `color:\s*(#fff|white|#ffffff)` combined with `background.*var\(--color-primary\|--color-warning\|…\)`
+  — and fix every match, not just the named ones; (2) add a **dual-theme e2e guard** for every
+  newly-fixed surface and **prove it fails on a revert** before trusting it ([[L-005]]); (3) migrate
+  each fixed surface to a brand-fixed token pair (`--color-red-600`/`--color-on-brand`,
+  `--color-warning-solid`/`--color-on-warning`) — never `#fff` on a token that flips per theme
+  ([[L-023]]: theme-FIXED vs theme-SWAPPING). The discipline is the same as [[L-008]] (after a fix,
+  hunt all occurrences of the old mechanism) and [[L-032]] (grep ALL sibling scoped sheets, not just
+  the named one), extended to the **contrast-pattern** axis: the user story names an example, the fix
+  covers the pattern.
+- **Refs.** `features/installation/installation.scss` (`.booking__slot--selected` → `--color-on-brand`),
+  `features/mesurer/mesurer.scss` (`.mesurer__step--current .mesurer__step-num` → `--color-on-brand`),
+  `features/account/profile/profile.scss` (`.profile-tab.is-active` → `--color-on-brand`),
+  `features/mesurer/steps/results-step/results-step.scss` (`.shelter-card__badge` → `--color-on-warning`),
+  `shared/styles/_tokens.scss` (`--color-warning-solid`, `--color-on-warning`, `--color-on-brand`),
+  `e2e/primary-surface-contrast.spec.ts` + `e2e/badge-tab-contrast.spec.ts` (dual-theme guards, proven
+  non-vacuous), branch `fix/epic-12-p2-contrast-badge-tab`.
+
 ## L-032 · A hardcoded `background: white` on `:focus` in a SCOPED stylesheet makes typed text invisible in dark theme — and the regression is invisible to ALL tooling
 
 - **Symptom.** Épic 12: in register/login/reset forms, typed text was illegible (white-on-white)
