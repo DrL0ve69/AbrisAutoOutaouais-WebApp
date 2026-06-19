@@ -69,6 +69,56 @@ public sealed class OrderTests
             .WithMessage("*au moins un produit*");
     }
 
+    // ── Lignes d'abri configuré (EPIC 9.4) ──────────────────────────────────────
+
+    private static Order.ShelterLineInput Shelter(decimal unitPrice = 499m, int qty = 1)
+        => new("abri-simple", "Abri simple", 488, unitPrice, qty);
+
+    [Fact]
+    public void Create_WithShelterLineOnly_IsAccepted()
+    {
+        var order = Order.Create(
+            Guid.NewGuid(), DeliveryType.Pickup,
+            new List<(Product, int)>(),                 // aucun produit classique
+            shelterLines: [Shelter(unitPrice: 499m)]);
+
+        order.Should().NotBeNull();
+        order.Lines.Should().HaveCount(1);
+        order.TotalAmount.Should().Be(499m);
+        var line = order.Lines[0];
+        line.ProductId.Should().BeNull();
+        line.ShelterModelSlug.Should().Be("abri-simple");
+        line.ConfiguredLengthCm.Should().Be(488);
+        line.ProductName.Should().Contain("488");
+    }
+
+    [Fact]
+    public void Create_WithProductAndShelterLines_SumsTotalOverBoth()
+    {
+        var product = MakeProduct(price: 200m);
+        var items = new[] { (product, 2) }.ToList<(Product, int)>();  // 400
+
+        var order = Order.Create(
+            Guid.NewGuid(), DeliveryType.Pickup,
+            items,
+            shelterLines: [Shelter(unitPrice: 499m, qty: 2)]);          // 998
+
+        order.Lines.Should().HaveCount(2);
+        order.TotalAmount.Should().Be(1398m);                          // 400 + 998
+    }
+
+    [Fact]
+    public void Create_WithNeitherProductNorShelter_Throws()
+    {
+        var act = () => Order.Create(
+            Guid.NewGuid(), DeliveryType.Pickup,
+            new List<(Product, int)>(),
+            shelterLines: []);
+
+        act.Should().Throw<BusinessRuleException>()
+            .WithMessage("*au moins un produit*");
+    }
+
     [Fact]
     public void Create_WithUnavailableProduct_Throws()
     {
