@@ -11,6 +11,89 @@
 
 ---
 
+## L-036 · An edit-form DTO must expose FK columns as ids, not force the client to reverse-resolve by display label
+
+- **Symptom.** EPIC 9.5 admin shelter-model form: the initial `startEdit()` draft resolved
+  `categoryId` with `categories().find(c => c.name === detail.categoryName)?.id ?? ''` — reverse-
+  looking up the FK from the displayed name. Two silent failure modes: (a) if two categories share
+  the same name, the wrong id is picked with no warning; (b) if `categoryName` in the detail DTO
+  doesn't exactly match the name in the categories list (different casing, trailing space, locale
+  difference), the find returns `undefined` and `categoryId` silently resets to `''` → the form
+  opens with no category selected and the user unknowingly clears it on save. Caught by the
+  independent reviewer; the root cause is a DTO contract hole.
+- **Rule.** A detail/edit DTO must expose **every FK as its id** (Guid/int), not only its display
+  label. The client form binds the id directly to the `<select>` control (`categoryId:
+  detail.categoryId`) — never a reverse-lookup by name. Display labels are for reading; id is the
+  contract for writing. When designing a DTO for an edit endpoint: list all relationships the form
+  can change, confirm the FK id is a field, and verify the label is purely cosmetic. Same axis as
+  [[L-004]] (one canonical value shared client↔server), applied to **DTO shape**: the canonical key
+  is an opaque id, never a user-visible string that can change or collide.
+- **Refs.**
+  `src/AbrisAutoOutaouais-WebApp.Application/Shelters/Queries/GetShelterModelBySlug/ShelterModelDetailDto.cs`
+  (`CategoryId Guid` field),
+  `src/AbrisAutoOutaouais-WebApp.Client/src/app/features/admin/shelter-models/shelter-models.ts`
+  (`startEdit` → `categoryId: detail.categoryId`),
+  branch `feat/epic-9-dimension-catalog`.
+
+## L-035 · EF InMemory raises `DbUpdateConcurrencyException` when replacing the child collection of a TRACKED owned entity — convert to a regular entity and use explicit `RemoveRange`/`AddRange`
+
+- **Symptom.** EPIC 9.5: the `UpdateShelterModelCommandHandler` tried to replace `ShelterModel.Dimensions`
+  (configured as `OwnsMany`) in a single `SaveChanges` call against the EF InMemory provider (used by
+  the integration-test `WebAppFactory`). InMemory raised `DbUpdateConcurrencyException` — it cannot
+  reconcile adding/removing **owned** children of an already-tracked parent in one round-trip. The bug
+  was **InMemory-only**: the same command round-tripped cleanly on SQL Server LocalDB ([[L-001]]),
+  which confirmed the logic was correct but the provider diverged. The schema on SQL Server was
+  unchanged (same table, same FK/cascade/index) — the distinction between `OwnsMany` and a regular
+  `HasMany` is purely an EF model-level concern.
+- **Rule.** When a child collection must support **CRUD operations from admin UI** (add/remove/replace
+  items), do **not** use `OwnsMany` — the InMemory provider (used in `WebAppFactory`-backed integration
+  tests) cannot handle replacing owned children of a tracked aggregate ([[L-022]]: InMemory diverges
+  from relational providers). Convert to a **regular entity** with `HasMany().WithOne().IsRequired()
+  .OnDelete(Cascade)` — the SQL Server schema is typically identical, so the resulting migration is
+  empty-bodied (verify by inspecting it). Two consequences follow automatically: (a) the child entity
+  is **not** auto-included — every reader (query handlers, update handlers) must add an explicit
+  `.Include(m => m.Children)` or the collection silently loads as empty ([[L-009]]: no error ≠
+  correct); (b) replacement must be explicit: materialise the old children BEFORE the domain method
+  clears the collection, call `db.Set<TChild>().RemoveRange(old)`, let the domain rebuild the
+  collection, then call `db.Set<TChild>().AddRange(model.Children.ToList())` — all in one
+  `SaveChanges`. Verify the fix covers all providers by running `dotnet test` (InMemory) AND a live
+  round-trip ([[L-001]]) on SQL Server.
+- **Refs.**
+  `src/AbrisAutoOutaouais-WebApp.Domain/Entities/ShelterModelDimension.cs` (regular entity),
+  `src/AbrisAutoOutaouais-WebApp.Infrastructure/Persistence/Configurations/ShelterModelConfiguration.cs`
+  (`HasMany().WithOne().IsRequired().OnDelete(Cascade)` replacing `OwnsMany`),
+  `src/AbrisAutoOutaouais-WebApp.Infrastructure/Persistence/Migrations/20260619150301_ShelterModelDimensionRegularEntity.cs`
+  (empty `Up`/`Down` — schema unchanged on SQL Server),
+  `src/AbrisAutoOutaouais-WebApp.Application/Shelters/Commands/UpdateShelterModel/UpdateShelterModelCommandHandler.cs`
+  (`RemoveRange` / `Reconfigure` / `AddRange` pattern),
+  `src/AbrisAutoOutaouais-WebApp.Application/Shelters/Queries/GetShelterModelBySlug/GetShelterModelBySlugQueryHandler.cs`
+  (explicit `.Include(m => m.Dimensions)`),
+  branch `feat/epic-9-dimension-catalog`.
+
+## L-034 · An axis-aligned `turf.bbox()` over-estimates a drawn rectangle's width/length when it isn't aligned North–South — measure with per-edge great-circle distances or an oriented bbox
+
+- **Symptom.** The `/mesurer` map tool derives a parking spot's width and length in `handleShape()`
+  (`features/mesurer/steps/measure-step/map-measure/map-measure.ts`, ~lines 186-213) from
+  `turf.bbox()` — an **axis-aligned** (min/max lat-lng) bounding box. For a driveway not aligned to
+  North–South, the axis-aligned box is always larger than the real footprint: a 3 m × 6 m spot
+  rotated 45° reads ~6.4 m × 6.4 m. That inflated footprint is fed to `SuggestShelters`, so the user
+  is suggested a too-large (and pricier) shelter. The bug is **silent** — no test fails (tests draw
+  axis-aligned shapes whose bbox equals the true dimensions), and the output looks plausible.
+  Surfaced by a 2026-06-19 docx consult which correctly noted « a simple bounding box will fail for
+  rotated driveways ». Tracked as US-14.2 (EPIC 14); documented but not yet fixed.
+- **Rule.** When deriving a rectangle's width/length from a user-drawn polygon on a map, do **not**
+  use `turf.bbox()` — it equals the true dimensions only when the shape aligns with the lat/lng axes.
+  Instead, compute **per-edge great-circle distances** (`@turf/distance` / haversine) for a 4-vertex
+  polygon and pair opposite edges: width = mean of the two shorter edge pairs, length = mean of the
+  two longer (both are free — no billing-required Google Maps API, see budget-free-tier rule). An
+  oriented / minimum-area bounding box is equally valid. Pin with a **unit test that feeds a ROTATED
+  rectangle** and asserts the true ~3×6, not the inflated bbox — an axis-aligned test case cannot
+  catch this regression. Same family as [[L-007]] (a geometric/temporal assumption that makes a query
+  correct lives far from the query — pin it there), on the **measurement-orientation** axis.
+- **Refs.** `features/mesurer/steps/measure-step/map-measure/map-measure.ts` (`handleShape`,
+  `turf.bbox` call), `docs/agile/product-backlog.md` (US-14.2),
+  source: `probleme abris-auto-outaouais.docx` (2026-06-19).
+
 ## L-033 · A contrast fix that targets only the NAMED items leaves the same faulty pattern dormant elsewhere — grep ALL consumers of the pattern before closing
 
 - **Symptom.** Épic 12 p2: the user story named two contrast failures — `/mesurer` badge
@@ -250,28 +333,42 @@
   `src/environments/environment.{ts,prod.ts,staging.ts}`, `docs/deployment.md`,
   branch `feat/epic-c-locale-dev`.
 
-## L-024 · Degrade a control with `aria-disabled` (focusable + accessible explanation), not native `disabled`; and a dynamically-bound attribute (`title`) can't use static `i18n-`
+## L-024 · Degrade a control with `aria-disabled` (focusable + accessible explanation), not native `disabled`; and a dynamically-bound attribute (`title`, `aria-label`…) can't use static `i18n-`
 
-- **Symptom.** Épic C: to degrade the « EN » button when the server is mono-locale, native `disabled`
-  would have pulled it **out of the tab order** and hidden the « why » from screen-reader users (a
-  `disabled` control isn't focusable, so its explanation is unreachable by keyboard). The accessible
-  alternative is a still-focusable `<button>` with `[attr.aria-disabled]="true"` +
-  `[attr.aria-describedby]` to a **navbar-scoped** `<span class="sr-only">` (NOT a global `role="status"`
-  — [[L-010]]) and a no-op `(click)`. Second trap: the tooltip uses `[attr.title]`, a **dynamic
-  binding**, so its translation **can't** go through `i18n-title` (which only marks **static**
-  attribute values) — it needs a component property built with `$localize` carrying the same id
-  (`@@navbar.langUnavailable`), and that trans-unit must exist in **both** catalogs ([[L-018]]).
+- **Symptom.** Two independent hits of the same bound-attribute i18n trap. (a) Épic C: the « EN »
+  button tooltip used `[attr.title]`, a **dynamic binding**, so `i18n-title` (which only marks
+  **static** attribute values) did not apply — the title stayed French in the EN build, breaking the
+  accessible name in the non-default locale. Fix: a component property built with `$localize` +
+  `@@id`. (b) EPIC 9.5 (admin shelter-model table): the per-row edit/delete buttons needed
+  `[attr.aria-label]="editLabel(m.name)"` — a bound expression interpolating the row name. `i18n-aria-label`
+  is inapplicable for the same reason (dynamic binding). Without `$localize`, the aria-label stays
+  in French regardless of build locale → the button's accessible name is broken in the EN build.
+  Fix: a component method returning `$localize\`:@@id:Modifier ${name}:name:\`` with a named
+  placeholder, both trans-units in **both** catalogs. Also noted for Épic C: native `disabled` pulls
+  the degraded « EN » button out of the tab order, hiding the « why » from keyboard users — an
+  `aria-disabled` + `aria-describedby` pattern keeps it focusable.
 - **Rule.** To « disable » a control while keeping it accessible, prefer **`aria-disabled="true"`** on
   a focusable element over native `disabled`: it stays in the tab order so its `aria-describedby`
   explanation is reachable, and the handler no-ops. Anchor the explanation in a **scoped** `sr-only`
-  node (never a global landmark/live-region — [[L-010]]). When an attribute is **bound** (`[attr.title]`,
-  `[attr.aria-label]`…), `i18n-<attr>` does **not** apply — translate via a `$localize` component
-  property with an explicit `@@id`, and prune/maintain that id in **both** `messages.xlf` and
-  `messages.en.xlf` ([[L-018]]).
+  node (never a global landmark/live-region — [[L-010]]). When **any** attribute is **bound**
+  (`[attr.title]`, `[attr.aria-label]`, `[attr.aria-describedby]`…), `i18n-<attr>` does **not**
+  apply — the Angular i18n extractor only marks **static** attribute values. Translate via a
+  **`$localize` component property or method** with an explicit `@@id`:
+  - Simple string (no interpolation): `langUnavailableTitle = $localize\`:@@id:Text\``.
+  - Interpolated value (e.g. row name): a method returning
+    `$localize\`:@@id:Modifier ${name}:name:\`` — the `:name:` after the expression is the
+    **placeholder name** required by the xlf format; omitting it causes extraction failure.
+  Maintain the `@@id` in **both** `messages.xlf` and `messages.en.xlf` ([[L-018]]); a missing
+  trans-unit in the EN catalog compiles to the source-language fallback, which looks correct in FR
+  CI but breaks the EN build silently.
 - **Refs.** `src/app/shared/layout/navbar/navbar.{html,ts}` (`aria-disabled` + scoped `sr-only` +
   `langUnavailableTitle = $localize\`@@navbar.langUnavailable\``),
   `src/app/core/services/locale.service.ts` (`localized()`),
-  `src/locale/messages.{xlf,en.xlf}`, branch `feat/epic-c-locale-dev`.
+  `src/locale/messages.{xlf,en.xlf}`,
+  `src/AbrisAutoOutaouais-WebApp.Client/src/app/features/admin/shelter-models/shelter-models.ts`
+  (`editLabel`/`deleteLabel` methods with named placeholder + `@@admin.shelterModels.table.editLabel`
+  / `deleteLabel` in both catalogs),
+  branches `feat/epic-c-locale-dev`, `feat/epic-9-dimension-catalog`.
 
 ## L-023 · A global `a:visited`/`a:hover` rule overrides `.btn--primary` on anchor-buttons — and a `:visited`-only contrast bug is INVISIBLE to axe/wave by design
 
@@ -619,10 +716,24 @@
   contains more than one element » race and **~63 unrelated tests fail at host startup**. Rule:
   every class touching `WebAppFactory` must carry `[Collection("Integration")]` so they share one
   serialized context — never let a new IT class default into its own parallel collection.
+  **Second-order corollary — a seeder that reads from a SIBLING seeder must tolerate duplicates
+  (EPIC 9.1).** Every seeder registered in `Program.cs` runs inside `WebAppFactory` against the
+  shared InMemory DB. If seeder A runs first and seeder B subsequently queries A's rows by a key
+  that is logically unique in prod (e.g. `Slug`), that key can appear **duplicated** in the shared
+  InMemory store when two parallel test hosts each ran seeder A before serialization kicks in.
+  `ToDictionaryAsync(x => x.Slug)` throws « an item with the same key has already been added »,
+  crashing host startup and failing **15 unrelated IT tests** (Rentals/Users). Fix: replace any
+  `ToDictionary`/`Single`/`SingleOrDefault` lookup on such a key with a **duplicate-tolerant,
+  deterministic pick** — `GroupBy(slug).Select(g => g.OrderBy(x => x.Id).First())` — and seed only
+  rows whose key is not yet present. This is the [[L-030]] tie-break discipline applied to the
+  **seeder-reads-sibling** axis: the code must behave correctly whether it sees 1 or N rows for a
+  given key.
 - **Refs.** `src/app/app.html` (global `role="status"` language-switch live region),
   `e2e/password-reset.spec.ts` (locator re-scoped by text), `.gitignore` (client,
   `.vitest-attachments/`), `IntegrationTest/Common/WebAppFactory.cs` +
-  `IntegrationTest/Common/IntegrationCollection.cs` (`[Collection("Integration")]`).
+  `IntegrationTest/Common/IntegrationCollection.cs` (`[Collection("Integration")]`),
+  `src/AbrisAutoOutaouais-WebApp.Infrastructure/Persistence/ShelterModelSeeder.cs` +
+  `src/AbrisAutoOutaouais-WebApp.API/Program.cs` (duplicate-tolerant category lookup, EPIC 9.1).
 
 ## L-009 · Breakpoint-gated UI: pin the viewport in vitest browser specs, or assertions pass vacuously
 

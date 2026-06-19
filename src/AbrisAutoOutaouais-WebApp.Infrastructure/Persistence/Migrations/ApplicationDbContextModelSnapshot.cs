@@ -79,13 +79,16 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int?>("ConfiguredLengthCm")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("LineTotal")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ProductId")
+                    b.Property<Guid?>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ProductName")
@@ -96,6 +99,10 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
+                    b.Property<string>("ShelterModelSlug")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<decimal>("UnitPrice")
                         .HasColumnType("decimal(18,2)");
 
@@ -103,7 +110,8 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.HasIndex("ProductId");
+                    b.HasIndex("ProductId")
+                        .HasFilter("[ProductId] IS NOT NULL");
 
                     b.ToTable("OrderLines");
                 });
@@ -281,6 +289,91 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Migrations
                     b.HasIndex("CustomerId");
 
                     b.ToTable("RentalContracts");
+                });
+
+            modelBuilder.Entity("AbrisAutoOutaouais_WebApp.Domain.Entities.ShelterModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("BasePrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("LengthStepCm")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MaxLengthCm")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MinLengthCm")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("PricePerArchCents")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("ShelterModels");
+                });
+
+            modelBuilder.Entity("AbrisAutoOutaouais_WebApp.Domain.Entities.ShelterModelDimension", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Kind")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ShelterModelId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ValueCm")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ShelterModelId");
+
+                    b.ToTable("ShelterModelDimension");
                 });
 
             modelBuilder.Entity("AbrisAutoOutaouais_WebApp.Infrastructure.Identity.AppRole", b =>
@@ -764,6 +857,26 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("AbrisAutoOutaouais_WebApp.Domain.Entities.ShelterModel", b =>
+                {
+                    b.HasOne("AbrisAutoOutaouais_WebApp.Domain.Entities.ProductCategory", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("AbrisAutoOutaouais_WebApp.Domain.Entities.ShelterModelDimension", b =>
+                {
+                    b.HasOne("AbrisAutoOutaouais_WebApp.Domain.Entities.ShelterModel", null)
+                        .WithMany("Dimensions")
+                        .HasForeignKey("ShelterModelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("AbrisAutoOutaouais_WebApp.Infrastructure.Identity.AppUser", b =>
                 {
                     b.OwnsOne("Domain.ValueObjects.Address", "DefaultDeliveryAddress", b1 =>
@@ -947,6 +1060,11 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("AbrisAutoOutaouais_WebApp.Domain.Entities.Order", b =>
                 {
                     b.Navigation("Lines");
+                });
+
+            modelBuilder.Entity("AbrisAutoOutaouais_WebApp.Domain.Entities.ShelterModel", b =>
+                {
+                    b.Navigation("Dimensions");
                 });
 #pragma warning restore 612, 618
         }

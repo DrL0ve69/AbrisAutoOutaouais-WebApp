@@ -37,13 +37,25 @@ public sealed class Order : ISoftDeletable, IAuditableEntity
 
     private Order() { }
 
+    /// <summary>
+    /// Entrée d'une ligne d'ABRI CONFIGURÉ (paramétrique, EPIC 9.4). Le <c>UnitPrice</c> est le prix
+    /// RECALCULÉ côté serveur (<c>ShelterPriceCalculator</c>) — jamais une valeur fournie par le client.
+    /// </summary>
+    public readonly record struct ShelterLineInput(
+        string Slug, string ModelName, int LengthCm, decimal UnitPrice, int Qty);
+
     public static Order Create(
         Guid customerId, DeliveryType deliveryType,
         IReadOnlyList<(Product Product, int Qty)> items,
         Address? shippingAddress = null,
-        string? notes = null)
+        string? notes = null,
+        IReadOnlyList<ShelterLineInput>? shelterLines = null)
     {
-        if (!items.Any())
+        shelterLines ??= [];
+
+        // Une commande est valide si elle contient au moins une ligne — produit OU abri configuré
+        // (une commande d'abri seul est légitime). On considère les DEUX natures de ligne.
+        if (items.Count == 0 && shelterLines.Count == 0)
             throw new BusinessRuleException("Une commande doit contenir au moins un produit.");
 
         if (deliveryType == DeliveryType.Delivery && shippingAddress is null)
@@ -65,6 +77,9 @@ public sealed class Order : ISoftDeletable, IAuditableEntity
                 throw new BusinessRuleException($"« {product.Name} » n'est plus disponible.");
             order._lines.Add(OrderLine.Create(order.Id, product, qty));
         }
+
+        foreach (var s in shelterLines)
+            order._lines.Add(OrderLine.CreateShelter(order.Id, s.Slug, s.ModelName, s.LengthCm, s.UnitPrice, s.Qty));
 
         order.TotalAmount = order._lines.Sum(l => l.LineTotal);
         return order;

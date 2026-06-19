@@ -1,0 +1,72 @@
+<!-- ============================================================
+     Boutique — Modèles paramétriques d'une catégorie (EPIC 9.3)
+     WCAG AA : h1 unique, liste de cartes, résultats annoncés.
+============================================================ -->
+<section class="models-page" aria-labelledby="models-page-heading">
+  <div class="container">
+    <nav class="models__breadcrumb" aria-label="Fil d'Ariane" i18n-aria-label="@@shop.models.breadcrumbAria">
+      <ol role="list">
+        <li><a routerLink="/" i18n="@@shop.models.crumbHome">Accueil</a></li>
+        <li><a routerLink="/boutique" i18n="@@shop.models.crumbShop">Boutique</a></li>
+        <li aria-current="page" i18n="@@shop.models.crumbCurrent">Configurer un abri</li>
+      </ol>
+    </nav>
+
+    <header class="section-header">
+      <p class="section-eyebrow" i18n="@@shop.models.eyebrow">Sur mesure</p>
+      <h1 id="models-page-heading" i18n="@@shop.models.title">Configurez votre abri</h1>
+      <p class="section-subtitle" i18n="@@shop.models.subtitle">
+        Choisissez un modèle, puis ajustez largeur, hauteur et longueur à vos besoins.
+      </p>
+    </header>
+
+    @if (loading()) {
+      <div class="models__grid" role="status" aria-busy="true" aria-label="Chargement des modèles…" i18n-aria-label="@@shop.models.loading">
+        @for (_ of [1, 2, 3]; track $index) {
+          <div class="skeleton-card" aria-hidden="true">
+            <div class="skeleton-card__body">
+              <div class="skeleton-line skeleton-line--short"></div>
+              <div class="skeleton-line"></div>
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <p class="sr-only" role="status">{{ resultsLabel() }}</p>
+
+      @if (models().length > 0) {
+        <ul class="models__grid" role="list">
+          @for (model of models(); track model.id) {
+            <li class="models__card">
+              <h2 class="models__name">{{ model.name }}</h2>
+              <p class="models__category">{{ model.categoryName }}</p>
+              <p class="models__price">
+                <span i18n="@@shop.models.fromLabel">À partir de</span>
+                <span class="models__price-amount">
+                  {{ model.basePrice | currency: 'CAD' : 'symbol' : '1.2-2' : 'fr-CA' }}
+                </span>
+              </p>
+              <p class="models__range">
+                <span i18n="@@shop.models.lengthRange">Longueur de</span>
+                {{ formatFeetInches(model.minLengthCm) }}
+                <span i18n="@@shop.models.lengthRangeTo">à</span>
+                {{ formatFeetInches(model.maxLengthCm) }}
+              </p>
+              <a
+                class="btn btn--primary models__cta"
+                [routerLink]="['/boutique/configurer', model.slug]"
+                [attr.aria-label]="'Configurer ' + model.name"
+              >
+                <span i18n="@@shop.models.configure">Configurer les dimensions</span>
+              </a>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="models__empty" i18n="@@shop.models.empty">
+          Aucun modèle configurable n'est disponible dans cette catégorie pour le moment.
+        </p>
+      }
+    }
+  </div>
+</section>

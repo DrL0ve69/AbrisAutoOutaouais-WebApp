@@ -12,6 +12,7 @@ import { RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { ProductDto, resolveProductImage } from '../../../core/models/product.model';
+import { PARAMETRIC_CATEGORY_SLUG_BY_NAME } from '../../../core/models/shelter.model';
 import { CartService } from '../../../core/services/cart.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { Shelter3dViewerComponent } from '../../../shared/components/shelter-3d-viewer/shelter-3d-viewer';
@@ -54,6 +55,16 @@ export class ProductDetailComponent implements OnInit {
       p.heightCm !== null &&
       p.heightCm > 0
     );
+  });
+
+  /**
+   * Slug de catégorie paramétrique du produit (EPIC 9.3), s'il en a une → lien vers la liste des
+   * modèles configurables. La fiche n'expose que `categoryName` ; on le mappe au slug du référentiel
+   * partagé. `null` pour un produit à taille fixe (toiles, accessoires) : aucun lien proposé.
+   */
+  protected readonly parametricCategorySlug = computed(() => {
+    const p = this.product();
+    return p ? (PARAMETRIC_CATEGORY_SLUG_BY_NAME[p.categoryName] ?? null) : null;
   });
 
   protected onImageError(): void {

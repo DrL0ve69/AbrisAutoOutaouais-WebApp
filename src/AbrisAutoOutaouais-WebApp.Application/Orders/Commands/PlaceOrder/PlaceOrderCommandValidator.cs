@@ -8,10 +8,25 @@ public sealed class PlaceOrderCommandValidator : AbstractValidator<PlaceOrderCom
 {
     public PlaceOrderCommandValidator()
     {
-        RuleFor(x => x.Lines).NotEmpty().WithMessage("La commande doit contenir au moins un produit.");
+        // Une commande doit porter au moins une ligne — produit OU abri configuré (EPIC 9.4).
+        // Une commande d'abri seul est légitime, donc on ne peut plus exiger Lines non vide seul.
+        RuleFor(x => x)
+            .Must(x => (x.Lines is { Count: > 0 }) || (x.ShelterLines is { Count: > 0 }))
+            .WithMessage("La commande doit contenir au moins un produit ou un abri.")
+            .OverridePropertyName(nameof(PlaceOrderCommand.Lines));
+
         RuleForEach(x => x.Lines).ChildRules(line =>
         {
             line.RuleFor(l => l.ProductId).NotEmpty();
+            line.RuleFor(l => l.Quantity).GreaterThan(0).WithMessage("Quantité doit être positive.");
+        });
+
+        // Lignes d'abri configuré : slug requis, longueur et quantité strictement positives. Les
+        // bornes/alignement de la longueur restent dans le handler (ils nécessitent le modèle chargé).
+        RuleForEach(x => x.ShelterLines).ChildRules(line =>
+        {
+            line.RuleFor(l => l.Slug).NotEmpty().WithMessage("Le modèle d'abri est requis.");
+            line.RuleFor(l => l.LengthCm).GreaterThan(0).WithMessage("La longueur doit être positive.");
             line.RuleFor(l => l.Quantity).GreaterThan(0).WithMessage("Quantité doit être positive.");
         });
 

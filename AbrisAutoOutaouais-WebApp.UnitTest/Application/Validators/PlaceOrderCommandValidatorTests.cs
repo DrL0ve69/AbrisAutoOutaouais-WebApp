@@ -92,4 +92,55 @@ public sealed class PlaceOrderCommandValidatorTests
 
         _validator.TestValidate(cmd).ShouldNotHaveAnyValidationErrors();
     }
+
+    // ── Lignes d'abri configuré (EPIC 9.4) ──────────────────────────────────────
+
+    private static PlaceOrderCommand ShelterPickup(string slug, int lengthCm, int qty) => new(
+        Lines: [],
+        DeliveryType: DeliveryType.Pickup,
+        ShippingAddress: null,
+        ShelterLines: [new ShelterLineRequest(slug, lengthCm, qty)]);
+
+    [Fact]
+    public void Validate_ShelterOnlyOrder_HasNoValidationErrors()
+    {
+        // Une commande d'abri seul (Lines vide) est légitime — aucune erreur attendue.
+        _validator.TestValidate(ShelterPickup("abri-simple", 488, 1))
+            .ShouldNotHaveAnyValidationErrors();
+    }
+
+    [Fact]
+    public void Validate_BothListsEmpty_HasError()
+    {
+        var cmd = new PlaceOrderCommand([], DeliveryType.Pickup, null, ShelterLines: []);
+
+        _validator.TestValidate(cmd).ShouldHaveValidationErrorFor(x => x.Lines);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void Validate_ShelterLineWithEmptySlug_HasError(string slug)
+    {
+        _validator.TestValidate(ShelterPickup(slug, 488, 1))
+            .ShouldHaveValidationErrorFor("ShelterLines[0].Slug");
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public void Validate_ShelterLineWithNonPositiveQuantity_HasError(int qty)
+    {
+        _validator.TestValidate(ShelterPickup("abri-simple", 488, qty))
+            .ShouldHaveValidationErrorFor("ShelterLines[0].Quantity");
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-122)]
+    public void Validate_ShelterLineWithNonPositiveLength_HasError(int lengthCm)
+    {
+        _validator.TestValidate(ShelterPickup("abri-simple", lengthCm, 1))
+            .ShouldHaveValidationErrorFor("ShelterLines[0].LengthCm");
+    }
 }

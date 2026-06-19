@@ -78,6 +78,7 @@ if (app.Configuration.GetValue<bool>("Database:MigrateOnStartup"))
 // ── Seeders (rôles + compte admin, puis catalogue) ───────────────────────────
 await IdentitySeeder.SeedAsync(app.Services);
 await ProductSeeder.SeedAsync(app.Services);
+await ShelterModelSeeder.SeedAsync(app.Services);  // référentiel modèles paramétriques (EPIC 9) — après les catégories
 
 // ── Middleware pipeline ────────────────────────────────────────────────────────
 // Ordre CRITIQUE — ne pas modifier

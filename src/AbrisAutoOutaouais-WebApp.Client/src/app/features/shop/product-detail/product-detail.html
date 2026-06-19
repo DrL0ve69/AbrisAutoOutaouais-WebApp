@@ -164,6 +164,20 @@
           >
             Ajouter au panier
           </button>
+
+          <!-- EPIC 9.3 : si la catégorie est paramétrique, proposer une taille sur mesure. -->
+          @if (parametricCategorySlug(); as categorySlug) {
+            <p class="detail__configure">
+              <span i18n="@@shop.detail.configureIntro">Besoin d'une autre taille&nbsp;?</span>
+              <a
+                class="detail__configure-link"
+                [routerLink]="['/boutique/modeles', categorySlug]"
+                i18n="@@shop.detail.configureLink"
+              >
+                Configurez les dimensions sur mesure
+              </a>
+            </p>
+          }
         </div>
       </article>
     }

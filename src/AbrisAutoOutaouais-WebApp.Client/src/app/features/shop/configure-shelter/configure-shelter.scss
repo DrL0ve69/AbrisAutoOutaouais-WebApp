@@ -1,0 +1,65 @@
+.configure-page {
+  padding-block: var(--space-6);
+}
+
+.configure__breadcrumb {
+  margin-bottom: var(--space-4);
+
+  ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+  }
+
+  li + li::before {
+    content: '›';
+    margin-right: var(--space-2);
+    color: var(--color-text-muted);
+  }
+}
+
+// ── Ajout au panier (EPIC 9.4) ────────────────────────────────────────────────
+.configure__cart {
+  margin-top: var(--space-5);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.configure__cart-recap {
+  margin: 0;
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+  color: var(--color-text);
+}
+
+.configure__cart-length {
+  color: var(--color-text-muted);
+}
+
+.configure__cart-price {
+  font-weight: 700;
+}
+
+.configure__add {
+  // Cible tactile ≥ 44px (WCAG 2.2 AA, 2.5.8).
+  min-height: 44px;
+  min-width: 44px;
+
+  // État « aria-disabled » : reste FOCUSABLE et garde le STYLE `.btn--primary` intact (donc le
+  // ratio de contraste validé), pour ne pas réintroduire d'échec de contraste invisible à l'œil
+  // (L-016/L-033 : pas d'opacité ni de couleur de texte modifiée). L'inactivité est annoncée par
+  // `aria-disabled` + l'indice scopé `aria-describedby` (L-024) ; le curseur la signale en visuel.
+  // L'état est transitoire (~300 ms, le temps du 1er prix serveur).
+  &--disabled {
+    cursor: not-allowed;
+  }
+}

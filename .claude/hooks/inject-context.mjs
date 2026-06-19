@@ -39,6 +39,14 @@ out.push(
     'precedent) and reuse the repo’s existing pattern idioms — see `.claude/rules/design-patterns.md` and ' +
     '`docs/design-patterns.md`.',
 );
+out.push(
+  'BUDGET — HARD RULE: never spend money. No subscriptions, no paid/billed API keys, no paid Azure SKUs ' +
+    'without the owner’s explicit consent. Default to free AND keyless (Photon, Esri World Imagery, OSM, ' +
+    'Leaflet/geoman-free, Turf). A "free tier" that requires a billing account / credit card (Google Maps ' +
+    'Platform, Algolia, Radar…) is treated as PAID → rejected. The only paid resource is the ~$120 CAD ' +
+    'Azure student credit — stay within free tiers (`docs/deployment.md`). Google Maps for `/mesurer` was ' +
+    'evaluated and rejected (billing + redundant). See `.claude/rules/budget-free-tier.md`.',
+);
 out.push('');
 
 try {

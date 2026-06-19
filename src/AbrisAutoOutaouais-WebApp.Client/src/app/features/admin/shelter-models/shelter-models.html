@@ -1,0 +1,357 @@
+<section class="adminp" aria-labelledby="adminsm-heading">
+  <div class="container">
+    <header class="adminp__head">
+      <p class="adminp__eyebrow" i18n="@@admin.shelterModels.eyebrow">Référentiel</p>
+      <h1 id="adminsm-heading" i18n="@@admin.shelterModels.title">Gestion des modèles d'abris</h1>
+      <p class="adminp__lead" i18n="@@admin.shelterModels.lead">
+        Créez, modifiez et retirez les modèles d'abris paramétriques (largeurs, hauteurs, longueurs).
+      </p>
+      <a routerLink="/admin/dashboard" class="adminp__back" i18n="@@admin.shelterModels.back">
+        ← Retour au tableau de bord
+      </a>
+    </header>
+
+    <div class="adminp__layout">
+      <!-- ===== Formulaire création / édition ===== -->
+      <section class="adminp__panel" aria-labelledby="adminsm-form-heading">
+        <h2 id="adminsm-form-heading">
+          @if (isEditing()) {
+            <span i18n="@@admin.shelterModels.form.editHeading">Modifier le modèle</span>
+          } @else {
+            <span i18n="@@admin.shelterModels.form.createHeading">Nouveau modèle</span>
+          }
+        </h2>
+
+        @if (formError(); as err) {
+          <p class="adminp__alert" role="alert">{{ err }}</p>
+        }
+
+        <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+          <!-- Slug : éditable en création, LECTURE SEULE en édition (immuable). -->
+          <div class="adminp__field">
+            <label for="sm-slug" i18n="@@admin.shelterModels.form.slug">Identifiant (slug)</label>
+            @if (isEditing()) {
+              <p class="adminp__readonly" aria-describedby="sm-slug-readonly">{{ editingSlug() }}</p>
+              <p id="sm-slug-readonly" class="adminp__hint" i18n="@@admin.shelterModels.form.slugReadonly">
+                Le slug ne peut pas être modifié après la création.
+              </p>
+            } @else {
+              <input
+                id="sm-slug"
+                type="text"
+                formControlName="slug"
+                autocomplete="off"
+                aria-describedby="sm-slug-hint sm-slug-err"
+                [attr.aria-invalid]="slugCtrl.touched && slugCtrl.invalid ? 'true' : null"
+              />
+              <p id="sm-slug-hint" class="adminp__hint" i18n="@@admin.shelterModels.form.slugHint">
+                minuscules, chiffres et tirets · ex : abri-tempo-simple
+              </p>
+              @if (slugCtrl.touched && slugCtrl.invalid) {
+                <p id="sm-slug-err" class="adminp__err" role="alert" i18n="@@admin.shelterModels.form.slugError">
+                  Le slug est requis (minuscules, chiffres et tirets uniquement).
+                </p>
+              }
+            }
+          </div>
+
+          <div class="adminp__field">
+            <label for="sm-name" i18n="@@admin.shelterModels.form.name">Nom</label>
+            <input
+              id="sm-name"
+              type="text"
+              formControlName="name"
+              autocomplete="off"
+              aria-describedby="sm-name-err"
+              [attr.aria-invalid]="nameCtrl.touched && nameCtrl.invalid ? 'true' : null"
+            />
+            @if (nameCtrl.touched && nameCtrl.invalid) {
+              <p id="sm-name-err" class="adminp__err" role="alert" i18n="@@admin.shelterModels.form.nameError">
+                Le nom est requis (100 caractères maximum).
+              </p>
+            }
+          </div>
+
+          <div class="adminp__field">
+            <label for="sm-category" i18n="@@admin.shelterModels.form.category">Catégorie</label>
+            <select
+              id="sm-category"
+              formControlName="categoryId"
+              aria-describedby="sm-category-err"
+              [attr.aria-invalid]="categoryCtrl.touched && categoryCtrl.invalid ? 'true' : null"
+            >
+              <option value="" disabled i18n="@@admin.shelterModels.form.categoryPlaceholder">
+                — Choisir une catégorie —
+              </option>
+              @for (cat of categories(); track cat.id) {
+                <option [value]="cat.id">{{ cat.name }}</option>
+              }
+            </select>
+            @if (categoryCtrl.touched && categoryCtrl.invalid) {
+              <p id="sm-category-err" class="adminp__err" role="alert" i18n="@@admin.shelterModels.form.categoryError">
+                Veuillez choisir une catégorie.
+              </p>
+            }
+          </div>
+
+          <!-- Longueurs paramétriques (cm) -->
+          <div class="adminp__row adminp__row--dims">
+            <div class="adminp__field">
+              <label for="sm-step" i18n="@@admin.shelterModels.form.step">Pas de longueur (cm)</label>
+              <input
+                id="sm-step"
+                type="number"
+                step="1"
+                min="1"
+                inputmode="numeric"
+                formControlName="lengthStepCm"
+                aria-describedby="sm-step-err"
+                [attr.aria-invalid]="stepCtrl.touched && stepCtrl.invalid ? 'true' : null"
+              />
+              @if (stepCtrl.touched && stepCtrl.invalid) {
+                <p id="sm-step-err" class="adminp__err" role="alert" i18n="@@admin.shelterModels.form.stepError">
+                  Le pas doit être un entier strictement positif.
+                </p>
+              }
+            </div>
+
+            <div class="adminp__field">
+              <label for="sm-min" i18n="@@admin.shelterModels.form.min">Longueur min. (cm)</label>
+              <input
+                id="sm-min"
+                type="number"
+                step="1"
+                min="1"
+                inputmode="numeric"
+                formControlName="minLengthCm"
+                aria-describedby="sm-min-err"
+                [attr.aria-invalid]="minCtrl.touched && minCtrl.invalid ? 'true' : null"
+              />
+              @if (minCtrl.touched && minCtrl.invalid) {
+                <p id="sm-min-err" class="adminp__err" role="alert" i18n="@@admin.shelterModels.form.minError">
+                  La longueur minimale doit être strictement positive.
+                </p>
+              }
+            </div>
+
+            <div class="adminp__field">
+              <label for="sm-max" i18n="@@admin.shelterModels.form.max">Longueur max. (cm)</label>
+              <input
+                id="sm-max"
+                type="number"
+                step="1"
+                min="1"
+                inputmode="numeric"
+                formControlName="maxLengthCm"
+                aria-describedby="sm-max-err sm-range-err"
+                [attr.aria-invalid]="(maxCtrl.touched && maxCtrl.invalid) || rangeInvalid() ? 'true' : null"
+              />
+              @if (maxCtrl.touched && maxCtrl.invalid) {
+                <p id="sm-max-err" class="adminp__err" role="alert" i18n="@@admin.shelterModels.form.maxError">
+                  La longueur maximale doit être strictement positive.
+                </p>
+              }
+              @if (rangeInvalid()) {
+                <p id="sm-range-err" class="adminp__err" role="alert" i18n="@@admin.shelterModels.form.rangeError">
+                  La longueur maximale doit être supérieure à la minimale.
+                </p>
+              }
+            </div>
+          </div>
+
+          <!-- Prix -->
+          <div class="adminp__row">
+            <div class="adminp__field">
+              <label for="sm-base" i18n="@@admin.shelterModels.form.basePrice">Prix de base ($)</label>
+              <input
+                id="sm-base"
+                type="number"
+                step="0.01"
+                min="0"
+                formControlName="basePrice"
+                aria-describedby="sm-base-err"
+                [attr.aria-invalid]="basePriceCtrl.touched && basePriceCtrl.invalid ? 'true' : null"
+              />
+              @if (basePriceCtrl.touched && basePriceCtrl.invalid) {
+                <p id="sm-base-err" class="adminp__err" role="alert" i18n="@@admin.shelterModels.form.basePriceError">
+                  Le prix de base ne peut pas être négatif.
+                </p>
+              }
+            </div>
+
+            <div class="adminp__field">
+              <label for="sm-arch" i18n="@@admin.shelterModels.form.archCents">Prix par arche (cents)</label>
+              <input
+                id="sm-arch"
+                type="number"
+                step="1"
+                min="0"
+                inputmode="numeric"
+                formControlName="pricePerArchCents"
+                aria-describedby="sm-arch-hint sm-arch-err"
+                [attr.aria-invalid]="archCentsCtrl.touched && archCentsCtrl.invalid ? 'true' : null"
+              />
+              <p id="sm-arch-hint" class="adminp__hint" i18n="@@admin.shelterModels.form.archHint">
+                en CENTS · ex : 15000 = 150,00&nbsp;$
+              </p>
+              @if (archCentsCtrl.touched && archCentsCtrl.invalid) {
+                <p id="sm-arch-err" class="adminp__err" role="alert" i18n="@@admin.shelterModels.form.archError">
+                  Le prix par arche ne peut pas être négatif.
+                </p>
+              }
+            </div>
+          </div>
+
+          <!-- Listes de dimensions (cm séparés par virgule) -->
+          <div class="adminp__field">
+            <label for="sm-widths" i18n="@@admin.shelterModels.form.widths">Largeurs proposées (cm)</label>
+            <input
+              id="sm-widths"
+              type="text"
+              formControlName="widthsCm"
+              autocomplete="off"
+              inputmode="numeric"
+              aria-describedby="sm-widths-hint sm-widths-err"
+              [attr.aria-invalid]="widthsCtrl.touched && widthsCtrl.invalid ? 'true' : null"
+            />
+            <p id="sm-widths-hint" class="adminp__hint" i18n="@@admin.shelterModels.form.listHint">
+              valeurs en cm séparées par des virgules · ex : 244, 305, 366
+            </p>
+            @if (widthsCtrl.touched && widthsCtrl.invalid) {
+              <p id="sm-widths-err" class="adminp__err" role="alert" i18n="@@admin.shelterModels.form.widthsError">
+                Indiquez au moins une largeur (entiers positifs séparés par des virgules).
+              </p>
+            }
+          </div>
+
+          <div class="adminp__field">
+            <label for="sm-heights" i18n="@@admin.shelterModels.form.heights">Hauteurs dégagées proposées (cm)</label>
+            <input
+              id="sm-heights"
+              type="text"
+              formControlName="clearHeightsCm"
+              autocomplete="off"
+              inputmode="numeric"
+              aria-describedby="sm-heights-hint sm-heights-err"
+              [attr.aria-invalid]="heightsCtrl.touched && heightsCtrl.invalid ? 'true' : null"
+            />
+            <p id="sm-heights-hint" class="adminp__hint" i18n="@@admin.shelterModels.form.listHint">
+              valeurs en cm séparées par des virgules · ex : 244, 305, 366
+            </p>
+            @if (heightsCtrl.touched && heightsCtrl.invalid) {
+              <p id="sm-heights-err" class="adminp__err" role="alert" i18n="@@admin.shelterModels.form.heightsError">
+                Indiquez au moins une hauteur dégagée (entiers positifs séparés par des virgules).
+              </p>
+            }
+          </div>
+
+          <div class="adminp__actions">
+            <button type="submit" class="btn btn--primary" [disabled]="saving()">
+              @if (isEditing()) {
+                <span i18n="@@admin.shelterModels.form.save">Enregistrer</span>
+              } @else {
+                <span i18n="@@admin.shelterModels.form.create">Créer le modèle</span>
+              }
+            </button>
+            @if (isEditing()) {
+              <button type="button" class="btn btn--ghost" (click)="cancelEdit()" i18n="@@admin.shelterModels.form.cancel">
+                Annuler
+              </button>
+            }
+          </div>
+        </form>
+      </section>
+
+      <!-- ===== Liste des modèles ===== -->
+      <section class="adminp__panel" aria-labelledby="adminsm-list-heading">
+        <h2 #listHeading tabindex="-1" id="adminsm-list-heading" i18n="@@admin.shelterModels.list.heading">
+          Modèles du référentiel
+        </h2>
+
+        @if (loading()) {
+          <output class="adminp__status" i18n="@@admin.shelterModels.list.loading">Chargement…</output>
+        } @else if (items().length === 0) {
+          <output class="adminp__status" i18n="@@admin.shelterModels.list.empty">
+            Aucun modèle dans le référentiel.
+          </output>
+        } @else {
+          <div class="adminp__tablewrap">
+            <table class="adminp__table">
+              <caption class="sr-only" i18n="@@admin.shelterModels.table.caption">
+                Liste des modèles d'abris avec nom, catégorie, prix de base et plage de longueur.
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col" i18n="@@admin.shelterModels.table.name">Nom</th>
+                  <th scope="col" i18n="@@admin.shelterModels.table.category">Catégorie</th>
+                  <th scope="col" i18n="@@admin.shelterModels.table.basePrice">Prix de base</th>
+                  <th scope="col" i18n="@@admin.shelterModels.table.range">Longueur (min–max)</th>
+                  <th scope="col" i18n="@@admin.shelterModels.table.actions">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (m of items(); track m.id) {
+                  <tr>
+                    <th scope="row">{{ m.name }}</th>
+                    <td>{{ m.categoryName }}</td>
+                    <td>{{ m.basePrice | currency: 'CAD' : 'symbol' : '1.2-2' : 'fr-CA' }}</td>
+                    <td>{{ m.minLengthCm }}–{{ m.maxLengthCm }} cm</td>
+                    <td class="adminp__rowactions">
+                      <button
+                        type="button"
+                        class="btn btn--small"
+                        (click)="startEdit(m)"
+                        [attr.aria-label]="editLabel(m.name)"
+                      >
+                        <span i18n="@@admin.shelterModels.table.edit">Modifier</span>
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn--small btn--danger"
+                        (click)="askDelete(m.id, $event)"
+                        [attr.aria-label]="deleteLabel(m.name)"
+                      >
+                        <span i18n="@@admin.shelterModels.table.delete">Supprimer</span>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </section>
+    </div>
+  </div>
+
+  <!-- ===== Confirmation de suppression (dialogue accessible) ===== -->
+  @if (pendingDeleteId(); as delId) {
+    <div class="adminp__overlay" (click)="cancelDelete()" (keydown.escape)="cancelDelete()">
+      <div
+        #delDialog
+        class="adminp__dialog"
+        role="alertdialog"
+        aria-modal="true"
+        tabindex="-1"
+        aria-labelledby="sm-del-title"
+        aria-describedby="sm-del-desc"
+        (click)="$event.stopPropagation()"
+        (keydown.escape)="cancelDelete()"
+      >
+        <h2 id="sm-del-title" i18n="@@admin.shelterModels.delete.title">Confirmer la suppression</h2>
+        <p id="sm-del-desc">
+          <ng-container i18n="@@admin.shelterModels.delete.message">Voulez-vous vraiment supprimer ce modèle&nbsp;?</ng-container>
+          <strong>{{ modelName(delId) }}</strong>
+        </p>
+        <div class="adminp__actions">
+          <button type="button" class="btn btn--danger" (click)="confirmDelete()" i18n="@@admin.shelterModels.delete.confirm">
+            Supprimer
+          </button>
+          <button type="button" class="btn btn--ghost" (click)="cancelDelete()" i18n="@@admin.shelterModels.delete.cancel">
+            Annuler
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</section>

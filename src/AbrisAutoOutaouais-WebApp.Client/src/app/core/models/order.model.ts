@@ -35,6 +35,21 @@ export interface OrderLineRequest {
   readonly quantity: number;
 }
 
+/**
+ * Ligne de commande d'un ABRI CONFIGURÉ (EPIC 9.4) — miroir EXACT du C#
+ * `ShelterLineRequest(string Slug, int LengthCm, int Quantity)`
+ * (Application/Orders/Commands/PlaceOrder). camelCase, sérialisation .NET.
+ *
+ * ⚠️ AUCUN champ prix : le serveur RECALCULE le montant via `ShelterPriceCalculator`
+ * (source unique de vérité — L-004). Le prix affiché côté client (configurateur) ne sert
+ * QU'À l'affichage ; il n'est jamais transmis dans la commande.
+ */
+export interface ShelterLineRequest {
+  readonly slug: string;
+  readonly lengthCm: number;
+  readonly quantity: number;
+}
+
 export interface ShippingAddressRequest {
   readonly civicNumber: string;
   readonly street: string;
@@ -57,4 +72,6 @@ export interface PlaceOrderRequest {
   readonly shippingAddress: ShippingAddressRequest | null;
   /** Contact invité (Épic F) — rempli pour un visiteur non connecté, omis si connecté. */
   readonly guestContact?: GuestContactRequest | null;
+  /** Lignes d'abris CONFIGURÉS (EPIC 9.4) — omises si le panier n'en contient aucun. */
+  readonly shelterLines?: readonly ShelterLineRequest[];
 }

@@ -7,11 +7,12 @@ import {
 } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { CartService } from '../../core/services/cart.service';
+import { CartService, ShelterCartItem } from '../../core/services/cart.service';
 import {
   ProductSummaryDto,
   resolveProductImage,
 } from '../../core/models/product.model';
+import { formatFeetInches } from '../mesurer/util/feet-inches.util';
 
 /**
  * Page Panier — AbrisTempo Local.
@@ -31,6 +32,7 @@ export class CartComponent {
   private readonly router = inject(Router);
 
   protected readonly items = this.cart.items;
+  protected readonly shelterItems = this.cart.shelterItems;
   protected readonly count = this.cart.count;
   protected readonly subtotal = this.cart.subtotal;
 
@@ -38,7 +40,12 @@ export class CartComponent {
   /** Conservé pour compatibilité de gabarit (placeholder paiement non utilisé). */
   protected readonly checkoutOpen = signal(false);
 
-  protected readonly isEmpty = computed(() => this.items().length === 0);
+  /** Vide seulement si AUCUN produit NI abri configuré (EPIC 9.4). */
+  protected readonly isEmpty = computed(
+    () => this.items().length === 0 && this.shelterItems().length === 0,
+  );
+
+  protected formatFeetInches = formatFeetInches;
 
   protected imageOf(product: ProductSummaryDto): string {
     return resolveProductImage(product);
@@ -67,6 +74,13 @@ export class CartComponent {
     this.cart.removeItem(product.id);
     this.announce(
       $localize`:@@cart.announce.removed:${product.name}:name: retiré du panier.`,
+    );
+  }
+
+  protected removeShelter(item: ShelterCartItem): void {
+    this.cart.removeShelter(item.key);
+    this.announce(
+      $localize`:@@cart.announce.shelterRemoved:${item.modelName}:name: retiré du panier.`,
     );
   }
 

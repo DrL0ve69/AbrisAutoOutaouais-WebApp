@@ -29,8 +29,22 @@ public sealed class OrderLineConfiguration : IEntityTypeConfiguration<OrderLine>
         builder.Property(ol => ol.Quantity)
             .IsRequired();
 
+        // ProductId est optionnel : nul pour une ligne d'abri configuré (EPIC 9.4).
+        builder.Property(ol => ol.ProductId)
+            .IsRequired(false);
+
+        // Snapshot d'abri configuré (paramétrique) — nuls pour une ligne produit classique.
+        builder.Property(ol => ol.ShelterModelSlug)
+            .HasMaxLength(200);
+
+        builder.Property(ol => ol.ConfiguredLengthCm);
+
         // Indexation des clés étrangères pour optimiser les performances des requêtes (Joins)
         builder.HasIndex(ol => ol.OrderId);
-        builder.HasIndex(ol => ol.ProductId);
+
+        // Index filtré : seules les lignes produit (ProductId non nul) sont indexées — les lignes
+        // d'abri configuré n'ont pas de ProductId et ne polluent donc pas l'index.
+        builder.HasIndex(ol => ol.ProductId)
+            .HasFilter("[ProductId] IS NOT NULL");
     }
 }

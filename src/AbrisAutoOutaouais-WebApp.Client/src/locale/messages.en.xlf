@@ -378,6 +378,26 @@
         <source><x id="name" equiv-text="product.name"/> retiré du panier.</source>
         <target><x id="name" equiv-text="product.name"/> removed from the cart.</target>
       </trans-unit>
+      <trans-unit id="cart.announce.shelterRemoved" datatype="html">
+        <source><x id="name" equiv-text="item.modelName"/> retiré du panier.</source>
+        <target><x id="name" equiv-text="item.modelName"/> removed from the cart.</target>
+      </trans-unit>
+      <trans-unit id="cart.shelters.label" datatype="html">
+        <source>Abris configurés</source>
+        <target>Configured shelters</target>
+      </trans-unit>
+      <trans-unit id="cart.shelters.configured" datatype="html">
+        <source>Abri configuré</source>
+        <target>Configured shelter</target>
+      </trans-unit>
+      <trans-unit id="cart.shelters.length" datatype="html">
+        <source>Longueur :</source>
+        <target>Length:</target>
+      </trans-unit>
+      <trans-unit id="cart.shelters.qty" datatype="html">
+        <source>Quantité :</source>
+        <target>Quantity:</target>
+      </trans-unit>
       <trans-unit id="cart.announce.cleared" datatype="html">
         <source>Le panier a été vidé.</source>
         <target>The cart has been emptied.</target>
@@ -2683,6 +2703,434 @@
       <trans-unit id="navbar.measure" datatype="html">
         <source>Mesurer</source>
         <target>Measure</target>
+      </trans-unit>
+      <trans-unit id="shop.catalog.configuratorTitle" datatype="html">
+        <source> Besoin d&apos;une taille sur mesure ? </source>
+        <target> Need a custom size? </target>
+      </trans-unit>
+      <trans-unit id="shop.catalog.configuratorText" datatype="html">
+        <source> Configurez largeur, hauteur et longueur, et obtenez le prix instantanément. </source>
+        <target> Configure width, height and length, and get the price instantly. </target>
+      </trans-unit>
+      <trans-unit id="shop.catalog.configureCta" datatype="html">
+        <source>Configurer les dimensions</source>
+        <target>Configure dimensions</target>
+      </trans-unit>
+      <trans-unit id="shop.configure.breadcrumbAria" datatype="html">
+        <source>Fil d&apos;Ariane</source>
+        <target>Breadcrumb</target>
+      </trans-unit>
+      <trans-unit id="shop.configure.crumbHome" datatype="html">
+        <source>Accueil</source>
+        <target>Home</target>
+      </trans-unit>
+      <trans-unit id="shop.configure.crumbShop" datatype="html">
+        <source>Boutique</source>
+        <target>Shop</target>
+      </trans-unit>
+      <trans-unit id="shop.configure.crumbCurrent" datatype="html">
+        <source>Configurer</source>
+        <target>Configure</target>
+      </trans-unit>
+      <trans-unit id="shop.configure.eyebrow" datatype="html">
+        <source>Sur mesure</source>
+        <target>Custom</target>
+      </trans-unit>
+      <trans-unit id="shop.configure.title" datatype="html">
+        <source>Configurez les dimensions</source>
+        <target>Configure the dimensions</target>
+      </trans-unit>
+      <trans-unit id="shop.configure.subtitle" datatype="html">
+        <source> Ajustez largeur, hauteur dégagée et longueur ; le prix se met à jour automatiquement. </source>
+        <target> Adjust width, clearance height and length; the price updates automatically. </target>
+      </trans-unit>
+      <trans-unit id="shop.configure.cartRecapModel" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ config.modelName }}"/></source>
+        <target><x id="INTERPOLATION" equiv-text="{{ config.modelName }}"/></target>
+      </trans-unit>
+      <trans-unit id="shop.configure.cartRecapLength" datatype="html">
+        <source> — <x id="INTERPOLATION" equiv-text="{{ formatFeetInches(config.lengthCm) }}"/> </source>
+        <target> — <x id="INTERPOLATION" equiv-text="{{ formatFeetInches(config.lengthCm) }}"/> </target>
+      </trans-unit>
+      <trans-unit id="shop.configure.addToCart" datatype="html">
+        <source> Ajouter au panier </source>
+        <target> Add to cart </target>
+      </trans-unit>
+      <trans-unit id="shop.configure.addHint" datatype="html">
+        <source> Patientez : le prix se confirme avant l&apos;ajout au panier. </source>
+        <target> Please wait: the price is being confirmed before adding to the cart. </target>
+      </trans-unit>
+      <trans-unit id="shop.configure.addedAnnounce" datatype="html">
+        <source><x id="model" equiv-text="config.modelName"/> (<x id="length" equiv-text="length"/>) ajouté au panier.</source>
+        <target><x id="model" equiv-text="config.modelName"/> (<x id="length" equiv-text="length"/>) added to the cart.</target>
+      </trans-unit>
+      <trans-unit id="shop.configurator.loading" datatype="html">
+        <source> Chargement du configurateur… </source>
+        <target> Loading the configurator… </target>
+      </trans-unit>
+      <trans-unit id="shop.configurator.notFound" datatype="html">
+        <source> Ce modèle d&apos;abri est introuvable. </source>
+        <target> This shelter model could not be found. </target>
+      </trans-unit>
+      <trans-unit id="shop.configurator.widthLegend" datatype="html">
+        <source>Largeur</source>
+        <target>Width</target>
+      </trans-unit>
+      <trans-unit id="shop.configurator.widthGroup" datatype="html">
+        <source>Largeur de l&apos;abri</source>
+        <target>Shelter width</target>
+      </trans-unit>
+      <trans-unit id="shop.configurator.heightLegend" datatype="html">
+        <source> Hauteur dégagée </source>
+        <target> Clearance height </target>
+      </trans-unit>
+      <trans-unit id="shop.configurator.heightGroup" datatype="html">
+        <source>Hauteur dégagée de l&apos;abri</source>
+        <target>Shelter clearance height</target>
+      </trans-unit>
+      <trans-unit id="shop.configurator.lengthLegend" datatype="html">
+        <source>Longueur</source>
+        <target>Length</target>
+      </trans-unit>
+      <trans-unit id="shop.configurator.lengthSlider" datatype="html">
+        <source> Régler la longueur </source>
+        <target> Adjust the length </target>
+      </trans-unit>
+      <trans-unit id="shop.configurator.lengthExact" datatype="html">
+        <source> Longueur (cm) </source>
+        <target> Length (cm) </target>
+      </trans-unit>
+      <trans-unit id="shop.configurator.lengthBounds" datatype="html">
+        <source> De <x id="INTERPOLATION" equiv-text="{{ formatFeetInches(model()!.minLengthCm) }}"/> à <x id="INTERPOLATION_1" equiv-text="{{ formatFeetInches(model()!.maxLengthCm) }}"/>, par pas de <x id="INTERPOLATION_2" equiv-text="{{ formatFeetInches(model()!.lengthStepCm) }}"/>. </source>
+        <target> From <x id="INTERPOLATION" equiv-text="{{ formatFeetInches(model()!.minLengthCm) }}"/> to <x id="INTERPOLATION_1" equiv-text="{{ formatFeetInches(model()!.maxLengthCm) }}"/>, in steps of <x id="INTERPOLATION_2" equiv-text="{{ formatFeetInches(model()!.lengthStepCm) }}"/>. </target>
+      </trans-unit>
+      <trans-unit id="shop.configurator.priceLabel" datatype="html">
+        <source> Prix configuré </source>
+        <target> Configured price </target>
+      </trans-unit>
+      <trans-unit id="shop.configurator.pricePending" datatype="html">
+        <source> (calcul en cours…) </source>
+        <target> (calculating…) </target>
+      </trans-unit>
+      <trans-unit id="shop.configurator.priceInvalid" datatype="html">
+        <source> Longueur invalide — ajustez la valeur. </source>
+        <target> Invalid length — adjust the value. </target>
+      </trans-unit>
+      <trans-unit id="shop.configurator.priceAnnounce" datatype="html">
+        <source>Prix mis à jour : <x id="price" equiv-text="formatted"/>.</source>
+        <target>Price updated: <x id="price" equiv-text="formatted"/>.</target>
+      </trans-unit>
+      <trans-unit id="shop.detail.configureIntro" datatype="html">
+        <source>Besoin d&apos;une autre taille ?</source>
+        <target>Need a different size?</target>
+      </trans-unit>
+      <trans-unit id="shop.detail.configureLink" datatype="html">
+        <source> Configurez les dimensions sur mesure </source>
+        <target> Configure custom dimensions </target>
+      </trans-unit>
+      <trans-unit id="shop.models.breadcrumbAria" datatype="html">
+        <source>Fil d&apos;Ariane</source>
+        <target>Breadcrumb</target>
+      </trans-unit>
+      <trans-unit id="shop.models.crumbHome" datatype="html">
+        <source>Accueil</source>
+        <target>Home</target>
+      </trans-unit>
+      <trans-unit id="shop.models.crumbShop" datatype="html">
+        <source>Boutique</source>
+        <target>Shop</target>
+      </trans-unit>
+      <trans-unit id="shop.models.crumbCurrent" datatype="html">
+        <source>Configurer un abri</source>
+        <target>Configure a shelter</target>
+      </trans-unit>
+      <trans-unit id="shop.models.eyebrow" datatype="html">
+        <source>Sur mesure</source>
+        <target>Custom</target>
+      </trans-unit>
+      <trans-unit id="shop.models.title" datatype="html">
+        <source>Configurez votre abri</source>
+        <target>Configure your shelter</target>
+      </trans-unit>
+      <trans-unit id="shop.models.subtitle" datatype="html">
+        <source> Choisissez un modèle, puis ajustez largeur, hauteur et longueur à vos besoins. </source>
+        <target> Choose a model, then adjust width, height and length to your needs. </target>
+      </trans-unit>
+      <trans-unit id="shop.models.loading" datatype="html">
+        <source>Chargement des modèles…</source>
+        <target>Loading models…</target>
+      </trans-unit>
+      <trans-unit id="shop.models.fromLabel" datatype="html">
+        <source>À partir de</source>
+        <target>From</target>
+      </trans-unit>
+      <trans-unit id="shop.models.lengthRange" datatype="html">
+        <source>Longueur de</source>
+        <target>Length from</target>
+      </trans-unit>
+      <trans-unit id="shop.models.lengthRangeTo" datatype="html">
+        <source>à</source>
+        <target>to</target>
+      </trans-unit>
+      <trans-unit id="shop.models.configure" datatype="html">
+        <source>Configurer les dimensions</source>
+        <target>Configure dimensions</target>
+      </trans-unit>
+      <trans-unit id="shop.models.empty" datatype="html">
+        <source> Aucun modèle configurable n&apos;est disponible dans cette catégorie pour le moment. </source>
+        <target> No configurable model is available in this category at the moment. </target>
+      </trans-unit>
+      <trans-unit id="shop.models.resultsNone" datatype="html">
+        <source>Aucun modèle configurable dans cette catégorie.</source>
+        <target>No configurable model in this category.</target>
+      </trans-unit>
+      <trans-unit id="shop.models.resultsOne" datatype="html">
+        <source>1 modèle configurable.</source>
+        <target>1 configurable model.</target>
+      </trans-unit>
+      <trans-unit id="shop.models.resultsMany" datatype="html">
+        <source><x id="count" equiv-text="n"/> modèles configurables.</source>
+        <target><x id="count" equiv-text="n"/> configurable models.</target>
+      </trans-unit>
+      <trans-unit id="admin.section.shelterModels" datatype="html">
+        <source>Modèles d&apos;abris</source>
+        <target>Shelter models</target>
+      </trans-unit>
+      <trans-unit id="admin.section.shelterModelsDesc" datatype="html">
+        <source>Créer et modifier le référentiel d&apos;abris paramétriques (dimensions, prix).</source>
+        <target>Create and edit the parametric shelter reference (dimensions, pricing).</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.eyebrow" datatype="html">
+        <source>Référentiel</source>
+        <target>Reference</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.title" datatype="html">
+        <source>Gestion des modèles d&apos;abris</source>
+        <target>Shelter model management</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.lead" datatype="html">
+        <source> Créez, modifiez et retirez les modèles d&apos;abris paramétriques (largeurs, hauteurs, longueurs). </source>
+        <target>Create, edit and remove parametric shelter models (widths, heights, lengths).</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.back" datatype="html">
+        <source> ← Retour au tableau de bord </source>
+        <target>← Back to dashboard</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.editHeading" datatype="html">
+        <source>Modifier le modèle</source>
+        <target>Edit model</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.createHeading" datatype="html">
+        <source>Nouveau modèle</source>
+        <target>New model</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.slug" datatype="html">
+        <source>Identifiant (slug)</source>
+        <target>Identifier (slug)</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.slugReadonly" datatype="html">
+        <source> Le slug ne peut pas être modifié après la création. </source>
+        <target>The slug cannot be changed after creation.</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.slugHint" datatype="html">
+        <source> minuscules, chiffres et tirets · ex : abri-tempo-simple </source>
+        <target>lowercase letters, digits and hyphens · e.g. abri-tempo-simple</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.slugError" datatype="html">
+        <source> Le slug est requis (minuscules, chiffres et tirets uniquement). </source>
+        <target>The slug is required (lowercase letters, digits and hyphens only).</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.name" datatype="html">
+        <source>Nom</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.nameError" datatype="html">
+        <source> Le nom est requis (100 caractères maximum). </source>
+        <target>The name is required (100 characters maximum).</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.category" datatype="html">
+        <source>Catégorie</source>
+        <target>Category</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.categoryPlaceholder" datatype="html">
+        <source> — Choisir une catégorie — </source>
+        <target>— Choose a category —</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.categoryError" datatype="html">
+        <source> Veuillez choisir une catégorie. </source>
+        <target>Please choose a category.</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.step" datatype="html">
+        <source>Pas de longueur (cm)</source>
+        <target>Length step (cm)</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.stepError" datatype="html">
+        <source> Le pas doit être un entier strictement positif. </source>
+        <target>The step must be a strictly positive integer.</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.min" datatype="html">
+        <source>Longueur min. (cm)</source>
+        <target>Min. length (cm)</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.minError" datatype="html">
+        <source> La longueur minimale doit être strictement positive. </source>
+        <target>The minimum length must be strictly positive.</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.max" datatype="html">
+        <source>Longueur max. (cm)</source>
+        <target>Max. length (cm)</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.maxError" datatype="html">
+        <source> La longueur maximale doit être strictement positive. </source>
+        <target>The maximum length must be strictly positive.</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.rangeError" datatype="html">
+        <source> La longueur maximale doit être supérieure à la minimale. </source>
+        <target>The maximum length must be greater than the minimum.</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.basePrice" datatype="html">
+        <source>Prix de base ($)</source>
+        <target>Base price ($)</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.basePriceError" datatype="html">
+        <source> Le prix de base ne peut pas être négatif. </source>
+        <target>The base price cannot be negative.</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.archCents" datatype="html">
+        <source>Prix par arche (cents)</source>
+        <target>Price per arch (cents)</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.archHint" datatype="html">
+        <source> en CENTS · ex : 15000 = 150,00 $ </source>
+        <target>in CENTS · e.g. 15000 = $150.00</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.archError" datatype="html">
+        <source> Le prix par arche ne peut pas être négatif. </source>
+        <target>The price per arch cannot be negative.</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.widths" datatype="html">
+        <source>Largeurs proposées (cm)</source>
+        <target>Available widths (cm)</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.listHint" datatype="html">
+        <source> valeurs en cm séparées par des virgules · ex : 244, 305, 366 </source>
+        <target>values in cm separated by commas · e.g. 244, 305, 366</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.widthsError" datatype="html">
+        <source> Indiquez au moins une largeur (entiers positifs séparés par des virgules). </source>
+        <target>Enter at least one width (positive integers separated by commas).</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.heights" datatype="html">
+        <source>Hauteurs dégagées proposées (cm)</source>
+        <target>Available clear heights (cm)</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.heightsError" datatype="html">
+        <source> Indiquez au moins une hauteur dégagée (entiers positifs séparés par des virgules). </source>
+        <target>Enter at least one clear height (positive integers separated by commas).</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.save" datatype="html">
+        <source>Enregistrer</source>
+        <target>Save</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.create" datatype="html">
+        <source>Créer le modèle</source>
+        <target>Create model</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.cancel" datatype="html">
+        <source> Annuler </source>
+        <target>Cancel</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.list.heading" datatype="html">
+        <source> Modèles du référentiel </source>
+        <target>Reference models</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.list.loading" datatype="html">
+        <source>Chargement…</source>
+        <target>Loading…</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.list.empty" datatype="html">
+        <source> Aucun modèle dans le référentiel. </source>
+        <target>No models in the reference.</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.table.caption" datatype="html">
+        <source> Liste des modèles d&apos;abris avec nom, catégorie, prix de base et plage de longueur. </source>
+        <target>List of shelter models with name, category, base price and length range.</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.table.name" datatype="html">
+        <source>Nom</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.table.category" datatype="html">
+        <source>Catégorie</source>
+        <target>Category</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.table.basePrice" datatype="html">
+        <source>Prix de base</source>
+        <target>Base price</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.table.range" datatype="html">
+        <source>Longueur (min–max)</source>
+        <target>Length (min–max)</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.table.actions" datatype="html">
+        <source>Actions</source>
+        <target>Actions</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.table.edit" datatype="html">
+        <source>Modifier</source>
+        <target>Edit</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.table.delete" datatype="html">
+        <source>Supprimer</source>
+        <target>Delete</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.table.editLabel" datatype="html">
+        <source>Modifier <x id="name" equiv-text="name"/></source>
+        <target>Edit <x id="name" equiv-text="name"/></target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.table.deleteLabel" datatype="html">
+        <source>Supprimer <x id="name" equiv-text="name"/></source>
+        <target>Delete <x id="name" equiv-text="name"/></target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.delete.title" datatype="html">
+        <source>Confirmer la suppression</source>
+        <target>Confirm deletion</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.delete.message" datatype="html">
+        <source>Voulez-vous vraiment supprimer ce modèle ?</source>
+        <target>Do you really want to delete this model?</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.delete.confirm" datatype="html">
+        <source> Supprimer </source>
+        <target>Delete</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.delete.cancel" datatype="html">
+        <source> Annuler </source>
+        <target>Cancel</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.toast.loadError" datatype="html">
+        <source>Échec du chargement.</source>
+        <target>Loading failed.</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.toast.updated" datatype="html">
+        <source>Modèle mis à jour.</source>
+        <target>Model updated.</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.toast.created" datatype="html">
+        <source>Modèle créé.</source>
+        <target>Model created.</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.toast.saveError" datatype="html">
+        <source>Une erreur est survenue. Veuillez réessayer.</source>
+        <target>An error occurred. Please try again.</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.toast.deleted" datatype="html">
+        <source>Modèle supprimé.</source>
+        <target>Model deleted.</target>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.toast.deleteError" datatype="html">
+        <source>La suppression a échoué.</source>
+        <target>Deletion failed.</target>
       </trans-unit>
     </body>
   </file>

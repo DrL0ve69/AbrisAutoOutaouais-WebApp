@@ -1,0 +1,139 @@
+<!-- ============================================================
+     Configurateur de dimensions (EPIC 9.3)
+     WCAG AA : radiogroups APG (largeur/hauteur), longueur range+number
+     liés, prix annoncé en aria-live (état neutre avant réannonce — L-027).
+============================================================ -->
+@if (loading()) {
+  <div class="configurator__loading" role="status" aria-busy="true" i18n="@@shop.configurator.loading">
+    Chargement du configurateur…
+  </div>
+} @else if (notFound() || !model()) {
+  <div class="configurator__error" role="alert" i18n="@@shop.configurator.notFound">
+    Ce modèle d'abri est introuvable.
+  </div>
+} @else {
+  <section class="configurator" [attr.aria-label]="model()!.name + ' — configuration'">
+    <!-- Largeur : radiogroup APG -->
+    <fieldset class="configurator__group">
+      <legend class="configurator__legend" i18n="@@shop.configurator.widthLegend">Largeur</legend>
+      <div
+        class="configurator__radios"
+        role="radiogroup"
+        aria-label="Largeur de l'abri"
+        i18n-aria-label="@@shop.configurator.widthGroup"
+      >
+        @for (option of model()!.widthOptionsCm; track option; let i = $index) {
+          <button
+            #widthRadio
+            type="button"
+            class="configurator__radio"
+            [class.configurator__radio--active]="widthIndex() === i"
+            role="radio"
+            [attr.aria-checked]="widthIndex() === i"
+            [attr.tabindex]="widthIndex() === i ? 0 : -1"
+            (click)="selectWidth(i)"
+            (keydown)="onWidthKeydown($event)"
+          >
+            {{ formatFeetInches(option) }}
+          </button>
+        }
+      </div>
+    </fieldset>
+
+    <!-- Hauteur dégagée : radiogroup APG -->
+    <fieldset class="configurator__group">
+      <legend class="configurator__legend" i18n="@@shop.configurator.heightLegend">
+        Hauteur dégagée
+      </legend>
+      <div
+        class="configurator__radios"
+        role="radiogroup"
+        aria-label="Hauteur dégagée de l'abri"
+        i18n-aria-label="@@shop.configurator.heightGroup"
+      >
+        @for (option of model()!.clearHeightOptionsCm; track option; let i = $index) {
+          <button
+            #heightRadio
+            type="button"
+            class="configurator__radio"
+            [class.configurator__radio--active]="heightIndex() === i"
+            role="radio"
+            [attr.aria-checked]="heightIndex() === i"
+            [attr.tabindex]="heightIndex() === i ? 0 : -1"
+            (click)="selectHeight(i)"
+            (keydown)="onHeightKeydown($event)"
+          >
+            {{ formatFeetInches(option) }}
+          </button>
+        }
+      </div>
+    </fieldset>
+
+    <!-- Longueur : range + number LIÉS au même contrôle -->
+    <fieldset class="configurator__group">
+      <legend class="configurator__legend" i18n="@@shop.configurator.lengthLegend">Longueur</legend>
+      <div class="configurator__length">
+        <label class="configurator__length-label" for="configurator-length-range" i18n="@@shop.configurator.lengthSlider">
+          Régler la longueur
+        </label>
+        <input
+          id="configurator-length-range"
+          type="range"
+          class="configurator__range"
+          [min]="model()!.minLengthCm"
+          [max]="model()!.maxLengthCm"
+          [step]="model()!.lengthStepCm"
+          [formControl]="lengthControl"
+        />
+        <div class="configurator__length-value">
+          <label for="configurator-length-number" i18n="@@shop.configurator.lengthExact">
+            Longueur (cm)
+          </label>
+          <input
+            id="configurator-length-number"
+            type="number"
+            inputmode="numeric"
+            class="configurator__number"
+            [min]="model()!.minLengthCm"
+            [max]="model()!.maxLengthCm"
+            [step]="model()!.lengthStepCm"
+            [formControl]="lengthControl"
+          />
+          <span class="configurator__length-feet" aria-hidden="true">
+            ({{ formatFeetInches(lengthCm()) }})
+          </span>
+        </div>
+        <p class="configurator__length-bounds" i18n="@@shop.configurator.lengthBounds">
+          De {{ formatFeetInches(model()!.minLengthCm) }} à {{ formatFeetInches(model()!.maxLengthCm) }},
+          par pas de {{ formatFeetInches(model()!.lengthStepCm) }}.
+        </p>
+      </div>
+    </fieldset>
+
+    <!-- Prix : serveur prioritaire ; optimiste en attendant -->
+    <div class="configurator__price">
+      <p class="configurator__price-label" id="configurator-price-label" i18n="@@shop.configurator.priceLabel">
+        Prix configuré
+      </p>
+      @if (displayedPrice() !== null) {
+        <p class="configurator__price-amount" aria-describedby="configurator-price-label">
+          {{ displayedPrice()! | currency: 'CAD' : 'symbol' : '1.2-2' : 'fr-CA' }}
+          @if (pricing()) {
+            <span class="configurator__price-pending" i18n="@@shop.configurator.pricePending">
+              (calcul en cours…)
+            </span>
+          }
+        </p>
+      } @else {
+        <p class="configurator__price-amount configurator__price-amount--invalid" i18n="@@shop.configurator.priceInvalid">
+          Longueur invalide — ajustez la valeur.
+        </p>
+      }
+    </div>
+
+    <!-- Annonce de prix (réannonce via état neutre — L-027). Scopée, ancrée par texte (L-010). -->
+    <p class="sr-only" role="status" aria-live="polite" aria-atomic="true">
+      {{ priceAnnouncement() }}
+    </p>
+  </section>
+}

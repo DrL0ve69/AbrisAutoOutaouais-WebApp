@@ -14,6 +14,12 @@ export const ADMIN_ROUTES: Routes = [
     title: 'AbrisTempo Local — Gestion des produits',
   },
   {
+    path: 'modeles-abris',
+    loadComponent: () =>
+      import('./shelter-models/shelter-models').then(m => m.AdminShelterModelsComponent),
+    title: "AbrisTempo Local — Gestion des modèles d'abris",
+  },
+  {
     path: 'commandes',
     loadComponent: () =>
       import('./orders/orders').then(m => m.AdminOrdersComponent),

@@ -120,6 +120,22 @@ Gestes :
 
 ---
 
+## 6 · Pré-livraison UI/UX (idées tierces vérifiées, repliées ici)
+
+> Distillé de `ui-ux-pro-max-skill` (évalué 2026-06-19, non installé — cf. `docs/resources.md`). On ne
+> garde que le **non-redondant** ; le focus visible, le mouvement réduit, les breakpoints et les
+> cibles ≥ 44px sont déjà couverts §1–§4.
+
+- [ ] **Anti-patron d'industrie — rester dans la marque.** Pas de dégradés/teintes génériques « violet/
+      rose IA » ni de mode tape-à-l'œil sur une **marque de métier régionale** (abris d'auto) : on reste
+      sur la palette Tempo (navy/rouge) et les jetons sémantiques. Une couleur « tendance » hors-marque
+      est un défaut UX même si le contraste passe.
+- [ ] **Check pré-livraison rapide** (en plus des gates §1–§5) : états du curseur cohérents (pas de
+      `cursor:none`, §1), focus visible sur **chaque** interactif, comportement vérifié aux breakpoints
+      mobile/desktop (L-009 : épingler le viewport), et libellés/i18n FR complets.
+
+---
+
 **Pré-commit, sur un diff mouvement/jetons/carte :** `npm run build` (typecheck) · `npm test`
 (vitest/axe — contraste **non** couvert) · `npm run e2e` (axe dual-thème + reduced-motion réel —
 **c'est là** que contraste et clavier se vérifient) · round-trip live L-001 dans les deux thèmes.
