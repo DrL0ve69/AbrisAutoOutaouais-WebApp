@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { CartService, shelterKey } from './cart.service';
-import { ShelterConfiguration } from '../../features/shop/dimension-configurator/dimension-configurator';
+import type { ShelterConfiguration } from '../../features/shop/dimension-configurator/dimension-configurator';
 import { ProductSummaryDto } from '../models/product.model';
 
 // ── État panier : abris CONFIGURÉS (EPIC 9.4-e) ──────────────────────────────────────────────

@@ -49,11 +49,51 @@
 }
 
 // ── Liste des articles ────────────────────────────────────────
+.cart-lists {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
 .cart-items {
   list-style: none;
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+}
+
+// ── Abris configurés (EPIC 9.4) : badge à la place de l'image, quantité statique ──
+.cart-item__badge {
+  grid-area: img;
+  width: 96px;
+  height: 96px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  color: var(--color-primary);
+  background: var(--color-bg-muted);
+  border-radius: var(--radius-md);
+
+  @media (max-width: 540px) {
+    width: 72px;
+    height: 72px;
+    font-size: 2rem;
+  }
+}
+
+.cart-item__dims {
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+}
+
+.cart-item__qty-static {
+  grid-area: qty;
+  align-self: center;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
 }
 
 .cart-item {

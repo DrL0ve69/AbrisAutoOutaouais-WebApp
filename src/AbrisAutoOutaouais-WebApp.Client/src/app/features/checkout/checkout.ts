@@ -20,6 +20,7 @@ import { ToastService } from '../../core/services/toast.service';
 import { AuthService } from '../../core/services/auth.service';
 import { createAddressFormController } from '../../core/services/address-form.controller';
 import { DeliveryType } from '../../core/models/order.model';
+import { formatFeetInches } from '../mesurer/util/feet-inches.util';
 import { AddressAutocompleteComponent } from '../../shared/components/a11y-components/autocomplete/address-autocomplete.component';
 import { AddressChoiceComponent } from '../../shared/components/a11y-components/address-choice/address-choice.component';
 import { GuestContactComponent } from '../../shared/components/a11y-components/guest-contact/guest-contact.component';
@@ -69,10 +70,16 @@ export class CheckoutComponent {
   private readonly router = inject(Router);
 
   protected readonly items = this.cart.items;
+  protected readonly shelterItems = this.cart.shelterItems;
   protected readonly subtotal = this.cart.subtotal;
   protected readonly count = this.cart.count;
-  protected readonly isEmpty = computed(() => this.items().length === 0);
+  /** Vide seulement si AUCUN produit NI abri configuré (EPIC 9.4). */
+  protected readonly isEmpty = computed(
+    () => this.items().length === 0 && this.shelterItems().length === 0,
+  );
   protected readonly processing = signal(false);
+
+  protected formatFeetInches = formatFeetInches;
 
   /** Visiteur non connecté : on affiche et exige le bloc « coordonnées invité » (Épic F). */
   protected readonly isGuest = computed(() => !this.auth.isAuthenticated());
@@ -128,6 +135,13 @@ export class CheckoutComponent {
       productId: i.product.id,
       quantity: i.quantity,
     }));
+    // Lignes d'abris configurés (EPIC 9.4) : { slug, lengthCm, quantity } — AUCUN prix
+    // (le serveur recalcule via ShelterPriceCalculator, source unique L-004). Omis si vide.
+    const shelterLines = this.shelterItems().map(s => ({
+      slug: s.slug,
+      lengthCm: s.lengthCm,
+      quantity: s.quantity,
+    }));
     const shippingAddress =
       v.deliveryType === 'Delivery'
         ? {
@@ -144,7 +158,14 @@ export class CheckoutComponent {
     // Paiement simulé (aucun appel réseau de paiement) — voir le commentaire de classe.
     this.simulatePayment().then(() =>
       this.orders
-        .placeOrder({ lines, deliveryType: v.deliveryType, shippingAddress, guestContact })
+        .placeOrder({
+          lines,
+          deliveryType: v.deliveryType,
+          shippingAddress,
+          guestContact,
+          // Omis (undefined) si aucun abri configuré — n'altère pas la charge produit existante.
+          shelterLines: shelterLines.length > 0 ? shelterLines : undefined,
+        })
         .subscribe({
           next: () => {
             this.cart.clear();

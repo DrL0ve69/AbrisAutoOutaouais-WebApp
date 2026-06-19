@@ -1,6 +1,8 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { ProductSummaryDto } from '../models/product.model';
-import { ShelterConfiguration } from '../../features/shop/dimension-configurator/dimension-configurator';
+// Import de TYPE uniquement : évite de tirer le composant configurateur (lazy) dans le
+// bundle initial via ce service `providedIn: 'root'` (eager).
+import type { ShelterConfiguration } from '../../features/shop/dimension-configurator/dimension-configurator';
 
 /** Ligne PRODUIT du panier (article catalogue standard). Clé d'identité : `product.id`. */
 export interface CartItem { readonly product: ProductSummaryDto; quantity: number; }

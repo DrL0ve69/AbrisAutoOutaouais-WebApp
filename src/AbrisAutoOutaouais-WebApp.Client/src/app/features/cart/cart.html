@@ -26,7 +26,10 @@
     } @else {
     <div class="cart-layout">
 
-      <!-- ── Liste des articles ──────────────────────────────────── -->
+      <div class="cart-lists">
+
+      <!-- ── Liste des produits ──────────────────────────────────── -->
+      @if (items().length > 0) {
       <ul class="cart-items" role="list" aria-label="Articles du panier"
           i18n-aria-label="@@cart.itemsLabel">
         @for (item of items(); track item.product.id) {
@@ -85,6 +88,58 @@
         </li>
         }
       </ul>
+      }
+
+      <!-- ── Liste des abris CONFIGURÉS (EPIC 9.4) ─────────────────── -->
+      @if (shelterItems().length > 0) {
+      <ul class="cart-items cart-items--shelters" role="list"
+          aria-label="Abris configurés" i18n-aria-label="@@cart.shelters.label">
+        @for (item of shelterItems(); track item.key) {
+        <li class="cart-item cart-item--shelter">
+          <span class="cart-item__badge" aria-hidden="true">⌂</span>
+
+          <div class="cart-item__info">
+            <h2 class="cart-item__name">{{ item.modelName }}</h2>
+            <p class="cart-item__category" i18n="@@cart.shelters.configured">Abri configuré</p>
+            <p class="cart-item__dims">
+              <span i18n="@@cart.shelters.length">Longueur :</span>
+              {{ formatFeetInches(item.lengthCm) }}
+            </p>
+            <p class="cart-item__unit">
+              <span i18n="@@cart.unitPrice">Prix unitaire :</span>
+              {{ item.price | currency:'CAD':'symbol-narrow':'1.2-2':'fr-CA' }}
+            </p>
+          </div>
+
+          <!-- Quantité simple (1 par défaut) — pas de sélecteur (plan 9.4). -->
+          <p class="cart-item__qty-static">
+            <span class="sr-only" i18n="@@cart.shelters.qty">Quantité :</span>
+            {{ item.quantity }}
+          </p>
+
+          <!-- Sous-total ligne -->
+          <p class="cart-item__line-total">
+            <span class="sr-only" i18n="@@cart.lineTotal">Total pour cet article :</span>
+            {{ item.price * item.quantity | currency:'CAD':'symbol-narrow':'1.2-2':'fr-CA' }}
+          </p>
+
+          <!-- Retrait -->
+          <button type="button"
+                  class="cart-item__remove"
+                  (click)="removeShelter(item)"
+                  [attr.aria-label]="'Retirer ' + item.modelName + ' du panier'">
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6" />
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+            </svg>
+          </button>
+        </li>
+        }
+      </ul>
+      }
+
+      </div>
 
       <!-- ── Récapitulatif ───────────────────────────────────────── -->
       <aside class="cart-summary" aria-labelledby="summary-heading">

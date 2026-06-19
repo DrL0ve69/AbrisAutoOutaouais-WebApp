@@ -378,6 +378,26 @@
         <source><x id="name" equiv-text="product.name"/> retiré du panier.</source>
         <target><x id="name" equiv-text="product.name"/> removed from the cart.</target>
       </trans-unit>
+      <trans-unit id="cart.announce.shelterRemoved" datatype="html">
+        <source><x id="name" equiv-text="item.modelName"/> retiré du panier.</source>
+        <target><x id="name" equiv-text="item.modelName"/> removed from the cart.</target>
+      </trans-unit>
+      <trans-unit id="cart.shelters.label" datatype="html">
+        <source>Abris configurés</source>
+        <target>Configured shelters</target>
+      </trans-unit>
+      <trans-unit id="cart.shelters.configured" datatype="html">
+        <source>Abri configuré</source>
+        <target>Configured shelter</target>
+      </trans-unit>
+      <trans-unit id="cart.shelters.length" datatype="html">
+        <source>Longueur :</source>
+        <target>Length:</target>
+      </trans-unit>
+      <trans-unit id="cart.shelters.qty" datatype="html">
+        <source>Quantité :</source>
+        <target>Quantity:</target>
+      </trans-unit>
       <trans-unit id="cart.announce.cleared" datatype="html">
         <source>Le panier a été vidé.</source>
         <target>The cart has been emptied.</target>
@@ -2723,6 +2743,26 @@
       <trans-unit id="shop.configure.subtitle" datatype="html">
         <source> Ajustez largeur, hauteur dégagée et longueur ; le prix se met à jour automatiquement. </source>
         <target> Adjust width, clearance height and length; the price updates automatically. </target>
+      </trans-unit>
+      <trans-unit id="shop.configure.cartRecapModel" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ config.modelName }}"/></source>
+        <target><x id="INTERPOLATION" equiv-text="{{ config.modelName }}"/></target>
+      </trans-unit>
+      <trans-unit id="shop.configure.cartRecapLength" datatype="html">
+        <source> — <x id="INTERPOLATION" equiv-text="{{ formatFeetInches(config.lengthCm) }}"/> </source>
+        <target> — <x id="INTERPOLATION" equiv-text="{{ formatFeetInches(config.lengthCm) }}"/> </target>
+      </trans-unit>
+      <trans-unit id="shop.configure.addToCart" datatype="html">
+        <source> Ajouter au panier </source>
+        <target> Add to cart </target>
+      </trans-unit>
+      <trans-unit id="shop.configure.addHint" datatype="html">
+        <source> Patientez : le prix se confirme avant l&apos;ajout au panier. </source>
+        <target> Please wait: the price is being confirmed before adding to the cart. </target>
+      </trans-unit>
+      <trans-unit id="shop.configure.addedAnnounce" datatype="html">
+        <source><x id="model" equiv-text="config.modelName"/> (<x id="length" equiv-text="length"/>) ajouté au panier.</source>
+        <target><x id="model" equiv-text="config.modelName"/> (<x id="length" equiv-text="length"/>) added to the cart.</target>
       </trans-unit>
       <trans-unit id="shop.configurator.loading" datatype="html">
         <source> Chargement du configurateur… </source>

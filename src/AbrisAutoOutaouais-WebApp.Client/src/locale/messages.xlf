@@ -1892,105 +1892,148 @@
         <source>Articles du panier</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/cart/cart.html</context>
-          <context context-type="linenumber">30,31</context>
+          <context context-type="linenumber">33,34</context>
         </context-group>
       </trans-unit>
       <trans-unit id="cart.unitPrice" datatype="html">
         <source>Prix unitaire :</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/cart/cart.html</context>
-          <context context-type="linenumber">44,45</context>
+          <context context-type="linenumber">47,48</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/cart/cart.html</context>
+          <context context-type="linenumber">109,110</context>
         </context-group>
       </trans-unit>
       <trans-unit id="cart.lineTotal" datatype="html">
         <source>Total pour cet article :</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/cart/cart.html</context>
-          <context context-type="linenumber">70,71</context>
+          <context context-type="linenumber">73,74</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/cart/cart.html</context>
+          <context context-type="linenumber">122,123</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="cart.shelters.label" datatype="html">
+        <source>Abris configurés</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/cart/cart.html</context>
+          <context context-type="linenumber">96</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="cart.shelters.configured" datatype="html">
+        <source>Abri configuré</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/cart/cart.html</context>
+          <context context-type="linenumber">103,104</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="cart.shelters.length" datatype="html">
+        <source>Longueur :</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/cart/cart.html</context>
+          <context context-type="linenumber">105,106</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="cart.shelters.qty" datatype="html">
+        <source>Quantité :</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/cart/cart.html</context>
+          <context context-type="linenumber">116,117</context>
         </context-group>
       </trans-unit>
       <trans-unit id="cart.summary.title" datatype="html">
         <source> Récapitulatif </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/cart/cart.html</context>
-          <context context-type="linenumber">92,95</context>
+          <context context-type="linenumber">147,150</context>
         </context-group>
       </trans-unit>
       <trans-unit id="cart.summary.count" datatype="html">
         <source>Articles</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/cart/cart.html</context>
-          <context context-type="linenumber">97,98</context>
+          <context context-type="linenumber">152,153</context>
         </context-group>
       </trans-unit>
       <trans-unit id="cart.summary.subtotal" datatype="html">
         <source>Sous-total</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/cart/cart.html</context>
-          <context context-type="linenumber">101,102</context>
+          <context context-type="linenumber">156,157</context>
         </context-group>
       </trans-unit>
       <trans-unit id="cart.summary.note" datatype="html">
         <source> Les frais de livraison et taxes sont calculés au paiement. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/cart/cart.html</context>
-          <context context-type="linenumber">107,110</context>
+          <context context-type="linenumber">162,165</context>
         </context-group>
       </trans-unit>
       <trans-unit id="cart.checkout" datatype="html">
         <source> Passer à la caisse </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/cart/cart.html</context>
-          <context context-type="linenumber">114,116</context>
+          <context context-type="linenumber">169,170</context>
         </context-group>
       </trans-unit>
       <trans-unit id="cart.clear" datatype="html">
         <source> Vider le panier </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/cart/cart.html</context>
-          <context context-type="linenumber">121,122</context>
+          <context context-type="linenumber">176,177</context>
         </context-group>
       </trans-unit>
       <trans-unit id="cart.checkout.soon" datatype="html">
         <source> Le paiement en ligne sera bientôt disponible (Stripe à venir). Contactez-nous pour finaliser votre commande. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/cart/cart.html</context>
-          <context context-type="linenumber">128,130</context>
+          <context context-type="linenumber">183,185</context>
         </context-group>
       </trans-unit>
       <trans-unit id="cart.continue" datatype="html">
         <source> ← Continuer mes achats </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/cart/cart.html</context>
-          <context context-type="linenumber">135,137</context>
+          <context context-type="linenumber">190,192</context>
         </context-group>
       </trans-unit>
       <trans-unit id="cart.announce.increased" datatype="html">
         <source>Quantité de <x id="name" equiv-text="product.name"/> augmentée.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/cart/cart.ts</context>
-          <context context-type="linenumber">50</context>
+          <context context-type="linenumber">57</context>
         </context-group>
       </trans-unit>
       <trans-unit id="cart.announce.decreased" datatype="html">
         <source>Quantité de <x id="name" equiv-text="product.name"/> diminuée.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/cart/cart.ts</context>
-          <context context-type="linenumber">62</context>
+          <context context-type="linenumber">69</context>
         </context-group>
       </trans-unit>
       <trans-unit id="cart.announce.removed" datatype="html">
         <source><x id="name" equiv-text="product.name"/> retiré du panier.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/cart/cart.ts</context>
-          <context context-type="linenumber">69</context>
+          <context context-type="linenumber">76</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="cart.announce.shelterRemoved" datatype="html">
+        <source><x id="name" equiv-text="item.modelName"/> retiré du panier.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/cart/cart.ts</context>
+          <context context-type="linenumber">83</context>
         </context-group>
       </trans-unit>
       <trans-unit id="cart.announce.cleared" datatype="html">
         <source>Le panier a été vidé.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/cart/cart.ts</context>
-          <context context-type="linenumber">75</context>
+          <context context-type="linenumber">89</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.eyebrow" datatype="html">
@@ -2186,21 +2229,21 @@
         <source>Total</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.html</context>
-          <context context-type="linenumber">184,185</context>
+          <context context-type="linenumber">191,192</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.success" datatype="html">
         <source>Paiement (démo) accepté — commande confirmée !</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.ts</context>
-          <context context-type="linenumber">153</context>
+          <context context-type="linenumber">174</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.error" datatype="html">
         <source>Le paiement a échoué. Veuillez réessayer.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.ts</context>
-          <context context-type="linenumber">163</context>
+          <context context-type="linenumber">184</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.hero.badge" datatype="html">
@@ -4039,7 +4082,42 @@
         <source> Ajustez largeur, hauteur dégagée et longueur ; le prix se met à jour automatiquement. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/configure-shelter/configure-shelter.html</context>
-          <context context-type="linenumber">19,23</context>
+          <context context-type="linenumber">19,22</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.configure.cartRecapModel" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{ config.modelName }}"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/configure-shelter/configure-shelter.html</context>
+          <context context-type="linenumber">33,34</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.configure.cartRecapLength" datatype="html">
+        <source> — <x id="INTERPOLATION" equiv-text="{{ formatFeetInches(config.lengthCm) }}"/> </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/configure-shelter/configure-shelter.html</context>
+          <context context-type="linenumber">35,36</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.configure.addToCart" datatype="html">
+        <source> Ajouter au panier </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/configure-shelter/configure-shelter.html</context>
+          <context context-type="linenumber">52,55</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.configure.addHint" datatype="html">
+        <source> Patientez : le prix se confirme avant l&apos;ajout au panier. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/configure-shelter/configure-shelter.html</context>
+          <context context-type="linenumber">57,59</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.configure.addedAnnounce" datatype="html">
+        <source><x id="model" equiv-text="config.modelName"/> (<x id="length" equiv-text="length"/>) ajouté au panier.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/configure-shelter/configure-shelter.ts</context>
+          <context context-type="linenumber">66</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.configurator.loading" datatype="html">
