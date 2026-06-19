@@ -167,9 +167,11 @@ test('overlay : ajuste la longueur via <select> → prix recalculé (source serv
   await priceResp;
   await expect(priceAmount).toContainText(priceRe(1399));
 
-  // Ajout au panier : le bouton reste actif et l'ajout est annoncé (live region scopée).
+  // Ajout au panier : le bouton est actif, et l'ajout FERME l'overlay tout seul (le parent ferme +
+  // affiche un toast + rend le focus au déclencheur) — plus d'annonce aria-live interne.
   await expect(addBtn).toHaveAttribute('aria-disabled', 'false');
   await addBtn.click();
+  await expect(dialog).toBeHidden();
 });
 
 for (const theme of ['light', 'dark'] as const) {

@@ -4496,6 +4496,13 @@
           <context context-type="linenumber">140</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="shop.catalog.shelterAddedToast" datatype="html">
+        <source><x id="name" equiv-text="modelName"/> a été ajouté au panier.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/catalog/catalog.ts</context>
+          <context context-type="linenumber">165</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="shop.configurator.loading" datatype="html">
         <source> Chargement du configurateur… </source>
         <context-group purpose="location">
@@ -4602,7 +4609,7 @@
         <source> Chargement du produit… </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
-          <context context-type="linenumber">15,19</context>
+          <context context-type="linenumber">15,17</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.detail.notFoundTitle" datatype="html">
@@ -4670,7 +4677,7 @@
         <source> Ajouter au panier </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
-          <context context-type="linenumber">78,81</context>
+          <context context-type="linenumber">78,80</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.detail.shelterAddHint" datatype="html">
@@ -4691,7 +4698,7 @@
         <source> Chargement du modèle 3D… </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
-          <context context-type="linenumber">153,155</context>
+          <context context-type="linenumber">153,154</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.detail.rentLabel" datatype="html">
@@ -4733,7 +4740,7 @@
         <source> Ajouter au panier </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
-          <context context-type="linenumber">234,236</context>
+          <context context-type="linenumber">234,235</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.detail.addedToast" datatype="html">
@@ -4775,14 +4782,7 @@
         <source> Patientez : le prix se confirme avant l&apos;ajout au panier. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/shelter-configurator-overlay/shelter-configurator-overlay.html</context>
-          <context context-type="linenumber">68,72</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="shop.overlay.addedAnnounce" datatype="html">
-        <source><x id="model" equiv-text="config.modelName"/> (<x id="length" equiv-text="length"/>) ajouté au panier.</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/shelter-configurator-overlay/shelter-configurator-overlay.ts</context>
-          <context context-type="linenumber">113</context>
+          <context context-type="linenumber">68,70</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.modelCard.fromLabel" datatype="html">
@@ -4803,7 +4803,7 @@
         <source>à</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/shelter-model-card/shelter-model-card.html</context>
-          <context context-type="linenumber">20</context>
+          <context context-type="linenumber">19,20</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.modelCard.addToCart" datatype="html">

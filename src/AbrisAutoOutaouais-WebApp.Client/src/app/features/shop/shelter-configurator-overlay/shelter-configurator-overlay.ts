@@ -33,9 +33,11 @@ import { formatFeetInches } from '../../mesurer/util/feet-inches.util';
  *    détient le bouton déclencheur) rend le focus : ce composant ne connaît pas le déclencheur.
  *
  * L'ajout au panier reste FOCUSABLE mais `aria-disabled` tant qu'aucun prix serveur n'est confirmé
- * (`configuration() === null` ⇔ pas de prix — L-024), et il est confirmé via une live region qui
- * repasse par un état neutre avant chaque réannonce (L-027). Mouvement d'ouverture/fermeture
- * neutralisé sous `prefers-reduced-motion: reduce` (CSS `@media`, filet SSR/JS-coupé).
+ * (`configuration() === null` ⇔ pas de prix — L-024). Une fois l'abri ajouté, il émet `added` (avec
+ * le nom du modèle) : le PARENT ferme l'overlay, affiche un toast de confirmation au niveau page et
+ * rend le focus au déclencheur — ce composant ne pose plus d'annonce aria-live interne. Mouvement
+ * d'ouverture/fermeture neutralisé sous `prefers-reduced-motion: reduce` (CSS `@media`, filet
+ * SSR/JS-coupé).
  */
 @Component({
   selector: 'app-shelter-configurator-overlay',
@@ -56,6 +58,9 @@ export class ShelterConfiguratorOverlayComponent implements AfterViewChecked {
   /** Demande de fermeture (Échap / bouton « Fermer » / clic sur le fond). */
   readonly close = output<void>();
 
+  /** Abri ajouté au panier — porte le NOM du modèle (le parent ferme + affiche le toast). */
+  readonly added = output<string>();
+
   /** Élément racine du dialogue (piège + focus initial). */
   private readonly dialogEl = viewChild.required<ElementRef<HTMLDivElement>>('dialogEl');
 
@@ -64,9 +69,6 @@ export class ShelterConfiguratorOverlayComponent implements AfterViewChecked {
 
   /** Vrai dès qu'une config (donc un prix serveur) est confirmée → bouton réellement actif. */
   protected readonly canAdd = computed(() => this.configuration() !== null);
-
-  /** Annonce d'ajout au panier (aria-live) — repassée à '' avant chaque réannonce (L-027). */
-  protected readonly addAnnouncement = signal('');
 
   protected formatFeetInches = formatFeetInches;
 
@@ -102,16 +104,15 @@ export class ShelterConfiguratorOverlayComponent implements AfterViewChecked {
     this.configuration.set(config);
   }
 
-  /** Ajoute l'abri configuré au panier. No-op tant qu'aucun prix serveur n'est confirmé (L-024). */
+  /**
+   * Ajoute l'abri configuré au panier. No-op tant qu'aucun prix serveur n'est confirmé (L-024).
+   * Émet `added` (nom du modèle) : le parent ferme l'overlay, affiche le toast et rend le focus.
+   */
   protected addToCart(): void {
     const config = this.configuration();
     if (config === null) return;
     this.cart.addShelter(config);
-    const length = this.formatFeetInches(config.lengthCm);
-    this.addAnnouncement.set('');
-    this.addAnnouncement.set(
-      $localize`:@@shop.overlay.addedAnnounce:${config.modelName}:model: (${length}:length:) ajouté au panier.`,
-    );
+    this.added.emit(config.modelName);
   }
 
   /** Demande la fermeture du dialogue (le parent rend le focus au déclencheur). */

@@ -1184,6 +1184,10 @@
         <source><x id="name" equiv-text="product.name"/> a été ajouté au panier.</source>
         <target><x id="name" equiv-text="product.name"/> was added to the cart.</target>
       </trans-unit>
+      <trans-unit id="shop.catalog.shelterAddedToast" datatype="html">
+        <source><x id="name" equiv-text="modelName"/> a été ajouté au panier.</source>
+        <target><x id="name" equiv-text="modelName"/> was added to the cart.</target>
+      </trans-unit>
       <trans-unit id="shop.catalog.modelsNone" datatype="html">
         <source>Aucun modèle configurable.</source>
         <target>No configurable model.</target>
@@ -1243,10 +1247,6 @@
       <trans-unit id="shop.overlay.addHint" datatype="html">
         <source> Patientez : le prix se confirme avant l&apos;ajout au panier. </source>
         <target> Please wait: the price is being confirmed before adding to the cart. </target>
-      </trans-unit>
-      <trans-unit id="shop.overlay.addedAnnounce" datatype="html">
-        <source><x id="model" equiv-text="config.modelName"/> (<x id="length" equiv-text="length"/>) ajouté au panier.</source>
-        <target><x id="model" equiv-text="config.modelName"/> (<x id="length" equiv-text="length"/>) added to the cart.</target>
       </trans-unit>
 
       <!-- ===== BOUTIQUE — DÉTAIL PRODUIT ===== -->

@@ -46,15 +46,16 @@ function shelterStub(overrides: Partial<ShelterService> = {}): Partial<ShelterSe
 
 async function setup(shelter: Partial<ShelterService> = shelterStub(), cart = new CartService()) {
   const close = vi.fn();
+  const added = vi.fn();
   const result = await render(ShelterConfiguratorOverlayComponent, {
     inputs: { slug: 'simple', modelName: 'Abri simple' },
-    on: { close },
+    on: { close, added },
     providers: [
       { provide: ShelterService, useValue: shelter },
       { provide: CartService, useValue: cart },
     ],
   });
-  return { ...result, close, cart };
+  return { ...result, close, added, cart };
 }
 
 describe('ShelterConfiguratorOverlayComponent', () => {
@@ -85,11 +86,11 @@ describe('ShelterConfiguratorOverlayComponent', () => {
     expect(close).toHaveBeenCalledTimes(1);
   });
 
-  it('« Ajouter au panier » appelle cart.addShelter une fois le prix confirmé', async () => {
+  it('« Ajouter au panier » appelle cart.addShelter et émet `added` une fois le prix confirmé', async () => {
     const user = userEvent.setup();
     const cart = new CartService();
     const addShelter = vi.spyOn(cart, 'addShelter');
-    await setup(shelterStub(), cart);
+    const { added } = await setup(shelterStub(), cart);
 
     // Le configurateur applique un debounce 300 ms avant de confirmer le prix serveur : on attend
     // que le bouton passe à `aria-disabled=false` (prix confirmé) avant de cliquer.
@@ -99,6 +100,9 @@ describe('ShelterConfiguratorOverlayComponent', () => {
 
     expect(addShelter).toHaveBeenCalledTimes(1);
     expect(addShelter.mock.calls[0][0]).toMatchObject({ slug: 'simple', lengthCm: 600 });
+    // L'overlay délègue la fermeture/toast/focus au parent : il émet `added` avec le nom du modèle.
+    expect(added).toHaveBeenCalledTimes(1);
+    expect(added).toHaveBeenCalledWith('Abri simple');
   });
 
   it('garde « Ajouter » aria-disabled tant qu’aucun prix n’est confirmé', async () => {
