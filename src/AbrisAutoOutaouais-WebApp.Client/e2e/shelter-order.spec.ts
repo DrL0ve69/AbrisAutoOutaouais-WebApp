@@ -100,9 +100,8 @@ test('configurer un abri dans l’overlay → ajouter au panier → le panier mo
   await expect(addBtn).toHaveAttribute('aria-disabled', 'false');
   await addBtn.click();
 
-  // L'overlay reste ouvert après l'ajout (confirmation annoncée) ; on le ferme (Échap) avant de
-  // naviguer, sinon le fond modal (`overlay__backdrop`) intercepte le clic sur la navbar.
-  await page.keyboard.press('Escape');
+  // L'overlay se ferme MAINTENANT TOUT SEUL après l'ajout (le parent ferme + affiche un toast +
+  // rend le focus au déclencheur) — plus besoin d'un Échap manuel.
   await expect(dialog).toBeHidden();
 
   // Navigation SPA vers le panier (clic navbar — pas de goto qui viderait le panier en mémoire).

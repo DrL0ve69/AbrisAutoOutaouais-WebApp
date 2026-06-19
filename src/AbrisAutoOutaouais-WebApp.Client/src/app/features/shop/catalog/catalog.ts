@@ -156,6 +156,18 @@ export class CatalogComponent implements OnInit {
     this.overlayTrigger = null;
   }
 
+  /**
+   * Abri ajouté depuis l'overlay : confirme au niveau page (toast) PUIS ferme l'overlay (qui rend
+   * le focus au déclencheur — L-006 : le déclencheur existe toujours, focus synchrone OK).
+   */
+  protected onShelterAdded(modelName: string): void {
+    this.toastService.show(
+      $localize`:@@shop.catalog.shelterAddedToast:${modelName}:name: a été ajouté au panier.`,
+      'success',
+    );
+    this.closeConfigurator();
+  }
+
   /** Charge soit les modèles paramétriques (catégorie configurable), soit les produits fixes. */
   private load(slug: string | null): void {
     if (slug !== null && PARAMETRIC_CATEGORY_SLUGS.includes(slug)) {

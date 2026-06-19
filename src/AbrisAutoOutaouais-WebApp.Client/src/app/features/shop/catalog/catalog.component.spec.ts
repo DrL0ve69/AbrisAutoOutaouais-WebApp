@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/angular';
+import { render, screen, waitFor, within } from '@testing-library/angular';
 import { userEvent } from '@testing-library/user-event';
 import { provideRouter } from '@angular/router';
 import { describe, it, expect, vi } from 'vitest';
@@ -8,8 +8,9 @@ import localeFrCa from '@angular/common/locales/fr-CA';
 import { CatalogComponent } from './catalog';
 import { ProductService } from '../../../core/services/product.service';
 import { ShelterService } from '../../../core/services/shelter.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { CategoryDto, ProductDto } from '../../../core/models/product.model';
-import { ShelterModelDetail, ShelterModelSummary } from '../../../core/models/shelter.model';
+import { ShelterModelDetail, ShelterModelSummary, ShelterPrice } from '../../../core/models/shelter.model';
 import { expectNoA11yViolations } from '../../../../testing/axe-helper';
 
 // Le catalogue affiche des prix via CurrencyPipe('fr-CA') → données de locale requises.
@@ -61,6 +62,14 @@ const shelterModelDetail: ShelterModelDetail = {
   clearHeightOptionsCm: [198, 244],
 };
 
+const shelterPrice: ShelterPrice = {
+  modelId: 'm1',
+  slug: 'simple',
+  lengthCm: 600,
+  archCount: 0,
+  totalPrice: 1200,
+};
+
 function page(items: ProductDto[]) {
   return {
     items,
@@ -83,14 +92,17 @@ function defaultProductStub(): Partial<ProductService> {
 async function setup(
   productStub: Partial<ProductService> = defaultProductStub(),
   shelterStub: Partial<ShelterService> = { getModels: () => of(shelterModels) },
+  toastStub: Partial<ToastService> = { show: vi.fn() },
 ) {
-  return render(CatalogComponent, {
+  const result = await render(CatalogComponent, {
     providers: [
       provideRouter([]),
       { provide: ProductService, useValue: productStub },
       { provide: ShelterService, useValue: shelterStub },
+      { provide: ToastService, useValue: toastStub },
     ],
   });
+  return { ...result, toastStub };
 }
 
 describe('CatalogComponent', () => {
@@ -143,6 +155,46 @@ describe('CatalogComponent', () => {
       screen.getByRole('button', { name: /ajouter au panier.*abri simple paramétrique/i }),
     );
     expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+
+  it("ajout depuis l'overlay → toast de confirmation + overlay fermé + focus rendu au déclencheur", async () => {
+    const user = userEvent.setup();
+    const toastStub: Partial<ToastService> = { show: vi.fn() };
+    // getPrice émet un prix → le bouton « Ajouter au panier » de l'overlay devient actif.
+    await setup(
+      defaultProductStub(),
+      {
+        getModels: () => of(shelterModels),
+        getModel: () => of(shelterModelDetail),
+        getPrice: () => of(shelterPrice),
+      },
+      toastStub,
+    );
+
+    await user.click(await screen.findByRole('button', { name: /abris simples/i }));
+
+    // Ouvre l'overlay depuis le CTA de la carte (= le DÉCLENCHEUR à re-focaliser à la fermeture).
+    const trigger = await screen.findByRole('button', {
+      name: /ajouter au panier.*abri simple paramétrique/i,
+    });
+    await user.click(trigger);
+    const dialog = screen.getByRole('dialog');
+
+    // Dans l'overlay (scopé au dialogue — le CTA de la carte porte aussi « Ajouter au panier ») :
+    // attendre que le prix serveur soit confirmé (debounce 300 ms → aria-disabled=false).
+    const add = await within(dialog).findByRole('button', { name: /ajouter au panier/i });
+    await waitFor(() => expect(add).toHaveAttribute('aria-disabled', 'false'));
+    await user.click(add);
+
+    // (1) Toast de confirmation au niveau page (nom du modèle) ; (2) overlay fermé ;
+    // (3) focus rendu au déclencheur (L-006 : déclencheur toujours présent → focus synchrone OK).
+    expect(toastStub.show).toHaveBeenCalledTimes(1);
+    expect(toastStub.show).toHaveBeenCalledWith(
+      expect.stringContaining('Abri simple paramétrique'),
+      'success',
+    );
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(trigger).toHaveFocus();
   });
 
   it("catégorie paramétrique : getModels en erreur → message d'indisponibilité (pas de crash)", async () => {
