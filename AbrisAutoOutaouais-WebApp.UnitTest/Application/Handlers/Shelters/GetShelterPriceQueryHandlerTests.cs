@@ -24,21 +24,22 @@ public sealed class GetShelterPriceQueryHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Modèle aligné sur le référentiel « simple » (pas/min 122 cm, base 349,00 $, 150,00 $/arche) :
-    /// longueur 122 → 0 arche, 366 → 2 arches.
+    /// Modèle aligné sur le référentiel par-largeur « simple-11pi » (rework EPIC 9 : une largeur =
+    /// un modèle ; pas 122 cm, MIN 488 cm, base 1099,00 $, 150,00 $/arche) :
+    /// longueur 488 → 0 arche, 732 → 2 arches.
     /// </summary>
     private async Task SeedModelAsync()
     {
         var model = ShelterModel.Create(
-            slug: "simple",
-            name: "Abri simple",
+            slug: "simple-11pi",
+            name: "Abri simple 11 pi",
             categoryId: _category.Id,
             lengthStepCm: 122,
-            minLengthCm: 122,
+            minLengthCm: 488,
             maxLengthCm: 1830,
-            basePrice: 349.00m,
+            basePrice: 1099.00m,
             pricePerArchCents: 15000,
-            widthsCm: [335, 366],
+            widthsCm: [335],
             clearHeightsCm: [198]);
         _db.ShelterModels.Add(model);
         await _db.SaveChangesAsync();
@@ -52,12 +53,12 @@ public sealed class GetShelterPriceQueryHandlerTests : IDisposable
         await SeedModelAsync();
 
         var result = await Handler.Handle(
-            new GetShelterPriceQuery("simple", 122), CancellationToken.None);
+            new GetShelterPriceQuery("simple-11pi", 488), CancellationToken.None);
 
-        result.Slug.Should().Be("simple");
-        result.LengthCm.Should().Be(122);
+        result.Slug.Should().Be("simple-11pi");
+        result.LengthCm.Should().Be(488);
         result.ArchCount.Should().Be(0);
-        result.TotalPrice.Should().Be(349.00m);  // base seule
+        result.TotalPrice.Should().Be(1099.00m);  // base seule
     }
 
     [Fact]
@@ -65,12 +66,12 @@ public sealed class GetShelterPriceQueryHandlerTests : IDisposable
     {
         await SeedModelAsync();
 
-        // 122 + 2 × 122 = 366 cm → 2 arches → 349 + 2 × 150 = 649,00 $.
+        // 488 + 2 × 122 = 732 cm → 2 arches → 1099 + 2 × 150 = 1399,00 $.
         var result = await Handler.Handle(
-            new GetShelterPriceQuery("simple", 366), CancellationToken.None);
+            new GetShelterPriceQuery("simple-11pi", 732), CancellationToken.None);
 
         result.ArchCount.Should().Be(2);
-        result.TotalPrice.Should().Be(649.00m);
+        result.TotalPrice.Should().Be(1399.00m);
     }
 
     [Fact]
@@ -80,7 +81,7 @@ public sealed class GetShelterPriceQueryHandlerTests : IDisposable
 
         // 2000 > MaxLengthCm (1830) → 422, jamais un 500 (ArgumentOutOfRangeException du calculateur).
         var act = async () => await Handler.Handle(
-            new GetShelterPriceQuery("simple", 2000), CancellationToken.None);
+            new GetShelterPriceQuery("simple-11pi", 2000), CancellationToken.None);
 
         await act.Should().ThrowAsync<BusinessRuleException>();
     }
@@ -90,9 +91,21 @@ public sealed class GetShelterPriceQueryHandlerTests : IDisposable
     {
         await SeedModelAsync();
 
-        // 200 ∈ [122, 1830] mais (200 - 122) % 122 = 78 ≠ 0 → désaligné → 422.
+        // 600 ∈ [488, 1830] mais (600 - 488) % 122 = 112 ≠ 0 → désaligné → 422.
         var act = async () => await Handler.Handle(
-            new GetShelterPriceQuery("simple", 200), CancellationToken.None);
+            new GetShelterPriceQuery("simple-11pi", 600), CancellationToken.None);
+
+        await act.Should().ThrowAsync<BusinessRuleException>();
+    }
+
+    [Fact]
+    public async Task Handle_LengthBelowMin_ThrowsBusinessRuleException()
+    {
+        await SeedModelAsync();
+
+        // 366 < MinLengthCm (488) → hors plage → 422 (la borne min est désormais 488, rework EPIC 9).
+        var act = async () => await Handler.Handle(
+            new GetShelterPriceQuery("simple-11pi", 366), CancellationToken.None);
 
         await act.Should().ThrowAsync<BusinessRuleException>();
     }
@@ -103,7 +116,7 @@ public sealed class GetShelterPriceQueryHandlerTests : IDisposable
         await SeedModelAsync();
 
         var act = async () => await Handler.Handle(
-            new GetShelterPriceQuery("inexistant", 122), CancellationToken.None);
+            new GetShelterPriceQuery("inexistant", 488), CancellationToken.None);
 
         await act.Should().ThrowAsync<NotFoundException>();
     }
