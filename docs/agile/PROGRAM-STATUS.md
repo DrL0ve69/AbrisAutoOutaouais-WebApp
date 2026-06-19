@@ -233,7 +233,7 @@ indépendante `code-reviewer` à la frontière d'épic → mentor*.
 - Migration `20260619150301` Up/Down vides (schéma SQL Server inchangé) — attendu (L-035)
 - Sécurité : POST/PUT/DELETE `[Authorize(Policy="AdminOnly")]`, GET restés `[AllowAnonymous]` · IT couvre 401/403/422/409/404
 
-**Statut git** : PR en cours → merge `master` → CI verte → branche supprimée. **Prochain : EPIC 10** (suggestion d'abris intelligente).
+**Statut git** : **PR #45 MERGÉE vers `master` (`44997586`), CI verte (Backend 1m05s / Frontend+i18n+axe 8m25s / Build & Deploy 1m37s / SonarCloud 32s), branche `feat/epic-9-dimension-catalog` supprimée.** Prod auto-déployée. **Prochain : EPIC 10** (suggestion d'abris intelligente).
 
 ---
 

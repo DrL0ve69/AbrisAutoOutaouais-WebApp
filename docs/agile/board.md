@@ -301,7 +301,7 @@ si un SP devient disponible. Détail : `PROGRAM-STATUS.md` (Épic H) + `docs/dep
 | ID | Épopée | Source (point) | Dépend de | Estim. | MoSCoW | Note clé |
 |----|--------|:--------------:|-----------|:------:|:------:|----------|
 | EPIC 12 | Contraste formulaires/focus | 6 / (1)·2 | — | 3 | Should | ✅ **livré** — partie 1 (auth focus) + partie 2 (Bug-09 badge sombre + onglet profil actif, au jeton ; balayage formulaires publics) |
-| EPIC 9 | Catalogue par dimensions configurables | 3 | — | 13 | Should | ✅ **TERMINÉ (2026-06-19)** — 9.1 entité+prix · 9.2 API · 9.3 configurateur · 9.4 panier/commande · 9.5 admin CRUD ShelterModel · correctif Minor CategoryId · L-035/L-036/L-024 · PR en cours `feat/epic-9-dimension-catalog` |
+| EPIC 9 | Catalogue par dimensions configurables | 3 | — | 13 | Should | ✅ **MERGÉ (2026-06-19) — PR #45 (`44997586`), CI verte, prod auto-déployée** — 9.1→9.5 complets · modèle paramétrique B · migration vide EF (L-035) · correctif CategoryId (L-036) · L-035/L-036/L-024 |
 | EPIC 10 | Suggestion d'abris intelligente (mesure/véhicule) | 4 | EPIC 9 | 8 | Should | Proposer **catégories qui rentrent** (≤ largeur, longueur ≤ mesure, max 40 pi) ; orientation véhicules |
 | EPIC 11 | Calendrier & planification terrain | 5 | — | 21 | Could | Agréger `Booking` existants ; routage MVP heuristique (`GeoDistance`) ou OpenRouteService |
 | EPIC 8 | Employés & paie (informative) | 2 | EPIC 11 | 8–13 | Could | ⚠️ Paie réelle = conformité fiscale hors portée ; viser informatif |
