@@ -14,39 +14,6 @@
   margin-bottom: var(--space-12);
 }
 
-// Bandeau « configurateur de dimensions » (EPIC 9.3) — jetons sémantiques uniquement.
-.catalog__configurator {
-  margin: var(--space-8) 0;
-  padding: var(--space-6);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-muted);
-}
-
-.catalog__configurator-title {
-  margin: 0 0 var(--space-2);
-  color: var(--color-text);
-}
-
-.catalog__configurator-text {
-  margin: 0 0 var(--space-4);
-  // Sur --color-bg-muted, --color-text-muted tombe sous AA (4.39:1, L-016) → --color-text.
-  color: var(--color-text);
-}
-
-.catalog__configurator-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-  list-style: none;
-  margin: 0;
-  padding: 0;
-
-  .btn {
-    min-height: 44px;
-  }
-}
-
 .section-eyebrow {
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-bold);

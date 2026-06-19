@@ -4482,6 +4482,96 @@
           <context context-type="linenumber">108</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="shop.catalog.modelsNone" datatype="html">
+        <source>Aucun modèle configurable.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/catalog/catalog.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.catalog.modelsOne" datatype="html">
+        <source>1 modèle configurable.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/catalog/catalog.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.catalog.modelsMany" datatype="html">
+        <source><x id="count" equiv-text="n"/> modèles configurables.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/catalog/catalog.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.catalog.modelsError" datatype="html">
+        <source> Les modèles configurables sont momentanément indisponibles. Réessayez plus tard. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/catalog/catalog.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.catalog.modelsEmpty" datatype="html">
+        <source> Aucun modèle configurable dans cette catégorie pour le moment. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/catalog/catalog.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.modelCard.fromLabel" datatype="html">
+        <source>À partir de</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/shelter-model-card/shelter-model-card.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.modelCard.lengthRange" datatype="html">
+        <source>Longueur de</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/shelter-model-card/shelter-model-card.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.modelCard.lengthRangeTo" datatype="html">
+        <source>à</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/shelter-model-card/shelter-model-card.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.modelCard.addToCart" datatype="html">
+        <source>Ajouter au panier</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/shelter-model-card/shelter-model-card.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.modelCard.addAria" datatype="html">
+        <source>Configurer et ajouter au panier — <x id="name" equiv-text="this.model().name"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/shelter-model-card/shelter-model-card.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.overlay.closeAria" datatype="html">
+        <source>Fermer la configuration</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/shelter-configurator-overlay/shelter-configurator-overlay.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.overlay.intro" datatype="html">
+        <source> Ajustez largeur, hauteur dégagée et longueur ; le prix se met à jour automatiquement. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/shelter-configurator-overlay/shelter-configurator-overlay.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.overlay.addToCart" datatype="html">
+        <source> Ajouter au panier </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/shelter-configurator-overlay/shelter-configurator-overlay.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.overlay.addHint" datatype="html">
+        <source> Patientez : le prix se confirme avant l&apos;ajout au panier. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/shelter-configurator-overlay/shelter-configurator-overlay.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.overlay.addedAnnounce" datatype="html">
+        <source><x id="model" equiv-text="config.modelName"/> (<x id="length" equiv-text="length"/>) ajouté au panier.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/shelter-configurator-overlay/shelter-configurator-overlay.ts</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="shop.configure.breadcrumbAria" datatype="html">
         <source>Fil d&apos;Ariane</source>
         <context-group purpose="location">
@@ -4767,6 +4857,30 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
           <context context-type="linenumber">165,167</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.detail.shelterIntro" datatype="html">
+        <source> Choisissez largeur, hauteur dégagée et longueur ; le prix se met à jour automatiquement. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.detail.shelterAddToCart" datatype="html">
+        <source> Ajouter au panier </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.detail.shelterAddHint" datatype="html">
+        <source> Patientez : le prix se confirme avant l&apos;ajout au panier. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.detail.shelterAddedAnnounce" datatype="html">
+        <source><x id="model" equiv-text="config.modelName"/> (<x id="length" equiv-text="length"/>) ajouté au panier.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.ts</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.detail.configureIntro" datatype="html">

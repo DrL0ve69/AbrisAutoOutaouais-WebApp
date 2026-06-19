@@ -1184,6 +1184,70 @@
         <source><x id="name" equiv-text="product.name"/> a été ajouté au panier.</source>
         <target><x id="name" equiv-text="product.name"/> was added to the cart.</target>
       </trans-unit>
+      <trans-unit id="shop.catalog.modelsNone" datatype="html">
+        <source>Aucun modèle configurable.</source>
+        <target>No configurable model.</target>
+      </trans-unit>
+      <trans-unit id="shop.catalog.modelsOne" datatype="html">
+        <source>1 modèle configurable.</source>
+        <target>1 configurable model.</target>
+      </trans-unit>
+      <trans-unit id="shop.catalog.modelsMany" datatype="html">
+        <source><x id="count" equiv-text="n"/> modèles configurables.</source>
+        <target><x id="count" equiv-text="n"/> configurable models.</target>
+      </trans-unit>
+      <trans-unit id="shop.catalog.modelsError" datatype="html">
+        <source> Les modèles configurables sont momentanément indisponibles. Réessayez plus tard. </source>
+        <target> Configurable models are temporarily unavailable. Please try again later. </target>
+      </trans-unit>
+      <trans-unit id="shop.catalog.modelsEmpty" datatype="html">
+        <source> Aucun modèle configurable dans cette catégorie pour le moment. </source>
+        <target> No configurable model in this category at the moment. </target>
+      </trans-unit>
+
+      <!-- ===== BOUTIQUE — CARTE DE MODÈLE PARAMÉTRIQUE ===== -->
+      <trans-unit id="shop.modelCard.fromLabel" datatype="html">
+        <source>À partir de</source>
+        <target>From</target>
+      </trans-unit>
+      <trans-unit id="shop.modelCard.lengthRange" datatype="html">
+        <source>Longueur de</source>
+        <target>Length from</target>
+      </trans-unit>
+      <trans-unit id="shop.modelCard.lengthRangeTo" datatype="html">
+        <source>à</source>
+        <target>to</target>
+      </trans-unit>
+      <trans-unit id="shop.modelCard.addToCart" datatype="html">
+        <source>Ajouter au panier</source>
+        <target>Add to cart</target>
+      </trans-unit>
+      <trans-unit id="shop.modelCard.addAria" datatype="html">
+        <source>Configurer et ajouter au panier — <x id="name" equiv-text="this.model().name"/></source>
+        <target>Configure and add to cart — <x id="name" equiv-text="this.model().name"/></target>
+      </trans-unit>
+
+      <!-- ===== BOUTIQUE — OVERLAY DE CONFIGURATION ===== -->
+      <trans-unit id="shop.overlay.closeAria" datatype="html">
+        <source>Fermer la configuration</source>
+        <target>Close the configuration</target>
+      </trans-unit>
+      <trans-unit id="shop.overlay.intro" datatype="html">
+        <source> Ajustez largeur, hauteur dégagée et longueur ; le prix se met à jour automatiquement. </source>
+        <target> Adjust width, clearance height and length; the price updates automatically. </target>
+      </trans-unit>
+      <trans-unit id="shop.overlay.addToCart" datatype="html">
+        <source> Ajouter au panier </source>
+        <target> Add to cart </target>
+      </trans-unit>
+      <trans-unit id="shop.overlay.addHint" datatype="html">
+        <source> Patientez : le prix se confirme avant l&apos;ajout au panier. </source>
+        <target> Please wait: the price is being confirmed before adding to the cart. </target>
+      </trans-unit>
+      <trans-unit id="shop.overlay.addedAnnounce" datatype="html">
+        <source><x id="model" equiv-text="config.modelName"/> (<x id="length" equiv-text="length"/>) ajouté au panier.</source>
+        <target><x id="model" equiv-text="config.modelName"/> (<x id="length" equiv-text="length"/>) added to the cart.</target>
+      </trans-unit>
 
       <!-- ===== BOUTIQUE — DÉTAIL PRODUIT ===== -->
       <trans-unit id="shop.detail.back" datatype="html">
@@ -1237,6 +1301,22 @@
       <trans-unit id="shop.detail.addToCart" datatype="html">
         <source> Ajouter au panier </source>
         <target> Add to cart </target>
+      </trans-unit>
+      <trans-unit id="shop.detail.shelterIntro" datatype="html">
+        <source> Choisissez largeur, hauteur dégagée et longueur ; le prix se met à jour automatiquement. </source>
+        <target> Choose width, clearance height and length; the price updates automatically. </target>
+      </trans-unit>
+      <trans-unit id="shop.detail.shelterAddToCart" datatype="html">
+        <source> Ajouter au panier </source>
+        <target> Add to cart </target>
+      </trans-unit>
+      <trans-unit id="shop.detail.shelterAddHint" datatype="html">
+        <source> Patientez : le prix se confirme avant l&apos;ajout au panier. </source>
+        <target> Please wait: the price is being confirmed before adding to the cart. </target>
+      </trans-unit>
+      <trans-unit id="shop.detail.shelterAddedAnnounce" datatype="html">
+        <source><x id="model" equiv-text="config.modelName"/> (<x id="length" equiv-text="length"/>) ajouté au panier.</source>
+        <target><x id="model" equiv-text="config.modelName"/> (<x id="length" equiv-text="length"/>) added to the cart.</target>
       </trans-unit>
       <trans-unit id="shop.detail.addedToast" datatype="html">
         <source><x id="name" equiv-text="product.name"/> a été ajouté au panier.</source>
