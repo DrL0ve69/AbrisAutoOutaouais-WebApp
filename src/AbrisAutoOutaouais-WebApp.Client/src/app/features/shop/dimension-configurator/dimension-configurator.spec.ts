@@ -23,6 +23,7 @@ const MODEL: ShelterModelDetail = {
   id: 'm1',
   slug: 'simple',
   name: 'Abri simple — Abris Tempo',
+  categoryId: 'cat-1',
   categoryName: 'Abris simples',
   basePrice: 349,
   minLengthCm: 122,

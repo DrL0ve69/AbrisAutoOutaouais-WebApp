@@ -72,6 +72,13 @@ export class AdminDashboardComponent {
       route: '/admin/produits',
     },
     {
+      id: 'shelter-models',
+      label: $localize`:@@admin.section.shelterModels:Modèles d'abris`,
+      description: $localize`:@@admin.section.shelterModelsDesc:Créer et modifier le référentiel d'abris paramétriques (dimensions, prix).`,
+      icon: '📐',
+      route: '/admin/modeles-abris',
+    },
+    {
       id: 'orders',
       label: $localize`:@@admin.section.orders:Commandes`,
       description: $localize`:@@admin.section.ordersDesc:Suivre et traiter les commandes des clients.`,

@@ -45,11 +45,40 @@ export interface ShelterModelSummary {
 
 /** Détail complet d'un modèle : résumé + tarif par arche (CENTS) + options largeur/hauteur (cm). */
 export interface ShelterModelDetail extends ShelterModelSummary {
+  /** Id (Guid) de la catégorie produit — sert à l'édition admin (résolution PAR ID, pas par nom). */
+  readonly categoryId: string;
   /** Prix d'une arche supplémentaire en CENTS (≠ dollars — ne pas mélanger). */
   readonly pricePerArchCents: number;
   readonly widthOptionsCm: readonly number[];
   readonly clearHeightOptionsCm: readonly number[];
 }
+
+/**
+ * Corps d'une requête de CRÉATION d'un modèle paramétrique (admin, EPIC 9.5).
+ * À garder synchro avec `CreateShelterModelCommand` (Application/Shelters/Commands/CreateShelterModel).
+ * ⚠️ UNITÉS : `basePrice` est en DOLLARS ; `pricePerArchCents` est en CENTS.
+ * `widthsCm` / `clearHeightsCm` : entiers > 0 en centimètres, au moins une valeur chacun.
+ */
+export interface CreateShelterModelRequest {
+  readonly slug: string;
+  readonly name: string;
+  readonly categoryId: string;
+  readonly lengthStepCm: number;
+  readonly minLengthCm: number;
+  readonly maxLengthCm: number;
+  /** DOLLARS. */
+  readonly basePrice: number;
+  /** CENTS. */
+  readonly pricePerArchCents: number;
+  readonly widthsCm: number[];
+  readonly clearHeightsCm: number[];
+}
+
+/**
+ * Corps d'une requête de MISE À JOUR (admin) — calque la création SANS le slug (immuable à
+ * l'édition). À garder synchro avec `UpdateShelterModelCommand`.
+ */
+export type UpdateShelterModelRequest = Omit<CreateShelterModelRequest, 'slug'>;
 
 /** Résultat d'un calcul de prix serveur (longueur configurée). `totalPrice` en DOLLARS. */
 export interface ShelterPrice {

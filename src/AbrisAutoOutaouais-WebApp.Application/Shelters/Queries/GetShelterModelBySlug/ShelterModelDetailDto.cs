@@ -8,6 +8,7 @@ public sealed record ShelterModelDetailDto(
     Guid Id,
     string Slug,
     string Name,
+    Guid CategoryId,
     string CategoryName,
     decimal BasePrice,
     int MinLengthCm,

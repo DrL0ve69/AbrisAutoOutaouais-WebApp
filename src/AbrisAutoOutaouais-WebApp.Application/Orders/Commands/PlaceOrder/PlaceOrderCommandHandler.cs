@@ -86,8 +86,8 @@ internal sealed class PlaceOrderCommandHandler(
     /// saisie utilisateur). Le prix n'est JAMAIS refait à la main : on délègue à
     /// <see cref="ShelterPriceCalculator"/> (source unique de la formule — L-004).
     ///
-    /// On NE charge PAS la collection possédée <c>Dimensions</c> (pas de <c>.Include</c> : EF lève sur
-    /// une collection owned) — seuls les champs scalaires de tarification sont nécessaires.
+    /// On NE charge PAS la collection <c>Dimensions</c> (pas de <c>.Include</c>) — seuls les champs
+    /// scalaires de tarification (Min/Max/Step/BasePrice/PricePerArchCents) sont nécessaires ici.
     /// </summary>
     private async Task<List<Order.ShelterLineInput>> BuildShelterLinesAsync(
         IReadOnlyList<ShelterLineRequest> requests, CancellationToken ct)

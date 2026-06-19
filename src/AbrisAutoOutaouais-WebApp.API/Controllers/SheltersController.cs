@@ -1,4 +1,7 @@
 using AbrisAutoOutaouais_WebApp.Application.Common.Mediator;
+using AbrisAutoOutaouais_WebApp.Application.Shelters.Commands.CreateShelterModel;
+using AbrisAutoOutaouais_WebApp.Application.Shelters.Commands.DeleteShelterModel;
+using AbrisAutoOutaouais_WebApp.Application.Shelters.Commands.UpdateShelterModel;
 using AbrisAutoOutaouais_WebApp.Application.Shelters.Queries.GetShelterModelBySlug;
 using AbrisAutoOutaouais_WebApp.Application.Shelters.Queries.GetShelterModels;
 using AbrisAutoOutaouais_WebApp.Application.Shelters.Queries.GetShelterPrice;
@@ -48,4 +51,46 @@ public sealed class SheltersController(IDispatcher dispatcher) : ControllerBase
     [ProducesResponseType<ProblemDetails>(404)]
     public async Task<IActionResult> GetBySlug(string slug, CancellationToken ct)
         => Ok(await dispatcher.DispatchAsync(new GetShelterModelBySlugQuery(slug), ct));
+
+    /// <summary>Créer un modèle d'abri paramétrique (Admin).</summary>
+    [HttpPost]
+    [Authorize(Policy = "AdminOnly")]
+    [ProducesResponseType(201)]
+    [ProducesResponseType<ProblemDetails>(409)]
+    [ProducesResponseType<ProblemDetails>(422)]
+    public async Task<IActionResult> Create(
+        [FromBody] CreateShelterModelCommand cmd, CancellationToken ct)
+    {
+        var id = await dispatcher.DispatchAsync(cmd, ct);
+        // On dispose ICI du vrai slug (dans la commande) — on l'utilise pour le Location header
+        // (forme canonique normalisée comme le domaine), plutôt que le raccourci slug = id.
+        return CreatedAtAction(
+            nameof(GetBySlug),
+            new { slug = cmd.Slug.Trim().ToLowerInvariant(), version = "1.0" },
+            new { id });
+    }
+
+    /// <summary>Reconfigurer un modèle d'abri — slug immuable (Admin).</summary>
+    [HttpPut("{id:guid}")]
+    [Authorize(Policy = "AdminOnly")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType<ProblemDetails>(404)]
+    [ProducesResponseType<ProblemDetails>(422)]
+    public async Task<IActionResult> Update(
+        Guid id, [FromBody] UpdateShelterModelCommand cmd, CancellationToken ct)
+    {
+        await dispatcher.DispatchAsync(cmd with { Id = id }, ct);
+        return NoContent();
+    }
+
+    /// <summary>Supprimer un modèle d'abri — soft delete (Admin).</summary>
+    [HttpDelete("{id:guid}")]
+    [Authorize(Policy = "AdminOnly")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType<ProblemDetails>(404)]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
+    {
+        await dispatcher.DispatchAsync(new DeleteShelterModelCommand(id), ct);
+        return NoContent();
+    }
 }

@@ -4,11 +4,12 @@ namespace AbrisAutoOutaouais_WebApp.Domain.Entities;
 
 /// <summary>
 /// Dimension configurable d'un <see cref="ShelterModel"/> (une largeur ou une hauteur dégagée
-/// proposée pour ce modèle). Entité enfant <c>owned</c> de <c>ShelterModel</c>.
+/// proposée pour ce modèle). Entité enfant RÉGULIÈRE de <c>ShelterModel</c> (et non un owned-type) :
+/// elle a sa propre table et doit être chargée explicitement via <c>.Include(m =&gt; m.Dimensions)</c>.
 ///
-/// Porte une clé identifiante propre (<see cref="Id"/> Guid) : un owned-type SANS clé propre est
-/// le piège relationnel de L-001 (EF doit alors deviner une clé shadow et la persistance devient
-/// fragile). Ici la clé est explicite et stable.
+/// Porte une clé identifiante propre (<see cref="Id"/> Guid) : sans clé propre, EF devrait deviner
+/// une clé shadow et la persistance deviendrait fragile (piège relationnel de L-001). Ici la clé
+/// est explicite et stable.
 /// </summary>
 public sealed class ShelterModelDimension
 {

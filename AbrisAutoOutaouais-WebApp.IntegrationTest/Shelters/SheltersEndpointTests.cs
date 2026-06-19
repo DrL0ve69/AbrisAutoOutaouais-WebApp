@@ -35,7 +35,7 @@ public sealed class SheltersEndpointTests : IClassFixture<WebAppFactory>
     /// (pas/min 122 cm, base 349 $, 150 $/arche). Slug et catégorie uniques par appel pour
     /// isoler les tests dans la base InMemory partagée.
     /// </summary>
-    private async Task SeedShelterModelAsync(
+    private async Task<Guid> SeedShelterModelAsync(
         string slug,
         string categorySlug,
         int lengthStepCm = 122,
@@ -58,6 +58,7 @@ public sealed class SheltersEndpointTests : IClassFixture<WebAppFactory>
         db.ProductCategories.Add(category);
         db.ShelterModels.Add(model);
         await db.SaveChangesAsync();
+        return category.Id;
     }
 
     // ── GET /api/v1/shelters ─────────────────────────────────────────────────
@@ -95,7 +96,7 @@ public sealed class SheltersEndpointTests : IClassFixture<WebAppFactory>
     [Fact]
     public async Task GetBySlug_ExistingModel_Returns200WithDimensionOptions()
     {
-        await SeedShelterModelAsync(
+        var categoryId = await SeedShelterModelAsync(
             "detail-simple", "cat-detail",
             widthsCm: [335, 366], clearHeightsCm: [198, 244]);
 
@@ -104,6 +105,10 @@ public sealed class SheltersEndpointTests : IClassFixture<WebAppFactory>
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var dto = await response.Content.ReadFromJsonAsync<ShelterModelDetailDto>();
         dto!.Slug.Should().Be("detail-simple");
+        // L-030/Minor 9.5 : le détail porte le CategoryId (Guid) pour que l'édition admin re-résolve
+        // la catégorie PAR ID, pas par nom (Name n'a pas d'index unique).
+        dto.CategoryId.Should().Be(categoryId);
+        dto.CategoryName.Should().Be("Cat cat-detail");
         dto.WidthOptionsCm.Should().BeEquivalentTo(new[] { 335, 366 });
         dto.ClearHeightOptionsCm.Should().BeEquivalentTo(new[] { 198, 244 });
         dto.MinLengthCm.Should().Be(122);

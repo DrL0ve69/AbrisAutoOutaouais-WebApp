@@ -28,14 +28,22 @@ internal sealed class ShelterModelConfiguration : IEntityTypeConfiguration<Shelt
 
         builder.HasQueryFilter(m => !m.IsDeleted);
 
-        // Collection owned des dimensions (largeurs + hauteurs dégagées) — clé propre Id (L-001).
-        builder.OwnsMany(m => m.Dimensions, dim =>
-        {
-            dim.HasKey(d => d.Id);
-            dim.WithOwner().HasForeignKey("ShelterModelId");
-            dim.Property(d => d.Kind).IsRequired();
-            dim.Property(d => d.ValueCm).IsRequired();
-        });
+        // Collection des dimensions (largeurs + hauteurs dégagées) — entité RÉGULIÈRE (non owned)
+        // avec sa propre clé Id (L-001) et une FK shadow ShelterModelId. On a renoncé à OwnsMany :
+        // le fournisseur EF InMemory (tests/CI) ne sait pas ajouter/retirer des enfants OWNED d'un
+        // parent déjà suivi (DbUpdateConcurrencyException au remplacement de la collection lors de
+        // l'édition admin EPIC 9.5) ; une entité régulière supporte le CRUD complet de ses enfants
+        // sur tous les fournisseurs. Le schéma de la table « ShelterModelDimension » (Id PK, Kind,
+        // ValueCm, FK ShelterModelId en cascade) est INCHANGÉ — pas de migration de schéma requise.
+        // Accès uniquement via l'agrégat ShelterModel (pas de DbSet exposé) → invariants préservés.
+        builder.HasMany(m => m.Dimensions)
+            .WithOne()
+            .HasForeignKey("ShelterModelId")
+            .IsRequired()  // FK obligatoire (comme l'owned) → ShelterModelId NON nullable, schéma identique
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(m => m.Dimensions).Metadata.SetField("_dimensions");
+        builder.Navigation(m => m.Dimensions).UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.HasOne(m => m.Category)
             .WithMany()

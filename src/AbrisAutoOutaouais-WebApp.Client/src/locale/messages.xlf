@@ -701,60 +701,74 @@
           <context context-type="linenumber">70</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="admin.section.shelterModels" datatype="html">
+        <source>Modèles d&apos;abris</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/dashboard/dashboard.ts</context>
+          <context context-type="linenumber">76</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.section.shelterModelsDesc" datatype="html">
+        <source>Créer et modifier le référentiel d&apos;abris paramétriques (dimensions, prix).</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/dashboard/dashboard.ts</context>
+          <context context-type="linenumber">77</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="admin.section.orders" datatype="html">
         <source>Commandes</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/dashboard/dashboard.ts</context>
-          <context context-type="linenumber">76</context>
+          <context context-type="linenumber">83</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.section.ordersDesc" datatype="html">
         <source>Suivre et traiter les commandes des clients.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/dashboard/dashboard.ts</context>
-          <context context-type="linenumber">77</context>
+          <context context-type="linenumber">84</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.section.reservations" datatype="html">
         <source>Réservations</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/dashboard/dashboard.ts</context>
-          <context context-type="linenumber">83</context>
+          <context context-type="linenumber">90</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.section.reservationsDesc" datatype="html">
         <source>Confirmer, compléter ou annuler les créneaux d&apos;installation.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/dashboard/dashboard.ts</context>
-          <context context-type="linenumber">84</context>
+          <context context-type="linenumber">91</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.section.rentals" datatype="html">
         <source>Locations</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/dashboard/dashboard.ts</context>
-          <context context-type="linenumber">90</context>
+          <context context-type="linenumber">97</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.section.rentalsDesc" datatype="html">
         <source>Consulter et annuler les contrats de location saisonnière.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/dashboard/dashboard.ts</context>
-          <context context-type="linenumber">91</context>
+          <context context-type="linenumber">98</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.section.users" datatype="html">
         <source>Utilisateurs</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/dashboard/dashboard.ts</context>
-          <context context-type="linenumber">97</context>
+          <context context-type="linenumber">104</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.section.usersDesc" datatype="html">
         <source>Gérer les comptes et les rôles des utilisateurs.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/dashboard/dashboard.ts</context>
-          <context context-type="linenumber">98</context>
+          <context context-type="linenumber">105</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.orders.eyebrow" datatype="html">
@@ -1507,6 +1521,424 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/rentals/rentals.ts</context>
           <context context-type="linenumber">146</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.eyebrow" datatype="html">
+        <source>Référentiel</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">4,5</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.title" datatype="html">
+        <source>Gestion des modèles d&apos;abris</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">5,6</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.lead" datatype="html">
+        <source> Créez, modifiez et retirez les modèles d&apos;abris paramétriques (largeurs, hauteurs, longueurs). </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">7,9</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.back" datatype="html">
+        <source> ← Retour au tableau de bord </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">10,14</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.editHeading" datatype="html">
+        <source>Modifier le modèle</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">19,21</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.createHeading" datatype="html">
+        <source>Nouveau modèle</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">21,25</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.slug" datatype="html">
+        <source>Identifiant (slug)</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">32,34</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.slugReadonly" datatype="html">
+        <source> Le slug ne peut pas être modifié après la création. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">36,38</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.slugHint" datatype="html">
+        <source> minuscules, chiffres et tirets · ex : abri-tempo-simple </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">48,50</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.slugError" datatype="html">
+        <source> Le slug est requis (minuscules, chiffres et tirets uniquement). </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">52,54</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.name" datatype="html">
+        <source>Nom</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">59,61</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.nameError" datatype="html">
+        <source> Le nom est requis (100 caractères maximum). </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">70,73</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.category" datatype="html">
+        <source>Catégorie</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">76,78</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.categoryPlaceholder" datatype="html">
+        <source> — Choisir une catégorie — </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">84,86</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.categoryError" datatype="html">
+        <source> Veuillez choisir une catégorie. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">92,95</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.step" datatype="html">
+        <source>Pas de longueur (cm)</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">100,102</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.stepError" datatype="html">
+        <source> Le pas doit être un entier strictement positif. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">113,115</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.min" datatype="html">
+        <source>Longueur min. (cm)</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">119,121</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.minError" datatype="html">
+        <source> La longueur minimale doit être strictement positive. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">132,134</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.max" datatype="html">
+        <source>Longueur max. (cm)</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">138,140</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.maxError" datatype="html">
+        <source> La longueur maximale doit être strictement positive. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">151,153</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.rangeError" datatype="html">
+        <source> La longueur maximale doit être supérieure à la minimale. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">156,158</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.basePrice" datatype="html">
+        <source>Prix de base ($)</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">165,167</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.basePriceError" datatype="html">
+        <source> Le prix de base ne peut pas être négatif. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">177,179</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.archCents" datatype="html">
+        <source>Prix par arche (cents)</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">183,185</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.archHint" datatype="html">
+        <source> en CENTS · ex : 15000 = 150,00 $ </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">195,197</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.archError" datatype="html">
+        <source> Le prix par arche ne peut pas être négatif. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">199,201</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.widths" datatype="html">
+        <source>Largeurs proposées (cm)</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">207,209</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.listHint" datatype="html">
+        <source> valeurs en cm séparées par des virgules · ex : 244, 305, 366 </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">218,220</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">239,241</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.widthsError" datatype="html">
+        <source> Indiquez au moins une largeur (entiers positifs séparés par des virgules). </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">222,225</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.heights" datatype="html">
+        <source>Hauteurs dégagées proposées (cm)</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">228,230</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.heightsError" datatype="html">
+        <source> Indiquez au moins une hauteur dégagée (entiers positifs séparés par des virgules). </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">243,246</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.save" datatype="html">
+        <source>Enregistrer</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">251,253</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.create" datatype="html">
+        <source>Créer le modèle</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">253,256</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.form.cancel" datatype="html">
+        <source> Annuler </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">258,260</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.list.heading" datatype="html">
+        <source> Modèles du référentiel </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">268,271</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.list.loading" datatype="html">
+        <source>Chargement…</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">272,273</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.list.empty" datatype="html">
+        <source> Aucun modèle dans le référentiel. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">275,277</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.table.caption" datatype="html">
+        <source> Liste des modèles d&apos;abris avec nom, catégorie, prix de base et plage de longueur. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">281,283</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.table.name" datatype="html">
+        <source>Nom</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">286</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.table.category" datatype="html">
+        <source>Catégorie</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">286,287</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.table.basePrice" datatype="html">
+        <source>Prix de base</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">287,288</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.table.range" datatype="html">
+        <source>Longueur (min–max)</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">288,289</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.table.actions" datatype="html">
+        <source>Actions</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">289,291</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.table.edit" datatype="html">
+        <source>Modifier</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">306,308</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.table.delete" datatype="html">
+        <source>Supprimer</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">314,316</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.delete.title" datatype="html">
+        <source>Confirmer la suppression</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">341,343</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.delete.message" datatype="html">
+        <source>Voulez-vous vraiment supprimer ce modèle ?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">343,344</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.delete.confirm" datatype="html">
+        <source> Supprimer </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">348,350</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.delete.cancel" datatype="html">
+        <source> Annuler </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
+          <context context-type="linenumber">351,354</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.toast.loadError" datatype="html">
+        <source>Échec du chargement.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.ts</context>
+          <context context-type="linenumber">163</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.ts</context>
+          <context context-type="linenumber">179</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.ts</context>
+          <context context-type="linenumber">231</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.toast.updated" datatype="html">
+        <source>Modèle mis à jour.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.ts</context>
+          <context context-type="linenumber">269</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.toast.created" datatype="html">
+        <source>Modèle créé.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.ts</context>
+          <context context-type="linenumber">288</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.toast.saveError" datatype="html">
+        <source>Une erreur est survenue. Veuillez réessayer.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.ts</context>
+          <context context-type="linenumber">305</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.toast.deleted" datatype="html">
+        <source>Modèle supprimé.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.ts</context>
+          <context context-type="linenumber">329</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.toast.deleteError" datatype="html">
+        <source>La suppression a échoué.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.ts</context>
+          <context context-type="linenumber">344</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.table.editLabel" datatype="html">
+        <source>Modifier <x id="name" equiv-text="name"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.ts</context>
+          <context context-type="linenumber">374</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.shelterModels.table.deleteLabel" datatype="html">
+        <source>Supprimer <x id="name" equiv-text="name"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.ts</context>
+          <context context-type="linenumber">379</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.users.eyebrow" datatype="html">

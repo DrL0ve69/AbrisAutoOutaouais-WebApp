@@ -28,5 +28,13 @@ public interface IApplicationDbContext
     DbSet<RentalContract> RentalContracts { get; }
     DbSet<BookingSlot> BookingSlots { get; }
 
+    /// <summary>
+    /// Accès générique à un <see cref="DbSet{TEntity}"/> — utilisé pour gérer explicitement une
+    /// entité enfant qui n'a pas de DbSet dédié (ex. <c>ShelterModelDimension</c>, manipulée comme
+    /// partie de l'agrégat <c>ShelterModel</c> : retrait + ajout des lignes lors d'une
+    /// reconfiguration, robuste sur tous les fournisseurs EF — cf. UpdateShelterModelCommandHandler).
+    /// </summary>
+    DbSet<TEntity> Set<TEntity>() where TEntity : class;
+
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 }
