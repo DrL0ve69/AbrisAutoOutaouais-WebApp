@@ -4,11 +4,12 @@
 > simplement **« continue la prochaine tâche »** ou lance **`/next-task`** : l'assistant lit ce
 > fichier + le plan actif, vérifie l'état git, puis enchaîne.
 >
-> **🟢 Programme ACTIF — Phase 2 (`docs/agile/ROADMAP-PHASE-2.md`), curseur sur EPIC 9** (catalogue
-> par dimensions configurables). 9.1 (domaine+migration+seed), 9.2 (API+prix), 9.3 (boutique/
-> product-detail + configurateur front) et 9.4 (panier/parcours/commande : abri configuré au panier
-> + `shelterLines` recalculés serveur dans `PlaceOrder`) **faits** sur la branche
-> `feat/epic-9-dimension-catalog` ; **curseur → EPIC 9.5** (admin référentiel dimensionnel).
+> **🟢 Programme ACTIF — Phase 2 (`docs/agile/ROADMAP-PHASE-2.md`), curseur sur EPIC 10** (suggestion
+> d'abris intelligente — dépend EPIC 9 désormais terminé). **EPIC 9 TERMINÉ (2026-06-19)** :
+> 9.1 (domaine+migration+seed), 9.2 (API+prix), 9.3 (configurateur front), 9.4 (panier/commande),
+> **9.5 (admin CRUD ShelterModel)** tous faits sur la branche `feat/epic-9-dimension-catalog` —
+> revue indépendante APPROVE WITH NITS, 1 Minor corrigé (CategoryId), L-035/L-036/L-024, PR en cours.
+> Ordre Phase 2 : ~~9~~ → **10** → 13 → 14 → 11 → 8 → 7.
 > **Programme G terminé (A→H) :** `C:\Users\phili\.claude\plans\majestic-soaring-sprout.md`
 > **Programme initial terminé (A→F) :** `C:\Users\phili\.claude\plans\1-i-want-you-glistening-barto.md`
 > Maintiens ce pointeur à jour à la fin de chaque sous-tâche (c'est ce que l'assistant relit).
@@ -199,6 +200,42 @@
 
 Docs retournées : README roadmap, `docs/agile/board.md` (section clôture Épic B),
 `docs/ux/heuristic-evaluation.md` (H1–H10 tous remédiés). **PR #15 mergée vers `master` ✅ (`7ccec41`).**
+
+---
+
+## ✅ EPIC 9 — Catalogue par dimensions configurables : TERMINÉ (2026-06-19)
+
+Branche `feat/epic-9-dimension-catalog`. Boucle complète *architecte → développeur → revue
+indépendante `code-reviewer` à la frontière d'épic → mentor*.
+
+| Sous-tâche | Statut |
+|-----------|--------|
+| 9.1 — Entité `ShelterModel` paramétrique + owned `ShelterModelDimension` + migration `AddShelterModels` + `ShelterPriceCalculator` + `ShelterModelSeeder` (4 modèles) | ✅ |
+| 9.2 — API catalogue paramétrique : `GET /api/v1/shelters`, `GET /api/v1/shelters/{slug}`, `GET /api/v1/shelters/{slug}/price` (`[AllowAnonymous]`) + 5 unit + 7 IT | ✅ |
+| 9.3 — Configurateur front : pages `modeles/:category` + `configurer/:slug`, composant `dimension-configurator` (radiogroups APG L-015, range, prix debounce, `aria-live` L-027), CTA boutique/product-detail, i18n symétrique | ✅ |
+| 9.4 — Panier/commande : état panier abri configuré, ajout au panier, `shelterLines` sans prix dans `PlaceOrder` (serveur recalcule, L-004), ligne de commande `OrderLineShelterConfig`, migration `AddOrderLineShelterConfig`, IT invité+auth+422, e2e | ✅ |
+| 9.5 — Admin CRUD `ShelterModel` : domaine `Reconfigure()` + entité régulière `ShelterModelDimension` + migration `20260619150301` (Up/Down vides, schéma inchangé côté SQL Server) + commands Create/Update/Delete (`[Authorize(Policy="AdminOnly")]`) + page admin `shelter-models` (signals, OnPush, reactive forms, a11y, i18n 58 ids) + tuile dashboard | ✅ |
+| Correctif Minor revue : `CategoryId` exposé sur `ShelterModelDetailDto`, bind par id dans `UpdateShelterModelCommandHandler`, suppression `categoryIdForName` | ✅ |
+
+**Décision de modélisation** : modèle paramétrique « B » — largeur/hauteur fixes par catégorie, longueur configurable par pas de 4 pi, prix calculé serveur (n_arches). `ShelterModelDimension` : entité régulière (non owned après migration) avec clé primaire autonome.
+
+**Déviation EF owned → entité régulière** : la migration `20260619150301_ShelterModelDimensionRegularEntity` a des corps `Up()`/`Down()` vides — le schéma SQL Server était déjà en place. C'est attendu et documenté en L-035.
+
+**Revue indépendante** : `code-reviewer` **APPROVE WITH NITS** — 1 Minor corrigé (CategoryId), nits clôturés dans le commit feat(catalog).
+
+**Leçons capturées** : **L-035** (entité owned→régulière = migration vide côté SQL Server, snapshot mis à jour) · **L-036** (bind par id pour les relations de catégorie, exposer CategoryId sur le DTO) · **L-024 affûtée** (bind par id vs nom pour les relations de catégorie).
+
+**Gates** :
+- `dotnet build` 0 erreur · `dotnet test` 344 unit + 95 IT, 0 échec · filtré Shelters : 81 unit + 16 IT, 0 échec, incl. assertion `CategoryId`
+- `npm run build` (typecheck) OK · `npm test` shelter-models + dimension-configurator **19/19**
+- `npm run e2e admin-shelter-models` **5/5** · axe dual-thème zéro violation WCAG AA
+- i18n : 58 ids `admin.shelterModels.*` symétriques fr/en (L-018)
+- Migration `20260619150301` Up/Down vides (schéma SQL Server inchangé) — attendu (L-035)
+- Sécurité : POST/PUT/DELETE `[Authorize(Policy="AdminOnly")]`, GET restés `[AllowAnonymous]` · IT couvre 401/403/422/409/404
+
+**Statut git** : PR en cours → merge `master` → CI verte → branche supprimée. **Prochain : EPIC 10** (suggestion d'abris intelligente).
+
+---
 
 ## Suite du programme
 

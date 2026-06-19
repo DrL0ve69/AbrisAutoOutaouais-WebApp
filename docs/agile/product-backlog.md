@@ -155,8 +155,8 @@ les critères a11y dans sa Definition of Done (voir `definition-of-done.md`).
 
 | ID | User Story | Estimation | MoSCoW | Statut |
 |----|-----------|:----------:|:------:|--------|
-| US-9.1 | En tant que **visiteur**, je veux, **après avoir choisi une catégorie d'abri, choisir les dimensions** (largeur fixe par catégorie, longueur configurable par pas de 4 pi, hauteur dégagée) afin de sélectionner le modèle exact. | 13 | **Should** | 🔄 En cours (Phase 2 ; modèle paramétrique) — 9.1 entité+prix ✅, 9.2 API ✅, 9.3 configurateur front ✅, **9.4 panier/commande ✅** (état panier abri configuré, ajout au panier, `shelterLines` sans prix dans `PlaceOrder` — serveur recalcule, L-004) ; reste 9.5 admin référentiel |
-| US-9.2 | En tant qu'**admin**, je veux **saisir le référentiel dimensionnel** (largeurs/hauteurs/longueurs possibles par catégorie) afin que la sélection client soit exacte. | 5 | **Should** | ⛔ À planifier (Phase 2 ; compléter dims mono/double/autres depuis abristempo.com) |
+| US-9.1 | En tant que **visiteur**, je veux, **après avoir choisi une catégorie d'abri, choisir les dimensions** (largeur fixe par catégorie, longueur configurable par pas de 4 pi, hauteur dégagée) afin de sélectionner le modèle exact. | 13 | **Should** | ✅ **Fait (2026-06-19)** — 9.1 entité+prix · 9.2 API · 9.3 configurateur front · 9.4 panier/commande (`shelterLines` recalculés serveur) · e2e/IT/unit verts |
+| US-9.2 | En tant qu'**admin**, je veux **saisir le référentiel dimensionnel** (largeurs/hauteurs/longueurs possibles par catégorie) afin que la sélection client soit exacte. | 5 | **Should** | ✅ **Fait (2026-06-19)** — 9.5 admin CRUD ShelterModel : Create/Update/Delete (`[Authorize(Policy="AdminOnly")]`), page admin avec formulaire modal, correctif CategoryId, 58 ids i18n, 5 e2e axe dual-thème, 16 IT sécurité |
 
 ### EPIC 10 — Suggestion d'abris intelligente (mesure & véhicule)
 
