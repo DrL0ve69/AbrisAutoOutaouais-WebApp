@@ -390,9 +390,17 @@
         <source>Abri configuré</source>
         <target>Configured shelter</target>
       </trans-unit>
+      <trans-unit id="cart.shelters.width" datatype="html">
+        <source>Largeur :</source>
+        <target>Width:</target>
+      </trans-unit>
       <trans-unit id="cart.shelters.length" datatype="html">
         <source>Longueur :</source>
         <target>Length:</target>
+      </trans-unit>
+      <trans-unit id="cart.shelters.height" datatype="html">
+        <source>Hauteur :</source>
+        <target>Height:</target>
       </trans-unit>
       <trans-unit id="cart.shelters.qty" datatype="html">
         <source>Quantité :</source>
@@ -2780,6 +2788,10 @@
         <source>Largeur de l&apos;abri</source>
         <target>Shelter width</target>
       </trans-unit>
+      <trans-unit id="shop.configurator.widthStatic" datatype="html">
+        <source>Largeur :</source>
+        <target>Width:</target>
+      </trans-unit>
       <trans-unit id="shop.configurator.heightLegend" datatype="html">
         <source> Hauteur dégagée </source>
         <target> Clearance height </target>
@@ -2792,17 +2804,9 @@
         <source>Longueur</source>
         <target>Length</target>
       </trans-unit>
-      <trans-unit id="shop.configurator.lengthSlider" datatype="html">
-        <source> Régler la longueur </source>
-        <target> Adjust the length </target>
-      </trans-unit>
-      <trans-unit id="shop.configurator.lengthExact" datatype="html">
-        <source> Longueur (cm) </source>
-        <target> Length (cm) </target>
-      </trans-unit>
-      <trans-unit id="shop.configurator.lengthBounds" datatype="html">
-        <source> De <x id="INTERPOLATION" equiv-text="{{ formatFeetInches(model()!.minLengthCm) }}"/> à <x id="INTERPOLATION_1" equiv-text="{{ formatFeetInches(model()!.maxLengthCm) }}"/>, par pas de <x id="INTERPOLATION_2" equiv-text="{{ formatFeetInches(model()!.lengthStepCm) }}"/>. </source>
-        <target> From <x id="INTERPOLATION" equiv-text="{{ formatFeetInches(model()!.minLengthCm) }}"/> to <x id="INTERPOLATION_1" equiv-text="{{ formatFeetInches(model()!.maxLengthCm) }}"/>, in steps of <x id="INTERPOLATION_2" equiv-text="{{ formatFeetInches(model()!.lengthStepCm) }}"/>. </target>
+      <trans-unit id="shop.configurator.lengthSelect" datatype="html">
+        <source> Longueur </source>
+        <target> Length </target>
       </trans-unit>
       <trans-unit id="shop.configurator.priceLabel" datatype="html">
         <source> Prix configuré </source>

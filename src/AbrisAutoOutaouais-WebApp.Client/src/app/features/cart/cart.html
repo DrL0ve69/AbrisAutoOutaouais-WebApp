@@ -102,8 +102,16 @@
             <h2 class="cart-item__name">{{ item.modelName }}</h2>
             <p class="cart-item__category" i18n="@@cart.shelters.configured">Abri configuré</p>
             <p class="cart-item__dims">
+              <span i18n="@@cart.shelters.width">Largeur :</span>
+              {{ formatFeetInches(item.widthCm) }}
+            </p>
+            <p class="cart-item__dims">
               <span i18n="@@cart.shelters.length">Longueur :</span>
               {{ formatFeetInches(item.lengthCm) }}
+            </p>
+            <p class="cart-item__dims">
+              <span i18n="@@cart.shelters.height">Hauteur :</span>
+              {{ formatFeetInches(item.clearHeightCm) }}
             </p>
             <p class="cart-item__unit">
               <span i18n="@@cart.unitPrice">Prix unitaire :</span>

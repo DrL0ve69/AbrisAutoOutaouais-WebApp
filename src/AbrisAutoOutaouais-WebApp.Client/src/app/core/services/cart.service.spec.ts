@@ -4,9 +4,11 @@ import { CartService, shelterKey } from './cart.service';
 import type { ShelterConfiguration } from '../../features/shop/dimension-configurator/dimension-configurator';
 import { ProductSummaryDto } from '../models/product.model';
 
-// ── État panier : abris CONFIGURÉS (EPIC 9.4-e) ──────────────────────────────────────────────
-// On vérifie : (a) ajout/fusion par CLÉ COMPOSITE (slug + lengthCm), (b) `subtotal`/`count`
-// incluent les abris en plus des produits, (c) `removeShelter` cible la bonne ligne. Les abris
+// ── État panier : abris CONFIGURÉS (EPIC 9.4-e, rework EPIC 9) ────────────────────────────────
+// On vérifie : (a) ajout/fusion par CLÉ COMPOSITE (slug + lengthCm + clearHeightCm ; largeur
+// implicite via le slug), (b) la ligne mémorise largeur/longueur/hauteur, (c) deux configs ne
+// différant QUE par la hauteur ne fusionnent PAS (clés distinctes), (d) `subtotal`/`count`
+// incluent les abris en plus des produits, (e) `removeShelter` cible la bonne ligne. Les abris
 // ne touchent JAMAIS l'état produit existant (non-régression du panier produit).
 
 function makeProduct(id: string, price: number): ProductSummaryDto {
@@ -43,19 +45,21 @@ describe('CartService — abris configurés (EPIC 9.4)', () => {
     cart = TestBed.inject(CartService);
   });
 
-  it('addShelter ajoute une nouvelle ligne avec sa clé composite', () => {
+  it('addShelter ajoute une nouvelle ligne avec sa clé composite et mémorise largeur/longueur/hauteur', () => {
     cart.addShelter(makeConfig());
 
     expect(cart.shelterItems()).toHaveLength(1);
     const line = cart.shelterItems()[0];
-    expect(line.key).toBe(shelterKey('simple', 366));
+    expect(line.key).toBe(shelterKey('simple', 366, 198));
     expect(line.modelName).toBe('Abri simple — Abris Tempo');
+    expect(line.widthCm).toBe(335);
     expect(line.lengthCm).toBe(366);
+    expect(line.clearHeightCm).toBe(198);
     expect(line.price).toBe(549);
     expect(line.quantity).toBe(1);
   });
 
-  it('addShelter FUSIONNE deux configs identiques (même slug + lengthCm) en incrémentant la quantité', () => {
+  it('addShelter FUSIONNE deux configs identiques (même slug + lengthCm + clearHeightCm) en incrémentant la quantité', () => {
     cart.addShelter(makeConfig());
     cart.addShelter(makeConfig());
 
@@ -71,6 +75,14 @@ describe('CartService — abris configurés (EPIC 9.4)', () => {
     expect(cart.shelterItems().map(i => i.lengthCm)).toEqual([366, 488]);
   });
 
+  it('addShelter crée des lignes DISTINCTES quand SEULE la hauteur diffère (clé composite inclut la hauteur)', () => {
+    cart.addShelter(makeConfig({ clearHeightCm: 198 }));
+    cart.addShelter(makeConfig({ clearHeightCm: 244 }));
+
+    expect(cart.shelterItems()).toHaveLength(2);
+    expect(cart.shelterItems().map(i => i.clearHeightCm)).toEqual([198, 244]);
+  });
+
   it('subtotal et count incluent les abris configurés EN PLUS des produits', () => {
     cart.addItem(makeProduct('p1', 100), 2); // 200 $, 2 articles
     cart.addShelter(makeConfig({ totalPrice: 549 }), 1); // 549 $, 1 article
@@ -83,7 +95,7 @@ describe('CartService — abris configurés (EPIC 9.4)', () => {
     cart.addShelter(makeConfig({ lengthCm: 366, totalPrice: 549 }));
     cart.addShelter(makeConfig({ lengthCm: 488, totalPrice: 749 }));
 
-    cart.removeShelter(shelterKey('simple', 366));
+    cart.removeShelter(shelterKey('simple', 366, 198));
 
     expect(cart.shelterItems()).toHaveLength(1);
     expect(cart.shelterItems()[0].lengthCm).toBe(488);

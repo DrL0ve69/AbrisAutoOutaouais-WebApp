@@ -2363,11 +2363,25 @@
           <context context-type="linenumber">103,104</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="cart.shelters.width" datatype="html">
+        <source>Largeur :</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/cart/cart.html</context>
+          <context context-type="linenumber">105,106</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="cart.shelters.length" datatype="html">
         <source>Longueur :</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/cart/cart.html</context>
-          <context context-type="linenumber">105,106</context>
+          <context context-type="linenumber">109,110</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="cart.shelters.height" datatype="html">
+        <source>Hauteur :</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/cart/cart.html</context>
+          <context context-type="linenumber">113,114</context>
         </context-group>
       </trans-unit>
       <trans-unit id="cart.shelters.qty" datatype="html">
@@ -4580,6 +4594,13 @@
           <context context-type="linenumber">22,23</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="shop.configurator.widthStatic" datatype="html">
+        <source>Largeur :</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/dimension-configurator/dimension-configurator.html</context>
+          <context context-type="linenumber">21,22</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="shop.configurator.heightLegend" datatype="html">
         <source> Hauteur dégagée </source>
         <context-group purpose="location">
@@ -4601,25 +4622,11 @@
           <context context-type="linenumber">74,75</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="shop.configurator.lengthSlider" datatype="html">
-        <source> Régler la longueur </source>
+      <trans-unit id="shop.configurator.lengthSelect" datatype="html">
+        <source> Longueur </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/dimension-configurator/dimension-configurator.html</context>
           <context context-type="linenumber">77,80</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="shop.configurator.lengthExact" datatype="html">
-        <source> Longueur (cm) </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/dimension-configurator/dimension-configurator.html</context>
-          <context context-type="linenumber">90,92</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="shop.configurator.lengthBounds" datatype="html">
-        <source> De <x id="INTERPOLATION" equiv-text="{{ formatFeetInches(model()!.minLengthCm) }}"/> à <x id="INTERPOLATION_1" equiv-text="{{ formatFeetInches(model()!.maxLengthCm) }}"/>, par pas de <x id="INTERPOLATION_2" equiv-text="{{ formatFeetInches(model()!.lengthStepCm) }}"/>. </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/dimension-configurator/dimension-configurator.html</context>
-          <context context-type="linenumber">107,110</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.configurator.priceLabel" datatype="html">

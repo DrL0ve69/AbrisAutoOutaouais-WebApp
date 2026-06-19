@@ -1,7 +1,8 @@
 <!-- ============================================================
-     Configurateur de dimensions (EPIC 9.3)
-     WCAG AA : radiogroups APG (largeur/hauteur), longueur range+number
-     liés, prix annoncé en aria-live (état neutre avant réannonce — L-027).
+     Configurateur de dimensions (EPIC 9.3, rework EPIC 9)
+     WCAG AA : largeur statique (1 option) ou radiogroup APG (plusieurs),
+     hauteur radiogroup APG, longueur en <select> natif (choix discret),
+     prix annoncé en aria-live (état neutre avant réannonce — L-027).
 ============================================================ -->
 @if (loading()) {
   <div class="configurator__loading" role="status" aria-busy="true" i18n="@@shop.configurator.loading">
@@ -13,31 +14,38 @@
   </div>
 } @else {
   <section class="configurator" [attr.aria-label]="model()!.name + ' — configuration'">
-    <!-- Largeur : radiogroup APG -->
+    <!-- Largeur : ligne statique si une seule option, sinon radiogroup APG -->
     <fieldset class="configurator__group">
       <legend class="configurator__legend" i18n="@@shop.configurator.widthLegend">Largeur</legend>
-      <div
-        class="configurator__radios"
-        role="radiogroup"
-        aria-label="Largeur de l'abri"
-        i18n-aria-label="@@shop.configurator.widthGroup"
-      >
-        @for (option of model()!.widthOptionsCm; track option; let i = $index) {
-          <button
-            #widthRadio
-            type="button"
-            class="configurator__radio"
-            [class.configurator__radio--active]="widthIndex() === i"
-            role="radio"
-            [attr.aria-checked]="widthIndex() === i"
-            [attr.tabindex]="widthIndex() === i ? 0 : -1"
-            (click)="selectWidth(i)"
-            (keydown)="onWidthKeydown($event)"
-          >
-            {{ formatFeetInches(option) }}
-          </button>
-        }
-      </div>
+      @if (model()!.widthOptionsCm.length === 1) {
+        <p class="configurator__static">
+          <span i18n="@@shop.configurator.widthStatic">Largeur :</span>
+          {{ formatFeetInches(selectedWidthCm()) }}
+        </p>
+      } @else {
+        <div
+          class="configurator__radios"
+          role="radiogroup"
+          aria-label="Largeur de l'abri"
+          i18n-aria-label="@@shop.configurator.widthGroup"
+        >
+          @for (option of model()!.widthOptionsCm; track option; let i = $index) {
+            <button
+              #widthRadio
+              type="button"
+              class="configurator__radio"
+              [class.configurator__radio--active]="widthIndex() === i"
+              role="radio"
+              [attr.aria-checked]="widthIndex() === i"
+              [attr.tabindex]="widthIndex() === i ? 0 : -1"
+              (click)="selectWidth(i)"
+              (keydown)="onWidthKeydown($event)"
+            >
+              {{ formatFeetInches(option) }}
+            </button>
+          }
+        </div>
+      }
     </fieldset>
 
     <!-- Hauteur dégagée : radiogroup APG -->
@@ -69,44 +77,22 @@
       </div>
     </fieldset>
 
-    <!-- Longueur : range + number LIÉS au même contrôle -->
+    <!-- Longueur : choix DISCRET via un <select> natif (sémantique clavier intégrée) -->
     <fieldset class="configurator__group">
       <legend class="configurator__legend" i18n="@@shop.configurator.lengthLegend">Longueur</legend>
       <div class="configurator__length">
-        <label class="configurator__length-label" for="configurator-length-range" i18n="@@shop.configurator.lengthSlider">
-          Régler la longueur
+        <label class="configurator__length-label" for="configurator-length-select" i18n="@@shop.configurator.lengthSelect">
+          Longueur
         </label>
-        <input
-          id="configurator-length-range"
-          type="range"
-          class="configurator__range"
-          [min]="model()!.minLengthCm"
-          [max]="model()!.maxLengthCm"
-          [step]="model()!.lengthStepCm"
+        <select
+          id="configurator-length-select"
+          class="configurator__select"
           [formControl]="lengthControl"
-        />
-        <div class="configurator__length-value">
-          <label for="configurator-length-number" i18n="@@shop.configurator.lengthExact">
-            Longueur (cm)
-          </label>
-          <input
-            id="configurator-length-number"
-            type="number"
-            inputmode="numeric"
-            class="configurator__number"
-            [min]="model()!.minLengthCm"
-            [max]="model()!.maxLengthCm"
-            [step]="model()!.lengthStepCm"
-            [formControl]="lengthControl"
-          />
-          <span class="configurator__length-feet" aria-hidden="true">
-            ({{ formatFeetInches(lengthCm()) }})
-          </span>
-        </div>
-        <p class="configurator__length-bounds" i18n="@@shop.configurator.lengthBounds">
-          De {{ formatFeetInches(model()!.minLengthCm) }} à {{ formatFeetInches(model()!.maxLengthCm) }},
-          par pas de {{ formatFeetInches(model()!.lengthStepCm) }}.
-        </p>
+        >
+          @for (option of lengthOptionsCm(); track option) {
+            <option [ngValue]="option">{{ formatFeetInches(option) }}</option>
+          }
+        </select>
       </div>
     </fieldset>
 

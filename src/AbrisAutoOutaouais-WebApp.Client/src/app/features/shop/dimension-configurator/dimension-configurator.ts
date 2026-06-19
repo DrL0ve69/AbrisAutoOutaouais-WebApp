@@ -33,11 +33,14 @@ export interface ShelterConfiguration {
 }
 
 /**
- * Configurateur de dimensions d'un abri PARAMÉTRIQUE (EPIC 9.3).
+ * Configurateur de dimensions d'un abri PARAMÉTRIQUE (EPIC 9.3, rework EPIC 9).
  *
- * - Largeur et hauteur dégagée : deux `radiogroup` conformes APG (roving tabindex + flèches +
- *   Home/End, focus synchrone car options statiques — L-015 ; util pur `radio-nav.util`).
- * - Longueur : `range` + `number` LIÉS (reactive form), bornés `[min, max]` par pas `step`.
+ * - Largeur : une seule option ⇒ LIGNE STATIQUE accessible (`<p>`) ; plusieurs ⇒ `radiogroup`
+ *   conforme APG (roving tabindex + flèches + Home/End, focus synchrone car options statiques —
+ *   L-015 ; util pur `radio-nav.util`). `selectedWidthCm()` reste correct dans les deux cas.
+ * - Hauteur dégagée : `radiogroup` APG (inchangé).
+ * - Longueur : choix DISCRET via un `<select>` natif lié à `lengthControl` (reactive form). Les
+ *   options sont les multiples du pas entre `min` et `max` (alignement garanti par construction).
  * - Prix : calcul OPTIMISTE local immédiat (miroir EXACT de `ShelterPriceCalculator.cs`),
  *   puis ÉCRASÉ par la réponse de `/price` (source unique — L-004), debounce 300 ms.
  * - Annonce de prix en `aria-live="polite"` avec passage par un état NEUTRE avant chaque
@@ -75,7 +78,7 @@ export class DimensionConfiguratorComponent implements OnInit {
   private readonly widthRadios = viewChildren<ElementRef<HTMLButtonElement>>('widthRadio');
   private readonly heightRadios = viewChildren<ElementRef<HTMLButtonElement>>('heightRadio');
 
-  /** Longueur configurée (cm) — liée au range ET au number via un seul contrôle. */
+  /** Longueur configurée (cm) — liée au `<select>` natif (choix discret). */
   protected readonly lengthControl = this.fb.control<number>(0, { nonNullable: true });
 
   /** Longueur courante (signal synchronisé sur le contrôle) pour le calcul optimiste. */
@@ -106,6 +109,17 @@ export class DimensionConfiguratorComponent implements OnInit {
   protected readonly selectedHeightCm = computed(() => {
     const m = this.model();
     return m ? (m.clearHeightOptionsCm[this.heightIndex()] ?? 0) : 0;
+  });
+
+  /**
+   * Longueurs offertes (cm) : les multiples du pas entre `min` et `max` inclus. L'alignement est
+   * garanti par construction, donc le `<select>` ne peut jamais produire de valeur désalignée.
+   */
+  protected readonly lengthOptionsCm = computed<readonly number[]>(() => {
+    const m = this.model();
+    if (!m) return [];
+    const count = Math.floor((m.maxLengthCm - m.minLengthCm) / m.lengthStepCm) + 1;
+    return Array.from({ length: count }, (_, i) => m.minLengthCm + i * m.lengthStepCm);
   });
 
   /** Prix affiché : le serveur prime ; à défaut l'optimiste (jamais les deux mélangés). */
@@ -157,8 +171,11 @@ export class DimensionConfiguratorComponent implements OnInit {
     });
   }
 
-  /** Initialise le contrôle de longueur (bornes/pas) et lance le 1er calcul de prix. */
+  /** Initialise le contrôle de longueur (1re option offerte) et lance le 1er calcul de prix. */
   private configureForm(model: ShelterModelDetail): void {
+    // Les options du `<select>` sont les multiples du pas dans [min, max] : la valeur est donc
+    // toujours alignée par construction. On garde min/max en garde-fous, l'alignement n'a plus
+    // besoin d'être validé côté formulaire.
     this.lengthControl.setValidators([
       Validators.required,
       Validators.min(model.minLengthCm),
