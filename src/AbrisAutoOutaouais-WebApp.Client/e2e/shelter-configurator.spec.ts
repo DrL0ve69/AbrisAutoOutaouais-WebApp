@@ -1,37 +1,102 @@
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
-// ── e2e : Configurateur de dimensions paramétrique (EPIC 9.3) ────────────────────────────────────
+// ── e2e : Configurateur paramétrique via l'OVERLAY du catalogue (rework EPIC 9) ─────────────────
+//
+// L'ancien flux est SUPPRIMÉ : plus de route `/boutique/configurer/:slug`, plus de heading
+// « Configurez les dimensions », plus de champ number `#configurator-length-number`. À la place :
+//   catalogue d'une catégorie paramétrique (`abris-simples`) → cartes `app-shelter-model-card` →
+//   le bouton « Ajouter au panier » d'une carte OUVRE un overlay modal (role=dialog, aria-modal) →
+//   dans l'overlay la LONGUEUR est un `<select>` natif (id `configurator-length-select`), la
+//   HAUTEUR des radios APG, la LARGEUR une ligne statique (une seule option par modèle).
 //
 // Trois axes :
-//  (a) RECALCUL DE PRIX : changer largeur/hauteur/longueur → barrière réseau sur `/shelters/*/price`
-//      (jamais waitForTimeout — L-012) → prix + arches mis à jour depuis la SOURCE serveur (L-004).
-//  (b) CLAVIER : radiogroups largeur/hauteur conformes APG (flèche bascule la sélection ET le focus).
-//  (c) CONTRASTE : balayage axe DUAL-THÈME (clair + sombre, `color-contrast` inclus — non couvert
-//      en vitest, L-016).
+//  (a) RECALCUL DE PRIX : changer la longueur via `selectOption` (label en pieds) → barrière réseau
+//      sur `/shelters/*/price` (jamais waitForTimeout — L-012) → prix mis à jour depuis la SOURCE
+//      serveur (L-004), puis « Ajouter au panier » devient actif (aria-disabled=false — L-024).
+//  (b) CONTRASTE : balayage axe DUAL-THÈME (clair + sombre, `color-contrast` inclus — non couvert
+//      en vitest, L-016) sur l'overlay ouvert + la carte de modèle.
 //
-// On mocke les 3 endpoints `/shelters` (aucun backend requis). Le mock `/price` calcule la réponse
-// à partir du `lengthCm` demandé, en MIROIR de `ShelterPriceCalculator.cs` (base 349 $, 100 $/arche,
-// min 122 cm, pas 122 cm) — pour que les assertions soient déterministes.
+// On mocke les endpoints `/shelters` (aucun backend requis) en MIROIR du provider réel (L-011) :
+//   forme `ShelterModelSummaryDto` / `ShelterModelDetailDto` / `ShelterPriceDto` (camelCase .NET),
+//   slugs PAR LARGEUR (`simple-11pi`, largeur unique 335 cm → ligne statique), et `/price` calculé
+//   comme `ShelterPriceCalculator.cs` (base + archCount × pricePerArchCents/100, min/step en cm).
 
 const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 
+/**
+ * Construit un matcher de prix fr-CA tolérant au séparateur de milliers : selon le jeu ICU, le
+ * séparateur peut être une espace insécable (U+00A0) ou une fine insécable (U+202F), que `\s` ne
+ * couvre pas toujours. On accepte l'un ou l'autre (ou rien) — ex. `priceRe(1099)` ⇒ « 1 099,00 ».
+ */
+function priceRe(amount: number): RegExp {
+  const thousands = Math.floor(amount / 1000);
+  const rest = String(amount % 1000).padStart(3, '0');
+  return new RegExp(`${thousands}[\\s\\u00A0\\u202F]?${rest},00`);
+}
+
+// Catégorie paramétrique (chip du catalogue) — slug reconnu par `PARAMETRIC_CATEGORY_SLUGS`.
+const CATEGORY = { id: 'cat-simples', name: 'Abris simples', slug: 'abris-simples', productCount: 2 };
+
+// Modèle PAR LARGEUR (miroir de `ShelterModelSeeder.cs` → spec `simple-11pi`) :
+//  - largeur UNIQUE 335 cm (« 11 pi ») → ligne statique (pas de radiogroup) ;
+//  - hauteur 198 cm (« 6 pi 6 po ») ;
+//  - longueur 488→1830 cm par pas de 122 cm (« 16 pi » → « 60 pi »), base 1099 $, 150 $/arche.
 const MODEL = {
-  id: 'm1',
-  slug: 'simple',
-  name: 'Abri simple — Abris Tempo',
-  categoryName: 'Abris simples',
-  basePrice: 349,
-  minLengthCm: 122,
+  id: 'm-simple-11pi',
+  slug: 'simple-11pi',
+  name: 'Abri simple 11 pi — Abris Tempo',
+  categoryId: CATEGORY.id,
+  categoryName: CATEGORY.name,
+  basePrice: 1099,
+  minLengthCm: 488,
   maxLengthCm: 1830,
   lengthStepCm: 122,
-  pricePerArchCents: 10000, // 100 $ / arche
-  widthOptionsCm: [335, 366],
-  clearHeightOptionsCm: [198, 244],
+  pricePerArchCents: 15000, // 150 $ / arche (DefaultPricePerArchCents)
+  widthOptionsCm: [335],
+  clearHeightOptionsCm: [198],
+};
+
+// Résumé exposé par `GET /shelters?category=…` (ShelterModelSummaryDto — sans options largeur/hauteur).
+const SUMMARY = {
+  id: MODEL.id,
+  slug: MODEL.slug,
+  name: MODEL.name,
+  categoryName: MODEL.categoryName,
+  basePrice: MODEL.basePrice,
+  minLengthCm: MODEL.minLengthCm,
+  maxLengthCm: MODEL.maxLengthCm,
+  lengthStepCm: MODEL.lengthStepCm,
 };
 
 async function mockApi(page: Page): Promise<void> {
-  await page.route('**/api/v1/shelters/simple/price*', (route) => {
+  // Catégories : expose la catégorie paramétrique (chip cliquable du catalogue).
+  await page.route('**/api/v1/categories', (route) => route.fulfill({ json: [CATEGORY] }));
+
+  // Produits fixes : vides (le 1er chargement « Tous » et les autres catégories n'ont rien à montrer).
+  await page.route('**/api/v1/products*', (route) =>
+    route.fulfill({
+      json: {
+        items: [],
+        totalCount: 0,
+        pageNumber: 1,
+        pageSize: 50,
+        totalPages: 0,
+        hasNext: false,
+        hasPrev: false,
+      },
+    }),
+  );
+
+  // Catalogue paramétrique : liste des modèles de la catégorie.
+  await page.route('**/api/v1/shelters?*', (route) => route.fulfill({ json: [SUMMARY] }));
+  await page.route('**/api/v1/shelters', (route) => route.fulfill({ json: [SUMMARY] }));
+
+  // Détail du modèle (options largeur/hauteur incluses).
+  await page.route(`**/api/v1/shelters/${MODEL.slug}`, (route) => route.fulfill({ json: MODEL }));
+
+  // Prix serveur : miroir EXACT de ShelterPriceCalculator.cs (déterministe).
+  await page.route(`**/api/v1/shelters/${MODEL.slug}/price*`, (route) => {
     const url = new URL(route.request().url());
     const lengthCm = Number(url.searchParams.get('lengthCm'));
     const archCount = (lengthCm - MODEL.minLengthCm) / MODEL.lengthStepCm;
@@ -40,7 +105,6 @@ async function mockApi(page: Page): Promise<void> {
       json: { modelId: MODEL.id, slug: MODEL.slug, lengthCm, archCount, totalPrice },
     });
   });
-  await page.route('**/api/v1/shelters/simple', (route) => route.fulfill({ json: MODEL }));
 }
 
 /** Force le thème via localStorage AVANT navigation (clé lue par ThemeService). */
@@ -54,65 +118,73 @@ function forceTheme(page: Page, theme: 'light' | 'dark'): Promise<void> {
   }, theme);
 }
 
-/** Ouvre la page de configuration et attend le 1er prix serveur (barrière réseau — L-012). */
-async function gotoConfigurator(page: Page): Promise<void> {
+/**
+ * Ouvre le catalogue, sélectionne la catégorie paramétrique, clique le CTA d'une carte de modèle,
+ * et attend l'ouverture de l'overlay + le 1er prix serveur (barrière réseau — L-012). Retourne le
+ * dialogue et le bouton déclencheur (pour vérifier le retour de focus en cas de besoin).
+ */
+async function openOverlay(page: Page) {
+  await page.goto('/boutique');
+
+  // Sélectionne la catégorie paramétrique (chip filtre) → charge les cartes de modèles.
+  await page.getByRole('button', { name: CATEGORY.name }).click();
+
+  // Carte de modèle rendue (état positif avant interaction).
+  const heading = page.getByRole('heading', { level: 2, name: MODEL.name });
+  await expect(heading).toBeVisible();
+
+  // CTA de la carte : ouvre l'overlay. Barrière sur le 1er calcul de prix du configurateur.
+  const trigger = page.getByRole('button', { name: new RegExp(`Configurer.*${MODEL.name}`) });
   const firstPrice = page.waitForResponse((r) => /shelters\/.*\/price/.test(r.url()));
-  await page.goto('/boutique/configurer/simple');
-  await expect(page.getByRole('heading', { level: 1, name: /configurez les dimensions/i })).toBeVisible();
+  await trigger.click();
+
+  const dialog = page.getByRole('dialog', { name: MODEL.name });
+  await expect(dialog).toBeVisible();
   await firstPrice;
+  return { dialog, trigger };
 }
 
-test('recalcule le prix au changement de longueur (source serveur, barrière réseau)', async ({
+test('overlay : ajuste la longueur via <select> → prix recalculé (source serveur) → ajout au panier', async ({
   page,
 }) => {
   await mockApi(page);
-  await gotoConfigurator(page);
+  const { dialog } = await openOverlay(page);
 
   // Montant affiché (scopé à la classe pour ne pas heurter l'annonce aria-live qui répète le prix).
-  const priceAmount = page.locator('.configurator__price-amount');
-  // Prix initial : longueur min 122 cm → 0 arche → 349 $.
-  await expect(priceAmount).toContainText(/349,00/);
+  const priceAmount = dialog.locator('.configurator__price-amount');
+  // Longueur initiale = min 488 cm (« 16 pi ») → 0 arche → 1099 $.
+  await expect(priceAmount).toContainText(priceRe(1099));
 
-  // Change la longueur via le champ number (lié au range). Barrière sur la requête `/price`.
-  const number = page.locator('#configurator-length-number');
+  // « Ajouter au panier » actif (aria-disabled=false) une fois le 1er prix confirmé.
+  const addBtn = dialog.getByRole('button', { name: /ajouter au panier/i });
+  await expect(addBtn).toHaveAttribute('aria-disabled', 'false');
+
+  // Change la longueur via le <select> natif : on cible par LABEL (option en pieds, [ngValue]).
+  // 732 cm = 488 + 2 pas → « 24 pi » → 2 arches → 1099 + 300 = 1399 $.
+  const lengthSelect = dialog.locator('#configurator-length-select');
   const priceResp = page.waitForResponse((r) => /shelters\/.*\/price/.test(r.url()));
-  await number.fill('366');
+  await lengthSelect.selectOption({ label: '24 pi' });
   await priceResp;
+  await expect(priceAmount).toContainText(priceRe(1399));
 
-  // 366 cm = min + 2 pas → 2 arches → 349 + 200 = 549 $.
-  await expect(priceAmount).toContainText(/549,00/);
-});
-
-test('radiogroup largeur APG : flèche bascule la sélection ET déplace le focus', async ({ page }) => {
-  await mockApi(page);
-  await gotoConfigurator(page);
-
-  const first = page.getByRole('radio', { name: '11 pi' });
-  const second = page.getByRole('radio', { name: '12 pi' });
-
-  await expect(first).toHaveAttribute('aria-checked', 'true');
-  await expect(first).toHaveAttribute('tabindex', '0');
-  await expect(second).toHaveAttribute('tabindex', '-1');
-
-  await first.focus();
-  await page.keyboard.press('ArrowRight');
-
-  await expect(second).toHaveAttribute('aria-checked', 'true');
-  await expect(second).toBeFocused();
-  await expect(second).toHaveAttribute('tabindex', '0');
-  await expect(first).toHaveAttribute('tabindex', '-1');
+  // Ajout au panier : le bouton reste actif et l'ajout est annoncé (live region scopée).
+  await expect(addBtn).toHaveAttribute('aria-disabled', 'false');
+  await addBtn.click();
 });
 
 for (const theme of ['light', 'dark'] as const) {
-  test(`aucune violation axe (contraste inclus) — thème ${theme}`, async ({ page }) => {
+  test(`aucune violation axe (contraste inclus) — overlay + carte, thème ${theme}`, async ({
+    page,
+  }) => {
     await forceTheme(page, theme);
     await mockApi(page);
-    await gotoConfigurator(page);
+    const { dialog } = await openOverlay(page);
     await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
 
     // Le prix est rendu (état positif) avant le scan — la surface couleur est présente.
-    await expect(page.locator('.configurator__price-amount')).toContainText(/349,00/);
+    await expect(dialog.locator('.configurator__price-amount')).toContainText(priceRe(1099));
 
+    // Scan pleine page : couvre l'overlay ouvert ET la carte de modèle du catalogue derrière.
     const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
     expect(results.violations).toEqual([]);
   });
