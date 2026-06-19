@@ -1,0 +1,31 @@
+<!-- ============================================================
+     Carte d'un modèle d'abri paramétrique (rework EPIC 9)
+     WCAG AA : titre h2, prix « à partir de », CTA ≥ 44px qui ouvre l'overlay.
+============================================================ -->
+<article class="model-card">
+  <h2 class="model-card__name">{{ model().name }}</h2>
+  <p class="model-card__category">{{ model().categoryName }}</p>
+
+  <p class="model-card__price">
+    <span i18n="@@shop.modelCard.fromLabel">À partir de</span>
+    <span class="model-card__price-amount">
+      {{ model().basePrice | currency: 'CAD' : 'symbol' : '1.2-2' : 'fr-CA' }}
+    </span>
+  </p>
+
+  <p class="model-card__range">
+    <span i18n="@@shop.modelCard.lengthRange">Longueur de</span>
+    {{ formatFeetInches(model().minLengthCm) }}
+    <span i18n="@@shop.modelCard.lengthRangeTo">à</span>
+    {{ formatFeetInches(model().maxLengthCm) }}
+  </p>
+
+  <button
+    type="button"
+    class="btn btn--primary model-card__cta"
+    (click)="onConfigure($event)"
+    [attr.aria-label]="addAriaLabel()"
+  >
+    <span i18n="@@shop.modelCard.addToCart">Ajouter au panier</span>
+  </button>
+</article>

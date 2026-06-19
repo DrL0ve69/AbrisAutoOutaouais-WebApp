@@ -1604,7 +1604,7 @@
         <source> Le nom est requis (100 caractères maximum). </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">70,73</context>
+          <context context-type="linenumber">70,72</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.form.category" datatype="html">
@@ -1734,7 +1734,7 @@
         <source> Indiquez au moins une largeur (entiers positifs séparés par des virgules). </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">222,225</context>
+          <context context-type="linenumber">222,224</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.form.heights" datatype="html">
@@ -1748,7 +1748,7 @@
         <source> Indiquez au moins une hauteur dégagée (entiers positifs séparés par des virgules). </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">243,246</context>
+          <context context-type="linenumber">243,245</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.form.save" datatype="html">
@@ -1762,7 +1762,7 @@
         <source>Créer le modèle</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">253,256</context>
+          <context context-type="linenumber">253,255</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.form.cancel" datatype="html">
@@ -1804,7 +1804,7 @@
         <source>Nom</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">286</context>
+          <context context-type="linenumber">285,286</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.table.category" datatype="html">
@@ -1874,7 +1874,7 @@
         <source> Annuler </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">351,354</context>
+          <context context-type="linenumber">351,353</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.toast.loadError" datatype="html">
@@ -1889,56 +1889,56 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.ts</context>
-          <context context-type="linenumber">231</context>
+          <context context-type="linenumber">226</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.toast.updated" datatype="html">
         <source>Modèle mis à jour.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.ts</context>
-          <context context-type="linenumber">269</context>
+          <context context-type="linenumber">264</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.toast.created" datatype="html">
         <source>Modèle créé.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.ts</context>
-          <context context-type="linenumber">288</context>
+          <context context-type="linenumber">283</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.toast.saveError" datatype="html">
         <source>Une erreur est survenue. Veuillez réessayer.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.ts</context>
-          <context context-type="linenumber">305</context>
+          <context context-type="linenumber">300</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.toast.deleted" datatype="html">
         <source>Modèle supprimé.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.ts</context>
-          <context context-type="linenumber">329</context>
+          <context context-type="linenumber">324</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.toast.deleteError" datatype="html">
         <source>La suppression a échoué.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.ts</context>
-          <context context-type="linenumber">344</context>
+          <context context-type="linenumber">339</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.table.editLabel" datatype="html">
         <source>Modifier <x id="name" equiv-text="name"/></source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.ts</context>
-          <context context-type="linenumber">374</context>
+          <context context-type="linenumber">369</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.table.deleteLabel" datatype="html">
         <source>Supprimer <x id="name" equiv-text="name"/></source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.ts</context>
-          <context context-type="linenumber">379</context>
+          <context context-type="linenumber">374</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.users.eyebrow" datatype="html">
@@ -2335,7 +2335,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/cart/cart.html</context>
-          <context context-type="linenumber">109,110</context>
+          <context context-type="linenumber">117,118</context>
         </context-group>
       </trans-unit>
       <trans-unit id="cart.lineTotal" datatype="html">
@@ -2346,7 +2346,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/cart/cart.html</context>
-          <context context-type="linenumber">122,123</context>
+          <context context-type="linenumber">130,131</context>
         </context-group>
       </trans-unit>
       <trans-unit id="cart.shelters.label" datatype="html">
@@ -2363,74 +2363,88 @@
           <context context-type="linenumber">103,104</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="cart.shelters.width" datatype="html">
+        <source>Largeur :</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/cart/cart.html</context>
+          <context context-type="linenumber">105,106</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="cart.shelters.length" datatype="html">
         <source>Longueur :</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/cart/cart.html</context>
-          <context context-type="linenumber">105,106</context>
+          <context context-type="linenumber">109,110</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="cart.shelters.height" datatype="html">
+        <source>Hauteur :</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/cart/cart.html</context>
+          <context context-type="linenumber">113,114</context>
         </context-group>
       </trans-unit>
       <trans-unit id="cart.shelters.qty" datatype="html">
         <source>Quantité :</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/cart/cart.html</context>
-          <context context-type="linenumber">116,117</context>
+          <context context-type="linenumber">124,125</context>
         </context-group>
       </trans-unit>
       <trans-unit id="cart.summary.title" datatype="html">
         <source> Récapitulatif </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/cart/cart.html</context>
-          <context context-type="linenumber">147,150</context>
+          <context context-type="linenumber">155,158</context>
         </context-group>
       </trans-unit>
       <trans-unit id="cart.summary.count" datatype="html">
         <source>Articles</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/cart/cart.html</context>
-          <context context-type="linenumber">152,153</context>
+          <context context-type="linenumber">160,161</context>
         </context-group>
       </trans-unit>
       <trans-unit id="cart.summary.subtotal" datatype="html">
         <source>Sous-total</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/cart/cart.html</context>
-          <context context-type="linenumber">156,157</context>
+          <context context-type="linenumber">164,165</context>
         </context-group>
       </trans-unit>
       <trans-unit id="cart.summary.note" datatype="html">
         <source> Les frais de livraison et taxes sont calculés au paiement. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/cart/cart.html</context>
-          <context context-type="linenumber">162,165</context>
+          <context context-type="linenumber">170,173</context>
         </context-group>
       </trans-unit>
       <trans-unit id="cart.checkout" datatype="html">
         <source> Passer à la caisse </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/cart/cart.html</context>
-          <context context-type="linenumber">169,170</context>
+          <context context-type="linenumber">177,178</context>
         </context-group>
       </trans-unit>
       <trans-unit id="cart.clear" datatype="html">
         <source> Vider le panier </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/cart/cart.html</context>
-          <context context-type="linenumber">176,177</context>
+          <context context-type="linenumber">184,185</context>
         </context-group>
       </trans-unit>
       <trans-unit id="cart.checkout.soon" datatype="html">
         <source> Le paiement en ligne sera bientôt disponible (Stripe à venir). Contactez-nous pour finaliser votre commande. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/cart/cart.html</context>
-          <context context-type="linenumber">183,185</context>
+          <context context-type="linenumber">191,193</context>
         </context-group>
       </trans-unit>
       <trans-unit id="cart.continue" datatype="html">
         <source> ← Continuer mes achats </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/cart/cart.html</context>
-          <context context-type="linenumber">190,192</context>
+          <context context-type="linenumber">198,200</context>
         </context-group>
       </trans-unit>
       <trans-unit id="cart.announce.increased" datatype="html">
@@ -4398,501 +4412,412 @@
           <context context-type="linenumber">95,98</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="shop.catalog.configuratorTitle" datatype="html">
-        <source> Besoin d&apos;une taille sur mesure ? </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/catalog/catalog.html</context>
-          <context context-type="linenumber">105,107</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="shop.catalog.configuratorText" datatype="html">
-        <source> Configurez largeur, hauteur et longueur, et obtenez le prix instantanément. </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/catalog/catalog.html</context>
-          <context context-type="linenumber">108,110</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="shop.catalog.configureCta" datatype="html">
-        <source>Configurer les dimensions</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/catalog/catalog.html</context>
-          <context context-type="linenumber">118,119</context>
-        </context-group>
-      </trans-unit>
       <trans-unit id="shop.catalog.loading" datatype="html">
         <source>Chargement des produits…</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/catalog/catalog.html</context>
-          <context context-type="linenumber">133,134</context>
+          <context context-type="linenumber">106,107</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.catalog.modelsError" datatype="html">
+        <source> Les modèles configurables sont momentanément indisponibles. Réessayez plus tard. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/catalog/catalog.html</context>
+          <context context-type="linenumber">129,131</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.catalog.modelsEmpty" datatype="html">
+        <source> Aucun modèle configurable dans cette catégorie pour le moment. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/catalog/catalog.html</context>
+          <context context-type="linenumber">144,146</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.catalog.emptySearch" datatype="html">
         <source> Aucun produit ne correspond à votre recherche. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/catalog/catalog.html</context>
-          <context context-type="linenumber">165,167</context>
+          <context context-type="linenumber">161,163</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.catalog.empty" datatype="html">
         <source> Aucun produit dans cette catégorie pour le moment. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/catalog/catalog.html</context>
-          <context context-type="linenumber">169,171</context>
+          <context context-type="linenumber">165,167</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.catalog.modelsNone" datatype="html">
+        <source>Aucun modèle configurable.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/catalog/catalog.ts</context>
+          <context context-type="linenumber">100</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.catalog.modelsOne" datatype="html">
+        <source>1 modèle configurable.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/catalog/catalog.ts</context>
+          <context context-type="linenumber">102</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.catalog.modelsMany" datatype="html">
+        <source><x id="count" equiv-text="n"/> modèles configurables.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/catalog/catalog.ts</context>
+          <context context-type="linenumber">103</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.catalog.resultsNone" datatype="html">
         <source>Aucun produit ne correspond.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/catalog/catalog.ts</context>
-          <context context-type="linenumber">75</context>
+          <context context-type="linenumber">107</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.catalog.resultsOne" datatype="html">
         <source>1 produit affiché.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/catalog/catalog.ts</context>
-          <context context-type="linenumber">77</context>
+          <context context-type="linenumber">109</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.catalog.resultsMany" datatype="html">
         <source><x id="count" equiv-text="n"/> produits affichés.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/catalog/catalog.ts</context>
-          <context context-type="linenumber">78</context>
+          <context context-type="linenumber">110</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.catalog.addedToast" datatype="html">
         <source><x id="name" equiv-text="product.name"/> a été ajouté au panier.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/catalog/catalog.ts</context>
-          <context context-type="linenumber">108</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="shop.configure.breadcrumbAria" datatype="html">
-        <source>Fil d&apos;Ariane</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/configure-shelter/configure-shelter.html</context>
-          <context context-type="linenumber">7</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="shop.configure.crumbHome" datatype="html">
-        <source>Accueil</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/configure-shelter/configure-shelter.html</context>
-          <context context-type="linenumber">9,10</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="shop.configure.crumbShop" datatype="html">
-        <source>Boutique</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/configure-shelter/configure-shelter.html</context>
-          <context context-type="linenumber">10,11</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="shop.configure.crumbCurrent" datatype="html">
-        <source>Configurer</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/configure-shelter/configure-shelter.html</context>
-          <context context-type="linenumber">11,15</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="shop.configure.eyebrow" datatype="html">
-        <source>Sur mesure</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/configure-shelter/configure-shelter.html</context>
-          <context context-type="linenumber">16,17</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="shop.configure.title" datatype="html">
-        <source>Configurez les dimensions</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/configure-shelter/configure-shelter.html</context>
-          <context context-type="linenumber">17,18</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="shop.configure.subtitle" datatype="html">
-        <source> Ajustez largeur, hauteur dégagée et longueur ; le prix se met à jour automatiquement. </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/configure-shelter/configure-shelter.html</context>
-          <context context-type="linenumber">19,22</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="shop.configure.cartRecapModel" datatype="html">
-        <source><x id="INTERPOLATION" equiv-text="{{ config.modelName }}"/></source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/configure-shelter/configure-shelter.html</context>
-          <context context-type="linenumber">33,34</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="shop.configure.cartRecapLength" datatype="html">
-        <source> — <x id="INTERPOLATION" equiv-text="{{ formatFeetInches(config.lengthCm) }}"/> </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/configure-shelter/configure-shelter.html</context>
-          <context context-type="linenumber">35,36</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="shop.configure.addToCart" datatype="html">
-        <source> Ajouter au panier </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/configure-shelter/configure-shelter.html</context>
-          <context context-type="linenumber">52,55</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="shop.configure.addHint" datatype="html">
-        <source> Patientez : le prix se confirme avant l&apos;ajout au panier. </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/configure-shelter/configure-shelter.html</context>
-          <context context-type="linenumber">57,59</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="shop.configure.addedAnnounce" datatype="html">
-        <source><x id="model" equiv-text="config.modelName"/> (<x id="length" equiv-text="length"/>) ajouté au panier.</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/configure-shelter/configure-shelter.ts</context>
-          <context context-type="linenumber">66</context>
+          <context context-type="linenumber">140</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.configurator.loading" datatype="html">
         <source> Chargement du configurateur… </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/dimension-configurator/dimension-configurator.html</context>
-          <context context-type="linenumber">8,10</context>
+          <context context-type="linenumber">9,11</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.configurator.notFound" datatype="html">
         <source> Ce modèle d&apos;abri est introuvable. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/dimension-configurator/dimension-configurator.html</context>
-          <context context-type="linenumber">12,15</context>
+          <context context-type="linenumber">13,16</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.configurator.widthLegend" datatype="html">
         <source>Largeur</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/dimension-configurator/dimension-configurator.html</context>
-          <context context-type="linenumber">18,20</context>
+          <context context-type="linenumber">19,20</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.configurator.widthStatic" datatype="html">
+        <source>Largeur :</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/dimension-configurator/dimension-configurator.html</context>
+          <context context-type="linenumber">22,23</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.configurator.widthGroup" datatype="html">
         <source>Largeur de l&apos;abri</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/dimension-configurator/dimension-configurator.html</context>
-          <context context-type="linenumber">22,23</context>
+          <context context-type="linenumber">29,30</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.configurator.heightLegend" datatype="html">
         <source> Hauteur dégagée </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/dimension-configurator/dimension-configurator.html</context>
-          <context context-type="linenumber">46,49</context>
+          <context context-type="linenumber">54,57</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.configurator.heightGroup" datatype="html">
         <source>Hauteur dégagée de l&apos;abri</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/dimension-configurator/dimension-configurator.html</context>
-          <context context-type="linenumber">51,52</context>
+          <context context-type="linenumber">59,60</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.configurator.lengthLegend" datatype="html">
         <source>Longueur</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/dimension-configurator/dimension-configurator.html</context>
-          <context context-type="linenumber">74,75</context>
+          <context context-type="linenumber">82,83</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="shop.configurator.lengthSlider" datatype="html">
-        <source> Régler la longueur </source>
+      <trans-unit id="shop.configurator.lengthSelect" datatype="html">
+        <source> Longueur </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/dimension-configurator/dimension-configurator.html</context>
-          <context context-type="linenumber">77,80</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="shop.configurator.lengthExact" datatype="html">
-        <source> Longueur (cm) </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/dimension-configurator/dimension-configurator.html</context>
-          <context context-type="linenumber">90,92</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="shop.configurator.lengthBounds" datatype="html">
-        <source> De <x id="INTERPOLATION" equiv-text="{{ formatFeetInches(model()!.minLengthCm) }}"/> à <x id="INTERPOLATION_1" equiv-text="{{ formatFeetInches(model()!.maxLengthCm) }}"/>, par pas de <x id="INTERPOLATION_2" equiv-text="{{ formatFeetInches(model()!.lengthStepCm) }}"/>. </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/dimension-configurator/dimension-configurator.html</context>
-          <context context-type="linenumber">107,110</context>
+          <context context-type="linenumber">85,87</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.configurator.priceLabel" datatype="html">
         <source> Prix configuré </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/dimension-configurator/dimension-configurator.html</context>
-          <context context-type="linenumber">116,118</context>
+          <context context-type="linenumber">102,104</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.configurator.pricePending" datatype="html">
         <source> (calcul en cours…) </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/dimension-configurator/dimension-configurator.html</context>
-          <context context-type="linenumber">123,125</context>
+          <context context-type="linenumber">109,111</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.configurator.priceInvalid" datatype="html">
         <source> Longueur invalide — ajustez la valeur. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/dimension-configurator/dimension-configurator.html</context>
-          <context context-type="linenumber">129,134</context>
+          <context context-type="linenumber">115,118</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.configurator.priceAnnounce" datatype="html">
         <source>Prix mis à jour : <x id="price" equiv-text="formatted"/>.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/dimension-configurator/dimension-configurator.ts</context>
-          <context context-type="linenumber">212</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="shop.detail.breadcrumbAria" datatype="html">
-        <source>Fil d&apos;Ariane</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
-          <context context-type="linenumber">11,12</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="shop.detail.crumbHome" datatype="html">
-        <source>Accueil</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
-          <context context-type="linenumber">15,16</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="shop.detail.crumbShop" datatype="html">
-        <source>Boutique</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
-          <context context-type="linenumber">16,17</context>
+          <context context-type="linenumber">229</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.detail.back" datatype="html">
         <source> ← Retour à la boutique </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
-          <context context-type="linenumber">23,27</context>
+          <context context-type="linenumber">12,14</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
+          <context context-type="linenumber">22,24</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.detail.loading" datatype="html">
         <source> Chargement du produit… </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
-          <context context-type="linenumber">29,31</context>
+          <context context-type="linenumber">15,19</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.detail.notFoundTitle" datatype="html">
         <source>Produit introuvable</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
-          <context context-type="linenumber">33,34</context>
+          <context context-type="linenumber">25,26</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.detail.notFoundBody" datatype="html">
         <source> Le produit que vous cherchez n&apos;existe pas ou n&apos;est plus disponible. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
-          <context context-type="linenumber">35,37</context>
+          <context context-type="linenumber">27,29</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.detail.notFoundCta" datatype="html">
         <source> Retour au catalogue </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
-          <context context-type="linenumber">38,40</context>
+          <context context-type="linenumber">30,32</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.detail.breadcrumbAria" datatype="html">
+        <source>Fil d&apos;Ariane</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
+          <context context-type="linenumber">39,40</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
+          <context context-type="linenumber">100,101</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.detail.crumbHome" datatype="html">
+        <source>Accueil</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
+          <context context-type="linenumber">43,44</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
+          <context context-type="linenumber">104,105</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.detail.crumbShop" datatype="html">
+        <source>Boutique</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
+          <context context-type="linenumber">44,45</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
+          <context context-type="linenumber">105,106</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.detail.shelterIntro" datatype="html">
+        <source> Choisissez largeur, hauteur dégagée et longueur ; le prix se met à jour automatiquement. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
+          <context context-type="linenumber">58,61</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.detail.shelterAddToCart" datatype="html">
+        <source> Ajouter au panier </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
+          <context context-type="linenumber">78,81</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.detail.shelterAddHint" datatype="html">
+        <source> Patientez : le prix se confirme avant l&apos;ajout au panier. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
+          <context context-type="linenumber">83,84</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.detail.view3d" datatype="html">
         <source> Voir en 3D </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
-          <context context-type="linenumber">80,81</context>
+          <context context-type="linenumber">149,150</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.detail.view3dLoading" datatype="html">
         <source> Chargement du modèle 3D… </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
-          <context context-type="linenumber">84,86</context>
+          <context context-type="linenumber">153,155</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.detail.rentLabel" datatype="html">
         <source>Location</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
-          <context context-type="linenumber">125,126</context>
+          <context context-type="linenumber">194,195</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.detail.month" datatype="html">
         <source>mois</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
-          <context context-type="linenumber">128,130</context>
+          <context context-type="linenumber">197,199</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.detail.available" datatype="html">
         <source>En stock</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
-          <context context-type="linenumber">143,145</context>
+          <context context-type="linenumber">212,214</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.detail.unavailable" datatype="html">
         <source>Épuisé</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
-          <context context-type="linenumber">146,148</context>
+          <context context-type="linenumber">215,217</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.detail.descriptionTitle" datatype="html">
         <source>Description</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
-          <context context-type="linenumber">152,153</context>
+          <context context-type="linenumber">221,222</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.detail.addToCart" datatype="html">
         <source> Ajouter au panier </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
-          <context context-type="linenumber">165,167</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="shop.detail.configureIntro" datatype="html">
-        <source>Besoin d&apos;une autre taille ?</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
-          <context context-type="linenumber">171,173</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="shop.detail.configureLink" datatype="html">
-        <source> Configurez les dimensions sur mesure </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.html</context>
-          <context context-type="linenumber">177,179</context>
+          <context context-type="linenumber">234,236</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.detail.addedToast" datatype="html">
         <source><x id="name" equiv-text="product.name"/> a été ajouté au panier.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.ts</context>
-          <context context-type="linenumber">96</context>
+          <context context-type="linenumber">132</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="shop.models.breadcrumbAria" datatype="html">
-        <source>Fil d&apos;Ariane</source>
+      <trans-unit id="shop.detail.shelterAddedAnnounce" datatype="html">
+        <source><x id="model" equiv-text="config.modelName"/> (<x id="length" equiv-text="length"/>) ajouté au panier.</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">7</context>
+          <context context-type="sourcefile">src/app/features/shop/product-detail/product-detail.ts</context>
+          <context context-type="linenumber">145</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="shop.models.crumbHome" datatype="html">
-        <source>Accueil</source>
+      <trans-unit id="shop.overlay.closeAria" datatype="html">
+        <source>Fermer la configuration</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">9,10</context>
+          <context context-type="sourcefile">src/app/features/shop/shelter-configurator-overlay/shelter-configurator-overlay.html</context>
+          <context context-type="linenumber">25,26</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="shop.models.crumbShop" datatype="html">
-        <source>Boutique</source>
+      <trans-unit id="shop.overlay.intro" datatype="html">
+        <source> Ajustez largeur, hauteur dégagée et longueur ; le prix se met à jour automatiquement. </source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/shelter-models/shelter-models.html</context>
+          <context context-type="sourcefile">src/app/features/shop/shelter-configurator-overlay/shelter-configurator-overlay.html</context>
+          <context context-type="linenumber">33,36</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.overlay.addToCart" datatype="html">
+        <source> Ajouter au panier </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/shelter-configurator-overlay/shelter-configurator-overlay.html</context>
+          <context context-type="linenumber">63,66</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.overlay.addHint" datatype="html">
+        <source> Patientez : le prix se confirme avant l&apos;ajout au panier. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/shelter-configurator-overlay/shelter-configurator-overlay.html</context>
+          <context context-type="linenumber">68,72</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.overlay.addedAnnounce" datatype="html">
+        <source><x id="model" equiv-text="config.modelName"/> (<x id="length" equiv-text="length"/>) ajouté au panier.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/shelter-configurator-overlay/shelter-configurator-overlay.ts</context>
+          <context context-type="linenumber">113</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.modelCard.fromLabel" datatype="html">
+        <source>À partir de</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/shelter-model-card/shelter-model-card.html</context>
           <context context-type="linenumber">10,11</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="shop.models.crumbCurrent" datatype="html">
-        <source>Configurer un abri</source>
+      <trans-unit id="shop.modelCard.lengthRange" datatype="html">
+        <source>Longueur de</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">11,15</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="shop.models.eyebrow" datatype="html">
-        <source>Sur mesure</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">16,17</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="shop.models.title" datatype="html">
-        <source>Configurez votre abri</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/shelter-models/shelter-models.html</context>
+          <context context-type="sourcefile">src/app/features/shop/shelter-model-card/shelter-model-card.html</context>
           <context context-type="linenumber">17,18</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="shop.models.subtitle" datatype="html">
-        <source> Choisissez un modèle, puis ajustez largeur, hauteur et longueur à vos besoins. </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">19,23</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="shop.models.loading" datatype="html">
-        <source>Chargement des modèles…</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">24</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="shop.models.fromLabel" datatype="html">
-        <source>À partir de</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">44,45</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="shop.models.lengthRange" datatype="html">
-        <source>Longueur de</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">50,51</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="shop.models.lengthRangeTo" datatype="html">
+      <trans-unit id="shop.modelCard.lengthRangeTo" datatype="html">
         <source>à</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">53</context>
+          <context context-type="sourcefile">src/app/features/shop/shelter-model-card/shelter-model-card.html</context>
+          <context context-type="linenumber">20</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="shop.models.configure" datatype="html">
-        <source>Configurer les dimensions</source>
+      <trans-unit id="shop.modelCard.addToCart" datatype="html">
+        <source>Ajouter au panier</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">60,62</context>
+          <context context-type="sourcefile">src/app/features/shop/shelter-model-card/shelter-model-card.html</context>
+          <context context-type="linenumber">29,32</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="shop.models.empty" datatype="html">
-        <source> Aucun modèle configurable n&apos;est disponible dans cette catégorie pour le moment. </source>
+      <trans-unit id="shop.modelCard.addAria" datatype="html">
+        <source>Configurer et ajouter au panier — <x id="name" equiv-text="this.model().name"/></source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">67,70</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="shop.models.resultsNone" datatype="html">
-        <source>Aucun modèle configurable dans cette catégorie.</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/shelter-models/shelter-models.ts</context>
-          <context context-type="linenumber">44</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="shop.models.resultsOne" datatype="html">
-        <source>1 modèle configurable.</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/shelter-models/shelter-models.ts</context>
+          <context context-type="sourcefile">src/app/features/shop/shelter-model-card/shelter-model-card.ts</context>
           <context context-type="linenumber">46</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="shop.models.resultsMany" datatype="html">
-        <source><x id="count" equiv-text="n"/> modèles configurables.</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/shop/shelter-models/shelter-models.ts</context>
-          <context context-type="linenumber">47</context>
         </context-group>
       </trans-unit>
       <trans-unit id="address.choice.profileLabel" datatype="html">

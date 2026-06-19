@@ -1,185 +1,241 @@
 <!-- ============================================================
-     Boutique — Détail produit
-     WCAG AA : h1 = nom du produit, image alt, disponibilité
-     annoncée (role=status), 404 géré, focus visible.
+     Boutique — Détail produit OU modèle paramétrique (rework EPIC 9)
+     Résolution double : `:slug` = modèle (/shelters) → configurateur EN LIGNE,
+     sinon produit fixe (/products) → fiche classique. 404 géré, focus visible.
 ============================================================ -->
 <section class="detail-page" aria-labelledby="detail-heading">
   <div class="container">
-    @if (product(); as p) {
-      <nav
-        class="detail__breadcrumb"
-        aria-label="Fil d'Ariane"
-        i18n-aria-label="@@shop.detail.breadcrumbAria"
-      >
-        <ol role="list">
-          <li><a routerLink="/" i18n="@@shop.detail.crumbHome">Accueil</a></li>
-          <li><a routerLink="/boutique" i18n="@@shop.detail.crumbShop">Boutique</a></li>
-          <li>{{ p.categoryName }}</li>
-          <li aria-current="page">{{ p.name }}</li>
-        </ol>
-      </nav>
-    } @else {
-      <a routerLink="/boutique" class="detail__back" i18n="@@shop.detail.back">
-        ← Retour à la boutique
-      </a>
-    }
-
-    @if (loading()) {
-      <div class="detail__loading" role="status" aria-busy="true" i18n="@@shop.detail.loading">
-        Chargement du produit…
-      </div>
-    } @else if (notFound() || !product()) {
-      <div class="detail__not-found" role="alert">
-        <h1 id="detail-heading" i18n="@@shop.detail.notFoundTitle">Produit introuvable</h1>
-        <p i18n="@@shop.detail.notFoundBody">
-          Le produit que vous cherchez n'existe pas ou n'est plus disponible.
-        </p>
-        <a routerLink="/boutique" class="btn btn--primary" i18n="@@shop.detail.notFoundCta">
-          Retour au catalogue
+    @switch (mode()) {
+      <!-- ── Chargement ─────────────────────────────────────── -->
+      @case ('loading') {
+        <a routerLink="/boutique" class="detail__back" i18n="@@shop.detail.back">
+          ← Retour à la boutique
         </a>
-      </div>
-    } @else {
-      <article class="detail" [attr.aria-label]="product()!.name">
-        <!-- Image -->
-        <div class="detail__media">
-          @if (!imageFailed()) {
-            <!-- SVG → <img> simple (NgOptimizedImage est réservé au matriciel) -->
-            <img
-              [src]="imageSrc()"
-              [alt]="product()!.name"
-              width="640"
-              height="480"
-              decoding="async"
-              class="detail__image"
-              (error)="onImageError()"
-            />
-          } @else {
-            <div class="detail__image-placeholder" aria-hidden="true">
-              <span>📦</span>
-            </div>
-          }
+        <div class="detail__loading" role="status" aria-busy="true" i18n="@@shop.detail.loading">
+          Chargement du produit…
+        </div>
+      }
 
-          <!-- Viewer 3D : seulement si les dimensions hors-tout sont connues. Chargé À LA DEMANDE
-               (`@defer on interaction`) — le chunk `three` reste hors du bundle initial (E5). -->
-          @if (has3dDims()) {
-            @defer (on interaction(view3dTrigger)) {
-              <app-shelter-3d-viewer
-                [widthCm]="product()!.widthCm!"
-                [lengthCm]="product()!.lengthCm!"
-                [heightCm]="product()!.heightCm!"
-                [fallbackImageSrc]="imageSrc()"
-                [productName]="product()!.name"
-              />
-            } @placeholder {
+      <!-- ── Introuvable ────────────────────────────────────── -->
+      @case ('notFound') {
+        <a routerLink="/boutique" class="detail__back" i18n="@@shop.detail.back">
+          ← Retour à la boutique
+        </a>
+        <div class="detail__not-found" role="alert">
+          <h1 id="detail-heading" i18n="@@shop.detail.notFoundTitle">Produit introuvable</h1>
+          <p i18n="@@shop.detail.notFoundBody">
+            Le produit que vous cherchez n'existe pas ou n'est plus disponible.
+          </p>
+          <a routerLink="/boutique" class="btn btn--primary" i18n="@@shop.detail.notFoundCta">
+            Retour au catalogue
+          </a>
+        </div>
+      }
+
+      <!-- ── Modèle paramétrique : configurateur EN LIGNE ───── -->
+      @case ('shelter') {
+        <nav
+          class="detail__breadcrumb"
+          aria-label="Fil d'Ariane"
+          i18n-aria-label="@@shop.detail.breadcrumbAria"
+        >
+          <ol role="list">
+            <li><a routerLink="/" i18n="@@shop.detail.crumbHome">Accueil</a></li>
+            <li><a routerLink="/boutique" i18n="@@shop.detail.crumbShop">Boutique</a></li>
+            <li>{{ shelterModel()!.categoryName }}</li>
+            <li aria-current="page">{{ shelterModel()!.name }}</li>
+          </ol>
+        </nav>
+
+        <article class="detail detail--shelter" [attr.aria-label]="shelterModel()!.name">
+          <div class="detail__info">
+            <p class="detail__category" [attr.aria-label]="'Catégorie : ' + shelterModel()!.categoryName">
+              {{ shelterModel()!.categoryName }}
+            </p>
+            <h1 id="detail-heading" class="detail__name">{{ shelterModel()!.name }}</h1>
+
+            <p class="detail__shelter-intro" i18n="@@shop.detail.shelterIntro">
+              Choisissez largeur, hauteur dégagée et longueur ; le prix se met à jour automatiquement.
+            </p>
+
+            <app-dimension-configurator
+              [slug]="slug()"
+              (configurationChange)="onConfigurationChange($event)"
+            />
+
+            <!-- Ajout au panier : actif uniquement quand un prix serveur est confirmé.
+                 aria-disabled (focusable) + explication scopée atteignable au clavier (L-024). -->
+            <div class="detail__shelter-cart">
               <button
-                #view3dTrigger
                 type="button"
-                class="btn btn--secondary detail__view3d"
-                i18n="@@shop.detail.view3d"
+                class="btn btn--primary btn--lg detail__add"
+                [class.detail__add--disabled]="!canAddShelter()"
+                [attr.aria-disabled]="!canAddShelter()"
+                [attr.aria-describedby]="!canAddShelter() ? 'detail-add-hint' : null"
+                (click)="onAddShelterToCart()"
+                i18n="@@shop.detail.shelterAddToCart"
               >
-                Voir en 3D
+                Ajouter au panier
               </button>
-            } @loading {
-              <p class="detail__view3d-loading" role="status" aria-busy="true" i18n="@@shop.detail.view3dLoading">
-                Chargement du modèle 3D…
+
+              @if (!canAddShelter()) {
+                <span id="detail-add-hint" class="sr-only" i18n="@@shop.detail.shelterAddHint">
+                  Patientez : le prix se confirme avant l'ajout au panier.
+                </span>
+              }
+
+              <!-- Confirmation d'ajout (réannonce via état neutre — L-027). -->
+              <p class="sr-only" role="status" aria-live="polite" aria-atomic="true">
+                {{ addAnnouncement() }}
               </p>
-            } @error {
+            </div>
+          </div>
+        </article>
+      }
+
+      <!-- ── Produit fixe : fiche classique ─────────────────── -->
+      @case ('product') {
+        <nav
+          class="detail__breadcrumb"
+          aria-label="Fil d'Ariane"
+          i18n-aria-label="@@shop.detail.breadcrumbAria"
+        >
+          <ol role="list">
+            <li><a routerLink="/" i18n="@@shop.detail.crumbHome">Accueil</a></li>
+            <li><a routerLink="/boutique" i18n="@@shop.detail.crumbShop">Boutique</a></li>
+            <li>{{ product()!.categoryName }}</li>
+            <li aria-current="page">{{ product()!.name }}</li>
+          </ol>
+        </nav>
+
+        <article class="detail" [attr.aria-label]="product()!.name">
+          <!-- Image -->
+          <div class="detail__media">
+            @if (!imageFailed()) {
+              <!-- SVG → <img> simple (NgOptimizedImage est réservé au matriciel) -->
               <img
-                class="detail__image"
                 [src]="imageSrc()"
                 [alt]="product()!.name"
                 width="640"
                 height="480"
                 decoding="async"
+                class="detail__image"
+                (error)="onImageError()"
               />
+            } @else {
+              <div class="detail__image-placeholder" aria-hidden="true">
+                <span>📦</span>
+              </div>
             }
-          }
-        </div>
 
-        <!-- Informations -->
-        <div class="detail__info">
-          <p class="detail__category" [attr.aria-label]="'Catégorie : ' + product()!.categoryName">
-            {{ product()!.categoryName }}
-          </p>
-
-          <h1 id="detail-heading" class="detail__name">{{ product()!.name }}</h1>
-
-          <div class="detail__pricing">
-            <span
-              class="detail__price"
-              [attr.aria-label]="
-                'Prix : ' + (product()!.price | currency: 'CAD' : 'symbol' : '1.2-2' : 'fr-CA')
-              "
-            >
-              {{ product()!.price | currency: 'CAD' : 'symbol' : '1.2-2' : 'fr-CA' }}
-            </span>
-            @if (product()!.rentalPrice) {
-              <span
-                class="detail__rental"
-                [attr.aria-label]="
-                  'Location : ' +
-                  (product()!.rentalPrice! | currency: 'CAD' : 'symbol' : '1.2-2' : 'fr-CA') +
-                  ' par mois'
-                "
-              >
-                <span i18n="@@shop.detail.rentLabel">Location</span> :
-                {{ product()!.rentalPrice! | currency: 'CAD' : 'symbol' : '1.2-2' : 'fr-CA' }}/<span
-                  i18n="@@shop.detail.month"
-                  >mois</span
+            <!-- Viewer 3D : seulement si les dimensions hors-tout sont connues. Chargé À LA DEMANDE
+                 (`@defer on interaction`) — le chunk `three` reste hors du bundle initial (E5). -->
+            @if (has3dDims()) {
+              @defer (on interaction(view3dTrigger)) {
+                <app-shelter-3d-viewer
+                  [widthCm]="product()!.widthCm!"
+                  [lengthCm]="product()!.lengthCm!"
+                  [heightCm]="product()!.heightCm!"
+                  [fallbackImageSrc]="imageSrc()"
+                  [productName]="product()!.name"
+                />
+              } @placeholder {
+                <button
+                  #view3dTrigger
+                  type="button"
+                  class="btn btn--secondary detail__view3d"
+                  i18n="@@shop.detail.view3d"
                 >
-              </span>
+                  Voir en 3D
+                </button>
+              } @loading {
+                <p class="detail__view3d-loading" role="status" aria-busy="true" i18n="@@shop.detail.view3dLoading">
+                  Chargement du modèle 3D…
+                </p>
+              } @error {
+                <img
+                  class="detail__image"
+                  [src]="imageSrc()"
+                  [alt]="product()!.name"
+                  width="640"
+                  height="480"
+                  decoding="async"
+                />
+              }
             }
           </div>
 
-          <!-- Disponibilité -->
-          <p
-            class="detail__availability"
-            [class.is-available]="product()!.isAvailable"
-            [class.is-unavailable]="!product()!.isAvailable"
-            role="status"
-          >
-            @if (product()!.isAvailable) {
-              <span aria-hidden="true">✓</span>
-              <span i18n="@@shop.detail.available">En stock</span>
-            } @else {
-              <span aria-hidden="true">✗</span>
-              <span i18n="@@shop.detail.unavailable">Épuisé</span>
-            }
-          </p>
-
-          @if (product()!.description) {
-            <div class="detail__description">
-              <h2 i18n="@@shop.detail.descriptionTitle">Description</h2>
-              <p>{{ product()!.description }}</p>
-            </div>
-          }
-
-          <button
-            type="button"
-            class="btn btn--primary btn--lg detail__add"
-            (click)="onAddToCart()"
-            [disabled]="!product()!.isAvailable"
-            [attr.aria-disabled]="!product()!.isAvailable"
-            i18n="@@shop.detail.addToCart"
-          >
-            Ajouter au panier
-          </button>
-
-          <!-- EPIC 9.3 : si la catégorie est paramétrique, proposer une taille sur mesure. -->
-          @if (parametricCategorySlug(); as categorySlug) {
-            <p class="detail__configure">
-              <span i18n="@@shop.detail.configureIntro">Besoin d'une autre taille&nbsp;?</span>
-              <a
-                class="detail__configure-link"
-                [routerLink]="['/boutique/modeles', categorySlug]"
-                i18n="@@shop.detail.configureLink"
-              >
-                Configurez les dimensions sur mesure
-              </a>
+          <!-- Informations -->
+          <div class="detail__info">
+            <p class="detail__category" [attr.aria-label]="'Catégorie : ' + product()!.categoryName">
+              {{ product()!.categoryName }}
             </p>
-          }
-        </div>
-      </article>
+
+            <h1 id="detail-heading" class="detail__name">{{ product()!.name }}</h1>
+
+            <div class="detail__pricing">
+              <span
+                class="detail__price"
+                [attr.aria-label]="
+                  'Prix : ' + (product()!.price | currency: 'CAD' : 'symbol' : '1.2-2' : 'fr-CA')
+                "
+              >
+                {{ product()!.price | currency: 'CAD' : 'symbol' : '1.2-2' : 'fr-CA' }}
+              </span>
+              @if (product()!.rentalPrice) {
+                <span
+                  class="detail__rental"
+                  [attr.aria-label]="
+                    'Location : ' +
+                    (product()!.rentalPrice! | currency: 'CAD' : 'symbol' : '1.2-2' : 'fr-CA') +
+                    ' par mois'
+                  "
+                >
+                  <span i18n="@@shop.detail.rentLabel">Location</span> :
+                  {{ product()!.rentalPrice! | currency: 'CAD' : 'symbol' : '1.2-2' : 'fr-CA' }}/<span
+                    i18n="@@shop.detail.month"
+                    >mois</span
+                  >
+                </span>
+              }
+            </div>
+
+            <!-- Disponibilité -->
+            <p
+              class="detail__availability"
+              [class.is-available]="product()!.isAvailable"
+              [class.is-unavailable]="!product()!.isAvailable"
+              role="status"
+            >
+              @if (product()!.isAvailable) {
+                <span aria-hidden="true">✓</span>
+                <span i18n="@@shop.detail.available">En stock</span>
+              } @else {
+                <span aria-hidden="true">✗</span>
+                <span i18n="@@shop.detail.unavailable">Épuisé</span>
+              }
+            </p>
+
+            @if (product()!.description) {
+              <div class="detail__description">
+                <h2 i18n="@@shop.detail.descriptionTitle">Description</h2>
+                <p>{{ product()!.description }}</p>
+              </div>
+            }
+
+            <button
+              type="button"
+              class="btn btn--primary btn--lg detail__add"
+              (click)="onAddToCart()"
+              [disabled]="!product()!.isAvailable"
+              [attr.aria-disabled]="!product()!.isAvailable"
+              i18n="@@shop.detail.addToCart"
+            >
+              Ajouter au panier
+            </button>
+          </div>
+        </article>
+      }
     }
   </div>
 </section>

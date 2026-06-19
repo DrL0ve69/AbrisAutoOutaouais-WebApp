@@ -11,6 +11,38 @@
 
 ---
 
+## L-037 · When a rework deletes a route/component, e2e specs in `e2e/` that navigate by URL are NOT caught by a component-level grep — audit them explicitly
+
+- **Symptom.** EPIC 9 rework (`feat/epic-9-rework-shelter-dimensions`): routes
+  `/boutique/modeles/:category` and `/boutique/configurer/:slug` were removed, their components
+  deleted, and the vitest co-located specs migrated — all correctly. But two **Playwright** specs,
+  `e2e/shelter-configurator.spec.ts` and `e2e/shelter-order.spec.ts`, still did
+  `page.goto('/boutique/configurer/simple')`, awaited a heading that no longer existed, and targeted
+  `#configurator-length-number` (now a `<select>`). Because `npm run e2e` runs in CI
+  ([[L-005]]), the branch would have turned CI red. A second gap: the replacement surface (the
+  shelter-config overlay/dialog) had **no e2e guard at all** — no dual-theme contrast check
+  ([[L-016]]), no APG focus-trap / Échap / return-focus contract. Both gaps were caught by the
+  independent code-reviewer; the developer had not seen them. Fixed: specs migrated + new
+  `e2e/shelter-overlay.spec.ts` added (non-vacuity proven on revert).
+- **Rule.** When a rework **removes a route or replaces a component**, the vitest co-located
+  specs and the new component's spec are NOT the whole picture. e2e Playwright specs live in
+  `e2e/` and navigate by **absolute URL paths** and **DOM ids** — they are invisible to a grep
+  of the deleted/renamed component file. Before closing a rework: (1) **grep `e2e/` for every
+  URL segment of the removed route** (e.g. `/boutique/configurer`, `/modeles/`) and for every
+  stable DOM id that was part of the old surface (`#configurator-length-number`) — migrate or
+  delete every hit in the same PR ([[L-008]]: hunt the old mechanism everywhere); (2) also check
+  `shop.routes.ts` (or whatever route registry owns the path) and grep for the old path constant
+  across all non-component files; (3) every **new surface** introduced by the rework (modal,
+  overlay, inline panel) needs its own e2e guard before the PR closes — at minimum: dual-theme
+  axe contrast scan ([[L-016]] — vitest cannot cover it) + APG dialog contract (focus-trap on
+  open, Échap closes, focus returns to trigger); prove non-vacuity by running on a revert
+  ([[L-005]]). The zombie-server risk ([[L-017]]) is live here too — confirm no stale `ng serve`
+  is running before declaring e2e green.
+- **Refs.** `e2e/shelter-configurator.spec.ts` + `e2e/shelter-order.spec.ts` (migrated, old URL
+  removed), `e2e/shelter-overlay.spec.ts` (new dual-theme + APG guard, proven non-vacuous),
+  `src/AbrisAutoOutaouais-WebApp.Client/src/app/features/shop/shop.routes.ts` (routes deleted),
+  branch `feat/epic-9-rework-shelter-dimensions`.
+
 ## L-036 · An edit-form DTO must expose FK columns as ids, not force the client to reverse-resolve by display label
 
 - **Symptom.** EPIC 9.5 admin shelter-model form: the initial `startEdit()` draft resolved

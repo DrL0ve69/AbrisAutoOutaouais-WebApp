@@ -7,20 +7,10 @@ export const SHOP_ROUTES: Routes = [
       import('./catalog/catalog').then(m => m.CatalogComponent),
     title: 'AbrisTempo — Boutique',
   },
-  // Catalogue PARAMÉTRIQUE (EPIC 9.3) : ces routes littérales DOIVENT précéder la route
-  // catch-all `:slug` (détail produit) pour ne pas être interceptées par elle.
-  {
-    path: 'modeles/:category',
-    loadComponent: () =>
-      import('./shelter-models/shelter-models').then(m => m.ShelterModelsComponent),
-    title: 'AbrisTempo — Configurer un abri',
-  },
-  {
-    path: 'configurer/:slug',
-    loadComponent: () =>
-      import('./configure-shelter/configure-shelter').then(m => m.ConfigureShelterComponent),
-    title: 'AbrisTempo — Configurateur',
-  },
+  // Rework EPIC 9 : la configuration des abris paramétriques se fait désormais via un overlay
+  // (ouvert depuis une carte de modèle du catalogue) ou EN LIGNE sur la fiche détail — plus de
+  // route dédiée `modeles/:category` ni `configurer/:slug`. La route `:slug` (détail) résout
+  // d'abord un MODÈLE paramétrique, puis se rabat sur un produit fixe.
   {
     path: ':slug',
     loadComponent: () =>

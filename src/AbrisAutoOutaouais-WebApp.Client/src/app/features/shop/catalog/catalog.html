@@ -97,33 +97,6 @@
       </div>
     </div>
 
-    <!-- Configurateur de dimensions (EPIC 9.3) : pour les catégories paramétriques, on invite à
-         personnaliser largeur/hauteur/longueur plutôt que d'acheter une taille fixe. -->
-    @if (parametricCategories().length > 0) {
-      <aside class="catalog__configurator" aria-labelledby="catalog-configurator-heading">
-        <h2 id="catalog-configurator-heading" class="catalog__configurator-title" i18n="@@shop.catalog.configuratorTitle">
-          Besoin d'une taille sur mesure&nbsp;?
-        </h2>
-        <p class="catalog__configurator-text" i18n="@@shop.catalog.configuratorText">
-          Configurez largeur, hauteur et longueur, et obtenez le prix instantanément.
-        </p>
-        <ul class="catalog__configurator-actions" role="list">
-          @for (cat of parametricCategories(); track cat.id) {
-            <li>
-              <a
-                class="btn btn--primary"
-                [routerLink]="['/boutique/modeles', cat.slug]"
-                [attr.aria-label]="'Configurer les dimensions — ' + cat.name"
-              >
-                <span i18n="@@shop.catalog.configureCta">Configurer les dimensions</span>
-                — {{ cat.name }}
-              </a>
-            </li>
-          }
-        </ul>
-      </aside>
-    }
-
     <!-- Résultats -->
     @if (loading()) {
       <div
@@ -148,7 +121,30 @@
       <!-- Nombre de résultats annoncé aux lecteurs d'écran -->
       <p class="sr-only" role="status">{{ resultsLabel() }}</p>
 
-      @if (visibleProducts().length > 0) {
+      @if (isParametricMode()) {
+        <!-- Catégorie paramétrique : cartes de MODÈLES (référentiel /shelters). L'achat passe par
+             l'overlay de configuration (dimensions obligatoires), pas par un produit fixe. -->
+        @if (shelterModelsError()) {
+          <p class="catalog__empty" i18n="@@shop.catalog.modelsError">
+            Les modèles configurables sont momentanément indisponibles. Réessayez plus tard.
+          </p>
+        } @else if (shelterModels().length > 0) {
+          <ul class="catalog__grid" role="list">
+            @for (model of shelterModels(); track model.id) {
+              <li>
+                <app-shelter-model-card
+                  [model]="model"
+                  (configure)="openConfigurator($event)"
+                />
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="catalog__empty" i18n="@@shop.catalog.modelsEmpty">
+            Aucun modèle configurable dans cette catégorie pour le moment.
+          </p>
+        }
+      } @else if (visibleProducts().length > 0) {
         <ul class="catalog__grid" role="list">
           @for (product of visibleProducts(); track product.id) {
             <li>
@@ -171,4 +167,13 @@
       }
     }
   </div>
+
+  <!-- Overlay de configuration (monté inline, hors flux du catalogue) — rework EPIC 9. -->
+  @if (overlay(); as o) {
+    <app-shelter-configurator-overlay
+      [slug]="o.slug"
+      [modelName]="o.modelName"
+      (close)="closeConfigurator()"
+    />
+  }
 </section>

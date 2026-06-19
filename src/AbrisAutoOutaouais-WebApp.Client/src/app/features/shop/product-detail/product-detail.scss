@@ -249,26 +249,37 @@ app-shelter-3d-viewer {
 .detail__add {
   margin-top: var(--space-4);
   align-self: flex-start;
+  // Cible tactile ≥ 44px (WCAG 2.2 AA, 2.5.8).
+  min-height: 44px;
 
   &:disabled {
     opacity: 0.55;
     cursor: not-allowed;
   }
+
+  // État « aria-disabled » du mode abri : reste FOCUSABLE, garde le STYLE `.btn--primary` (ratio de
+  // contraste préservé — pas d'opacité, L-016/L-033). Inactivité annoncée par aria-disabled +
+  // indice scopé `aria-describedby` (L-024). État transitoire (~300 ms, 1er prix serveur).
+  &--disabled {
+    cursor: not-allowed;
+  }
 }
 
-// EPIC 9.3 — invitation au configurateur (jetons sémantiques uniquement).
-.detail__configure {
-  margin-top: var(--space-4);
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2);
+// ── Mode abri paramétrique (rework EPIC 9) : configurateur EN LIGNE ──
+.detail--shelter {
+  // Fiche mono-colonne (pas d'image/3D) : le configurateur occupe toute la largeur.
+  display: block;
+}
+
+.detail__shelter-intro {
+  margin: 0 0 var(--space-4);
   color: var(--color-text-secondary);
 }
 
-.detail__configure-link {
-  font-weight: 600;
-  min-height: 44px;
-  display: inline-flex;
+.detail__shelter-cart {
+  margin-top: var(--space-5);
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  gap: var(--space-3);
 }

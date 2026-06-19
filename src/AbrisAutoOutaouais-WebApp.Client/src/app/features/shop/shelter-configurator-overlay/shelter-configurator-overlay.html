@@ -1,0 +1,78 @@
+<!-- ============================================================
+     Dialogue modal — Configuration d'un abri paramétrique (rework EPIC 9)
+     WCAG AA : role=dialog + aria-modal, libellé par le nom du modèle,
+     piège de focus + Échap + clic-fond, retour de focus géré par le parent.
+============================================================ -->
+<!-- Le conteneur porte la fermeture : clic hors panneau (souris) ET Échap (clavier) — les deux sur
+     le MÊME élément (contrat clic+clavier). Le fond reste un décor non focusable (aria-hidden). -->
+<div class="overlay" (click)="onOverlayClick($event)" (keydown.escape)="requestClose()">
+  <div class="overlay__backdrop" aria-hidden="true"></div>
+
+  <div
+    #dialogEl
+    class="overlay__dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="overlay-title"
+    (keydown)="onDialogKeydown($event)"
+  >
+    <header class="overlay__header">
+      <h2 id="overlay-title" class="overlay__title">{{ modelName() }}</h2>
+      <button
+        type="button"
+        class="overlay__close"
+        (click)="requestClose()"
+        aria-label="Fermer la configuration"
+        i18n-aria-label="@@shop.overlay.closeAria"
+      >
+        <span aria-hidden="true">×</span>
+      </button>
+    </header>
+
+    <p class="overlay__intro" i18n="@@shop.overlay.intro">
+      Ajustez largeur, hauteur dégagée et longueur ; le prix se met à jour automatiquement.
+    </p>
+
+    <app-dimension-configurator
+      [slug]="slug()"
+      (configurationChange)="onConfigurationChange($event)"
+    />
+
+    <!-- Ajout au panier : actif uniquement quand un prix serveur est confirmé.
+         aria-disabled (focusable) + explication scopée atteignable au clavier (L-024). -->
+    <div class="overlay__cart">
+      @if (configuration(); as config) {
+        <p class="overlay__cart-recap">
+          <span>{{ config.modelName }}</span>
+          <span class="overlay__cart-length">— {{ formatFeetInches(config.lengthCm) }}</span>
+          <span class="overlay__cart-price">
+            {{ config.totalPrice | currency: 'CAD' : 'symbol' : '1.2-2' : 'fr-CA' }}
+          </span>
+        </p>
+      }
+
+      <button
+        type="button"
+        class="btn btn--primary overlay__add"
+        [class.overlay__add--disabled]="!canAdd()"
+        [attr.aria-disabled]="!canAdd()"
+        [attr.aria-describedby]="!canAdd() ? 'overlay-add-hint' : null"
+        (click)="addToCart()"
+        i18n="@@shop.overlay.addToCart"
+      >
+        Ajouter au panier
+      </button>
+
+      @if (!canAdd()) {
+        <span id="overlay-add-hint" class="sr-only" i18n="@@shop.overlay.addHint">
+          Patientez : le prix se confirme avant l'ajout au panier.
+        </span>
+      }
+
+      <!-- Confirmation d'ajout (réannonce via état neutre — L-027). Scopée par texte (L-010). -->
+      <p class="sr-only" role="status" aria-live="polite" aria-atomic="true">
+        {{ addAnnouncement() }}
+      </p>
+    </div>
+  </div>
+</div>

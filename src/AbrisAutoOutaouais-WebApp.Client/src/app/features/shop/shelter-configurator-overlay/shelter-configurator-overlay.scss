@@ -1,0 +1,143 @@
+// ============================================================
+// Dialogue modal — Configuration d'un abri (rework EPIC 9)
+// Jetons sémantiques uniquement (contraste validé en e2e dual-thème — L-016).
+// ============================================================
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal, 1000);
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+}
+
+.overlay__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  // Apparition douce, neutralisée sous mouvement réduit (cf. bloc @media en bas).
+  animation: overlay-fade 160ms ease-out;
+}
+
+.overlay__dialog {
+  position: relative;
+  width: min(36rem, 100%);
+  max-height: calc(100dvh - var(--space-8));
+  overflow-y: auto;
+  padding: var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl, 0 20px 40px rgba(0, 0, 0, 0.25));
+  animation: overlay-pop 180ms ease-out;
+}
+
+.overlay__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.overlay__title {
+  margin: 0;
+  font-size: 1.25rem;
+  color: var(--color-text);
+}
+
+.overlay__close {
+  display: inline-grid;
+  place-items: center;
+  // Cible tactile ≥ 44px (WCAG 2.2 AA, 2.5.8).
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: var(--color-text);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-bg-muted);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--color-focus-ring);
+  }
+}
+
+.overlay__intro {
+  margin: 0 0 var(--space-4);
+  color: var(--color-text);
+}
+
+.overlay__cart {
+  margin-top: var(--space-5);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.overlay__cart-recap {
+  margin: 0;
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+  color: var(--color-text);
+}
+
+.overlay__cart-length {
+  color: var(--color-text-muted);
+}
+
+.overlay__cart-price {
+  font-weight: 700;
+}
+
+.overlay__add {
+  // Cible tactile ≥ 44px (WCAG 2.2 AA, 2.5.8).
+  min-height: 44px;
+  min-width: 44px;
+
+  // État « aria-disabled » : reste FOCUSABLE et garde le STYLE `.btn--primary` intact (ratio de
+  // contraste préservé — pas d'opacité/couleur modifiée, L-016/L-033). Inactivité annoncée par
+  // `aria-disabled` + indice scopé `aria-describedby` (L-024). État transitoire (~300 ms).
+  &--disabled {
+    cursor: not-allowed;
+  }
+}
+
+@keyframes overlay-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes overlay-pop {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+// Filet « sans mouvement » (SSR / JS coupé / hydratation tardive) : aucune animation d'apparition.
+@media (prefers-reduced-motion: reduce) {
+  .overlay__backdrop,
+  .overlay__dialog {
+    animation: none;
+  }
+}

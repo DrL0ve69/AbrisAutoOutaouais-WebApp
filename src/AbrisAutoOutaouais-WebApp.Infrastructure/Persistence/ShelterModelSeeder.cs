@@ -12,10 +12,11 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence;
 /// <see cref="ShelterModel"/>). Données validées (1 pi = 30,48 cm, 1 po = 2,54 cm).
 ///
 /// Idempotent + BACKFILL PAR SLUG (L-031) : un modèle de référence est créé seulement si son slug
-/// est ABSENT ; un modèle déjà présent n'est JAMAIS écrasé (un admin a pu l'éditer). Un 2e passage
-/// ne change donc rien (aucun <c>SaveChanges</c> si rien n'a été ajouté). N'utilise que des
-/// opérations EF compatibles InMemory — pas de SQL brut (les tests d'intégration bootent sur
-/// InMemory, L-022).
+/// est ABSENT ; un modèle déjà présent n'est JAMAIS écrasé (un admin a pu l'éditer). En plus, les
+/// anciens modèles MULTI-LARGEURS (cf. <see cref="LegacyMultiWidthSlugs"/>) sont soft-deletés au
+/// passage (le rework EPIC 9 fait d'une largeur = un modèle distinct). Un 2e passage ne change donc
+/// rien (aucun <c>SaveChanges</c> si rien n'a été ajouté NI retiré). N'utilise que des opérations EF
+/// compatibles InMemory — pas de SQL brut (les tests d'intégration bootent sur InMemory, L-022).
 /// </summary>
 public static class ShelterModelSeeder
 {
@@ -37,39 +38,97 @@ public static class ShelterModelSeeder
         IReadOnlyList<int> ClearHeightsCm);
 
     /// <summary>
-    /// Référentiel validé (EPIC 9.1). Largeurs/hauteurs en cm ; longueurs par pas entre min et max.
-    /// Catégories rattachées à celles semées par <c>ProductSeeder</c> (abris simples / doubles).
+    /// Référentiel validé (EPIC 9, rework). RÈGLE : <b>une largeur = un modèle distinct</b>
+    /// (« Abri simple 11 pi » et « Abri simple 12 pi » sont DEUX modèles, pas un seul à deux
+    /// largeurs). Chaque spec n'a donc qu'UNE valeur dans <see cref="ShelterModelSpec.WidthsCm"/>.
+    /// Cela remplace les anciens modèles multi-largeurs (<c>simple</c>/<c>double-pointu</c>/
+    /// <c>double-rond</c>) — retirés par <see cref="LegacyMultiWidthSlugs"/> dans <c>SeedAsync</c>.
+    /// Largeurs/hauteurs en cm ; longueurs par pas entre min et max.
     ///
-    /// NOTE (écart vs table du plan) : les longueurs sont des conversions de PIEDS (4 pi = 122 cm,
+    /// NOTE (longueurs réalistes par pas) : longueurs en conversions de PIEDS (4 pi = 122 cm,
     /// 5 pi = 152 cm). L'invariant de domaine exige <c>(Max - Min) % Step == 0</c> (la longueur max
-    /// doit être atteignable par pas depuis la base). Comme min et max du plan étaient arrondis
-    /// INDÉPENDAMMENT (ex. 122 et 1829 → 1707/122 = 13,99, non aligné), on dérive ici la longueur
-    /// max comme <c>Min + N × Step</c> où N = nombre de pas impliqué par la table en pieds : simple/
-    /// monopente 4→60 pi = 14 pas → 1830 cm ; double-pointu 4→44 pi = 10 pas → 1342 cm ; double-rond
-    /// 15→35 pi = 4 pas → 1065 cm. L'écart au cm près est sans incidence métier (le pas reste exact).
+    /// doit être atteignable par pas depuis la base). On dérive donc max comme <c>Min + N × Step</c> :
+    ///  - simple/monopente : 16→60 pi par pas de 4 pi → min 488, max 1830 (11 pas) ;
+    ///  - double-pointu   : 16→44 pi par pas de 4 pi → min 488, max 1342 (7 pas) ;
+    ///  - double-rond     : 15→35 pi par pas de 5 pi → min 457, max 1065 (4 pas). 35 pi ≈ 1067 cm,
+    ///    arrondi à 1065 pour rester un multiple exact du pas de 152 cm (l'écart au cm près est sans
+    ///    incidence métier — le pas reste exact).
+    ///
+    /// Prix : placeholders cohérents (11 pi &lt; 12 pi &lt; double). PricePerArchCents = 15000 par
+    /// défaut ; 18000 pour le double-rond (arches plus larges).
     /// </summary>
     private static readonly IReadOnlyList<ShelterModelSpec> Specs =
     [
-        new("simple", "Abri simple — Abris Tempo", "abris-simples",
-            LengthStepCm: 122, MinLengthCm: 122, MaxLengthCm: 1830,  // 4→60 pi : 14 pas
-            BasePrice: 349.00m, PricePerArchCents: ShelterPricing.DefaultPricePerArchCents,
-            WidthsCm: [335, 366], ClearHeightsCm: [198]),
+        new("simple-11pi", "Abri simple 11 pi — Abris Tempo", "abris-simples",
+            LengthStepCm: 122, MinLengthCm: 488, MaxLengthCm: 1830,  // 16→60 pi : 11 pas
+            BasePrice: 1099.00m, PricePerArchCents: ShelterPricing.DefaultPricePerArchCents,
+            WidthsCm: [335], ClearHeightsCm: [198]),
 
-        new("monopente", "Abri monopente — Abris Tempo", "abris-simples",
-            LengthStepCm: 122, MinLengthCm: 122, MaxLengthCm: 1830,  // 4→60 pi : 14 pas
-            BasePrice: 874.00m, PricePerArchCents: ShelterPricing.DefaultPricePerArchCents,
+        new("simple-12pi", "Abri simple 12 pi — Abris Tempo", "abris-simples",
+            LengthStepCm: 122, MinLengthCm: 488, MaxLengthCm: 1830,  // 16→60 pi : 11 pas
+            BasePrice: 1249.00m, PricePerArchCents: ShelterPricing.DefaultPricePerArchCents,
+            WidthsCm: [366], ClearHeightsCm: [198]),
+
+        new("monopente", "Abri monopente 10 pi ½ — Abris Tempo", "abris-simples",
+            LengthStepCm: 122, MinLengthCm: 488, MaxLengthCm: 1830,  // 16→60 pi : 11 pas
+            BasePrice: 1349.00m, PricePerArchCents: ShelterPricing.DefaultPricePerArchCents,
             WidthsCm: [320], ClearHeightsCm: [213, 244, 274]),
 
-        new("double-pointu", "Abri double pointu — Abris Tempo", "abris-doubles",
-            LengthStepCm: 122, MinLengthCm: 122, MaxLengthCm: 1342,  // 4→44 pi : 10 pas
-            BasePrice: 724.00m, PricePerArchCents: ShelterPricing.DefaultPricePerArchCents,
-            WidthsCm: [488, 549, 610], ClearHeightsCm: [198, 229, 259, 290]),
+        new("double-pointu-16pi", "Abri double pointu 16 pi — Abris Tempo", "abris-doubles",
+            LengthStepCm: 122, MinLengthCm: 488, MaxLengthCm: 1342,  // 16→44 pi : 7 pas
+            BasePrice: 1899.00m, PricePerArchCents: ShelterPricing.DefaultPricePerArchCents,
+            WidthsCm: [488], ClearHeightsCm: [198, 229, 259]),
 
-        new("double-rond", "Abri double rond — Abris Tempo", "abris-doubles",
+        new("double-pointu-18pi", "Abri double pointu 18 pi — Abris Tempo", "abris-doubles",
+            LengthStepCm: 122, MinLengthCm: 488, MaxLengthCm: 1342,  // 16→44 pi : 7 pas
+            BasePrice: 2099.00m, PricePerArchCents: ShelterPricing.DefaultPricePerArchCents,
+            WidthsCm: [549], ClearHeightsCm: [198, 229, 259]),
+
+        new("double-pointu-20pi", "Abri double pointu 20 pi — Abris Tempo", "abris-doubles",
+            LengthStepCm: 122, MinLengthCm: 488, MaxLengthCm: 1342,  // 16→44 pi : 7 pas
+            BasePrice: 2299.00m, PricePerArchCents: ShelterPricing.DefaultPricePerArchCents,
+            WidthsCm: [610], ClearHeightsCm: [198, 229, 259]),
+
+        new("double-rond-18pi", "Abri double rond 18 pi — Abris Tempo", "abris-doubles",
             LengthStepCm: 152, MinLengthCm: 457, MaxLengthCm: 1065,  // 15→35 pi : 4 pas
-            BasePrice: 1149.00m, PricePerArchCents: ShelterPricing.DefaultPricePerArchCents,
-            WidthsCm: [549, 610], ClearHeightsCm: [213, 239]),
+            BasePrice: 2499.00m, PricePerArchCents: 18000,
+            WidthsCm: [549], ClearHeightsCm: [213, 239]),
+
+        new("double-rond-20pi", "Abri double rond 20 pi — Abris Tempo", "abris-doubles",
+            LengthStepCm: 152, MinLengthCm: 457, MaxLengthCm: 1065,  // 15→35 pi : 4 pas
+            BasePrice: 2699.00m, PricePerArchCents: 18000,
+            WidthsCm: [610], ClearHeightsCm: [213, 239]),
     ];
+
+    /// <summary>
+    /// Anciens slugs MULTI-LARGEURS remplacés par les modèles par-largeur de <see cref="Specs"/>.
+    /// Soft-deletés (idempotemment) au seed pour ne plus apparaître au catalogue. <c>monopente</c>
+    /// est CONSERVÉ (toujours une seule largeur) : il n'est PAS dans cet ensemble.
+    /// </summary>
+    private static readonly IReadOnlySet<string> LegacyMultiWidthSlugs =
+        new HashSet<string>(StringComparer.Ordinal) { "simple", "double-pointu", "double-rond" };
+
+    /// <summary>
+    /// Vue de test (L-005) sur les invariants dimensionnels de chaque spec du référentiel : permet à
+    /// un test-garde d'asserter <c>(Max - Min) % Step == 0</c> et « une seule largeur par modèle »
+    /// SANS exposer le record privé. <c>internal</c> car le projet UnitTest a <c>InternalsVisibleTo</c>.
+    /// </summary>
+    internal sealed record SpecInvariant(
+        string Slug, int LengthStepCm, int MinLengthCm, int MaxLengthCm, int WidthCount);
+
+    /// <summary>Invariants dimensionnels des specs semées (pour le test-garde).</summary>
+    internal static IReadOnlyList<SpecInvariant> SpecInvariants =>
+        Specs
+            .Select(s => new SpecInvariant(
+                s.Slug, s.LengthStepCm, s.MinLengthCm, s.MaxLengthCm, s.WidthsCm.Count))
+            .ToList();
+
+    /// <summary>Slugs des modèles par-largeur semés (pour les tests).</summary>
+    internal static IReadOnlyList<string> SeededSlugs =>
+        Specs.Select(s => s.Slug).ToList();
+
+    /// <summary>Anciens slugs multi-largeurs retirés au seed (pour les tests).</summary>
+    internal static IReadOnlySet<string> LegacySlugs => LegacyMultiWidthSlugs;
 
     public static async Task SeedAsync(IServiceProvider services)
     {
@@ -91,8 +150,9 @@ public static class ShelterModelSeeder
     }
 
     /// <summary>
-    /// Cœur idempotent du seed. Crée par SLUG les modèles de référence absents ; ne touche jamais
-    /// un modèle existant (préserve une édition admin) ; <c>SaveChanges</c> seulement si ajout.
+    /// Cœur idempotent du seed. Soft-delete les anciens modèles multi-largeurs encore actifs (rework
+    /// EPIC 9) ; crée par SLUG les modèles par-largeur absents ; ne touche jamais un modèle existant
+    /// (préserve une édition admin) ; <c>SaveChanges</c> unique, seulement si retrait OU ajout.
     /// </summary>
     // internal (et non private) pour permettre un test de non-régression direct (L-005) ; le projet
     // UnitTest a déjà InternalsVisibleTo. Cf. ShelterModelSeederBackfillTests.
@@ -116,6 +176,28 @@ public static class ShelterModelSeeder
             .IgnoreQueryFilters()
             .Select(m => m.Slug)
             .ToHashSetAsync();
+
+        var changed = false;
+
+        // ── Retrait des anciens modèles multi-largeurs (idempotent) ──────────────────────────────
+        // On SOFT-DELETE tout ShelterModel dont le slug est un ancien slug multi-largeurs (remplacé
+        // par les modèles par-largeur ci-dessus). On passe par .Remove() : le SoftDeleteInterceptor
+        // le convertit en IsDeleted=true (état Modified, aucune opération relationnelle → sûr sur
+        // InMemory, L-022/L-035). .IgnoreQueryFilters() pour les retrouver même déjà soft-deletés,
+        // et on ne ré-supprime QUE ceux encore actifs (idempotence : 2e passage = aucun changement).
+        var legacyModels = await db.ShelterModels
+            .IgnoreQueryFilters()
+            .Where(m => LegacyMultiWidthSlugs.Contains(m.Slug) && !m.IsDeleted)
+            .ToListAsync();
+
+        if (legacyModels.Count > 0)
+        {
+            db.ShelterModels.RemoveRange(legacyModels);
+            changed = true;
+            logger.LogInformation(
+                "Référentiel des modèles d'abris : {Count} ancien(s) modèle(s) multi-largeurs retiré(s).",
+                legacyModels.Count);
+        }
 
         var added = 0;
 
@@ -144,9 +226,13 @@ public static class ShelterModelSeeder
 
         if (added > 0)
         {
-            await db.SaveChangesAsync();
+            changed = true;
             logger.LogInformation(
                 "Référentiel des modèles d'abris : {Count} modèle(s) ajouté(s).", added);
         }
+
+        // Un seul SaveChanges pour le retrait des anciens slugs ET l'ajout des nouveaux.
+        if (changed)
+            await db.SaveChangesAsync();
     }
 }

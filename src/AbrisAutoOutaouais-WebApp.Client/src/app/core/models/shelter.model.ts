@@ -20,16 +20,6 @@
  */
 export const PARAMETRIC_CATEGORY_SLUGS: readonly string[] = ['abris-simples', 'abris-doubles'];
 
-/**
- * Noms des catégories paramétriques (la fiche produit n'expose que `categoryName`, pas le slug) ;
- * mappe le nom canonique au slug pour router vers la liste des modèles. À garder synchro avec
- * `ProductSeeder.cs` (`ProductCategory.Create(name, slug)`).
- */
-export const PARAMETRIC_CATEGORY_SLUG_BY_NAME: Readonly<Record<string, string>> = {
-  'Abris simples': 'abris-simples',
-  'Abris doubles': 'abris-doubles',
-};
-
 /** Vue résumée d'un modèle paramétrique (listes du catalogue). */
 export interface ShelterModelSummary {
   readonly id: string;

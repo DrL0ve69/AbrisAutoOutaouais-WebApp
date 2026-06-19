@@ -1,0 +1,53 @@
+// ============================================================
+// Carte d'un modèle d'abri paramétrique (rework EPIC 9)
+// Jetons sémantiques uniquement (contraste validé en e2e dual-thème — L-016).
+// ============================================================
+.model-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  height: 100%;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.model-card__name {
+  margin: 0;
+  font-size: 1.15rem;
+  color: var(--color-text);
+}
+
+.model-card__category {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.model-card__price {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin: var(--space-2) 0 0;
+  color: var(--color-text-muted);
+}
+
+.model-card__price-amount {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.model-card__range {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.model-card__cta {
+  margin-top: auto;
+  // Cible tactile ≥ 44px (WCAG 2.2 AA, 2.5.8).
+  min-height: 44px;
+  text-align: center;
+}
