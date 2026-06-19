@@ -5,9 +5,10 @@
 > fichier + le plan actif, vérifie l'état git, puis enchaîne.
 >
 > **🟢 Programme ACTIF — Phase 2 (`docs/agile/ROADMAP-PHASE-2.md`), curseur sur EPIC 9** (catalogue
-> par dimensions configurables). 9.1 (domaine+migration+seed), 9.2 (API+prix) et 9.3 (boutique/
-> product-detail + configurateur front) **faits** sur la branche `feat/epic-9-dimension-catalog` ;
-> **curseur → EPIC 9.4** (panier/parcours/commande : la dimension choisie suit l'article + recalcul prix serveur).
+> par dimensions configurables). 9.1 (domaine+migration+seed), 9.2 (API+prix), 9.3 (boutique/
+> product-detail + configurateur front) et 9.4 (panier/parcours/commande : abri configuré au panier
+> + `shelterLines` recalculés serveur dans `PlaceOrder`) **faits** sur la branche
+> `feat/epic-9-dimension-catalog` ; **curseur → EPIC 9.5** (admin référentiel dimensionnel).
 > **Programme G terminé (A→H) :** `C:\Users\phili\.claude\plans\majestic-soaring-sprout.md`
 > **Programme initial terminé (A→F) :** `C:\Users\phili\.claude\plans\1-i-want-you-glistening-barto.md`
 > Maintiens ce pointeur à jour à la fin de chaque sous-tâche (c'est ce que l'assistant relit).

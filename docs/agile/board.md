@@ -301,7 +301,7 @@ si un SP devient disponible. Détail : `PROGRAM-STATUS.md` (Épic H) + `docs/dep
 | ID | Épopée | Source (point) | Dépend de | Estim. | MoSCoW | Note clé |
 |----|--------|:--------------:|-----------|:------:|:------:|----------|
 | EPIC 12 | Contraste formulaires/focus | 6 / (1)·2 | — | 3 | Should | ✅ **livré** — partie 1 (auth focus) + partie 2 (Bug-09 badge sombre + onglet profil actif, au jeton ; balayage formulaires publics) |
-| EPIC 9 | Catalogue par dimensions configurables | 3 | — | 13 | Should | Refonte modèle (variantes vs paramétrique) ; touche home/boutique/location/installation/livraison/panier |
+| EPIC 9 | Catalogue par dimensions configurables | 3 | — | 13 | Should | 🔄 modèle paramétrique : 9.1 entité+prix ✅ · 9.2 API ✅ · 9.3 configurateur front ✅ · **9.4 panier/commande ✅** (état panier abri configuré + ajout + `shelterLines` sans prix dans `PlaceOrder`) ; reste 9.5 admin référentiel |
 | EPIC 10 | Suggestion d'abris intelligente (mesure/véhicule) | 4 | EPIC 9 | 8 | Should | Proposer **catégories qui rentrent** (≤ largeur, longueur ≤ mesure, max 40 pi) ; orientation véhicules |
 | EPIC 11 | Calendrier & planification terrain | 5 | — | 21 | Could | Agréger `Booking` existants ; routage MVP heuristique (`GeoDistance`) ou OpenRouteService |
 | EPIC 8 | Employés & paie (informative) | 2 | EPIC 11 | 8–13 | Could | ⚠️ Paie réelle = conformité fiscale hors portée ; viser informatif |
@@ -398,3 +398,35 @@ annonce code postal manquante sur installation, tokens WCAG 1.3.5.
 ---
 
 **✅ Épic F (accès invité — compte express silencieux) MERGÉ** — PR #38 (`e536cd2`, merge `--admin`), branche `feat/epic-f-guest-checkout` supprimée. Un visiteur **non connecté** peut acheter / louer / réserver ; à la confirmation il saisit nom/prénom/courriel/tél ; un **compte express passwordless** (`AppUser.IsExpress`, rôle `Customer`, migration `AddIsExpressToAppUser`) est **trouvé-ou-créé par courriel** → `CustomerId` réel partout, **aucun JWT émis** sur le parcours invité. Backend : `GuestContact` + `GuestContactValidator` + port `IExpressAccountService` (Application) / impl via `UserManager` (Infrastructure) ; les 3 commandes (`PlaceOrder`/`CreateRentalContract`/`CreateBooking`) reçoivent `GuestContact?` + `When(...)` + résolution `userId = connecté ?? express` ; `[AllowAnonymous]` sur les 3 POST de création (sœurs `GetMine`/`Cancel`/admin restent protégées). Frontend : composant réutilisable `app-guest-contact` (OnPush/signals/reactive, a11y labels+`aria-describedby` conditionnel+`role=alert` scopé, i18n `@@guestContact.*`), retrait `authGuard` de `panier/caisse` + retrait des gardes/redirections `/auth` impératives (cart/location/installation) + redirection post-succès invité→`/`. **Revue indépendante `code-reviewer` : APPROVE WITH NITS** (zéro bloquant ; sécurité passwordless+sibling-actions vérifiée ; non-régression `PlaceOrderCommandValidatorTests` Ontario→pass intacte L-004 ; nit `aria-describedby` conditionnel appliqué). **Mentor : L-028** (revue sécurité bipartite d'un endpoint `[AllowAnonymous]` : reachability JWT + couverture des actions sœurs) **et L-029** (retirer le `authGuard` de route ≠ suffisant — traquer gardes impératifs + navigations post-action vers routes protégées) capturées. **Gates** : `dotnet test` **315 / 0** (32 nouveaux Épic F) ✅ · `npm run build` ✅ · `npm test` **261 / 0** (guest-contact 5/5, 0 axe) ✅ · `npm run e2e` checkout-guest **2/2** (Ontario+QC) + non-régression 11 + a11y dual-thème 30 (0 axe) ✅ · i18n catalogues symétriques (10 ids ajoutés, 3 orphelins purgés). **Note CI** : les 3 gates de code (Backend / Frontend / SonarCloud) **verts** ; seul `Build & Deploy` (SWA) rouge sur un **rate-limit MCR externe** (429, incident Microsoft Container Registry) → merge `--admin` autorisé par l'utilisateur ; **déploiement prod en attente de récupération MCR** (re-run manuel `gh run rerun 27580207119 --failed` plus tard). **Reste ouvert** : Bug-09 (badge sombre) ; contraste onglet actif profil sombre 2.76:1 ; **Épic G** (catalogue marques/modèles + fit mesurer) = prochain.
+
+---
+
+## Mise à jour — 3ᵉ `.docx` (consult mesure Google) : règle budget + suivi précision mesure (2026-06-19)
+
+Ingestion de `probleme abris-auto-outaouais.docx` (avant de reprendre la Phase 2). Le docx
+recommandait de migrer `/mesurer` vers **Google Maps Platform** (Maps JS + Drawing + Geometry +
+NetTopologySuite). **Rejeté** : (a) **redondant** — `/mesurer` fait déjà adresse→satellite→tracé→
+largeur/longueur→suggestion **gratuitement et sans clé** (Leaflet + geoman-free + tuiles Esri World
+Imagery + Turf + géocodage Photon) ; (b) **contraire au budget** — Google Maps exige un compte de
+facturation (cf. consigne PS « ne dépense jamais d'argent »).
+
+**Livré (doc/outillage, aucun code produit touché) :**
+- **Nouvelle règle dure `.claude/rules/budget-free-tier.md`** — « zéro frais / gratuit & sans clé par
+  défaut ; un “free tier” qui exige une carte = traité comme PAYANT → refusé ». **Auto-injectée** à
+  chaque session (`inject-context.mjs`) et rappelée sur édition de dépendance/fournisseur/config
+  (`post-edit-guardrail.mjs` : `package.json`, `*.csproj`, `appsettings*.json`, `DependencyInjection.cs`).
+  Pointeur ajouté dans `CLAUDE.md` (§Workflow).
+- **`docs/resources.md`** — liste curée cadrée budget (sources d'API gratuites `public-apis` /
+  `free-for-dev` ; candidats skills Claude Code **non installés**, idées minées de `ui-ux-pro-max-skill`).
+- **`.claude/rules/motion-a11y.md` §6** — check pré-livraison UI/UX (anti-patrons d'industrie, rester
+  dans la marque) distillé de `ui-ux-pro-max-skill`.
+
+**Nouveau suivi / dette (à planifier) :**
+
+| ID | Constat | Réf. | Recommandation | Statut |
+|----|---------|------|----------------|--------|
+| US-14.2 | `/mesurer` : `handleShape` mesure via `turf.bbox` **aligné aux axes** → **sur-estime** largeur/longueur d'un stationnement **pivoté** (ex. 3×6 m à 45° lu ~6,4×6,4 m) → abri suggéré trop grand | **L-034** | Distances **par arête** (`@turf/distance`/haversine, apparier arêtes opposées) **ou** bbox orientée — **gratuit** ; test avec rectangle pivoté. Hors périmètre cette passe (doc only) ; via `/feature-cycle` | 🟠 Ouvert (EPIC 14) |
+
+> **Note.** Bug-09 (badge « Ajusté serré » sombre) est **déjà corrigé** au jeton (EPIC 12 partie 2,
+> `--color-warning-solid`/`--color-on-warning`, L-033) — hors périmètre.
+> **Suite** : reprendre la Phase 2 (`/next-task`) ; le fix mesure US-14.2 attend un cycle dédié.

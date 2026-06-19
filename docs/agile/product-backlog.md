@@ -155,7 +155,7 @@ les critères a11y dans sa Definition of Done (voir `definition-of-done.md`).
 
 | ID | User Story | Estimation | MoSCoW | Statut |
 |----|-----------|:----------:|:------:|--------|
-| US-9.1 | En tant que **visiteur**, je veux, **après avoir choisi une catégorie d'abri, choisir les dimensions** (largeur fixe par catégorie, longueur configurable par pas de 4 pi, hauteur dégagée) afin de sélectionner le modèle exact. | 13 | **Should** | ⛔ À planifier (Phase 2 ; décision modèle : variantes vs paramétrique) |
+| US-9.1 | En tant que **visiteur**, je veux, **après avoir choisi une catégorie d'abri, choisir les dimensions** (largeur fixe par catégorie, longueur configurable par pas de 4 pi, hauteur dégagée) afin de sélectionner le modèle exact. | 13 | **Should** | 🔄 En cours (Phase 2 ; modèle paramétrique) — 9.1 entité+prix ✅, 9.2 API ✅, 9.3 configurateur front ✅, **9.4 panier/commande ✅** (état panier abri configuré, ajout au panier, `shelterLines` sans prix dans `PlaceOrder` — serveur recalcule, L-004) ; reste 9.5 admin référentiel |
 | US-9.2 | En tant qu'**admin**, je veux **saisir le référentiel dimensionnel** (largeurs/hauteurs/longueurs possibles par catégorie) afin que la sélection client soit exacte. | 5 | **Should** | ⛔ À planifier (Phase 2 ; compléter dims mono/double/autres depuis abristempo.com) |
 
 ### EPIC 10 — Suggestion d'abris intelligente (mesure & véhicule)
@@ -194,6 +194,7 @@ les critères a11y dans sa Definition of Done (voir `definition-of-done.md`).
 | ID | User Story | Estimation | MoSCoW | Statut |
 |----|-----------|:----------:|:------:|--------|
 | US-14.1 | En tant que **visiteur**, je veux **zoomer plus profond** sur la carte `/mesurer` afin de tracer une mesure précise de mon entrée. | 5 | **Should** | ⛔ À planifier (Phase 2 ; over-zoom Esri `maxNativeZoom` d'abord, sinon spike source HD payante via proxy) |
+| US-14.2 | En tant que **visiteur**, je veux que la **largeur/longueur mesurée soit exacte même si mon entrée n'est pas alignée nord-sud**, afin de ne pas me faire proposer un abri trop grand (et plus cher). | 3 | **Should** | ⛔ À planifier (Phase 2 ; `handleShape` utilise `turf.bbox` **aligné aux axes** → sur-estime un rectangle pivoté — voir **L-034**. Fix gratuit : distances par arête (`@turf/distance`/haversine) ou bbox orientée ; test avec rectangle pivoté) |
 
 ### EPIC 15 — Champ d'adresse : spike best-practices puis refonte
 
