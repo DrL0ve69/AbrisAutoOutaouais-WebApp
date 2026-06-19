@@ -11,6 +11,75 @@
 
 ---
 
+## L-039 · A Container Apps container that exits at startup is NOT a native segfault — get the managed exception first; missing Log Analytics makes you blind and wastes hours on the wrong layer
+
+- **Symptom.** After the EPIC 9 merge, every Container Apps revision showed « ActivationFailed »,
+  exit code 139, and `/api/v1/shelters` returned 404. Three image rebuilds followed (disabling
+  `UseAppHost`, pinning `ContainerBaseImage`, etc.) — all appeared to « fail the same way ». In
+  reality the image was fine. The actual cause was a **managed C# exception thrown in a seeder during
+  app startup** (see [[L-038]]), which kills the host before it ever binds to a port. Exit code 139
+  is the Unix signal for SIGSEGV, but the .NET runtime also maps an **unhandled exception that
+  terminates the process** to that code in some Container Apps / Linux configurations — it is NOT
+  necessarily a native memory fault. The stdout containing the full exception stack was invisible
+  because `appLogsConfiguration.destination` in the Terraform IaC was `""` (empty) — no Log Analytics
+  workspace was wired, so Container Apps had nowhere to ship container stdout/stderr. Activating
+  Log Analytics (and querying `ContainerAppConsoleLogs_CL`) revealed the real error in seconds.
+- **Rule.** When a containerised .NET backend fails at startup (exit code 139, « ActivationFailed »,
+  service unreachable), do **not** assume a native image or cross-build fault. The most common cause is
+  an **unhandled managed exception during startup** — DI misconfiguration, a seeder throwing, a failed
+  migration — that terminates the host before the HTTP port is bound. The diagnostic checklist: (1)
+  **Read the logs first** — `az containerapp logs show --name … --follow` or Log Analytics
+  `ContainerAppConsoleLogs_CL | where Log contains "Exception"`. (2) If no logs appear, the environment
+  has no log destination: add an `azurerm_log_analytics_workspace` to the IaC and wire it to the
+  Container App (`log_analytics_workspace_id`) **before** spending any time on image theory. An
+  environment without a log store is **blind by design** — any rebuild/redeploy is guesswork. (3) Only
+  after the managed exception is ruled out (stdout is clean, JIT/native crash confirmed by a memory
+  dump) should cross-build / base-image / `UseAppHost` hypotheses be explored. This is [[L-001]]
+  (reproduce/observe the REAL stack before blaming a layer) extended to the **container-observability**
+  axis: the "real stack" in prod is the container stdout, and you cannot read it without a log sink.
+- **Refs.** `infra/main.tf` (`azurerm_log_analytics_workspace` + `log_analytics_workspace_id` wired
+  to the Container App environment), branch `fix/seeder-sql-translation`.
+
+## L-038 · `IReadOnlySet<T>.Contains` (and `HashSet<T>.Contains`) on a column is NOT translated by EF Core SQL Server — use `T[]` or `List<T>` for `IN (…)` queries; seeder code is the highest-risk site
+
+- **Symptom.** After the EPIC 9 merge, the deployed backend (Azure Container Apps + Azure SQL S0)
+  crashed at every startup — all revisions « ActivationFailed », exit code 139 (see [[L-039]] for the
+  diagnostic path). 349 unit tests and 95 integration tests were green. Root cause (visible only after
+  wiring Log Analytics): `ShelterModelSeeder.LegacyMultiWidthSlugs` was typed as
+  `IReadOnlySet<string>` (a `HashSet`). The seeder query
+  `.Where(s => LegacyMultiWidthSlugs.Contains(s.Slug))` compiled fine and passed InMemory integration
+  tests (which evaluate LINQ **client-side**), but threw at runtime on SQL Server:
+  ```
+  System.InvalidOperationException: The LINQ expression '…HashSet<string>{…}.Contains(s.Slug)…'
+  could not be translated. Translation of method 'IReadOnlySet<string>.Contains' failed.
+  ```
+  EF Core's SQL Server provider only translates `.Contains` when the collection is `T[]` or `List<T>`
+  (→ SQL `IN (…)`). The InMemory provider evaluates everything in-process and **never surfaces this
+  gap** — a perfect instance of [[L-035]] / [[L-022]] (InMemory masks relational provider divergence).
+  Because seeders run at host startup before the HTTP port is bound, the unhandled exception killed the
+  entire process — no graceful error, just exit 139.
+- **Rule.** Any collection used in an EF LINQ `.Contains(column)` expression **must** be declared as
+  `T[]` or `List<T>` — not `IReadOnlySet<T>`, `HashSet<T>`, `IEnumerable<T>`, or any other type. The
+  SQL Server provider maps exactly those two concrete types to a SQL `IN (…)` clause; all others fail
+  **at runtime on a relational provider** while passing silently on InMemory ([[L-022]]). The fix is
+  often a one-character change to the field declaration (`string[]` instead of `IReadOnlySet<string>`),
+  but the cost of missing it in a seeder is a **total prod outage from first boot**. Three guards:
+  (1) After writing any EF query that calls `.Contains(column)`, check the collection's declared type;
+  if it is not `T[]` or `List<T>`, change it before committing. (2) After any seeder or infrastructure
+  change, do a **live round-trip on SQL Server LocalDB** ([[L-001]]) — `dotnet run` against a real
+  LocalDB database and confirm the app starts and the relevant endpoint responds — before merging.
+  `dotnet test` (InMemory) cannot catch this class of error. (3) Seeder code is the highest-risk site:
+  it runs unconditionally at boot, is covered only by InMemory tests, and an uncaught exception kills
+  the whole host. Treat every new seeder query as requiring a real-provider smoke-test as part of the
+  PR checklist, independently of integration test results.
+- **Refs.**
+  `src/AbrisAutoOutaouais-WebApp.Infrastructure/Persistence/ShelterModelSeeder.cs`
+  (`LegacyMultiWidthSlugs` changed from `IReadOnlySet<string>` to `string[]`),
+  `infra/main.tf` (Log Analytics wired — prerequisite for diagnosing this class of error, [[L-039]]),
+  branch `fix/seeder-sql-translation`. Cross-links: [[L-035]] (InMemory masks OwnsMany/relational
+  bugs), [[L-022]] (InMemory diverges from relational providers), [[L-001]] (reproduce against real
+  stack), [[L-031]] (seeders run at boot and are only covered by InMemory tests).
+
 ## L-037 · When a rework deletes a route/component, e2e specs in `e2e/` that navigate by URL are NOT caught by a component-level grep — audit them explicitly
 
 - **Symptom.** EPIC 9 rework (`feat/epic-9-rework-shelter-dimensions`): routes

@@ -107,12 +107,28 @@ resource "azurerm_container_registry" "acr" {
   tags                = local.tags
 }
 
-# ── Container Apps : environnement + application API ───────────────────────────
-resource "azurerm_container_app_environment" "env" {
-  name                = var.container_app_environment_name
+# ── Log Analytics : collecte des logs console/système du Container App ─────────
+# Observabilité PROD. Sans ce workspace, l'environnement n'a AUCUN store de logs
+# (destination vide) → un crash applicatif au démarrage est INVISIBLE (seul un
+# « exit 139 » remonte). C'est ce workspace qui a permis de diagnostiquer le crash
+# du ShelterModelSeeder (IReadOnlySet.Contains non traduisible par SQL Server —
+# L-035/L-001). Free-tier PerGB2018, rétention 30 j.
+resource "azurerm_log_analytics_workspace" "logs" {
+  name                = var.log_analytics_workspace_name
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
+  sku                 = "PerGB2018"
+  retention_in_days   = 30
   tags                = local.tags
+}
+
+# ── Container Apps : environnement + application API ───────────────────────────
+resource "azurerm_container_app_environment" "env" {
+  name                       = var.container_app_environment_name
+  resource_group_name        = azurerm_resource_group.main.name
+  location                   = azurerm_resource_group.main.location
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.logs.id
+  tags                       = local.tags
 }
 
 resource "azurerm_container_app" "api" {

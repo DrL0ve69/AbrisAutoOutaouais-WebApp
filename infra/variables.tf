@@ -66,6 +66,12 @@ variable "container_app_name" {
   default     = "abristempo-api"
 }
 
+variable "log_analytics_workspace_name" {
+  type        = string
+  description = "Workspace Log Analytics qui collecte les logs console/système du Container App (observabilité prod). Free-tier PerGB2018."
+  default     = "abristempo-logs"
+}
+
 # ── Application ────────────────────────────────────────────────────────────────
 variable "jwt_key" {
   type        = string
