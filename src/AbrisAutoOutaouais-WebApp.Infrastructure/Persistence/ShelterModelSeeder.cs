@@ -15,8 +15,10 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence;
 /// est ABSENT ; un modèle déjà présent n'est JAMAIS écrasé (un admin a pu l'éditer). En plus, les
 /// anciens modèles MULTI-LARGEURS (cf. <see cref="LegacyMultiWidthSlugs"/>) sont soft-deletés au
 /// passage (le rework EPIC 9 fait d'une largeur = un modèle distinct). Un 2e passage ne change donc
-/// rien (aucun <c>SaveChanges</c> si rien n'a été ajouté NI retiré). N'utilise que des opérations EF
-/// compatibles InMemory — pas de SQL brut (les tests d'intégration bootent sur InMemory, L-022).
+/// rien (aucun <c>SaveChanges</c> si rien n'a été ajouté NI retiré). Toute requête EF ici doit être
+/// TRADUISIBLE PAR LE PROVIDER RELATIONNEL (SQL Server), pas seulement « acceptée par InMemory » :
+/// InMemory évalue côté client et masque les échecs de traduction (cf. <see cref="LegacyMultiWidthSlugs"/>
+/// en <c>string[]</c> et non <c>IReadOnlySet</c> — L-035/L-001). Pas de SQL brut non plus.
 /// </summary>
 public static class ShelterModelSeeder
 {
@@ -104,9 +106,13 @@ public static class ShelterModelSeeder
     /// Anciens slugs MULTI-LARGEURS remplacés par les modèles par-largeur de <see cref="Specs"/>.
     /// Soft-deletés (idempotemment) au seed pour ne plus apparaître au catalogue. <c>monopente</c>
     /// est CONSERVÉ (toujours une seule largeur) : il n'est PAS dans cet ensemble.
+    /// TYPE = <c>string[]</c> (PAS <c>HashSet</c>/<c>IReadOnlySet</c>) : EF Core traduit
+    /// <c>tableau.Contains(colonne)</c> en <c>IN (...)</c> SQL, mais NE traduit PAS
+    /// <c>IReadOnlySet&lt;T&gt;.Contains</c> → <c>InvalidOperationException</c> au runtime sur SQL
+    /// Server (InMemory l'évalue côté client et MASQUE le bug — L-035/L-001). Le critère n'est pas
+    /// « compatible InMemory » mais « traduisible par le provider relationnel ».
     /// </summary>
-    private static readonly IReadOnlySet<string> LegacyMultiWidthSlugs =
-        new HashSet<string>(StringComparer.Ordinal) { "simple", "double-pointu", "double-rond" };
+    private static readonly string[] LegacyMultiWidthSlugs = ["simple", "double-pointu", "double-rond"];
 
     /// <summary>
     /// Vue de test (L-005) sur les invariants dimensionnels de chaque spec du référentiel : permet à
@@ -128,7 +134,7 @@ public static class ShelterModelSeeder
         Specs.Select(s => s.Slug).ToList();
 
     /// <summary>Anciens slugs multi-largeurs retirés au seed (pour les tests).</summary>
-    internal static IReadOnlySet<string> LegacySlugs => LegacyMultiWidthSlugs;
+    internal static IReadOnlyCollection<string> LegacySlugs => LegacyMultiWidthSlugs;
 
     public static async Task SeedAsync(IServiceProvider services)
     {
