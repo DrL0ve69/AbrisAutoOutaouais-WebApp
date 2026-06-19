@@ -3,9 +3,10 @@
      WCAG AA : role=dialog + aria-modal, libellé par le nom du modèle,
      piège de focus + Échap + clic-fond, retour de focus géré par le parent.
 ============================================================ -->
-<div class="overlay">
-  <!-- Fond : décoratif, fermeture au clic (non focusable, aria-hidden). -->
-  <div class="overlay__backdrop" aria-hidden="true" (click)="onBackdropClick()"></div>
+<!-- Le conteneur porte la fermeture : clic hors panneau (souris) ET Échap (clavier) — les deux sur
+     le MÊME élément (contrat clic+clavier). Le fond reste un décor non focusable (aria-hidden). -->
+<div class="overlay" (click)="onOverlayClick($event)" (keydown.escape)="requestClose()">
+  <div class="overlay__backdrop" aria-hidden="true"></div>
 
   <div
     #dialogEl

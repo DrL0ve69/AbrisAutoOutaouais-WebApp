@@ -2,7 +2,6 @@ import {
   AfterViewChecked,
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   ElementRef,
   afterNextRender,
   computed,
@@ -47,7 +46,6 @@ import { formatFeetInches } from '../../mesurer/util/feet-inches.util';
 })
 export class ShelterConfiguratorOverlayComponent implements AfterViewChecked {
   private readonly cart = inject(CartService);
-  private readonly destroyRef = inject(DestroyRef);
 
   /** Slug du MODÈLE paramétrique à configurer. */
   readonly slug = input.required<string>();
@@ -78,18 +76,9 @@ export class ShelterConfiguratorOverlayComponent implements AfterViewChecked {
   constructor() {
     // Focus initial APRÈS le premier rendu (le dialogue est dans le DOM) — L-006 :
     // ne jamais focaliser dans le même tick que l'ajout de l'élément.
+    // (Échap est géré par `(keydown.escape)` sur le conteneur `.overlay` : le focus étant piégé
+    //  dans le dialogue — descendant de `.overlay` —, l'événement remonte jusqu'au conteneur.)
     afterNextRender(() => this.focusInitial());
-
-    // Fermeture par Échap : écoute au niveau document (le focus est piégé dans le dialogue, mais
-    // un Échap doit fermer quel que soit l'élément focalisé à l'intérieur).
-    const onKeydown = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        this.requestClose();
-      }
-    };
-    document.addEventListener('keydown', onKeydown);
-    this.destroyRef.onDestroy(() => document.removeEventListener('keydown', onKeydown));
   }
 
   ngAfterViewChecked(): void {
@@ -130,9 +119,12 @@ export class ShelterConfiguratorOverlayComponent implements AfterViewChecked {
     this.close.emit();
   }
 
-  /** Clic sur le fond (hors panneau) → ferme. */
-  protected onBackdropClick(): void {
-    this.requestClose();
+  /** Clic dans le conteneur mais HORS du panneau (fond) → ferme. Un clic dans le dialogue est ignoré. */
+  protected onOverlayClick(event: MouseEvent): void {
+    const dialog = this.dialogEl()?.nativeElement;
+    if (dialog && !dialog.contains(event.target as Node)) {
+      this.requestClose();
+    }
   }
 
   /** Piège de focus APG : Tab/Shift+Tab cyclent dans le dialogue. */
