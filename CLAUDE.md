@@ -98,6 +98,8 @@ Hand-rolled dispatcher in `Application/Common/Mediator/`. Interfaces: `ICommand<
 
 Feature branches only (never commit to `master` directly). Run `dotnet test` after backend changes, `npm test` + lint before a PR. Conventional Commits. Don't touch `Domain/` lightly.
 
+> **Budget — hard rule:** never spend money (no subscriptions, no paid/billed API keys, no paid Azure SKUs) without the owner's explicit consent. Default to free **and** keyless; a "free tier" that needs a billing account/credit card counts as **paid → rejected**. The only paid resource is the ~$120 CAD Azure student credit. See **`.claude/rules/budget-free-tier.md`**.
+
 ### Accessibility & UX is a standing workflow, not a one-off
 
 The `docs/` folder ships living audits (WCAG 2.2, heuristic eval, task-flow) whose recommendation/risk tables **are the a11y/UX backlog**. Any request to "apply the docs", act on an audit/heuristic finding, or do an accessibility pass runs through the **`a11y-ux-pass` skill** (`.claude/skills/a11y-ux-pass/`), which codifies the loop: read the audits → reconcile against real code (they drift) → implement pending findings → verify → re-document.

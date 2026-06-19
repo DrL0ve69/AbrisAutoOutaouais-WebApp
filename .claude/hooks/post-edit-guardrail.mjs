@@ -36,17 +36,42 @@ process.stdin.on('end', () => {
   // Normalise to forward slashes so the same matching works on Windows.
   const p = String(path).replace(/\\/g, '/');
 
+  // Budget guardrail surface: dependency / provider / cloud-config files. Some are .json
+  // (package.json, appsettings*.json) which the source-file ignore below would otherwise skip —
+  // so detect them first and let them through. Vendored copies (node_modules/obj/bin/dist) excluded.
+  const isVendored = /\/(obj|bin|dist|node_modules)\//.test(p) || /\/\.claude\//.test(p);
+  const isBudgetSurface =
+    !isVendored &&
+    (/\/package\.json$/.test(p) ||
+      /\.csproj$/.test(p) ||
+      /\/appsettings[^/]*\.json$/.test(p) ||
+      /\/DependencyInjection\.cs$/.test(p));
+
   // Ignore non-source files: our own tooling, build output, deps, lockfiles.
+  // Budget surfaces bypass this ignore (handled above).
   if (
     !p ||
-    /\/\.claude\//.test(p) ||
-    /\/(obj|bin|dist|node_modules)\//.test(p) ||
-    /\.(md|json|lock|css\.map|snap)$/.test(p)
+    (!isBudgetSurface &&
+      (/\/\.claude\//.test(p) ||
+        /\/(obj|bin|dist|node_modules)\//.test(p) ||
+        /\.(md|json|lock|css\.map|snap)$/.test(p)))
   ) {
     process.exit(0);
   }
 
   const reminders = [];
+
+  if (isBudgetSurface) {
+    reminders.push(
+      'Dependency / provider / cloud-config surface touched (' +
+        p.split('/').slice(-1)[0] +
+        '). BUDGET hard rule (`.claude/rules/budget-free-tier.md`): never add paid/billed services or ' +
+        'API keys, nor paid Azure SKUs, without the owner’s explicit consent — prefer free AND keyless ' +
+        '(Photon, Esri, OSM, Leaflet/geoman, Turf). A "free tier" that needs a billing account / credit ' +
+        'card (Google Maps Platform, Algolia, Radar…) counts as PAID → reject. Document any new external ' +
+        'dependency’s cost in the PR; stay within the ~$120 Azure student credit (`docs/deployment.md`).',
+    );
+  }
 
   const isClient = p.includes('.Client/');
   const isFrontend = isClient && /\.(ts|html|scss)$/.test(p);

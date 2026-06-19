@@ -11,6 +11,30 @@
 
 ---
 
+## L-034 · An axis-aligned `turf.bbox()` over-estimates a drawn rectangle's width/length when it isn't aligned North–South — measure with per-edge great-circle distances or an oriented bbox
+
+- **Symptom.** The `/mesurer` map tool derives a parking spot's width and length in `handleShape()`
+  (`features/mesurer/steps/measure-step/map-measure/map-measure.ts`, ~lines 186-213) from
+  `turf.bbox()` — an **axis-aligned** (min/max lat-lng) bounding box. For a driveway not aligned to
+  North–South, the axis-aligned box is always larger than the real footprint: a 3 m × 6 m spot
+  rotated 45° reads ~6.4 m × 6.4 m. That inflated footprint is fed to `SuggestShelters`, so the user
+  is suggested a too-large (and pricier) shelter. The bug is **silent** — no test fails (tests draw
+  axis-aligned shapes whose bbox equals the true dimensions), and the output looks plausible.
+  Surfaced by a 2026-06-19 docx consult which correctly noted « a simple bounding box will fail for
+  rotated driveways ». Tracked as US-14.2 (EPIC 14); documented but not yet fixed.
+- **Rule.** When deriving a rectangle's width/length from a user-drawn polygon on a map, do **not**
+  use `turf.bbox()` — it equals the true dimensions only when the shape aligns with the lat/lng axes.
+  Instead, compute **per-edge great-circle distances** (`@turf/distance` / haversine) for a 4-vertex
+  polygon and pair opposite edges: width = mean of the two shorter edge pairs, length = mean of the
+  two longer (both are free — no billing-required Google Maps API, see budget-free-tier rule). An
+  oriented / minimum-area bounding box is equally valid. Pin with a **unit test that feeds a ROTATED
+  rectangle** and asserts the true ~3×6, not the inflated bbox — an axis-aligned test case cannot
+  catch this regression. Same family as [[L-007]] (a geometric/temporal assumption that makes a query
+  correct lives far from the query — pin it there), on the **measurement-orientation** axis.
+- **Refs.** `features/mesurer/steps/measure-step/map-measure/map-measure.ts` (`handleShape`,
+  `turf.bbox` call), `docs/agile/product-backlog.md` (US-14.2),
+  source: `probleme abris-auto-outaouais.docx` (2026-06-19).
+
 ## L-033 · A contrast fix that targets only the NAMED items leaves the same faulty pattern dormant elsewhere — grep ALL consumers of the pattern before closing
 
 - **Symptom.** Épic 12 p2: the user story named two contrast failures — `/mesurer` badge
