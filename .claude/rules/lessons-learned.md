@@ -11,6 +11,64 @@
 
 ---
 
+## L-043 · An Angular `effect()` that reads `form.getRawValue()` does NOT re-run when async data fills the form — depend on the SIGNAL that actually changes
+
+- **Symptom.** EPIC 13, sub-task 13.2 (`MapVoieComponent`): an `effect()` was initially written to
+  read the form's current values via `form.getRawValue()` in order to auto-geocode the profile
+  address and centre the map. `getRawValue()` is a plain method call — it is **not reactive**; Angular's
+  signal graph has no knowledge of it. The effect ran once at construction (synchronously), found no
+  profile address yet, and never re-ran when `ProfileService.defaultDeliveryAddress` resolved
+  asynchronously from `/auth/me`. The result: for a logged-in user whose profile address loads after
+  the initial render (the normal case), the auto-centring silently never fired — no error, no warning,
+  the map simply opened at the fallback Gatineau centre. The same bug was invisible when the stub
+  provided the address synchronously in the constructor (tests passed), revealing the gap only on the
+  real async path. Caught by the independent reviewer (13.2); fixed by depending on
+  `this.addr.profileAddress()` (a signal) instead of the form snapshot.
+- **Rule.** An `effect()` (or `computed()`) only re-executes when **signals** it read during its last
+  run change value. `form.getRawValue()`, `form.value`, `service.someProperty` (plain property), and
+  any Observable subscription are **not** tracked — reading them inside an effect gives a one-shot
+  snapshot at construction, not a reactive dependency. To react to async data arriving after render:
+  depend on the **signal that wraps the async source** (e.g. `ProfileService.defaultDeliveryAddress`
+  is already a `Signal<AddressDto | null>` — read it directly). Two guards: (1) When writing an
+  `effect()` that should re-fire on async data, trace the data's origin: if it lives in a signal,
+  read that signal inside the effect body; if it only exists as a form control value (RxJS
+  `valueChanges`), subscribe explicitly rather than polling inside an effect. (2) In specs, always
+  exercise the **async delivery path**: provide `null` at render, then set the signal to the real
+  value after `fixture.detectChanges()`, and assert the side-effect fired — a synchronous stub at
+  construction masks the reactivity gap ([[L-001]]: reproduce the real async path; [[L-009]]: an
+  assertion that never reached the async branch is vacuous).
+- **Refs.** `src/AbrisAutoOutaouais-WebApp.Client/src/app/features/mesurer/steps/dimension-step/map-voie/map-voie.ts`
+  (constructor `effect` reads `this.addr.profileAddress()` signal, comment D6/L-003),
+  `map-voie.spec.ts` (test « adresse profil livrée APRÈS le rendu (async /auth/me) »: `addressSignal.set(…)` after render → `places.geocode` asserted called),
+  branch `feat/epic-13-mesurer-rework`.
+
+## L-042 · Rewriting the FR source text under a reused `@@id` silently leaves the EN `<target>` stale — `npm run i18n:extract` updates `<source>` only
+
+- **Symptom.** EPIC 13, sub-task 13.3: the `/mesurer` page shell (`mesurer.html`) was rewritten —
+  `mesurer.title`, `mesurer.lead`, and `mesurer.back` got new French source text while keeping their
+  existing `@@id`s. `npm run i18n:extract` faithfully updated the `<source>` nodes in `messages.xlf`
+  (FR catalog), but left the `<target>` nodes in `messages.en.xlf` (EN catalog) **unchanged** — they
+  still held translations of the old text. The Angular EN build compiled without error or warning: the
+  `@@id` existed in both catalogs, so the extractor was satisfied. The EN locale silently served the
+  old (now incorrect) English text. The developer caught this and corrected all three EN targets by
+  hand in the same PR — the lesson is that the build gave no signal that correction was needed.
+- **Rule.** `npm run i18n:extract` is a **source-catalog tool only**: it writes or updates `<source>`
+  in `messages.xlf` (FR) but **never touches** any `<target>` in `messages.en.xlf` (EN) — whether
+  the id is new, changed, or untouched. When the **FR source text changes** under a reused `@@id`
+  (a rewrite, not a deletion): (1) after running `npm run i18n:extract`, diff `messages.xlf` for any
+  `<source>` node whose text changed; (2) for each changed `<source>`, manually update the
+  corresponding `<target>` in `messages.en.xlf` in the same commit — the EN build will silently use
+  the old translation forever otherwise; (3) confirm with `npm run build:prod` (which runs the
+  bilingual build) that both locales render the expected text. This is **distinct from** [[L-018]]
+  (which covers *orphaned* trans-units when the last consumer is deleted): here the id survives,
+  no orphan, no divergence flag — the drift is invisible to all tooling. The pattern to grep after
+  any copy rewrite: ids you kept + `<source>` text that changed = mandatory manual EN re-translation.
+- **Refs.** `src/AbrisAutoOutaouais-WebApp.Client/src/locale/messages.xlf` (`mesurer.title`,
+  `mesurer.lead`, `mesurer.back` — new FR source text),
+  `src/AbrisAutoOutaouais-WebApp.Client/src/locale/messages.en.xlf` (same ids — EN targets updated
+  by hand to match new meaning), branch `feat/epic-13-mesurer-rework`. Related: [[L-018]] (orphaned
+  ids on deletion), [[L-024]] (dynamic bindings use `$localize`, not `i18n-` — the other i18n trap).
+
 ## L-041 · Two pure utils that share a core function must extract it into a neutral third module — a bidirectional import A↔B is fragile even when runtime-safe
 
 - **Symptom.** EPIC 10: `footprint.util` (historical side-by-side shelter footprint) was refactored

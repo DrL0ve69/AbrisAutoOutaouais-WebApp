@@ -185,9 +185,9 @@ les critères a11y dans sa Definition of Done (voir `definition-of-done.md`).
 
 | ID | User Story | Estimation | MoSCoW | Statut |
 |----|-----------|:----------:|:------:|--------|
-| US-13.1 | En tant que **visiteur**, je veux **commencer par les dimensions de mon entrée** (je les connais / par véhicules / mesurer sur carte) **sans avoir à saisir mon adresse** d'abord, afin d'aller au but. | 5 | **Should** | ⛔ À planifier (Phase 2 ; inverse l'ordre actuel Adresse→Mesure→Résultats) |
-| US-13.2 | En tant que **visiteur**, je veux que l'**adresse ne soit demandée qu'au moment de mesurer sur carte** (input au-dessus/à gauche ; pré-rempli + carte centrée si connecté, modifiable), afin de ne saisir l'adresse que si utile. | 3 | **Should** | ⛔ À planifier (Phase 2 ; dépend EPIC 15) |
-| US-13.3 | En tant que **visiteur**, je veux à la fin une **étape « Conseil »** qui propose les **catégories qui rentrent → modèle → longueur**, afin de choisir le bon abri (regrouper Mesure+Conseil sous un seul terme). | 3 | **Should** | ⛔ À planifier (Phase 2 ; dépend EPIC 9, 10) |
+| US-13.1 | En tant que **visiteur**, je veux **commencer par les dimensions de mon entrée** (je les connais / par véhicules / mesurer sur carte) **sans avoir à saisir mon adresse** d'abord, afin d'aller au but. | 5 | **Should** | ✅ Terminé (EPIC 13, 2026-06-21 ; stepper inversé Dimensionner→Conseil, radiogroup APG 3 voies, voie « manuel » promue en `known-dimensions`) |
+| US-13.2 | En tant que **visiteur**, je veux que l'**adresse ne soit demandée qu'au moment de mesurer sur carte** (input au-dessus/à gauche ; pré-rempli + carte centrée si connecté, modifiable), afin de ne saisir l'adresse que si utile. | 3 | **Should** | ✅ Terminé (EPIC 13, 2026-06-21 ; composant `map-voie` = adresse + carte sur la même page ; pré-rempli/auto-centré si connecté, modifiable) |
+| US-13.3 | En tant que **visiteur**, je veux à la fin une **étape « Conseil »** qui propose les **catégories qui rentrent → modèle → longueur**, afin de choisir le bon abri (regrouper Mesure+Conseil sous un seul terme). | 3 | **Should** | ✅ Terminé (EPIC 13, 2026-06-21 ; `results-step`→`conseil-step`, contrat `/shelters/suggest` inchangé ; regroupement nommé « Trouver mon abri ») |
 
 ### EPIC 14 — Carte satellite plus précise
 

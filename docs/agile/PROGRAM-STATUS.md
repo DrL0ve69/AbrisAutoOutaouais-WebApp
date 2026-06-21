@@ -4,14 +4,25 @@
 > simplement **« continue la prochaine tâche »** ou lance **`/next-task`** : l'assistant lit ce
 > fichier + le plan actif, vérifie l'état git, puis enchaîne.
 >
-> **🟢 Programme ACTIF — Phase 2 (`docs/agile/ROADMAP-PHASE-2.md`), curseur sur EPIC 13** (refonte
-> parcours `/mesurer` — ordre + adresse optionnelle ; dépend EPIC 9 · 10 · 15).
+> **🟢 Programme ACTIF — Phase 2 (`docs/agile/ROADMAP-PHASE-2.md`), curseur sur EPIC 14** (carte
+> satellite plus précise — over-zoom Esri d'abord, sinon spike source HD via proxy ; sans dépendance).
+> **EPIC 13 TERMINÉ (2026-06-21)** : 4 commits sur `feat/epic-13-mesurer-rework` (`ca247f3` 13.1 →
+> `68c6b82` 13.2 → `e5c262c` 13.3 → `e000f59` nits) — refonte `/mesurer` « Trouver mon abri » :
+> stepper **inversé** Adresse→Mesure→Résultats ⇒ **1. Dimensionner (radiogroup APG 3 voies : je connais
+> mes dimensions / par véhicules / mesurer sur carte) → 2. Conseil** ; adresse demandée **uniquement**
+> dans la voie carte (composant `map-voie`, input + carte sur la même page, pré-rempli/auto-centré si
+> connecté) ; `results-step`→`conseil-step` (contrat `/shelters/suggest` inchangé). Voie « manuel » du
+> calculateur promue en `known-dimensions`. Revue indépendante **APPROVE WITH NITS** (zéro Critical/Major ;
+> nits `new FormBuilder()`→`inject()` corrigés) ; **L-042** (target EN figé sur `@@id` réutilisé) +
+> **L-043** (`effect` sur source async) capturées. Gates : `npm run build` ✅ · `npm test` **338/338** ✅ ·
+> `npm run e2e` **130/130** (3 voies + contraste dual-thème non-vacueux) ✅ · i18n 793 symétrique ✅.
+> **PR à ouvrir + CI verte + merge `master`** (clôture d'épic en cours).
 > **EPIC 10 TERMINÉ (2026-06-21)** : 9 commits sur `feat/epic-10-smart-suggestion` —
 > US-10.1 (suggestion par catégorie-qui-rentre, endpoint `/shelters/suggest`, deep-link configurateur,
 > retrait ancien `suggest-shelters` Product) + US-10.2 (orientation véhicules côte à côte / derrière,
 > noyau `footprint` neutre L-041) — revue indépendante APPROVE WITH NITS, Minor L-028 fermé,
 > L-040/L-041 capturées, PR #50 MERGÉE (`30f4b41`).
-> Ordre Phase 2 restant : ~~9~~ ~~10~~ → **13** → 14 → 11 → 8 → 7.
+> Ordre Phase 2 restant : ~~9~~ ~~10~~ ~~13~~ → **14** → 11 → 8 → 7.
 > **Programme G terminé (A→H) :** `C:\Users\phili\.claude\plans\majestic-soaring-sprout.md`
 > **Programme initial terminé (A→F) :** `C:\Users\phili\.claude\plans\1-i-want-you-glistening-barto.md`
 > Maintiens ce pointeur à jour à la fin de chaque sous-tâche (c'est ce que l'assistant relit).
