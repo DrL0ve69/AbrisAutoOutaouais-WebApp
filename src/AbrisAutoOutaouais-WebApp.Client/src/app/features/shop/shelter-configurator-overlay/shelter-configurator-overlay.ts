@@ -55,6 +55,9 @@ export class ShelterConfiguratorOverlayComponent implements AfterViewChecked {
   /** Nom du modèle — sert de titre accessible du dialogue (`aria-labelledby`). */
   readonly modelName = input.required<string>();
 
+  /** Longueur initiale (cm), forwardée au configurateur — deep-link depuis `/mesurer` (EPIC 10). */
+  readonly initialLengthCm = input<number | null>(null);
+
   /** Demande de fermeture (Échap / bouton « Fermer » / clic sur le fond). */
   readonly close = output<void>();
 
@@ -69,6 +72,21 @@ export class ShelterConfiguratorOverlayComponent implements AfterViewChecked {
 
   /** Vrai dès qu'une config (donc un prix serveur) est confirmée → bouton réellement actif. */
   protected readonly canAdd = computed(() => this.configuration() !== null);
+
+  /**
+   * Titre accessible du dialogue (`aria-labelledby`). Le `modelName` peut arriver VIDE via un
+   * deep-link dont le slug n'est pas encore résolu dans les modèles chargés du catalogue : un
+   * `<h2>` vide laisserait le dialogue SANS nom accessible (WCAG 4.1.2). On garantit donc un nom :
+   *  1) `modelName()` s'il est fourni ;
+   *  2) sinon le nom du modèle remonté par la config une fois le configurateur chargé ;
+   *  3) sinon un libellé générique non vide (jamais de titre vide à l'ouverture).
+   */
+  protected readonly displayTitle = computed(
+    () =>
+      this.modelName().trim() ||
+      this.configuration()?.modelName ||
+      $localize`:@@shop.overlay.titleFallback:Configuration de l'abri`,
+  );
 
   protected formatFeetInches = formatFeetInches;
 

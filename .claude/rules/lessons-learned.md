@@ -11,6 +11,57 @@
 
 ---
 
+## L-041 · Two pure utils that share a core function must extract it into a neutral third module — a bidirectional import A↔B is fragile even when runtime-safe
+
+- **Symptom.** EPIC 10: `footprint.util` (historical side-by-side shelter footprint) was refactored
+  to delegate to `orientation.util` (`footprintForVehiclesOriented`), while `orientation.util`
+  already imported `finalizeFootprint` + shared types FROM `footprint.util` → bidirectional import
+  cycle. TypeScript/esbuild did not error because all cross-module references live inside function
+  bodies (evaluated lazily) and types are erased at compile time. Build and specs stayed green. The
+  fragility: any future usage of those imports at **module evaluation time** (a top-level `const`, a
+  class field initialiser, a decorator) would cause one module to see the other as `{}` (not yet
+  initialised) — a silent `undefined` that only breaks at runtime. Caught as a Nit by the independent
+  reviewer; fixed in commit 02a1afd by extracting `Footprint`/`VehicleSelection`/bounds/
+  `finalizeFootprint` into a neutral `footprint-core.util` that both modules import from.
+- **Rule.** When two pure utils in the same feature need to share a function or types, extract that
+  shared piece into a **third, neutral module** (`*-core.util`, `*-shared.util`, `*-types.ts`) that
+  both depend on — never let A import from B while B imports from A. The cycle is easy to miss because
+  TypeScript compiles it without error and specs stay green (lazy function-body references are safe at
+  test time). To preserve the existing public API of the original module, re-export the extracted
+  symbols from it (`export { finalizeFootprint } from './footprint-core.util'`). The dependency graph
+  must stay a DAG: utils → core, never core → utils, never peer ↔ peer.
+- **Refs.** `src/AbrisAutoOutaouais-WebApp.Client/src/app/features/mesurer/util/footprint-core.util.ts`
+  (new neutral module), `footprint.util.ts` (re-exports from core), `orientation.util.ts` (imports
+  from core), commit 02a1afd, branch `feat/epic-10-smart-suggestion`.
+
+## L-040 · An `aria-labelledby` that points to an EMPTY text node gives the dialog no accessible name — AXE passes anyway; test the unresolved/async path explicitly
+
+- **Symptom.** EPIC 10: `ShelterConfiguratorOverlayComponent` carries `role="dialog"` +
+  `aria-labelledby` bound to a `modelName()` signal passed in by the parent catalog. When the page is
+  opened via a deep-link (`/boutique?configure={slug}`) before the shelter-model list has loaded,
+  `modelName()` is `''` (the parent hasn't resolved the slug yet) — so the dialog opens with
+  `aria-labelledby` pointing to a node whose text content is an empty string → **no accessible name**
+  (WCAG 4.1.2). AXE did NOT catch it: the `aria-labelledby` attribute is syntactically present and
+  points to a real DOM node — AXE only checks that the referenced id exists, not that the referenced
+  node is non-empty. The bug surfaced only on the **unresolved deep-link path**, which the initial
+  specs did not exercise. Caught as Major by the independent reviewer; fixed in commit 617cd11 with a
+  three-level `displayTitle` computed: `modelName()` → name from config → `$localize` fallback.
+- **Rule.** Any `aria-labelledby` (or `aria-label`) whose value is derived from an async-resolved or
+  parent-supplied input must have a **guaranteed non-empty fallback** — a `computed()` that falls
+  through multiple sources and ultimately lands on a static translated string. The fallback is NOT
+  optional: it is the required base case for the async-unresolved path. Three guards: (1) After
+  writing any `aria-labelledby`/`aria-label` bound to a signal or `input()`, ask « what is the value
+  when the data hasn't arrived yet? » — if the answer is `''` or `undefined`, add the fallback before
+  committing. (2) Write a spec that renders the component with the **unresolved / empty-input path**
+  and asserts the accessible name is non-empty (`getByRole('dialog', { name: /.+/ })`). AXE alone
+  cannot catch this regression — the attribute is present and AXE is satisfied. (3) This is a
+  specialisation of [[L-009]] (an assertion that structurally cannot fire): the axe check fires and
+  passes, but it is vacuous for the empty-text-node case. Pair every axe dialog-name check with a
+  unit assertion on the computed label value for the unresolved-input path.
+- **Refs.** `src/AbrisAutoOutaouais-WebApp.Client/src/app/features/shop/shelter-configurator-overlay/shelter-configurator-overlay.ts`
+  (`displayTitle` three-level computed), `features/shop/catalog/catalog.ts` (deep-link `configure`
+  path), commit 617cd11, branch `feat/epic-10-smart-suggestion`.
+
 ## L-039 · A Container Apps container that exits at startup is NOT a native segfault — get the managed exception first; missing Log Analytics makes you blind and wastes hours on the wrong layer
 
 - **Symptom.** After the EPIC 9 merge, every Container Apps revision showed « ActivationFailed »,

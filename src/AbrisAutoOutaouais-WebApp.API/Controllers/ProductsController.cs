@@ -4,7 +4,6 @@ using AbrisAutoOutaouais_WebApp.Application.Products.Commands;
 using AbrisAutoOutaouais_WebApp.Application.Products.Queries.GetAllProducts;
 using AbrisAutoOutaouais_WebApp.Application.Products.Queries.GetProductBySlug;
 using AbrisAutoOutaouais_WebApp.Application.Products.Queries.GetShelterCatalog;
-using AbrisAutoOutaouais_WebApp.Application.Products.Queries.SuggestShelters;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -28,27 +27,11 @@ public sealed class ProductsController(IDispatcher dispatcher) : ControllerBase
         => Ok(await dispatcher.DispatchAsync(new GetAllProductsQuery(page, pageSize, category, search), ct));
 
     /// <summary>
-    /// Suggère les abris dont l'empreinte couvre les dimensions requises (largeur/longueur
-    /// en cm), du plus petit suffisant au plus grand. Route littérale placée AVANT le
-    /// paramètre <c>{slug}</c> : ASP.NET privilégie la route littérale, un test IT le verrouille.
-    /// </summary>
-    [HttpGet("suggest-shelters")]
-    [AllowAnonymous]
-    [ProducesResponseType<IReadOnlyList<ShelterSuggestionDto>>(200)]
-    [ProducesResponseType<ProblemDetails>(422)]
-    public async Task<IActionResult> SuggestShelters(
-        [FromQuery] int requiredWidthCm, [FromQuery] int requiredLengthCm,
-        CancellationToken ct = default)
-        => Ok(await dispatcher.DispatchAsync(
-            new SuggestSheltersQuery(requiredWidthCm, requiredLengthCm), ct));
-
-    /// <summary>
     /// Catalogue marque → modèles → dimensions, dérivé des produits qui portent une marque.
     /// Alimente les listes déroulantes du formulaire d'installation (G2). Le segment littéral
     /// « shelter-catalog » l'emporte sur le paramètre <c>{slug}</c> par précédence de gabarit de
     /// route (les segments littéraux priment sur les paramètres), pas par l'ordre de déclaration ;
-    /// on le garde tout de même placé AVANT par lisibilité, et un test IT verrouille le comportement
-    /// (même garde que « suggest-shelters »).
+    /// on le garde tout de même placé AVANT par lisibilité, et un test IT verrouille le comportement.
     /// </summary>
     [HttpGet("shelter-catalog")]
     [AllowAnonymous]

@@ -6,6 +6,7 @@ import {
 } from '@angular/common/http/testing';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { ShelterSuggestionService } from './shelter-suggestion.service';
+import { ShelterFitResult } from '../models/shelter-fit.model';
 import { environment } from '../../../environments/environment';
 
 describe('ShelterSuggestionService', () => {
@@ -27,38 +28,40 @@ describe('ShelterSuggestionService', () => {
 
   afterEach(() => httpMock.verify());
 
-  it('appelle GET /products/suggest-shelters avec largeur/longueur requises', () => {
-    service.suggestShelters(610, 720).subscribe();
-    const req = httpMock.expectOne(r => r.url === `${base}/products/suggest-shelters`);
+  it('appelle GET /shelters/suggest avec largeur/longueur requises', () => {
+    service.suggestModels(610, 720).subscribe();
+    const req = httpMock.expectOne(r => r.url === `${base}/shelters/suggest`);
     expect(req.request.method).toBe('GET');
     expect(req.request.params.get('requiredWidthCm')).toBe('610');
     expect(req.request.params.get('requiredLengthCm')).toBe('720');
     req.flush([]);
   });
 
-  it('retourne la liste d’abris telle quelle (drapeau isTightFit lu du serveur)', () => {
-    const payload = [
+  it('retourne les catégories groupées telles quelles (modèles + longueurs admissibles)', () => {
+    const payload: ShelterFitResult[] = [
       {
-        id: 'a1',
-        name: 'Abri double',
-        slug: 'abri-double',
-        price: 899.99,
-        rentalPrice: 79.99,
+        categorySlug: 'abris-doubles',
         categoryName: 'Abris doubles',
-        imageUrl: null,
-        widthCm: 620,
-        lengthCm: 730,
-        heightCm: 250,
-        widthMarginCm: 10,
-        lengthMarginCm: 10,
-        isTightFit: true,
+        categoryMaxWidthCm: 488,
+        models: [
+          {
+            id: 'a1',
+            slug: 'double-pointu-16pi',
+            name: 'Abri double pointu 16 pi',
+            widthCm: 488,
+            basePrice: 1899,
+            minLengthCm: 488,
+            lengthStepCm: 122,
+            availableLengthsCm: [488, 610, 732],
+          },
+        ],
       },
     ];
-    let received: typeof payload | undefined;
-    service.suggestShelters(610, 720).subscribe(r => (received = r as typeof payload));
-    const req = httpMock.expectOne(r => r.url === `${base}/products/suggest-shelters`);
+    let received: ShelterFitResult[] | undefined;
+    service.suggestModels(610, 720).subscribe(r => (received = r));
+    const req = httpMock.expectOne(r => r.url === `${base}/shelters/suggest`);
     req.flush(payload);
     expect(received).toEqual(payload);
-    expect(received?.[0].isTightFit).toBe(true);
+    expect(received?.[0].models[0].availableLengthsCm).toEqual([488, 610, 732]);
   });
 });

@@ -1,6 +1,7 @@
 using AbrisAutoOutaouais_WebApp.Application.Shelters.Queries.GetShelterModelBySlug;
 using AbrisAutoOutaouais_WebApp.Application.Shelters.Queries.GetShelterModels;
 using AbrisAutoOutaouais_WebApp.Application.Shelters.Queries.GetShelterPrice;
+using AbrisAutoOutaouais_WebApp.Application.Shelters.Queries.SuggestShelterModels;
 using AbrisAutoOutaouais_WebApp.Domain.Entities;
 using AbrisAutoOutaouais_WebApp.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc;
@@ -164,5 +165,89 @@ public sealed class SheltersEndpointTests : IClassFixture<WebAppFactory>
         var response = await _client.GetAsync("/api/v1/shelters/inexistant-xyz/price?lengthCm=122");
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    // ── GET /api/v1/shelters/suggest ─────────────────────────────────────────
+
+    [Fact]
+    public async Task GetSuggestions_Anonymous_Returns200GroupedByCategory()
+    {
+        // Deux modèles d'une même catégorie, largeurs ≤ 914 → tous deux retenus, agrégés.
+        var categoryId = await SeedShelterModelAsync(
+            "suggest-etroit", "cat-suggest", widthsCm: [335],
+            minLengthCm: 488, maxLengthCm: 1830);
+        await SeedShelterModelInCategoryAsync("suggest-large", categoryId, width: 488);
+
+        // La route littérale « suggest » prime sur {slug} : on obtient une LISTE (200), pas un 404.
+        var response = await _client.GetAsync(
+            "/api/v1/shelters/suggest?requiredWidthCm=914&requiredLengthCm=1219");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var body = await response.Content.ReadFromJsonAsync<List<ShelterFitResultDto>>();
+        body.Should().NotBeNull();
+
+        var cat = body!.Single(r => r.CategorySlug == "cat-suggest");
+        cat.Models.Select(m => m.Slug).Should().Contain(["suggest-etroit", "suggest-large"]);
+        cat.CategoryMaxWidthCm.Should().Be(488);
+        // Bornage par le plafond métier 40 pi : aucune longueur > 1219.
+        cat.Models.SelectMany(m => m.AvailableLengthsCm).Should().OnlyContain(l => l <= 1219);
+    }
+
+    [Fact]
+    public async Task GetSuggestions_ExcludesModelsTooWide()
+    {
+        await SeedShelterModelAsync(
+            "suggest-trop-large", "cat-trop-large", widthsCm: [610],
+            minLengthCm: 488, maxLengthCm: 1342);
+
+        // Largeur requise 488 < largeur modèle 610 → exclu.
+        var response = await _client.GetAsync(
+            "/api/v1/shelters/suggest?requiredWidthCm=488&requiredLengthCm=914");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var body = await response.Content.ReadFromJsonAsync<List<ShelterFitResultDto>>();
+        body!.Should().NotContain(r => r.CategorySlug == "cat-trop-large");
+    }
+
+    [Fact]
+    public async Task GetSuggestions_WithInvalidRequired_Returns422()
+    {
+        var response = await _client.GetAsync(
+            "/api/v1/shelters/suggest?requiredWidthCm=0&requiredLengthCm=400");
+
+        response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>();
+        problem!.Status.Should().Be(422);
+    }
+
+    /// <summary>
+    /// Filet « sibling-action » (L-028) : ouvrir GET /suggest en <c>[AllowAnonymous]</c> n'a PAS
+    /// élargi l'auth des actions protégées du MÊME contrôleur. Contraste direct avec
+    /// <see cref="GetSuggestions_Anonymous_Returns200GroupedByCategory"/> : un appel anonyme à
+    /// l'action AdminOnly POST /api/v1/shelters (création de ShelterModel) reste refusé en 401.
+    /// L'auth coupe AVANT la liaison de modèle, donc un corps vide suffit (le 401 précède la
+    /// validation). Verrouille le second volet de la revue L-028 (couverture des actions voisines).
+    /// </summary>
+    [Fact]
+    public async Task CreateShelterModel_Anonymous_StillReturns401_SiblingActionUnaffected()
+    {
+        // Aucun JWT : l'en-tête Authorization est nul (réinitialisé au ctor).
+        var response = await _client.PostAsJsonAsync("/api/v1/shelters", new { });
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    /// <summary>Ajoute un modèle dans une catégorie DÉJÀ semée (slug unique, une seule largeur).</summary>
+    private async Task SeedShelterModelInCategoryAsync(string slug, Guid categoryId, int width)
+    {
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var model = ShelterModel.Create(
+            slug, $"Modèle {slug}", categoryId,
+            lengthStepCm: 122, minLengthCm: 488, maxLengthCm: 1830,
+            basePrice: 349.00m, pricePerArchCents: 15000,
+            widthsCm: [width], clearHeightsCm: [198]);
+        db.ShelterModels.Add(model);
+        await db.SaveChangesAsync();
     }
 }

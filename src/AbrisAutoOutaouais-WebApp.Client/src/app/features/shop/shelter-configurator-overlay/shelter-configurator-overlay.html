@@ -17,7 +17,7 @@
     (keydown)="onDialogKeydown($event)"
   >
     <header class="overlay__header">
-      <h2 id="overlay-title" class="overlay__title">{{ modelName() }}</h2>
+      <h2 id="overlay-title" class="overlay__title">{{ displayTitle() }}</h2>
       <button
         type="button"
         class="overlay__close"
@@ -35,6 +35,7 @@
 
     <app-dimension-configurator
       [slug]="slug()"
+      [initialLengthCm]="initialLengthCm()"
       (configurationChange)="onConfigurationChange($event)"
     />
 

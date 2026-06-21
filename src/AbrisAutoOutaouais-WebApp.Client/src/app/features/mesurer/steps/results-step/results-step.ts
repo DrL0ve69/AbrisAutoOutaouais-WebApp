@@ -9,17 +9,18 @@ import {
 import { RouterLink } from '@angular/router';
 import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { ShelterSuggestionService } from '../../../../core/services/shelter-suggestion.service';
-import { ShelterSuggestionDto } from '../../../../core/models/shelter-suggestion.model';
+import { ShelterFitResult } from '../../../../core/models/shelter-fit.model';
 import { Footprint } from '../../util/footprint.util';
 import { cmToFeet } from '../../util/units.util';
 
 /**
- * Étape 3 « Résultats » — interroge D2 `suggest-shelters` avec le gabarit calculé et présente
- * les abris adaptés. Le badge « Ajusté serré » s'affiche UNIQUEMENT si `isTightFit` (calculé
- * serveur — on lit le drapeau, jamais de recalcul). États chargement (aria-busy) et vide gérés.
+ * Étape 3 « Résultats » — interroge `/shelters/suggest` avec le gabarit calculé et présente les
+ * MODÈLES paramétriques compatibles, groupés par catégorie (EPIC 10, US-10.1). Pour chaque modèle,
+ * on affiche les longueurs admissibles (en pieds) et un lien « Configurer » vers le configurateur
+ * du catalogue, pré-rempli (catégorie + slug du modèle + plus grande longueur admissible).
  *
- * Le gabarit reçu est déjà borné `[1, 2000]` par `footprint.util` (le shell ne transmet pas un
- * gabarit hors plage), donc l'appel D2 ne peut pas partir en 422.
+ * États chargement (aria-busy + aria-live), erreur (role="alert") et vide (role="status") gérés.
+ * Le gabarit reçu est déjà borné `[1, 2000]` par `footprint.util`, donc l'appel ne part pas en 422.
  */
 @Component({
   selector: 'app-results-step',
@@ -31,7 +32,7 @@ import { cmToFeet } from '../../util/units.util';
 export class ResultsStepComponent {
   private readonly service = inject(ShelterSuggestionService);
 
-  /** Affichage : cm (canonique) → pieds. Le gabarit et les abris sont stockés en cm. */
+  /** Affichage : cm (canonique) → pieds. Le gabarit et les modèles sont stockés en cm. */
   protected readonly toFeet = cmToFeet;
 
   /** Gabarit requis (cm), borné `[1, 2000]`. `null` tant qu'aucune mesure n'est faite. */
@@ -39,29 +40,49 @@ export class ResultsStepComponent {
 
   protected readonly loading = signal(false);
   protected readonly error = signal(false);
-  protected readonly suggestions = signal<readonly ShelterSuggestionDto[]>([]);
+  protected readonly results = signal<readonly ShelterFitResult[]>([]);
 
   constructor() {
     effect(() => {
       const fp = this.footprint();
       if (!fp || fp.outOfRange) {
-        this.suggestions.set([]);
+        this.results.set([]);
         return;
       }
       this.fetch(fp.widthCm, fp.lengthCm);
     });
   }
 
+  /** Plus grande longueur admissible du modèle (cm), pour pré-remplir le configurateur. */
+  protected longestLengthCm(lengths: readonly number[]): number {
+    return lengths.length > 0 ? lengths[lengths.length - 1] : 0;
+  }
+
+  /** Longueurs admissibles formatées en pieds (1 décimale), séparées par «, ». */
+  protected availableFeet(lengthsCm: readonly number[]): string {
+    return lengthsCm
+      .map(cm => cmToFeet(cm).toLocaleString('fr-CA', { minimumFractionDigits: 1, maximumFractionDigits: 1 }))
+      .join(', ');
+  }
+
+  /**
+   * Libellé accessible du lien « Configurer » interpolant le nom du modèle. `$localize` (et non
+   * `i18n-aria-label`) car l'attribut est BOUND (L-024) ; placeholder nommé `:name:` requis par xlf.
+   */
+  protected configureLabel(name: string): string {
+    return $localize`:@@mesurer.results.configureLabel:Configurer le modèle ${name}:name:`;
+  }
+
   private fetch(widthCm: number, lengthCm: number): void {
     this.loading.set(true);
     this.error.set(false);
-    this.service.suggestShelters(widthCm, lengthCm).subscribe({
+    this.service.suggestModels(widthCm, lengthCm).subscribe({
       next: results => {
-        this.suggestions.set(results);
+        this.results.set(results);
         this.loading.set(false);
       },
       error: () => {
-        this.suggestions.set([]);
+        this.results.set([]);
         this.error.set(true);
         this.loading.set(false);
       },

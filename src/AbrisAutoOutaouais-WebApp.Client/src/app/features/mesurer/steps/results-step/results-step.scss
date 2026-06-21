@@ -1,7 +1,7 @@
 .results {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-6);
 }
 
 .results__footprint {
@@ -21,6 +21,17 @@
   color: var(--color-danger, #b00020);
 }
 
+.results__category {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.results__category-name {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
 .results__grid {
   list-style: none;
   margin: 0;
@@ -30,7 +41,7 @@
   grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
 }
 
-.shelter-card {
+.model-card {
   display: flex;
   flex-direction: column;
   border: 1px solid var(--color-border);
@@ -39,92 +50,28 @@
   background: var(--color-surface);
 }
 
-.shelter-card__media {
-  aspect-ratio: 16 / 10;
-  background: var(--color-surface-alt, var(--color-surface));
-}
-
-.shelter-card__img,
-.shelter-card__placeholder {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.shelter-card__placeholder {
-  background: linear-gradient(135deg, var(--color-border), var(--color-surface-alt, var(--color-surface)));
-}
-
-.shelter-card__body {
+.model-card__body {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
   padding: var(--space-4);
 }
 
-.shelter-card__cat {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--color-text-muted);
-}
-
-.shelter-card__name {
+.model-card__name {
   margin: 0;
   font-size: 1.05rem;
-
-  a {
-    color: inherit;
-    text-decoration: none;
-
-    &:hover,
-    &:focus-visible {
-      text-decoration: underline;
-    }
-  }
 }
 
-// G3 — ligne marque/modèle : jetons SÉMANTIQUES qui basculent par thème (motion-a11y §2),
-// jamais de couleur en dur. Contraste validé en e2e dual-thème (color-contrast OFF en vitest — L-016).
-.shelter-card__brand {
-  margin: 0;
-  font-size: 0.9rem;
-  color: var(--color-text);
-}
-
-.shelter-card__brand-name {
-  font-weight: 600;
-}
-
-.shelter-card__model {
-  color: var(--color-text-muted);
-}
-
-.shelter-card__badge {
-  align-self: flex-start;
-  padding: 0.15rem var(--space-2);
-  border-radius: var(--radius-sm);
-  // Jetons « avertissement plein » FIXES : l'alias `--color-warning` bascule en amber clair
-  // (#fbbf24) en sombre → ≈1.67:1 avec du blanc (Bug-09, échec AA). Fond figé → ≈5:1 stable dans
-  // les deux thèmes (EPIC 12 partie 2, L-023).
-  background: var(--color-warning-solid);
-  color: var(--color-on-warning);
-  font-size: 0.8rem;
-  font-weight: 700;
-}
-
-.shelter-card__dims {
+// Jetons SÉMANTIQUES qui basculent par thème (motion-a11y §2) — jamais de couleur en dur.
+// Contraste validé en e2e dual-thème (color-contrast OFF en vitest — L-016).
+.model-card__width,
+.model-card__lengths {
   margin: 0;
   color: var(--color-text-muted);
   font-size: 0.9rem;
 }
 
-.shelter-card__price {
+.model-card__price {
   margin: 0;
   font-weight: 700;
-}
-
-.shelter-card__rent {
-  font-weight: 400;
-  color: var(--color-text-muted);
 }

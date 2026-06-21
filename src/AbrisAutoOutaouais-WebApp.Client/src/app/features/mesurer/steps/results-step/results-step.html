@@ -8,72 +8,58 @@
 
   @if (loading()) {
   <output class="results__loading" aria-busy="true" aria-live="polite" i18n="@@mesurer.results.loading">
-    Recherche des abris adaptés…
+    Recherche des modèles d'abris adaptés…
   </output>
   } @else if (error()) {
   <p class="results__error" role="alert" i18n="@@mesurer.results.error">
     La recherche d'abris a échoué. Veuillez réessayer.
   </p>
-  } @else if (suggestions().length === 0) {
+  } @else if (results().length === 0) {
   <p class="results__empty" role="status" i18n="@@mesurer.results.empty">
-    Aucun abri ne convient à ce gabarit pour le moment. Essayez un stationnement plus petit ou
-    contactez-nous pour une solution sur mesure.
+    Aucun modèle d'abri ne convient à ce gabarit pour le moment. Essayez un stationnement plus
+    petit ou contactez-nous pour une solution sur mesure.
   </p>
   } @else {
-  <ul class="results__grid" role="list">
-    @for (shelter of suggestions(); track shelter.id) {
-    <li class="shelter-card">
-      <div class="shelter-card__media" aria-hidden="true">
-        @if (shelter.imageUrl) {
-        <img [src]="shelter.imageUrl" alt="" loading="lazy" decoding="async" class="shelter-card__img" />
-        } @else {
-        <div class="shelter-card__placeholder"></div>
-        }
-      </div>
-      <div class="shelter-card__body">
-        <span class="shelter-card__cat">{{ shelter.categoryName }}</span>
-        <h3 class="shelter-card__name">
-          <a [routerLink]="['/boutique', shelter.slug]">{{ shelter.name }}</a>
-        </h3>
+  @for (cat of results(); track cat.categorySlug) {
+  <section class="results__category" [attr.aria-labelledby]="'cat-' + cat.categorySlug">
+    <h3 [id]="'cat-' + cat.categorySlug" class="results__category-name">{{ cat.categoryName }}</h3>
 
-        <!-- G3 — marque/modèle du catalogue (texte serveur affiché tel quel). Affiché seulement
-             si au moins l'un des deux est renseigné ; séparateur « · » uniquement entre les deux. -->
-        @if (shelter.brand || shelter.model) {
-        <p class="shelter-card__brand">
-          @if (shelter.brand) { <span class="shelter-card__brand-name">{{ shelter.brand }}</span> }
-          @if (shelter.brand && shelter.model) { <span aria-hidden="true"> · </span> }
-          @if (shelter.model) { <span class="shelter-card__model">{{ shelter.model }}</span> }
-        </p>
-        }
+    <ul class="results__grid" role="list">
+      @for (model of cat.models; track model.id) {
+      <li class="model-card">
+        <div class="model-card__body">
+          <h4 class="model-card__name">{{ model.name }}</h4>
 
-        @if (shelter.isTightFit) {
-        <span class="shelter-card__badge" i18n="@@mesurer.results.tightFit">Ajusté serré</span>
-        }
+          <p class="model-card__width" i18n="@@mesurer.results.modelWidth">
+            Largeur&nbsp;: {{ toFeet(model.widthCm) | number: '1.1-1' }} pi
+          </p>
 
-        <p class="shelter-card__dims" i18n="@@mesurer.results.dims">
-          Dimensions&nbsp;: {{ toFeet(shelter.widthCm) | number: '1.1-1' }} ×
-          {{ toFeet(shelter.lengthCm) | number: '1.1-1' }} pi
-        </p>
+          <p class="model-card__lengths" i18n="@@mesurer.results.modelLengths">
+            Longueurs offertes (pi)&nbsp;:
+            {{ availableFeet(model.availableLengthsCm) }}
+          </p>
 
-        <p class="shelter-card__price">
-          {{ shelter.price | currency: 'CAD' : 'symbol' : '1.2-2' : 'fr-CA' }}
-          @if (shelter.rentalPrice) {
-          <span class="shelter-card__rent">
-            · <span i18n="@@mesurer.results.rent">Location</span>
-            {{ shelter.rentalPrice | currency: 'CAD' : 'symbol' : '1.2-2' : 'fr-CA' }}/<span i18n="@@mesurer.results.month">mois</span>
-          </span>
-          }
-        </p>
+          <p class="model-card__price">
+            <span i18n="@@mesurer.results.fromPrice">À partir de</span>
+            {{ model.basePrice | currency: 'CAD' : 'symbol' : '1.2-2' : 'fr-CA' }}
+          </p>
 
-        <a
-          [routerLink]="['/boutique', shelter.slug]"
-          class="btn btn--outline btn--sm btn--full"
-          [attr.aria-label]="'Voir ' + shelter.name">
-          <ng-container i18n="@@mesurer.results.view">Voir l'abri</ng-container>
-        </a>
-      </div>
-    </li>
-    }
-  </ul>
+          <a
+            class="btn btn--primary btn--sm btn--full"
+            [routerLink]="['/boutique']"
+            [queryParams]="{
+              category: cat.categorySlug,
+              configure: model.slug,
+              length: longestLengthCm(model.availableLengthsCm)
+            }"
+            [attr.aria-label]="configureLabel(model.name)">
+            <ng-container i18n="@@mesurer.results.configure">Configurer ce modèle</ng-container>
+          </a>
+        </div>
+      </li>
+      }
+    </ul>
+  </section>
+  }
   }
 </div>

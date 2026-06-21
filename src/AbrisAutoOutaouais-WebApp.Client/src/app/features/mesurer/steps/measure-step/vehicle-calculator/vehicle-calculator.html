@@ -55,6 +55,34 @@
       }
     </fieldset>
 
+    <!-- Orientation : visible seulement avec ≥ 2 véhicules (sinon sans effet). Radiogroup APG
+         (roving tabindex + flèches/Home/End, même patron que la bascule de mode — L-015). -->
+    @if (showOrientation()) {
+    <div
+      class="calc__orientation"
+      role="radiogroup"
+      aria-label="Disposition des véhicules"
+      i18n-aria-label="@@mesurer.calc.orientationGroup">
+      <span class="calc__orientation-label" i18n="@@mesurer.calc.orientationPrompt">
+        Comment les véhicules sont-ils disposés&nbsp;?
+      </span>
+      @for (o of orientations; track o) {
+      <button
+        #orientationRadio
+        type="button"
+        class="calc__orientation-option"
+        [class.calc__orientation-option--active]="orientation() === o"
+        role="radio"
+        [attr.aria-checked]="orientation() === o"
+        [attr.tabindex]="orientation() === o ? 0 : -1"
+        (click)="setOrientation(o)"
+        (keydown)="onOrientationKeydown($event)">
+        {{ orientationLabels[o] }}
+      </button>
+      }
+    </div>
+    }
+
     <button type="submit" class="btn btn--primary calc__submit" i18n="@@mesurer.calc.compute">
       Calculer le gabarit
     </button>

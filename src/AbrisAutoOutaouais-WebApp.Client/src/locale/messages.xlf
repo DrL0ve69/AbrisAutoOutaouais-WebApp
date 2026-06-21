@@ -4170,92 +4170,120 @@
           <context context-type="linenumber">39,43</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="mesurer.calc.orientationGroup" datatype="html">
+        <source>Disposition des véhicules</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.html</context>
+          <context context-type="linenumber">64,65</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mesurer.calc.orientationPrompt" datatype="html">
+        <source> Comment les véhicules sont-ils disposés ? </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.html</context>
+          <context context-type="linenumber">67,69</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="mesurer.calc.compute" datatype="html">
         <source> Calculer le gabarit </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.html</context>
-          <context context-type="linenumber">59,62</context>
+          <context context-type="linenumber">87,90</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.html</context>
-          <context context-type="linenumber">109,112</context>
+          <context context-type="linenumber">137,140</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.calc.manualLegend" datatype="html">
         <source> Dimensions du stationnement (en pieds) </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.html</context>
-          <context context-type="linenumber">66,69</context>
+          <context context-type="linenumber">94,97</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.calc.width" datatype="html">
         <source>Largeur (pi)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.html</context>
-          <context context-type="linenumber">70,72</context>
+          <context context-type="linenumber">98,100</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.calc.widthErr" datatype="html">
         <source> Entrez une largeur entre 1 et 65 pieds. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.html</context>
-          <context context-type="linenumber">83,85</context>
+          <context context-type="linenumber">111,113</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.calc.length" datatype="html">
         <source>Longueur (pi)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.html</context>
-          <context context-type="linenumber">89,91</context>
+          <context context-type="linenumber">117,119</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.calc.lengthErr" datatype="html">
         <source> Entrez une longueur entre 1 et 65 pieds. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.html</context>
-          <context context-type="linenumber">102,105</context>
+          <context context-type="linenumber">130,133</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.calc.outOfRange" datatype="html">
         <source> Le gabarit obtenu dépasse la taille maximale prise en charge. Réduisez le nombre de véhicules ou ajustez les dimensions. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.html</context>
-          <context context-type="linenumber">118,121</context>
+          <context context-type="linenumber">146,149</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mesurer.calc.orientationSideBySide" datatype="html">
+        <source>Côte à côte</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.ts</context>
+          <context context-type="linenumber">79</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mesurer.calc.orientationBehind" datatype="html">
+        <source>L&apos;un derrière l&apos;autre</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.ts</context>
+          <context context-type="linenumber">80</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.vehicle.compact" datatype="html">
         <source>Compacte</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.ts</context>
-          <context context-type="linenumber">67</context>
+          <context context-type="linenumber">88</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.vehicle.berline" datatype="html">
         <source>Berline</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.ts</context>
-          <context context-type="linenumber">68</context>
+          <context context-type="linenumber">89</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.vehicle.vus" datatype="html">
         <source>VUS</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.ts</context>
-          <context context-type="linenumber">69</context>
+          <context context-type="linenumber">90</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.vehicle.pickup" datatype="html">
         <source>Camionnette</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.ts</context>
-          <context context-type="linenumber">70</context>
+          <context context-type="linenumber">91</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.vehicle.fourgonnette" datatype="html">
         <source>Fourgonnette</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/measure-step/vehicle-calculator/vehicle-calculator.ts</context>
-          <context context-type="linenumber">73</context>
+          <context context-type="linenumber">94</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.results.footprint" datatype="html">
@@ -4266,7 +4294,7 @@
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.results.loading" datatype="html">
-        <source> Recherche des abris adaptés… </source>
+        <source> Recherche des modèles d&apos;abris adaptés… </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/results-step/results-step.html</context>
           <context context-type="linenumber">11,13</context>
@@ -4280,45 +4308,45 @@
         </context-group>
       </trans-unit>
       <trans-unit id="mesurer.results.empty" datatype="html">
-        <source> Aucun abri ne convient à ce gabarit pour le moment. Essayez un stationnement plus petit ou contactez-nous pour une solution sur mesure. </source>
+        <source> Aucun modèle d&apos;abri ne convient à ce gabarit pour le moment. Essayez un stationnement plus petit ou contactez-nous pour une solution sur mesure. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/results-step/results-step.html</context>
           <context context-type="linenumber">19,23</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="mesurer.results.tightFit" datatype="html">
-        <source>Ajusté serré</source>
+      <trans-unit id="mesurer.results.modelWidth" datatype="html">
+        <source> Largeur : <x id="INTERPOLATION" equiv-text="{{ toFeet(model.widthCm) | number: &apos;1.1-1&apos; }}"/> pi </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/results-step/results-step.html</context>
-          <context context-type="linenumber">50,53</context>
+          <context context-type="linenumber">34,37</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="mesurer.results.dims" datatype="html">
-        <source> Dimensions : <x id="INTERPOLATION" equiv-text="{{ toFeet(shelter.widthCm) | number: &apos;1.1-1&apos; }}"/> × <x id="INTERPOLATION_1" equiv-text="{{ toFeet(shelter.lengthCm) | number: &apos;1.1-1&apos; }}"/> pi </source>
+      <trans-unit id="mesurer.results.modelLengths" datatype="html">
+        <source> Longueurs offertes (pi) : <x id="INTERPOLATION" equiv-text="{{ availableFeet(model.availableLengthsCm) }}"/> </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/results-step/results-step.html</context>
-          <context context-type="linenumber">54,58</context>
+          <context context-type="linenumber">38,42</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="mesurer.results.rent" datatype="html">
-        <source>Location</source>
+      <trans-unit id="mesurer.results.fromPrice" datatype="html">
+        <source>À partir de</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/results-step/results-step.html</context>
-          <context context-type="linenumber">62,63</context>
+          <context context-type="linenumber">43,44</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="mesurer.results.month" datatype="html">
-        <source>mois</source>
+      <trans-unit id="mesurer.results.configure" datatype="html">
+        <source>Configurer ce modèle</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/mesurer/steps/results-step/results-step.html</context>
-          <context context-type="linenumber">63,65</context>
+          <context context-type="linenumber">56,58</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="mesurer.results.view" datatype="html">
-        <source>Voir l&apos;abri</source>
+      <trans-unit id="mesurer.results.configureLabel" datatype="html">
+        <source>Configurer le modèle <x id="name" equiv-text="name"/></source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/mesurer/steps/results-step/results-step.html</context>
-          <context context-type="linenumber">72,74</context>
+          <context context-type="sourcefile">src/app/features/mesurer/steps/results-step/results-step.ts</context>
+          <context context-type="linenumber">73</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.catalog.eyebrow" datatype="html">
@@ -4451,56 +4479,56 @@
         <source>Aucun modèle configurable.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/catalog/catalog.ts</context>
-          <context context-type="linenumber">100</context>
+          <context context-type="linenumber">109</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.catalog.modelsOne" datatype="html">
         <source>1 modèle configurable.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/catalog/catalog.ts</context>
-          <context context-type="linenumber">102</context>
+          <context context-type="linenumber">111</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.catalog.modelsMany" datatype="html">
         <source><x id="count" equiv-text="n"/> modèles configurables.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/catalog/catalog.ts</context>
-          <context context-type="linenumber">103</context>
+          <context context-type="linenumber">112</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.catalog.resultsNone" datatype="html">
         <source>Aucun produit ne correspond.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/catalog/catalog.ts</context>
-          <context context-type="linenumber">107</context>
+          <context context-type="linenumber">116</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.catalog.resultsOne" datatype="html">
         <source>1 produit affiché.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/catalog/catalog.ts</context>
-          <context context-type="linenumber">109</context>
+          <context context-type="linenumber">118</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.catalog.resultsMany" datatype="html">
         <source><x id="count" equiv-text="n"/> produits affichés.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/catalog/catalog.ts</context>
-          <context context-type="linenumber">110</context>
+          <context context-type="linenumber">119</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.catalog.addedToast" datatype="html">
         <source><x id="name" equiv-text="product.name"/> a été ajouté au panier.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/catalog/catalog.ts</context>
-          <context context-type="linenumber">140</context>
+          <context context-type="linenumber">179</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.catalog.shelterAddedToast" datatype="html">
         <source><x id="name" equiv-text="modelName"/> a été ajouté au panier.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/catalog/catalog.ts</context>
-          <context context-type="linenumber">165</context>
+          <context context-type="linenumber">221</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.configurator.loading" datatype="html">
@@ -4591,7 +4619,7 @@
         <source>Prix mis à jour : <x id="price" equiv-text="formatted"/>.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/dimension-configurator/dimension-configurator.ts</context>
-          <context context-type="linenumber">229</context>
+          <context context-type="linenumber">259</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.detail.back" datatype="html">
@@ -4775,14 +4803,21 @@
         <source> Ajouter au panier </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/shelter-configurator-overlay/shelter-configurator-overlay.html</context>
-          <context context-type="linenumber">63,66</context>
+          <context context-type="linenumber">64,67</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.overlay.addHint" datatype="html">
         <source> Patientez : le prix se confirme avant l&apos;ajout au panier. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/shelter-configurator-overlay/shelter-configurator-overlay.html</context>
-          <context context-type="linenumber">68,70</context>
+          <context context-type="linenumber">69,71</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.overlay.titleFallback" datatype="html">
+        <source>Configuration de l&apos;abri</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/shelter-configurator-overlay/shelter-configurator-overlay.ts</context>
+          <context context-type="linenumber">88</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.modelCard.fromLabel" datatype="html">

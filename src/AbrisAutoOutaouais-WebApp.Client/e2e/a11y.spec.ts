@@ -86,7 +86,7 @@ async function mockApi(page: Page): Promise<void> {
   // Suggestion d'abris (/mesurer étape résultats) — enregistrée APRÈS les patterns produits
   // pour gagner en priorité (Playwright privilégie la dernière route). L'étape 1 (Adresse)
   // ne l'appelle pas, mais on la mocke par sûreté pour éviter toute requête réelle.
-  await page.route('**/api/v1/products/suggest-shelters*', (route) =>
+  await page.route('**/api/v1/shelters/suggest*', (route) =>
     route.fulfill({ json: [] }),
   );
   // Proxy d'adresses (combobox de /mesurer étape 1) — aucune suggestion par défaut.

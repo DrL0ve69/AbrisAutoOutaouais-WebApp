@@ -173,6 +173,7 @@
     <app-shelter-configurator-overlay
       [slug]="o.slug"
       [modelName]="o.modelName"
+      [initialLengthCm]="o.initialLengthCm ?? null"
       (added)="onShelterAdded($event)"
       (close)="closeConfigurator()"
     />

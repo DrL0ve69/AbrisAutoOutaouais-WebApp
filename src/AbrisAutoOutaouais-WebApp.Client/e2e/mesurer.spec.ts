@@ -11,27 +11,28 @@ import AxeBuilder from '@axe-core/playwright';
 //      L-012), puis axe avec `.exclude('.leaflet-container')` (internes Leaflet/geoman tiers,
 //      mode pointer-only documenté ; l'équivalent clavier est le calculateur).
 //
-// On mocke le proxy Places + suggest-shelters (aucun backend requis, comme a11y.spec.ts).
+// On mocke le proxy Places + /shelters/suggest (aucun backend requis, comme a11y.spec.ts).
 
 const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 
-const SHELTERS = [
+// Suggestion groupée par catégorie (EPIC 10, US-10.1) — miroir de `ShelterFitResult[]`.
+const SUGGESTIONS = [
   {
-    id: 's1',
-    name: 'Abri double Tempo 18x20',
-    slug: 'abri-double',
-    price: 899.99,
-    rentalPrice: 79.99,
+    categorySlug: 'abris-doubles',
     categoryName: 'Abris doubles',
-    imageUrl: null,
-    widthCm: 320,
-    lengthCm: 620,
-    heightCm: 250,
-    widthMarginCm: 10,
-    lengthMarginCm: 20,
-    isTightFit: true,
-    brand: 'Abris Tempo',
-    model: 'Tempo Duo 18x20',
+    categoryMaxWidthCm: 488,
+    models: [
+      {
+        id: 's1',
+        slug: 'double-pointu-16pi',
+        name: 'Abri double pointu 16 pi',
+        widthCm: 488,
+        basePrice: 1899,
+        minLengthCm: 488,
+        lengthStepCm: 122,
+        availableLengthsCm: [488, 610, 732],
+      },
+    ],
   },
 ];
 
@@ -45,8 +46,8 @@ async function mockApi(page: Page, suggestJson: unknown[] = []): Promise<void> {
   await page.route('**/api/v1/places/lookup-postal-code*', (route) =>
     route.fulfill({ json: { postalCode: null } }),
   );
-  await page.route('**/api/v1/products/suggest-shelters*', (route) =>
-    route.fulfill({ json: SHELTERS }),
+  await page.route('**/api/v1/shelters/suggest*', (route) =>
+    route.fulfill({ json: SUGGESTIONS }),
   );
 }
 
@@ -102,18 +103,78 @@ test('parcours CLAVIER-ONLY (calculateur) → résultats + aucune violation axe'
   await berline.fill('1');
   await page.getByRole('button', { name: /calculer le gabarit/i }).click();
 
-  // Étape résultats : la carte mockée renvoie un abri « ajusté serré ».
+  // Étape résultats (EPIC 10) : catégorie → modèle compatible → longueurs admissibles.
   await expect(page.getByRole('heading', { level: 2, name: /résultats/i })).toBeVisible();
-  await expect(page.getByText('Abri double Tempo 18x20')).toBeVisible();
-  await expect(page.getByText(/ajusté serré/i)).toBeVisible();
-  // G3 — marque + modèle du catalogue affichés tels quels (texte serveur, format inchangé).
-  await expect(page.getByText('Abris Tempo')).toBeVisible();
-  await expect(page.getByText('Tempo Duo 18x20')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Abris doubles' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Abri double pointu 16 pi' })).toBeVisible();
+  // Longueurs offertes affichées en pieds (488 cm → 16,0 ; 732 → 24,0).
+  const lengthsLine = page.getByText(/longueurs offertes/i);
+  await expect(lengthsLine).toContainText('16,0');
+  await expect(lengthsLine).toContainText('24,0');
+
+  // Lien « Configurer » → catalogue, pré-rempli (catégorie + slug + plus grande longueur = 732).
+  const configureLink = page.getByRole('link', { name: /configurer le modèle abri double pointu 16 pi/i });
+  await expect(configureLink).toHaveAttribute(
+    'href',
+    '/boutique?category=abris-doubles&configure=double-pointu-16pi&length=732',
+  );
 
   // axe : page entière, AUCUNE exclusion (pas de carte dans ce parcours).
   const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
   expect(results.violations).toEqual([]);
 });
+
+// ── EPIC 10, US-10.2 — ORIENTATION (radiogroup APG visible à ≥ 2 véhicules, navigation clavier). ─
+test('orientation : radiogroup APG visible à ≥ 2 véhicules, flèche bascule la sélection (clavier)', async ({
+  page,
+}) => {
+  await mockApi(page);
+  await completeAddress(page);
+
+  // 1 berline → pas de sélecteur d'orientation (sans effet à un seul véhicule).
+  await page.getByLabel(/berline/i).fill('1');
+  await expect(
+    page.getByRole('radiogroup', { name: /disposition des véhicules/i }),
+  ).toHaveCount(0);
+
+  // 2 berlines → le radiogroup d'orientation apparaît.
+  await page.getByLabel(/berline/i).fill('2');
+  const group = page.getByRole('radiogroup', { name: /disposition des véhicules/i });
+  await expect(group).toBeVisible();
+
+  const side = page.getByRole('radio', { name: /côte à côte/i });
+  const behind = page.getByRole('radio', { name: /l'un derrière l'autre/i });
+  await expect(side).toHaveAttribute('aria-checked', 'true');
+
+  // Navigation clavier APG : flèche droite bascule la sélection sur l'autre option.
+  await side.focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(behind).toHaveAttribute('aria-checked', 'true');
+  await expect(behind).toBeFocused();
+
+  // axe sur l'étape mesure avec le radiogroup d'orientation rendu.
+  const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
+  expect(results.violations).toEqual([]);
+});
+
+// ── EPIC 10 — CONTRASTE DUAL-THÈME de l'étape RÉSULTATS (vitest n'évalue pas color-contrast, L-016). ─
+for (const theme of ['light', 'dark'] as const) {
+  test(`résultats : zéro violation axe (contraste inclus) — thème ${theme}`, async ({ page }) => {
+    test.setTimeout(60000);
+    await forceTheme(page, theme);
+    await mockApi(page);
+    await completeAddress(page);
+
+    await page.getByLabel(/berline/i).fill('1');
+    await page.getByRole('button', { name: /calculer le gabarit/i }).click();
+    await expect(page.getByRole('heading', { name: 'Abri double pointu 16 pi' })).toBeVisible();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+
+    // color-contrast inclus (app réelle, WCAG_TAGS) sur l'étape résultats, dans les deux thèmes.
+    const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
+    expect(results.violations).toEqual([]);
+  });
+}
 
 test('smoke CARTE : @defer charge Leaflet, conteneur visible, axe (hors .leaflet-container)', async ({
   page,
@@ -269,11 +330,10 @@ for (const theme of ['light', 'dark'] as const) {
     await expect(warning).toHaveAttribute('role', 'status');
 
     // CONTRASTE inclus (app réelle, WCAG_TAGS) sur l'ÉTAPE MESURE, où vit mon bandeau « hors zone »
-    // (c'est ma surface) — `color-contrast` inclus, dans les deux thèmes (motion-a11y §2). On scanne
-    // ici, pas l'étape résultats : la fiche d'abri y porte un défaut de contraste PRÉEXISTANT et hors
-    // périmètre D4/D5 (`.shelter-card__badge` : #fff sur `--color-warning` amber en thème sombre,
-    // 1.66:1) — suivi séparément (board.md). On n'élargit pas ce ticket à sa correction (L-008), mais
-    // on ne masque pas non plus la régression : la garde de contraste de MON bandeau reste effective.
+    // (c'est ma surface) — `color-contrast` inclus, dans les deux thèmes (motion-a11y §2). L'ancien
+    // badge « ajusté serré » de l'étape résultats (et son défaut de contraste préexistant) a été
+    // retiré par EPIC 10 ; le contraste de l'étape résultats est désormais couvert par un balayage
+    // dual-thème dédié ci-dessus.
     const onMeasure = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
     expect(onMeasure.violations).toEqual([]);
 

@@ -44,11 +44,15 @@ function shelterStub(overrides: Partial<ShelterService> = {}): Partial<ShelterSe
   };
 }
 
-async function setup(shelter: Partial<ShelterService> = shelterStub(), cart = new CartService()) {
+async function setup(
+  shelter: Partial<ShelterService> = shelterStub(),
+  cart = new CartService(),
+  modelName = 'Abri simple',
+) {
   const close = vi.fn();
   const added = vi.fn();
   const result = await render(ShelterConfiguratorOverlayComponent, {
-    inputs: { slug: 'simple', modelName: 'Abri simple' },
+    inputs: { slug: 'simple', modelName },
     on: { close, added },
     providers: [
       { provide: ShelterService, useValue: shelter },
@@ -64,6 +68,13 @@ describe('ShelterConfiguratorOverlayComponent', () => {
     const dialog = screen.getByRole('dialog');
     expect(dialog).toHaveAttribute('aria-modal', 'true');
     expect(dialog).toHaveAccessibleName(/abri simple/i);
+  });
+
+  it('deep-link sans nom résolu : le dialogue garde un nom accessible NON vide (WCAG 4.1.2)', async () => {
+    // modelName vide (slug deep-link non résolu) → le titre retombe sur un libellé générique.
+    await setup(shelterStub(), new CartService(), '');
+    const dialog = screen.getByRole('dialog');
+    expect(dialog).toHaveAccessibleName(/configuration de l'abri/i);
   });
 
   it('place le focus dans le dialogue à l’ouverture (L-006)', async () => {

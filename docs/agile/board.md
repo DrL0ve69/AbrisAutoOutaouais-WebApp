@@ -430,3 +430,27 @@ facturation (cf. consigne PS « ne dépense jamais d'argent »).
 > **Note.** Bug-09 (badge « Ajusté serré » sombre) est **déjà corrigé** au jeton (EPIC 12 partie 2,
 > `--color-warning-solid`/`--color-on-warning`, L-033) — hors périmètre.
 > **Suite** : reprendre la Phase 2 (`/next-task`) ; le fix mesure US-14.2 attend un cycle dédié.
+
+---
+
+## ✅ Clôture EPIC 10 — Suggestion d'abris intelligente (mesure & véhicule) (2026-06-21)
+
+Branche `feat/epic-10-smart-suggestion` — 9 commits. Boucle *architecte → développeur → revue
+indépendante `code-reviewer` → mentor*. **Revue indépendante : APPROVE WITH NITS** — unique Minor
+(filet sécurité sibling-action L-028) **fermé** (commit `6325e56`).
+
+| ID | Sous-tâche | Statut |
+|----|-----------|--------|
+| US-10.1 | Suggestion interrogeant le catalogue `ShelterModel` (empreinte mesurée) : endpoint `GET /api/v1/shelters/suggest?requiredWidthCm&requiredLengthCm`, catégories filtrées largeur ≤ W + longueurs disponibles ≤ L plafonnées 40 pi ; deep-link vers le configurateur `/boutique/configurer/:slug?lengthCm=` ; ancien mécanisme `suggest-shelters` basé `Product` retiré | ✅ |
+| US-10.2 | Orientation véhicules : sélecteur côte à côte (somme des largeurs) ou l'un derrière l'autre (somme des longueurs) ; dégagement 60 cm réutilisé comme marge ; noyau `footprint` extrait en util neutre pour briser le cycle d'import (L-041) | ✅ |
+| Revue Minor L-028 | Filet sécurité : IT `POST /api/v1/shelters/suggest` en méthode HTTP invalide → 405 + IT sibling-action 401 pour les endpoints protégés du contrôleur `SheltersController` | ✅ |
+
+**Leçons capturées :** **L-040** (nom accessible du `dialog` non vide — `aria-labelledby` doit pointer sur un élément avec du texte visible avant l'ouverture) · **L-041** (cycle d'import utils : extraire un noyau de calcul neutre dans un fichier sans dépendance Angular pour briser le cycle).
+
+**Gates** :
+- `dotnet test` **354 unit + 96 IT / 0 échec** ✅
+- `npm run build` (typecheck) ✅ · `npm test` (vitest/axe — `color-contrast` NON couvert, L-016) ✅
+- `npm run e2e` `/mesurer` dual-thème axe 0 violation ✅
+- Round-trip live LocalDB : 2 exemples vérifiés (30×40 pi → 3 catégories ; 16×30 pi → 2 catégories) ✅
+
+**Statut git** : PR #… (à compléter après création) → CI verte → merge `master`. **Prochain : EPIC 13** (refonte parcours `/mesurer` — ordre + adresse optionnelle).

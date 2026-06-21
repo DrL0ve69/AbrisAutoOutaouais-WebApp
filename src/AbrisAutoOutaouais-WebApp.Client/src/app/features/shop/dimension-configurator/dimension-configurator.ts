@@ -63,6 +63,13 @@ export class DimensionConfiguratorComponent implements OnInit {
   /** Slug du MODÈLE paramétrique (≠ slug produit) à configurer. */
   readonly slug = input.required<string>();
 
+  /**
+   * Longueur initiale souhaitée (cm), optionnelle — fournie par le deep-link depuis `/mesurer`
+   * (EPIC 10). Clampée à l'option valide la plus proche ≤ dans `configureForm` ; à défaut
+   * (null/invalide), on retombe sur la longueur minimale.
+   */
+  readonly initialLengthCm = input<number | null>(null);
+
   /** Émet la configuration retenue à chaque prix serveur confirmé (pour 9.4). */
   readonly configurationChange = output<ShelterConfiguration>();
 
@@ -181,10 +188,33 @@ export class DimensionConfiguratorComponent implements OnInit {
       Validators.min(model.minLengthCm),
       Validators.max(model.maxLengthCm),
     ]);
-    this.lengthControl.setValue(model.minLengthCm, { emitEvent: false });
-    this.lengthCm.set(model.minLengthCm);
+    // Longueur initiale : si un deep-link a fourni `initialLengthCm`, on la CLAMPE à l'option valide
+    // la plus grande ≤ (multiple du pas dans [min, max]) ; sinon on retombe sur la longueur minimale.
+    const initialLength = this.clampInitialLength(model);
+    this.lengthControl.setValue(initialLength, { emitEvent: false });
+    this.lengthCm.set(initialLength);
     this.recomputeOptimistic();
     this.requestServerPrice();
+  }
+
+  /**
+   * Clampe `initialLengthCm()` sur les longueurs offertes (`lengthOptionsCm`) : on retient la plus
+   * grande option ≤ la valeur demandée. Repli sur `minLengthCm` si la valeur est null, ≤ min, ou
+   * absente. Garantit une valeur toujours alignée sur le pas (donc valide pour `/price`).
+   */
+  private clampInitialLength(model: ShelterModelDetail): number {
+    const requested = this.initialLengthCm();
+    if (requested === null || requested <= model.minLengthCm) {
+      return model.minLengthCm;
+    }
+    const options = this.lengthOptionsCm();
+    let best = model.minLengthCm;
+    for (const option of options) {
+      if (option <= requested) {
+        best = option;
+      }
+    }
+    return best;
   }
 
   protected onLengthChange(value: number): void {

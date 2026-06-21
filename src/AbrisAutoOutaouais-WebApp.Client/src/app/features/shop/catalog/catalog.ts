@@ -7,6 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { ProductService } from '../../../core/services/product.service';
 import { ShelterService } from '../../../core/services/shelter.service';
 import { CartService } from '../../../core/services/cart.service';
@@ -40,6 +41,7 @@ export class CatalogComponent implements OnInit {
   private readonly shelterService = inject(ShelterService);
   private readonly cartService = inject(CartService);
   private readonly toastService = inject(ToastService);
+  private readonly route = inject(ActivatedRoute);
 
   protected readonly categories = signal<CategoryDto[]>([]);
   protected readonly products = signal<ProductDto[]>([]);
@@ -52,10 +54,17 @@ export class CatalogComponent implements OnInit {
   /** Vrai si `getModels` a échoué → on affiche un message d'erreur plutôt qu'un écran blanc. */
   protected readonly shelterModelsError = signal(false);
 
-  /** Overlay de configuration ouvert (slug + nom du modèle), ou null s'il est fermé. */
-  protected readonly overlay = signal<{ slug: string; modelName: string } | null>(null);
+  /** Overlay de configuration ouvert (slug + nom + longueur initiale opt.), ou null s'il est fermé. */
+  protected readonly overlay = signal<{
+    slug: string;
+    modelName: string;
+    initialLengthCm: number | null;
+  } | null>(null);
   /** Bouton à re-focaliser à la fermeture de l'overlay (retour de focus — WCAG 2.4.3). */
   private overlayTrigger: HTMLElement | null = null;
+
+  /** Demande d'ouverture différée par deep-link (`?configure=&length=`), traitée au chargement des modèles. */
+  private pendingDeepLink: { slug: string; lengthCm: number | null } | null = null;
 
   // ── Recherche & tri (côté client, sur la page chargée) ───────
   protected readonly searchTerm = signal('');
@@ -123,7 +132,37 @@ export class CatalogComponent implements OnInit {
       next: (cats) => this.categories.set(cats),
     });
 
-    this.load(null);
+    // Deep-link depuis `/mesurer` (EPIC 10) : `?category=&configure=&length=`. Si une catégorie
+    // paramétrique est demandée, on la sélectionne (charge ses modèles) ; si un slug de modèle est
+    // fourni, on mémorise l'ouverture de l'overlay (traitée APRÈS le chargement des modèles, pour
+    // résoudre le nom du modèle). À défaut, comportement normal (catégorie « Tous »).
+    const params = this.route.snapshot.queryParamMap;
+    const category = params.get('category');
+    const configure = params.get('configure');
+    const lengthParam = params.get('length');
+
+    if (configure) {
+      const parsed = lengthParam ? Number(lengthParam) : NaN;
+      this.pendingDeepLink = {
+        slug: configure,
+        lengthCm: Number.isFinite(parsed) ? parsed : null,
+      };
+    }
+
+    if (category !== null && PARAMETRIC_CATEGORY_SLUGS.includes(category)) {
+      this.selectedSlug.set(category);
+      this.load(category);
+    } else {
+      this.load(null);
+      // Deep-link « configure » SANS catégorie paramétrique valide : `loadShelterModels` ne tournera
+      // pas, donc on ouvre l'overlay DIRECTEMENT (le configurateur recharge le modèle par slug). Le
+      // nom reste vide ici → `displayTitle` de l'overlay fournit un repli accessible (jamais vide).
+      if (this.pendingDeepLink) {
+        const { slug: modelSlug, lengthCm } = this.pendingDeepLink;
+        this.pendingDeepLink = null;
+        this.openConfiguratorFromDeepLink(modelSlug, lengthCm);
+      }
+    }
   }
 
   protected selectCategory(slug: string | null): void {
@@ -146,7 +185,24 @@ export class CatalogComponent implements OnInit {
   /** Ouvre l'overlay pour le modèle demandé et mémorise le bouton déclencheur (retour de focus). */
   protected openConfigurator(request: ShelterConfigureRequest): void {
     this.overlayTrigger = request.trigger;
-    this.overlay.set({ slug: request.slug, modelName: request.modelName });
+    this.overlay.set({ slug: request.slug, modelName: request.modelName, initialLengthCm: null });
+  }
+
+  /**
+   * Ouvre l'overlay depuis un DEEP-LINK (`/mesurer` → `?configure=&length=`) : pas de bouton
+   * déclencheur DOM (`overlayTrigger = null` → à la fermeture le focus retombe sur le flux normal,
+   * pas de retour vers un élément inexistant). Le nom du modèle est résolu dans les modèles chargés ;
+   * s'il est introuvable, on ouvre tout de même avec une chaîne vide (le configurateur recharge le
+   * modèle par slug et le titre reste cohérent une fois chargé).
+   */
+  private openConfiguratorFromDeepLink(slug: string, lengthCm: number | null): void {
+    const model = this.shelterModels().find((m) => m.slug === slug);
+    this.overlayTrigger = null;
+    this.overlay.set({
+      slug,
+      modelName: model?.name ?? '',
+      initialLengthCm: lengthCm,
+    });
   }
 
   /** Ferme l'overlay et rend le focus au bouton qui l'a ouvert (WCAG 2.4.3). */
@@ -185,6 +241,12 @@ export class CatalogComponent implements OnInit {
       next: (models) => {
         this.shelterModels.set([...models]);
         this.loading.set(false);
+        // Deep-link en attente : ouvre l'overlay maintenant que les modèles (donc le nom) sont chargés.
+        if (this.pendingDeepLink) {
+          const { slug: modelSlug, lengthCm } = this.pendingDeepLink;
+          this.pendingDeepLink = null;
+          this.openConfiguratorFromDeepLink(modelSlug, lengthCm);
+        }
       },
       // Dégradation gracieuse : pas d'écran blanc / spinner infini — état d'erreur explicite.
       error: () => {
