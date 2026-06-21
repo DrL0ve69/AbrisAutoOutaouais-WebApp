@@ -1,5 +1,5 @@
-import { VehicleType } from './vehicle-dims.const';
 import { footprintForVehiclesOriented } from './orientation.util';
+import { Footprint, finalizeFootprint, VehicleSelection } from './footprint-core.util';
 
 /**
  * Calcul du gabarit (« footprint ») de stationnement requis, en cm.
@@ -18,40 +18,18 @@ import { footprintForVehiclesOriented } from './orientation.util';
  *
  * Arrondi : TOUJOURS `Math.ceil` au cm — ne jamais sous-dimensionner un abri.
  * Bornes  : chaque dimension doit rester dans `[MIN_CM, MAX_CM]` ; sinon `outOfRange = true`.
+ *
+ * Les types/bornes/`finalizeFootprint` partagés vivent dans `footprint-core.util` (noyau neutre,
+ * pour éviter un cycle d'import avec `orientation.util`) ; on les RÉEXPORTE ici pour préserver
+ * l'API publique historique (les consommateurs continuent d'importer depuis `footprint.util`).
  */
 
-/** Bornes acceptées par le validateur serveur (entiers, > 0 ∧ ≤ 2000). */
-export const FOOTPRINT_MIN_CM = 1;
-export const FOOTPRINT_MAX_CM = 2000;
-
-/** Gabarit calculé. `outOfRange` ⇒ ne PAS appeler D2 (l'UI affiche un message). */
-export interface Footprint {
-  readonly widthCm: number;
-  readonly lengthCm: number;
-  /** Vrai si une dimension (après arrondi) sort de `[1, 2000]` → pas d'appel D2. */
-  readonly outOfRange: boolean;
-}
-
-/** Une sélection de véhicules : un type et une quantité (≥ 1). */
-export interface VehicleSelection {
-  readonly type: VehicleType;
-  readonly quantity: number;
-}
-
-/**
- * Arrondit au cm supérieur puis évalue les bornes `[1, 2000]`. Exposé (et non plus privé) pour être
- * partagé par `orientation.util` (US-10.2) — source UNIQUE de l'arrondi/bornage (L-004).
- */
-export function finalizeFootprint(widthRaw: number, lengthRaw: number): Footprint {
-  const widthCm = Math.ceil(widthRaw);
-  const lengthCm = Math.ceil(lengthRaw);
-  const inRange =
-    widthCm >= FOOTPRINT_MIN_CM &&
-    widthCm <= FOOTPRINT_MAX_CM &&
-    lengthCm >= FOOTPRINT_MIN_CM &&
-    lengthCm <= FOOTPRINT_MAX_CM;
-  return { widthCm, lengthCm, outOfRange: !inRange };
-}
+export {
+  FOOTPRINT_MIN_CM,
+  FOOTPRINT_MAX_CM,
+  finalizeFootprint,
+} from './footprint-core.util';
+export type { Footprint, VehicleSelection } from './footprint-core.util';
 
 /**
  * Gabarit requis pour une ou plusieurs sélections de véhicules (modèle CÔTE À CÔTE).

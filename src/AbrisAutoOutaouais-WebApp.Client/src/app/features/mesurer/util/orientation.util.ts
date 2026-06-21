@@ -1,5 +1,5 @@
 import { CLEARANCE_PER_SIDE_CM, VEHICLE_DIMS } from './vehicle-dims.const';
-import { Footprint, VehicleSelection, finalizeFootprint } from './footprint.util';
+import { Footprint, VehicleSelection, finalizeFootprint } from './footprint-core.util';
 
 /**
  * Orientation du stationnement de PLUSIEURS véhicules (US-10.2) :
