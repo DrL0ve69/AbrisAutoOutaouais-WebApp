@@ -162,8 +162,8 @@ les critères a11y dans sa Definition of Done (voir `definition-of-done.md`).
 
 | ID | User Story | Estimation | MoSCoW | Statut |
 |----|-----------|:----------:|:------:|--------|
-| US-10.1 | En tant que **visiteur**, je veux que la mesure de mon entrée propose **toutes les catégories qui rentrent** (pas les dimensions exactes), puis me laisse choisir modèle + longueur (≤ longueur mesurée, max 40 pi), afin de trouver le bon abri sans erreur. | 5 | **Should** | ⛔ À planifier (Phase 2 ; dépend EPIC 9) |
-| US-10.2 | En tant que **visiteur**, je veux, lors de la **sélection de véhicules**, indiquer s'ils sont **côte à côte ou l'un derrière l'autre** afin que la suggestion calcule la bonne largeur/longueur. | 3 | **Should** | ⛔ À planifier (Phase 2 ; dépend EPIC 9) |
+| US-10.1 | En tant que **visiteur**, je veux que la mesure de mon entrée propose **toutes les catégories qui rentrent** (pas les dimensions exactes), puis me laisse choisir modèle + longueur (≤ longueur mesurée, max 40 pi), afin de trouver le bon abri sans erreur. | 5 | **Should** | ✅ **Fait (2026-06-21)** — suggestion interrogeant le catalogue `ShelterModel` par empreinte mesurée ; catégories filtrées sur largeur ≤ W + longueurs ≤ L plafonnées 40 pi ; deep-link vers le configurateur ; ancien mécanisme `suggest-shelters` basé `Product` retiré ; e2e `/shelters/suggest` dual-thème axe 0 |
+| US-10.2 | En tant que **visiteur**, je veux, lors de la **sélection de véhicules**, indiquer s'ils sont **côte à côte ou l'un derrière l'autre** afin que la suggestion calcule la bonne largeur/longueur. | 3 | **Should** | ✅ **Fait (2026-06-21)** — orientation côte à côte (somme des largeurs) vs l'un derrière l'autre (somme des longueurs) ; dégagement 60 cm réutilisé ; noyau `footprint` neutre extrait pour briser le cycle d'import (L-041) |
 
 ### EPIC 11 — Calendrier & planification terrain
 

@@ -4,12 +4,14 @@
 > simplement **« continue la prochaine tâche »** ou lance **`/next-task`** : l'assistant lit ce
 > fichier + le plan actif, vérifie l'état git, puis enchaîne.
 >
-> **🟢 Programme ACTIF — Phase 2 (`docs/agile/ROADMAP-PHASE-2.md`), curseur sur EPIC 10** (suggestion
-> d'abris intelligente — dépend EPIC 9 désormais terminé). **EPIC 9 TERMINÉ (2026-06-19)** :
-> 9.1 (domaine+migration+seed), 9.2 (API+prix), 9.3 (configurateur front), 9.4 (panier/commande),
-> **9.5 (admin CRUD ShelterModel)** tous faits sur la branche `feat/epic-9-dimension-catalog` —
-> revue indépendante APPROVE WITH NITS, 1 Minor corrigé (CategoryId), L-035/L-036/L-024, PR en cours.
-> Ordre Phase 2 : ~~9~~ → **10** → 13 → 14 → 11 → 8 → 7.
+> **🟢 Programme ACTIF — Phase 2 (`docs/agile/ROADMAP-PHASE-2.md`), curseur sur EPIC 13** (refonte
+> parcours `/mesurer` — ordre + adresse optionnelle ; dépend EPIC 9 · 10 · 15).
+> **EPIC 10 TERMINÉ (2026-06-21)** : 9 commits sur `feat/epic-10-smart-suggestion` —
+> US-10.1 (suggestion par catégorie-qui-rentre, endpoint `/shelters/suggest`, deep-link configurateur,
+> retrait ancien `suggest-shelters` Product) + US-10.2 (orientation véhicules côte à côte / derrière,
+> noyau `footprint` neutre L-041) — revue indépendante APPROVE WITH NITS, Minor L-028 fermé,
+> L-040/L-041 capturées, PR #… (voir `board.md`).
+> Ordre Phase 2 restant : ~~9~~ ~~10~~ → **13** → 14 → 11 → 8 → 7.
 > **Programme G terminé (A→H) :** `C:\Users\phili\.claude\plans\majestic-soaring-sprout.md`
 > **Programme initial terminé (A→F) :** `C:\Users\phili\.claude\plans\1-i-want-you-glistening-barto.md`
 > Maintiens ce pointeur à jour à la fin de chaque sous-tâche (c'est ce que l'assistant relit).
