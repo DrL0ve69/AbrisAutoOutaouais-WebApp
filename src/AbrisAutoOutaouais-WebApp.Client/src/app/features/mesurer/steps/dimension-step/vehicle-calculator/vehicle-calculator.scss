@@ -4,32 +4,7 @@
   gap: var(--space-5);
 }
 
-.calc__modes {
-  display: flex;
-  gap: var(--space-2);
-  flex-wrap: wrap;
-}
-
-.calc__mode {
-  flex: 1 1 12rem;
-  min-height: 44px; // cible tactile WCAG 2.5.8
-  padding: var(--space-3) var(--space-4);
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  color: var(--color-text);
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-
-  &--active {
-    border-color: var(--color-primary);
-    background: var(--color-primary-soft, var(--color-surface));
-    color: var(--color-primary);
-  }
-}
-
-// Orientation (US-10.2) : même langage visuel que la bascule de mode (jetons sémantiques).
+// Orientation (US-10.2) : langage visuel des boutons radio (jetons sémantiques).
 .calc__orientation {
   display: flex;
   flex-wrap: wrap;

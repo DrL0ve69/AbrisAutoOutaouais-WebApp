@@ -1,0 +1,38 @@
+<div class="dimension">
+  <!-- Choix de la voie : radiogroup APG à 3 voies (roving tabindex + flèches/Home/End, L-015).
+       Nom accessible STATIQUE et non vide (L-040). -->
+  <div
+    class="dimension__methods"
+    role="radiogroup"
+    aria-label="Comment souhaitez-vous obtenir vos dimensions ?"
+    i18n-aria-label="@@mesurer.dimension.group">
+    @for (m of methods; track m) {
+    <button
+      #methodRadio
+      type="button"
+      class="dimension__method"
+      [class.dimension__method--active]="method() === m"
+      role="radio"
+      [attr.aria-checked]="method() === m"
+      [attr.tabindex]="method() === m ? 0 : -1"
+      (click)="setMethod(m)"
+      (keydown)="onMethodKeydown($event)">
+      {{ methodLabels[m] }}
+    </button>
+    }
+  </div>
+
+  @switch (method()) {
+    @case ('known') {
+    <app-known-dimensions (footprintComputed)="onFootprint($event)" />
+    }
+    @case ('vehicles') {
+    <app-vehicle-calculator (footprintComputed)="onFootprint($event)" />
+    }
+    @case ('map') {
+    <!-- (13.2) Voie carte : l'input adresse + la carte cohabitent dans `app-map-voie` (qui gère
+         lui-même le géocodage, le centrage et le `@defer (on immediate)` de la carte). -->
+    <app-map-voie (footprintComputed)="onFootprint($event)" />
+    }
+  }
+</div>

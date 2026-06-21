@@ -306,7 +306,7 @@ si un SP devient disponible. Détail : `PROGRAM-STATUS.md` (Épic H) + `docs/dep
 | EPIC 11 | Calendrier & planification terrain | 5 | — | 21 | Could | Agréger `Booking` existants ; routage MVP heuristique (`GeoDistance`) ou OpenRouteService |
 | EPIC 8 | Employés & paie (informative) | 2 | EPIC 11 | 8–13 | Could | ⚠️ Paie réelle = conformité fiscale hors portée ; viser informatif |
 | EPIC 7 | Paiements (Interac e-Transfer + cartes) | 1 | — | 21+ | Could | ⚠️ .NET (pas l'Express du `.docx`) ; spike d'abord ; MVP e-Transfer manuel gratuit |
-| EPIC 13 | Refonte parcours `/mesurer` (ordre + adresse optionnelle) | (1)·6 | 9·10·15 | 8 | Should | Dimension d'abord ; adresse seulement pour la carte ; regrouper Mesure+Conseil |
+| EPIC 13 | Refonte parcours `/mesurer` (ordre + adresse optionnelle) | (1)·6 | 9·10·15 | 8 | Should | ✅ **livré (2026-06-21, branche `feat/epic-13-mesurer-rework`)** — stepper inversé Dimensionner→Conseil (« Trouver mon abri ») ; radiogroup APG 3 voies ; adresse via `map-voie` (carte uniquement) ; `results-step`→`conseil-step`. Revue indép. APPROVE WITH NITS ; L-042/L-043 |
 | EPIC 14 | Carte satellite plus précise (zoom) | (1)·5.1 | — | 5 | Should | Over-zoom Esri d'abord ; sinon spike source HD payante via proxy |
 | EPIC 15 | Champ d'adresse unifié (spike→reco) | (1)·5.2 | — | 8 | Should | 🟡 **spike US-15.1 LIVRÉ 2026-06-18** (`docs/spikes/epic-15-address-field-spike.md`) — **décision : champ unique « n°+rue » + auto-rempli ÉDITABLE** (lecture seule écartée). Reste US-15.2/15.3 (refonte, ~6 pts) — touche tous les formulaires |
 | EPIC 16 | Doc d'architecture + briques manquantes | (1)·3·4 | — | 3 | Could | ✅ **diagramme livré** ; reste backlog cache/cookies/rate-limit/secrets/observabilité |

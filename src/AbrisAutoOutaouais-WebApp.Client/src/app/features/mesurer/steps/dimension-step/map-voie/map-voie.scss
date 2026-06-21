@@ -1,0 +1,55 @@
+.map-voie {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.map-voie__addr {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.map-voie__lead {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.map-voie__hint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.map-voie__status {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+// D5 — avertissement « hors zone » : doux, non bloquant. Jetons sémantiques (bascule par thème).
+.map-voie__zone-warning {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-warning-solid, var(--color-border));
+  border-radius: var(--radius-md);
+  background: var(--color-bg-muted);
+  color: var(--color-text);
+}
+
+.map-voie__center {
+  align-self: flex-start;
+  min-height: 44px; // cible tactile WCAG 2.5.8
+}
+
+.map-voie__map-placeholder,
+.map-voie__map-loading {
+  padding: var(--space-4);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+
+  p {
+    margin: 0;
+  }
+}

@@ -24,8 +24,8 @@ interface AddressFormControllerDeps {
 export interface AddressFormControllerOptions {
   /**
    * Crochet optionnel exécuté à chaque bascule de mode, AVANT la recopie éventuelle. Permet à un
-   * écran qui mémorise un état dérivé de l'adresse (ex. `address-step` : lat/lng de la dernière
-   * suggestion) de le réinitialiser à chaque changement de mode.
+   * écran qui mémorise un état dérivé de l'adresse (ex. `map-voie` : lat/lng/centre de la carte)
+   * de le réinitialiser à chaque changement de mode.
    */
   readonly onModeChange?: (mode: AddressMode) => void;
 }
@@ -106,7 +106,7 @@ export class AddressFormController {
   /**
    * Applique une suggestion au formulaire (patch + résolution du code postal) et retourne le flux
    * d'issue déjà borné au cycle de vie du composant (`takeUntilDestroyed`). Exposé pour les écrans
-   * qui doivent enchaîner un traitement propre (ex. `address-step` mémorise lat/lng et n'affiche pas
+   * qui doivent enchaîner un traitement propre (ex. `map-voie` mémorise lat/lng et n'affiche pas
    * l'annonce postale) sans recopier la gestion d'abonnement.
    */
   applySuggestion(s: PlaceSuggestionDto): Observable<PostalFillResult> {

@@ -14,22 +14,23 @@ import { Footprint } from '../../util/footprint.util';
 import { cmToFeet } from '../../util/units.util';
 
 /**
- * Étape 3 « Résultats » — interroge `/shelters/suggest` avec le gabarit calculé et présente les
- * MODÈLES paramétriques compatibles, groupés par catégorie (EPIC 10, US-10.1). Pour chaque modèle,
- * on affiche les longueurs admissibles (en pieds) et un lien « Configurer » vers le configurateur
- * du catalogue, pré-rempli (catégorie + slug du modèle + plus grande longueur admissible).
+ * Étape 2 « Conseil » (EPIC 13, renommée depuis « Résultats » en 13.3 — logique INCHANGÉE) —
+ * interroge `/shelters/suggest` avec le gabarit calculé et présente les MODÈLES paramétriques
+ * compatibles, groupés par catégorie (EPIC 10, US-10.1). Pour chaque modèle, on affiche les
+ * longueurs admissibles (en pieds) et un lien « Configurer » vers le configurateur du catalogue,
+ * pré-rempli (catégorie + slug du modèle + plus grande longueur admissible).
  *
  * États chargement (aria-busy + aria-live), erreur (role="alert") et vide (role="status") gérés.
  * Le gabarit reçu est déjà borné `[1, 2000]` par `footprint.util`, donc l'appel ne part pas en 422.
  */
 @Component({
-  selector: 'app-results-step',
+  selector: 'app-conseil-step',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink, CurrencyPipe, DecimalPipe],
-  templateUrl: './results-step.html',
-  styleUrl: './results-step.scss',
+  templateUrl: './conseil-step.html',
+  styleUrl: './conseil-step.scss',
 })
-export class ResultsStepComponent {
+export class ConseilStepComponent {
   private readonly service = inject(ShelterSuggestionService);
 
   /** Affichage : cm (canonique) → pieds. Le gabarit et les modèles sont stockés en cm. */

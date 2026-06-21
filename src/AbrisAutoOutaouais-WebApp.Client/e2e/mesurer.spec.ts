@@ -1,15 +1,22 @@
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
-// ── e2e : « Mesurer mon stationnement » (Epic D, D3) ────────────────────────────
+// ── e2e : « Trouver mon abri » (/mesurer) — flux Dimensionner → Conseil (EPIC 13) ────────────────
 //
-// Deux scénarios :
-//  (a) PARCOURS CLAVIER-ONLY via le calculateur de véhicules (défaut, SSR-safe) jusqu'aux
-//      résultats — aucun recours à la carte. axe scanne la page entière, sans exclusion.
-//  (b) SMOKE CARTE : bascule en mode carte, déclenche le `@defer (on viewport)`, attend
-//      l'apparition de `.leaflet-container` (BARRIÈRE sur le conteneur, jamais waitForTimeout —
-//      L-012), puis axe avec `.exclude('.leaflet-container')` (internes Leaflet/geoman tiers,
-//      mode pointer-only documenté ; l'équivalent clavier est le calculateur).
+// EPIC 13 a INVERSÉ/simplifié l'assistant : il n'y a plus d'étape « Adresse » préalable. Le stepper
+// est à 2 étapes —
+//   1. « Dimensionner » : radiogroup APG à 3 VOIES (`known` / `vehicles` (défaut) / `map`) ;
+//      la voie `map` porte DÉSORMAIS l'input adresse + la carte satellite sur la MÊME page (13.2).
+//   2. « Conseil » : modèles d'abris compatibles (ex-« Résultats », renommé en 13.3, logique inchangée).
+//
+// Cette suite couvre les TROIS voies (L-037 — la migration e2e est le cœur de 13.3) :
+//   (a) `known`    — saisie largeur/longueur en pieds → Conseil + suggestions ;
+//   (b) `vehicles` — au CLAVIER (radiogroup APG : flèches sélectionnent la voie) → calculateur →
+//                    Conseil + axe page entière ;
+//   (c) `map`      — choisir la voie → remplir l'adresse (locator `pressSequentially` + barrière
+//                    réseau `waitForResponse(/places\/suggest/)`, L-012) → géocodage centre la carte
+//                    (D4) → carte DESSINABLE (capacité `.leaflet-pm-toolbar.leaflet-pm-draw`, L-019) ;
+//                    plus l'avertissement « hors zone » (D5, `role="status"`) et le contraste dual-thème.
 //
 // On mocke le proxy Places + /shelters/suggest (aucun backend requis, comme a11y.spec.ts).
 
@@ -65,55 +72,110 @@ function suggestion(lat: number, lng: number, city: string): unknown {
   };
 }
 
-/**
- * Remplit l'étape Adresse au clavier (SANS choisir de suggestion) et passe à l'étape Mesure.
- *
- * Comme aucune suggestion n'est sélectionnée, `submit()` déclenche TOUJOURS un géocodage (qui
- * réutilise `places/suggest`) avant d'émettre l'adresse. On pose donc une BARRIÈRE réseau sur
- * cette requête (L-012, jamais de `waitForTimeout`) pour attendre sa résolution déterministe avant
- * l'avancement d'étape — qu'elle renvoie des coordonnées (mock D4/D5) ou une liste vide.
- */
-async function completeAddress(page: Page, city = 'Gatineau'): Promise<void> {
-  await page.goto('/mesurer');
-  await expect(page.getByRole('heading', { level: 2, name: /adresse/i })).toBeVisible();
+/** Force le thème via localStorage AVANT navigation (même mécanisme que motion-a11y). */
+function forceTheme(page: Page, theme: 'light' | 'dark'): Promise<void> {
+  return page.addInitScript((t) => {
+    try {
+      localStorage.setItem('abristempo-theme', t);
+    } catch {
+      /* localStorage indisponible — ignoré */
+    }
+  }, theme);
+}
 
+/**
+ * Sélectionne une voie du radiogroup à 3 voies de l'étape « Dimensionner ».
+ * Les voies sont des boutons `role="radio"` ; un clic suffit (le clavier est exercé à part).
+ */
+async function chooseVoie(page: Page, name: RegExp): Promise<void> {
+  await page.getByRole('radio', { name }).click();
+}
+
+/**
+ * Renseigne l'adresse de la voie carte (SANS choisir de suggestion) puis centre la carte.
+ *
+ * Comme aucune suggestion n'est choisie, « Centrer la carte sur cette adresse » déclenche TOUJOURS
+ * un géocodage (qui réutilise `places/suggest`). On pose donc une BARRIÈRE réseau sur cette requête
+ * (L-012, jamais de `waitForTimeout`) pour attendre sa résolution déterministe — qu'elle renvoie des
+ * coordonnées (mock D4/D5) ou une liste vide.
+ */
+async function fillMapAddress(page: Page, city = 'Gatineau'): Promise<void> {
   await page.getByLabel(/numéro civique/i).fill('123');
   // Le champ « rue » est un combobox : on tape via le locator (auto-focus + actionability, L-012).
   await page.locator('#mesurer-rue').pressSequentially('123 rue Principale');
   await page.getByLabel(/ville/i).fill(city);
 
-  // Barrière réseau : la requête de géocodage part au clic de soumission, on attend sa réponse
-  // (la DERNIÈRE requête `suggest`, postérieure au clic) avant d'asserter l'avancement d'étape.
-  const submit = page.getByRole('button', { name: /continuer vers la mesure/i });
+  // Barrière réseau : la requête de géocodage part au clic, on attend sa réponse (la DERNIÈRE
+  // requête `suggest`, postérieure au clic) avant d'asserter le centrage de la carte.
+  const center = page.getByRole('button', { name: /centrer la carte sur cette adresse/i });
   await Promise.all([
     page.waitForResponse((r) => /places\/suggest/.test(r.url())),
-    submit.click(),
+    center.click(),
   ]);
-  await expect(page.getByRole('heading', { level: 2, name: /mesure/i })).toBeVisible();
 }
 
-test('parcours CLAVIER-ONLY (calculateur) → résultats + aucune violation axe', async ({
+// ── (a) VOIE `known` — je connais mes dimensions → Conseil + suggestions. ────────────────────────
+test('voie « connue » : saisie en pieds → étape Conseil avec suggestions', async ({ page }) => {
+  await mockApi(page);
+  await page.goto('/mesurer');
+
+  // On arrive directement à l'étape « Dimensionner » (plus d'étape adresse préalable).
+  await expect(page.getByRole('heading', { level: 2, name: /dimensionner/i })).toBeVisible();
+
+  // Bascule sur la voie « Je connais mes dimensions » et saisis largeur × longueur (pieds).
+  await chooseVoie(page, /je connais mes dimensions/i);
+  await page.getByLabel(/largeur \(pi\)/i).fill('16');
+  await page.getByLabel(/longueur \(pi\)/i).fill('30');
+  await page.getByRole('button', { name: /voir les abris compatibles/i }).click();
+
+  // Étape « Conseil » (EPIC 10) : titre d'étape + catégorie/modèle compatibles.
+  await expect(page.getByRole('heading', { level: 2, name: /^conseil$/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Abris doubles' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Abri double pointu 16 pi' })).toBeVisible();
+});
+
+// ── (b) VOIE `vehicles` (défaut) au CLAVIER — radiogroup APG → calculateur → Conseil + axe page. ──
+test('voie « véhicules » au CLAVIER (radiogroup APG) → Conseil + aucune violation axe', async ({
   page,
 }) => {
   await mockApi(page);
-  await completeAddress(page);
+  await page.goto('/mesurer');
+  await expect(page.getByRole('heading', { level: 2, name: /dimensionner/i })).toBeVisible();
 
-  // Mode calculateur = défaut : on saisit 1 berline et on calcule.
-  const berline = page.getByLabel(/berline/i);
-  await berline.fill('1');
+  // Radiogroup APG des 3 voies (ordre DOM : connue, véhicules, carte). « Par mes véhicules » est la
+  // voie par défaut (sélectionnée + seul stop de tabulation — roving tabindex, L-015). On vérifie le
+  // contrat clavier APG : les flèches déplacent la sélection RELATIVEMENT à l'option sélectionnée (pas
+  // à l'élément focalisé) et déplacent ET sélectionnent ensemble. Depuis « véhicules » : flèche gauche
+  // → « connue » (sélectionnée + focalisée) ; flèche droite → retour à « véhicules ».
+  const known = page.getByRole('radio', { name: /je connais mes dimensions/i });
+  const vehicles = page.getByRole('radio', { name: /par mes véhicules/i });
+  await expect(vehicles).toHaveAttribute('aria-checked', 'true'); // défaut
+
+  await vehicles.focus();
+  await expect(vehicles).toBeFocused();
+  await page.keyboard.press('ArrowLeft');
+  await expect(known).toHaveAttribute('aria-checked', 'true');
+  await expect(known).toBeFocused();
+
+  await page.keyboard.press('ArrowRight');
+  await expect(vehicles).toHaveAttribute('aria-checked', 'true');
+  await expect(vehicles).toBeFocused();
+
+  // Calculateur (voie véhicules) : 1 berline → calcule le gabarit.
+  await page.getByLabel(/berline/i).fill('1');
   await page.getByRole('button', { name: /calculer le gabarit/i }).click();
 
-  // Étape résultats (EPIC 10) : catégorie → modèle compatible → longueurs admissibles.
-  await expect(page.getByRole('heading', { level: 2, name: /résultats/i })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Abris doubles' })).toBeVisible();
+  // Étape « Conseil » : catégorie → modèle compatible → longueurs admissibles (en pieds).
+  await expect(page.getByRole('heading', { level: 2, name: /^conseil$/i })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Abri double pointu 16 pi' })).toBeVisible();
-  // Longueurs offertes affichées en pieds (488 cm → 16,0 ; 732 → 24,0).
   const lengthsLine = page.getByText(/longueurs offertes/i);
   await expect(lengthsLine).toContainText('16,0');
   await expect(lengthsLine).toContainText('24,0');
 
   // Lien « Configurer » → catalogue, pré-rempli (catégorie + slug + plus grande longueur = 732).
-  const configureLink = page.getByRole('link', { name: /configurer le modèle abri double pointu 16 pi/i });
+  const configureLink = page.getByRole('link', {
+    name: /configurer le modèle abri double pointu 16 pi/i,
+  });
   await expect(configureLink).toHaveAttribute(
     'href',
     '/boutique?category=abris-doubles&configure=double-pointu-16pi&length=732',
@@ -129,9 +191,10 @@ test('orientation : radiogroup APG visible à ≥ 2 véhicules, flèche bascule 
   page,
 }) => {
   await mockApi(page);
-  await completeAddress(page);
+  await page.goto('/mesurer');
+  await expect(page.getByRole('heading', { level: 2, name: /dimensionner/i })).toBeVisible();
 
-  // 1 berline → pas de sélecteur d'orientation (sans effet à un seul véhicule).
+  // Voie « véhicules » est le défaut : 1 berline → pas de sélecteur d'orientation.
   await page.getByLabel(/berline/i).fill('1');
   await expect(
     page.getByRole('radiogroup', { name: /disposition des véhicules/i }),
@@ -152,31 +215,53 @@ test('orientation : radiogroup APG visible à ≥ 2 véhicules, flèche bascule 
   await expect(behind).toHaveAttribute('aria-checked', 'true');
   await expect(behind).toBeFocused();
 
-  // axe sur l'étape mesure avec le radiogroup d'orientation rendu.
+  // axe sur l'étape Dimensionner avec le radiogroup d'orientation rendu.
   const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
   expect(results.violations).toEqual([]);
 });
 
-// ── EPIC 10 — CONTRASTE DUAL-THÈME de l'étape RÉSULTATS (vitest n'évalue pas color-contrast, L-016). ─
+// ── EPIC 13 — CONTRASTE DUAL-THÈME de l'étape DIMENSIONNER (radiogroup 3 voies). ─────────────────
+// `color-contrast` est DÉSACTIVÉ en vitest (L-016) → on valide ICI (app réelle, WCAG_TAGS) dans LES
+// DEUX thèmes (motion-a11y §2). La voie carte est scannée à part (D5 ci-dessous) car elle introduit
+// le bandeau « hors zone » + le bouton `.btn--outline`.
 for (const theme of ['light', 'dark'] as const) {
-  test(`résultats : zéro violation axe (contraste inclus) — thème ${theme}`, async ({ page }) => {
+  test(`Dimensionner (3 voies) : zéro violation axe (contraste inclus) — thème ${theme}`, async ({
+    page,
+  }) => {
+    await forceTheme(page, theme);
+    await mockApi(page);
+    await page.goto('/mesurer');
+    await expect(page.getByRole('heading', { level: 2, name: /dimensionner/i })).toBeVisible();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+
+    // Radiogroup des 3 voies rendu (voie véhicules par défaut). color-contrast inclus.
+    await expect(page.getByRole('radiogroup', { name: /comment souhaitez-vous/i })).toBeVisible();
+    const onDimension = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
+    expect(onDimension.violations).toEqual([]);
+  });
+}
+
+// ── EPIC 13 — CONTRASTE DUAL-THÈME de l'étape CONSEIL (ex-Résultats). ────────────────────────────
+for (const theme of ['light', 'dark'] as const) {
+  test(`Conseil : zéro violation axe (contraste inclus) — thème ${theme}`, async ({ page }) => {
     test.setTimeout(60000);
     await forceTheme(page, theme);
     await mockApi(page);
-    await completeAddress(page);
+    await page.goto('/mesurer');
 
     await page.getByLabel(/berline/i).fill('1');
     await page.getByRole('button', { name: /calculer le gabarit/i }).click();
     await expect(page.getByRole('heading', { name: 'Abri double pointu 16 pi' })).toBeVisible();
     await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
 
-    // color-contrast inclus (app réelle, WCAG_TAGS) sur l'étape résultats, dans les deux thèmes.
+    // color-contrast inclus (app réelle, WCAG_TAGS) sur l'étape Conseil, dans les deux thèmes.
     const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
     expect(results.violations).toEqual([]);
   });
 }
 
-test('smoke CARTE : @defer charge Leaflet, conteneur visible, axe (hors .leaflet-container)', async ({
+// ── (c) VOIE `map` — smoke : @defer charge Leaflet, conteneur visible, axe (hors .leaflet-container). ─
+test('voie « carte » smoke : @defer charge Leaflet, conteneur visible, axe (hors .leaflet-container)', async ({
   page,
 }) => {
   // Marge au-delà du défaut 30 s : 1re compilation à froid du chunk Leaflet/geoman en CI.
@@ -191,22 +276,19 @@ test('smoke CARTE : @defer charge Leaflet, conteneur visible, axe (hors .leaflet
   });
   page.on('pageerror', (err) => console.log(`[browser:pageerror] ${err.message}`));
 
-  await completeAddress(page);
-
-  // Bascule en mode carte → déclenche le `@defer (on immediate)` (chargement sans scroll).
-  await page.getByRole('radio', { name: /mesurer sur la carte/i }).click();
+  await page.goto('/mesurer');
+  // Bascule en voie carte → la carte est montée derrière `@defer (on immediate)` (chargement sans scroll).
+  await chooseVoie(page, /mesurer sur la carte/i);
 
   // BARRIÈRE déterministe (L-012) : on attend l'apparition du conteneur Leaflet, jamais un
-  // waitForTimeout. Depuis F2-D, geoman est importé AVANT `L.map(...)` (son init hook doit être
-  // posé avant la construction de la carte — cf. `map-measure.ts`), donc `.leaflet-container`
-  // n'apparaît plus indépendamment de geoman : le paint de la carte est gated sur le chunk geoman
-  // (~360 kB). Timeout large (30 s) : en CI, ce test est le 1er à charger les chunks Leaflet+geoman
-  // → compilation à la demande du dev-server à froid (contrairement au local « warm »).
+  // waitForTimeout. geoman est importé AVANT `L.map(...)` (son init hook doit être posé avant la
+  // construction de la carte — cf. `map-measure.ts`), donc le paint de la carte est gated sur le
+  // chunk geoman (~360 kB). Timeout large (30 s) : 1er chargement des chunks Leaflet+geoman en CI.
   await expect(page.locator('.leaflet-container')).toBeVisible({ timeout: 30000 });
 
   // axe : on EXCLUT uniquement `.leaflet-container` (widget tiers Leaflet/geoman, mode
   // pointer-only documenté ; l'équivalent clavier complet est le calculateur de véhicules).
-  // Tout le reste de la page (navbar, indicateur d'étapes, instructions) reste scanné.
+  // Tout le reste de la page (navbar, indicateur d'étapes, adresse, instructions) reste scanné.
   const results = await new AxeBuilder({ page })
     .withTags(WCAG_TAGS)
     .exclude('.leaflet-container')
@@ -214,78 +296,88 @@ test('smoke CARTE : @defer charge Leaflet, conteneur visible, axe (hors .leaflet
   expect(results.violations).toEqual([]);
 });
 
-// ── ASSERTION POSITIVE de DESSINABILITÉ (L-005/L-009) — ferme le trou signalé en revue F2. ──────
+// ── (c) VOIE `map` — ASSERTION POSITIVE de DESSINABILITÉ (L-005/L-009) — capacité, pas l'enveloppe. ─
 //
 // « la carte s'affiche » (`.leaflet-container` visible) ne prouve PAS qu'elle est DESSINABLE : geoman
 // s'attache à `map.pm` par EFFET DE BORD à l'import ; si cet attachement n'a pas lieu, la garde
 // `if (!pm) return;` (map-measure.ts) saute silencieusement `pm.addControls` → AUCUNE barre d'outils,
-// dessin désactivé, et le smoke test ci-dessus reste vert quand même. Ce test transforme « la carte
-// s'affiche » en « la carte EST dessinable » en exigeant la barre geoman (`.leaflet-pm-toolbar`) + un
-// bouton de dessin (rectangle/polygone).
+// dessin désactivé, et le smoke test ci-dessus reste vert quand même. Ce test exige la barre geoman
+// (`.leaflet-pm-toolbar.leaflet-pm-draw`) + un bouton de dessin (rectangle/polygone) → la carte EST
+// dessinable (corrigé F2-D : geoman lit `globalThis.L`, exposé avant l'import — cf. `map-measure.ts`).
+test('voie « carte » dessinable : barre d’outils geoman présente (capacité, L-019)', async ({
+  page,
+}) => {
+  test.setTimeout(60000);
+  await mockApi(page);
+  await page.goto('/mesurer');
+  await chooseVoie(page, /mesurer sur la carte/i);
+  await expect(page.locator('.leaflet-container')).toBeVisible({ timeout: 30000 });
+
+  // POSITIF : la barre de DESSIN geoman ET un bouton de dessin sont rendus → la carte est dessinable.
+  // geoman ajoute deux `.leaflet-pm-toolbar` (dessin + édition) ; on cible la barre de DESSIN
+  // (`.leaflet-pm-draw`) pour lever l'ambiguïté du mode strict tout en gardant l'assertion de CAPACITÉ.
+  await expect(page.locator('.leaflet-pm-toolbar.leaflet-pm-draw')).toBeVisible({
+    timeout: 30000,
+  });
+  await expect(
+    page.locator('.leaflet-pm-icon-rectangle, .leaflet-pm-icon-polygon').first(),
+  ).toBeVisible();
+
+  // G3a — la zone de dessin est GÉNÉREUSE : elle sort du conteneur étroit (`.container--narrow`,
+  // max 720px) en largeur ET offre une grande hauteur. On mesure le canvas réel : largeur > 720px
+  // (donc le breakout fonctionne, pas juste un width:100% dans la colonne étroite) et hauteur
+  // ample (≥ 28rem = 448px). Capacité réelle, pas l'enveloppe (L-019).
+  const box = await page.locator('.map-measure__canvas').boundingBox();
+  expect(box).not.toBeNull();
+  // Viewport e2e par défaut (1280px) : le breakout (1100px) dépasse nettement la colonne 720px.
+  expect(box!.width).toBeGreaterThan(720);
+  expect(box!.height).toBeGreaterThanOrEqual(448);
+});
+
+// ── (c) VOIE `map` — D4 : CENTRAGE RÉEL de la carte sur l'adresse géocodée (capacité, L-019). ────
 //
-// ✅ CORRIGÉ F2-D : geoman (dist IIFE) lit `L` comme variable LIBRE résolue depuis `globalThis.L` ;
-// il n'importe PAS Leaflet. Le composant importait Leaflet en module ESM local sans l'exposer
-// globalement → `globalThis.L` était `undefined` → geoman ne patchait rien → `map.pm` jamais créé,
-// barre de dessin absente (le faux-vert L-009 : le smoke ci-dessus restait vert alors que le dessin
-// était silencieusement mort). La correction expose l'instance Leaflet dynamiquement importée sur
-// `globalThis.L` AVANT d'importer geoman (cf. `map-measure.ts`). Ce test passe donc de `fixme` à
-// actif et VÉRIFIE LA CAPACITÉ (la carte est DESSINABLE), pas seulement le conteneur — il exige la
-// barre geoman (`.leaflet-pm-toolbar`) + un bouton de dessin (rectangle/polygone), assertion non
-// affaiblie (L-019/L-009).
-test(
-  'CARTE dessinable : barre d’outils geoman présente (corrigé F2-D — geoman lit `globalThis.L`)',
-  async ({ page }) => {
-    test.setTimeout(60000);
-    await mockApi(page);
-    await completeAddress(page);
-    await page.getByRole('radio', { name: /mesurer sur la carte/i }).click();
-    await expect(page.locator('.leaflet-container')).toBeVisible({ timeout: 30000 });
-
-    // POSITIF : la barre de DESSIN geoman ET un bouton de dessin sont rendus → la carte est
-    // dessinable. geoman ajoute deux `.leaflet-pm-toolbar` (dessin + édition) ; on cible la barre de
-    // DESSIN (`.leaflet-pm-draw`) pour lever l'ambiguïté du mode strict tout en gardant l'assertion
-    // de CAPACITÉ (on n'affaiblit pas vers un simple conteneur — L-019/L-009).
-    await expect(page.locator('.leaflet-pm-toolbar.leaflet-pm-draw')).toBeVisible({
-      timeout: 30000,
-    });
-    await expect(
-      page.locator('.leaflet-pm-icon-rectangle, .leaflet-pm-icon-polygon').first(),
-    ).toBeVisible();
-
-    // G3a — la zone de dessin est GÉNÉREUSE : elle sort du conteneur étroit (`.container--narrow`,
-    // max 720px) en largeur ET offre une grande hauteur. On mesure le canvas réel : largeur > 720px
-    // (donc le breakout fonctionne, pas juste un width:100% dans la colonne étroite) et hauteur
-    // ample (≥ 28rem = 448px). Capacité réelle, pas l'enveloppe (L-019).
-    const box = await page.locator('.map-measure__canvas').boundingBox();
-    expect(box).not.toBeNull();
-    // Viewport e2e par défaut (1280px) : le breakout (1100px) dépasse nettement la colonne 720px.
-    expect(box!.width).toBeGreaterThan(720);
-    expect(box!.height).toBeGreaterThanOrEqual(448);
-  },
-);
-
-// ── D4 — CENTRAGE RÉEL de la carte sur l'adresse géocodée (capacité, pas l'enveloppe — L-019). ──
-//
-// L'adresse est complétée SANS choisir de suggestion (saisie/préremplie) : la carte se centrait
-// alors sur Gatineau (bug D4). Désormais `submit()` géocode (réutilise `suggest`) et pose lat/lng.
-// On mocke `suggest` avec des coordonnées CONNUES (≠ base Gatineau) puis on prouve, via
-// `window.ng.getComponent()` sur `app-map-measure`, que les inputs lat/lng valent EXACTEMENT les
-// valeurs géocodées — donc que la carte est centrée sur l'adresse, pas sur le repli.
-test('D4 — la carte est CENTRÉE sur l’adresse géocodée (pas sur Gatineau)', async ({ page }) => {
+// L'adresse est renseignée SANS choisir de suggestion (saisie manuelle) : sans géocodage la carte
+// se centrerait sur le repli Gatineau (bug D4). Désormais « Centrer la carte » géocode (réutilise
+// `suggest`) et pose lat/lng. On mocke `suggest` avec des coordonnées CONNUES (≠ base Gatineau) puis
+// on prouve, via `window.ng.getComponent()` sur `app-map-measure`, que les inputs lat/lng valent
+// EXACTEMENT les valeurs géocodées — donc que la carte est centrée sur l'adresse, pas sur le repli.
+test('voie « carte » D4 — la carte est CENTRÉE sur l’adresse géocodée (pas sur Gatineau)', async ({
+  page,
+}) => {
   test.setTimeout(60000);
   // Coordonnées en zone mais nettement distinctes de la base (45.4765/-75.7013).
   const GEO = { lat: 45.3201, lng: -75.8702 };
   await mockApi(page, [suggestion(GEO.lat, GEO.lng, 'Gatineau')]);
-  await completeAddress(page, 'Gatineau');
-
-  // Bascule en mode carte et attend le conteneur (barrière, jamais waitForTimeout — L-012).
-  await page.getByRole('radio', { name: /mesurer sur la carte/i }).click();
+  await page.goto('/mesurer');
+  await chooseVoie(page, /mesurer sur la carte/i);
   await expect(page.locator('.leaflet-container')).toBeVisible({ timeout: 30000 });
+
+  // Renseigne l'adresse (sans suggestion) → géocodage (barrière réseau, L-012) → centrage.
+  await fillMapAddress(page, 'Gatineau');
 
   // CAPACITÉ : on lit les inputs réels du composant carte servi (bundle courant, pas un zombie —
   // L-017). lat/lng DOIVENT être les valeurs géocodées, surtout PAS le repli Gatineau.
+  await expect
+    .poll(
+      () =>
+        page.locator('app-map-measure').evaluate((el) => {
+          const cmp = (
+            window as unknown as {
+              ng: { getComponent(node: Element): { lat(): number | null } };
+            }
+          ).ng.getComponent(el);
+          return cmp.lat();
+        }),
+      { timeout: 10000 },
+    )
+    .toBeCloseTo(GEO.lat, 4);
+
   const coords = await page.locator('app-map-measure').evaluate((el) => {
-    const cmp = (window as unknown as { ng: { getComponent(node: Element): { lat(): number | null; lng(): number | null } } }).ng.getComponent(el);
+    const cmp = (
+      window as unknown as {
+        ng: { getComponent(node: Element): { lat(): number | null; lng(): number | null } };
+      }
+    ).ng.getComponent(el);
     return { lat: cmp.lat(), lng: cmp.lng() };
   });
   expect(coords.lat).toBeCloseTo(GEO.lat, 4);
@@ -294,53 +386,41 @@ test('D4 — la carte est CENTRÉE sur l’adresse géocodée (pas sur Gatineau)
   expect(coords.lat).not.toBeCloseTo(45.4765, 3);
 });
 
-// ── D5 — AVERTISSEMENT « hors zone » (doux, NON bloquant) + CONTRASTE DUAL-THÈME. ───────────────
+// ── (c) VOIE `map` — D5 : AVERTISSEMENT « hors zone » (doux, NON bloquant) + CONTRASTE DUAL-THÈME. ─
 //
 // Adresse géocodée hors zone (Montréal ~160 km) → un `role="status"` informe l'utilisateur sans
-// bloquer la mesure. Le bandeau « hors zone » introduit des couleurs : `color-contrast` est
-// DÉSACTIVÉ en vitest (L-016), donc on valide le contraste ICI (app réelle, `WCAG_TAGS` ⇒ règle
-// incluse) dans LES DEUX thèmes (motion-a11y §2) — `/mesurer` n'étant pas couvert par le balayage
-// dual-thème de `motion-a11y.spec.ts`.
-
-/** Force le thème via localStorage AVANT navigation (même mécanisme que motion-a11y). */
-function forceTheme(page: Page, theme: 'light' | 'dark'): Promise<void> {
-  return page.addInitScript((t) => {
-    try {
-      localStorage.setItem('abristempo-theme', t);
-    } catch {
-      /* localStorage indisponible — ignoré */
-    }
-  }, theme);
-}
-
+// bloquer la mesure. Le bandeau « hors zone » (`--color-warning-solid`/`--color-bg-muted`) et le
+// bouton `.btn--outline` introduisent des couleurs : `color-contrast` est DÉSACTIVÉ en vitest (L-016),
+// donc on valide le contraste ICI (app réelle, `WCAG_TAGS` ⇒ règle incluse) dans LES DEUX thèmes
+// (motion-a11y §2) — la voie carte n'étant pas couverte par le scan dual-thème de motion-a11y.spec.ts.
 for (const theme of ['light', 'dark'] as const) {
-  test(`D5 — hors zone : avertissement role="status", mesure possible, zéro axe contraste (${theme})`, async ({
+  test(`voie « carte » D5 — hors zone : avertissement role="status", zéro axe contraste (${theme})`, async ({
     page,
   }) => {
     test.setTimeout(60000);
     await forceTheme(page, theme);
     // Montréal — hors zone de service.
     await mockApi(page, [suggestion(45.5019, -73.5674, 'Montréal')]);
-    await completeAddress(page, 'Montréal');
+    await page.goto('/mesurer');
+    await chooseVoie(page, /mesurer sur la carte/i);
+    await expect(page.locator('.leaflet-container')).toBeVisible({ timeout: 30000 });
     await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
 
+    // Renseigne l'adresse hors zone (sans suggestion) → géocodage → centrage + avertissement.
+    await fillMapAddress(page, 'Montréal');
+
     // POSITIF (L-009) : l'avertissement « hors zone » est annoncé en role="status".
-    const warning = page.getByText(/hors de notre zone de livraison/i);
+    const warning = page.getByText(/hors de notre zone/i);
     await expect(warning).toBeVisible();
     await expect(warning).toHaveAttribute('role', 'status');
 
-    // CONTRASTE inclus (app réelle, WCAG_TAGS) sur l'ÉTAPE MESURE, où vit mon bandeau « hors zone »
-    // (c'est ma surface) — `color-contrast` inclus, dans les deux thèmes (motion-a11y §2). L'ancien
-    // badge « ajusté serré » de l'étape résultats (et son défaut de contraste préexistant) a été
-    // retiré par EPIC 10 ; le contraste de l'étape résultats est désormais couvert par un balayage
-    // dual-thème dédié ci-dessus.
-    const onMeasure = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
-    expect(onMeasure.violations).toEqual([]);
-
-    // NON BLOQUANT (fonctionnel, sans dépendre du thème) : on peut toujours mesurer jusqu'aux
-    // résultats malgré l'avertissement « hors zone ».
-    await page.getByLabel(/berline/i).fill('1');
-    await page.getByRole('button', { name: /calculer le gabarit/i }).click();
-    await expect(page.getByRole('heading', { level: 2, name: /résultats/i })).toBeVisible();
+    // CONTRASTE inclus (app réelle, WCAG_TAGS) sur la voie carte, où vivent le bandeau « hors zone »
+    // et le bouton `.btn--outline` — color-contrast inclus, dans les deux thèmes (motion-a11y §2).
+    // On exclut le widget tiers `.leaflet-container` (internes Leaflet/geoman, mode pointer-only).
+    const onMap = await new AxeBuilder({ page })
+      .withTags(WCAG_TAGS)
+      .exclude('.leaflet-container')
+      .analyze();
+    expect(onMap.violations).toEqual([]);
   });
 }

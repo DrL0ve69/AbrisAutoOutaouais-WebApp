@@ -2573,40 +2573,88 @@
         <target>Tool</target>
       </trans-unit>
       <trans-unit id="mesurer.title" datatype="html">
-        <source>Mesurer mon stationnement</source>
-        <target>Measure my driveway</target>
+        <source>Trouver mon abri</source>
+        <target>Find my shelter</target>
       </trans-unit>
       <trans-unit id="mesurer.lead" datatype="html">
-        <source> Trouvez l&apos;abri Tempo adapté à votre espace en trois étapes : votre adresse, la mesure de votre stationnement, puis nos abris compatibles. </source>
-        <target> Find the Tempo shelter that fits your space in three steps: your address, the measurement of your driveway, then our compatible shelters. </target>
+        <source> Trouvez l&apos;abri Tempo adapté à votre espace en deux étapes : dimensionnez votre stationnement, puis découvrez nos abris compatibles et nos conseils. </source>
+        <target> Find the Tempo shelter that fits your space in two steps: size your driveway, then discover our compatible shelters and advice. </target>
       </trans-unit>
       <trans-unit id="mesurer.progressLabel" datatype="html">
         <source>Progression</source>
         <target>Progress</target>
       </trans-unit>
       <trans-unit id="mesurer.back" datatype="html">
-        <source> ← Modifier l&apos;adresse </source>
-        <target> ← Edit the address </target>
+        <source> ← Refaire le dimensionnement </source>
+        <target> ← Resize again </target>
       </trans-unit>
-      <trans-unit id="mesurer.backMeasure" datatype="html">
-        <source> ← Refaire la mesure </source>
-        <target> ← Measure again </target>
+      <trans-unit id="mesurer.step.dimension" datatype="html">
+        <source>Dimensionner</source>
+        <target>Size</target>
       </trans-unit>
-      <trans-unit id="mesurer.step.address" datatype="html">
-        <source>Adresse</source>
-        <target>Address</target>
-      </trans-unit>
-      <trans-unit id="mesurer.step.measure" datatype="html">
-        <source>Mesure</source>
-        <target>Measurement</target>
-      </trans-unit>
-      <trans-unit id="mesurer.step.results" datatype="html">
-        <source>Résultats</source>
-        <target>Results</target>
+      <trans-unit id="mesurer.step.conseil" datatype="html">
+        <source>Conseil</source>
+        <target>Advice</target>
       </trans-unit>
       <trans-unit id="mesurer.step.announce" datatype="html">
-        <source>Étape <x id="step" equiv-text="this.step()"/> sur 3 : <x id="title" equiv-text="this.currentTitle()"/></source>
-        <target>Step <x id="step" equiv-text="this.step()"/> of 3: <x id="title" equiv-text="this.currentTitle()"/></target>
+        <source>Étape <x id="step" equiv-text="this.step()"/> sur 2 : <x id="title" equiv-text="this.currentTitle()"/></source>
+        <target>Step <x id="step" equiv-text="this.step()"/> of 2: <x id="title" equiv-text="this.currentTitle()"/></target>
+      </trans-unit>
+      <trans-unit id="mesurer.dimension.group" datatype="html">
+        <source>Comment souhaitez-vous obtenir vos dimensions ?</source>
+        <target>How would you like to obtain your dimensions?</target>
+      </trans-unit>
+      <trans-unit id="mesurer.dimension.mapPlaceholder" datatype="html">
+        <source>Préparation de la carte satellite…</source>
+        <target>Preparing the satellite map…</target>
+      </trans-unit>
+      <trans-unit id="mesurer.dimension.mapLoading" datatype="html">
+        <source>Chargement de la carte…</source>
+        <target>Loading the map…</target>
+      </trans-unit>
+      <trans-unit id="mesurer.dimension.known" datatype="html">
+        <source>Je connais mes dimensions</source>
+        <target>I know my dimensions</target>
+      </trans-unit>
+      <trans-unit id="mesurer.dimension.vehicles" datatype="html">
+        <source>Par mes véhicules</source>
+        <target>By my vehicles</target>
+      </trans-unit>
+      <trans-unit id="mesurer.dimension.map" datatype="html">
+        <source>Mesurer sur la carte</source>
+        <target>Measure on the map</target>
+      </trans-unit>
+      <trans-unit id="mesurer.known.legend" datatype="html">
+        <source> Dimensions du stationnement (en pieds) </source>
+        <target> Driveway dimensions (in feet) </target>
+      </trans-unit>
+      <trans-unit id="mesurer.known.hint" datatype="html">
+        <source> Indiquez la largeur et la longueur de l&apos;espace à couvrir. Nous proposerons les abris Tempo compatibles. </source>
+        <target> Enter the width and length of the space to cover. We will suggest the compatible Tempo shelters. </target>
+      </trans-unit>
+      <trans-unit id="mesurer.known.width" datatype="html">
+        <source>Largeur (pi)</source>
+        <target>Width (ft)</target>
+      </trans-unit>
+      <trans-unit id="mesurer.known.widthErr" datatype="html">
+        <source> Entrez une largeur entre 1 et 65 pieds. </source>
+        <target> Enter a width between 1 and 65 feet. </target>
+      </trans-unit>
+      <trans-unit id="mesurer.known.length" datatype="html">
+        <source>Longueur (pi)</source>
+        <target>Length (ft)</target>
+      </trans-unit>
+      <trans-unit id="mesurer.known.lengthErr" datatype="html">
+        <source> Entrez une longueur entre 1 et 65 pieds. </source>
+        <target> Enter a length between 1 and 65 feet. </target>
+      </trans-unit>
+      <trans-unit id="mesurer.known.compute" datatype="html">
+        <source> Voir les abris compatibles </source>
+        <target> View compatible shelters </target>
+      </trans-unit>
+      <trans-unit id="mesurer.known.outOfRange" datatype="html">
+        <source> Les dimensions saisies dépassent la taille maximale prise en charge. Réduisez la largeur ou la longueur. </source>
+        <target> The dimensions entered exceed the maximum supported size. Reduce the width or the length. </target>
       </trans-unit>
       <trans-unit id="mesurer.address.lead" datatype="html">
         <source> Indiquez l&apos;adresse du stationnement à couvrir. Choisissez une suggestion pour situer la carte satellite à l&apos;étape suivante. </source>
@@ -2645,12 +2693,16 @@
         <target> Locating address… </target>
       </trans-unit>
       <trans-unit id="mesurer.address.outOfZone" datatype="html">
-        <source> Cette adresse semble hors de notre zone de livraison et d&apos;installation (rayon d&apos;environ 100 km). Pour les cas spéciaux, contactez-nous : nous vérifierons la faisabilité. </source>
-        <target> This address appears to be outside our delivery and installation area (≈100 km radius). For special cases, contact us and we will check feasibility. </target>
+        <source> Cette adresse semble hors de notre zone de livraison et d&apos;installation (rayon d&apos;environ 100 km). Vous pouvez tout de même mesurer votre stationnement. </source>
+        <target> This address seems outside our delivery and installation area (radius of about 100 km). You can still measure your driveway. </target>
       </trans-unit>
-      <trans-unit id="mesurer.address.next" datatype="html">
-        <source> Continuer vers la mesure </source>
-        <target> Continue to measurement </target>
+      <trans-unit id="mesurer.map.centerHint" datatype="html">
+        <source> La carte se centre sur votre adresse. Ajustez-la au besoin, puis tracez votre stationnement. </source>
+        <target> The map centres on your address. Adjust it if needed, then draw your driveway. </target>
+      </trans-unit>
+      <trans-unit id="mesurer.map.centerButton" datatype="html">
+        <source> Centrer la carte sur cette adresse </source>
+        <target> Centre the map on this address </target>
       </trans-unit>
       <trans-unit id="mesurer.map.instructions" datatype="html">
         <source> La carte se manipule à la souris ou au tactile : utilisez l&apos;outil rectangle (en haut à droite) pour tracer votre stationnement. Pour un calcul entièrement au clavier, revenez au calculateur de véhicules. </source>
@@ -2668,38 +2720,6 @@
         <source> Adresse non localisée précisément — la carte est centrée sur Gatineau par défaut. Repérez votre stationnement avant de tracer le rectangle. </source>
         <target> Address not precisely located — the map is centred on Gatineau by default. Locate your driveway before drawing the rectangle. </target>
       </trans-unit>
-      <trans-unit id="mesurer.method.group" datatype="html">
-        <source>Méthode de mesure</source>
-        <target>Measurement method</target>
-      </trans-unit>
-      <trans-unit id="mesurer.method.calculator" datatype="html">
-        <source> Calculateur de véhicules </source>
-        <target> Vehicle calculator </target>
-      </trans-unit>
-      <trans-unit id="mesurer.method.map" datatype="html">
-        <source> Mesurer sur la carte </source>
-        <target> Measure on the map </target>
-      </trans-unit>
-      <trans-unit id="mesurer.method.mapPlaceholder" datatype="html">
-        <source>Préparation de la carte satellite…</source>
-        <target>Preparing the satellite map…</target>
-      </trans-unit>
-      <trans-unit id="mesurer.method.mapLoading" datatype="html">
-        <source>Chargement de la carte…</source>
-        <target>Loading the map…</target>
-      </trans-unit>
-      <trans-unit id="mesurer.calc.modeGroup" datatype="html">
-        <source>Méthode de calcul</source>
-        <target>Calculation method</target>
-      </trans-unit>
-      <trans-unit id="mesurer.calc.modeVehicles" datatype="html">
-        <source> Par véhicules </source>
-        <target> By vehicles </target>
-      </trans-unit>
-      <trans-unit id="mesurer.calc.modeManual" datatype="html">
-        <source> Dimensions manuelles </source>
-        <target> Manual dimensions </target>
-      </trans-unit>
       <trans-unit id="mesurer.calc.vehiclesLegend" datatype="html">
         <source> Combien de véhicules à abriter ? </source>
         <target> How many vehicles to shelter? </target>
@@ -2711,26 +2731,6 @@
       <trans-unit id="mesurer.calc.compute" datatype="html">
         <source> Calculer le gabarit </source>
         <target> Calculate the footprint </target>
-      </trans-unit>
-      <trans-unit id="mesurer.calc.manualLegend" datatype="html">
-        <source> Dimensions du stationnement (en pieds) </source>
-        <target> Driveway dimensions (in feet) </target>
-      </trans-unit>
-      <trans-unit id="mesurer.calc.width" datatype="html">
-        <source>Largeur (pi)</source>
-        <target>Width (ft)</target>
-      </trans-unit>
-      <trans-unit id="mesurer.calc.widthErr" datatype="html">
-        <source> Entrez une largeur entre 1 et 65 pieds. </source>
-        <target> Enter a width between 1 and 65 feet. </target>
-      </trans-unit>
-      <trans-unit id="mesurer.calc.length" datatype="html">
-        <source>Longueur (pi)</source>
-        <target>Length (ft)</target>
-      </trans-unit>
-      <trans-unit id="mesurer.calc.lengthErr" datatype="html">
-        <source> Entrez une longueur entre 1 et 65 pieds. </source>
-        <target> Enter a length between 1 and 65 feet. </target>
       </trans-unit>
       <trans-unit id="mesurer.calc.outOfRange" datatype="html">
         <source> Le gabarit obtenu dépasse la taille maximale prise en charge. Réduisez le nombre de véhicules ou ajustez les dimensions. </source>

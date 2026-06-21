@@ -4,7 +4,7 @@ import { registerLocaleData } from '@angular/common';
 import localeFrCa from '@angular/common/locales/fr-CA';
 import { describe, it, expect, vi } from 'vitest';
 import { of } from 'rxjs';
-import { ResultsStepComponent } from './results-step';
+import { ConseilStepComponent } from './conseil-step';
 import { ShelterSuggestionService } from '../../../../core/services/shelter-suggestion.service';
 import { ShelterFitResult } from '../../../../core/models/shelter-fit.model';
 import { Footprint } from '../../util/footprint.util';
@@ -55,14 +55,14 @@ async function setup(results: ShelterFitResult[]) {
   const service: Partial<ShelterSuggestionService> = {
     suggestModels: vi.fn().mockReturnValue(of(results)),
   };
-  const rendered = await render(ResultsStepComponent, {
+  const rendered = await render(ConseilStepComponent, {
     inputs: { footprint: FOOTPRINT },
     providers: [provideRouter([]), { provide: ShelterSuggestionService, useValue: service }],
   });
   return { ...rendered, service };
 }
 
-describe('ResultsStepComponent', () => {
+describe('ConseilStepComponent', () => {
   it('appelle suggestModels avec le gabarit et rend une section par catégorie', async () => {
     const { service } = await setup(RESULTS);
     expect(service.suggestModels).toHaveBeenCalledWith(488, 914);

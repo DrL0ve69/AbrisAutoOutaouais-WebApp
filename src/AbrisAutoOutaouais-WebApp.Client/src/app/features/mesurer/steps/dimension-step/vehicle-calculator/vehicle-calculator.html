@@ -1,0 +1,69 @@
+<div class="calc">
+  <form class="calc__form" [formGroup]="vehiclesForm" (ngSubmit)="computeVehicles()">
+    <fieldset class="calc__fieldset">
+      <legend class="calc__legend" i18n="@@mesurer.calc.vehiclesLegend">
+        Combien de véhicules à abriter&nbsp;?
+      </legend>
+      <p class="calc__hint" i18n="@@mesurer.calc.vehiclesHint">
+        Indiquez la quantité par type. Un dégagement est ajouté automatiquement pour ouvrir
+        les portières et circuler.
+      </p>
+
+      @for (row of vehicleRows; track row.type) {
+      <div class="calc__row">
+        <label [attr.for]="'veh-' + row.type">{{ row.label }}</label>
+        <input
+          [id]="'veh-' + row.type"
+          type="number"
+          inputmode="numeric"
+          min="0"
+          max="6"
+          step="1"
+          [formControlName]="row.type" />
+      </div>
+      }
+    </fieldset>
+
+    <!-- Orientation : visible seulement avec ≥ 2 véhicules (sinon sans effet). Radiogroup APG
+         (roving tabindex + flèches/Home/End — L-015). -->
+    @if (showOrientation()) {
+    <div
+      class="calc__orientation"
+      role="radiogroup"
+      aria-label="Disposition des véhicules"
+      i18n-aria-label="@@mesurer.calc.orientationGroup">
+      <span class="calc__orientation-label" i18n="@@mesurer.calc.orientationPrompt">
+        Comment les véhicules sont-ils disposés&nbsp;?
+      </span>
+      @for (o of orientations; track o) {
+      <button
+        #orientationRadio
+        type="button"
+        class="calc__orientation-option"
+        [class.calc__orientation-option--active]="orientation() === o"
+        role="radio"
+        [attr.aria-checked]="orientation() === o"
+        [attr.tabindex]="orientation() === o ? 0 : -1"
+        (click)="setOrientation(o)"
+        (keydown)="onOrientationKeydown($event)">
+        {{ orientationLabels[o] }}
+      </button>
+      }
+    </div>
+    }
+
+    <button type="submit" class="btn btn--primary calc__submit" i18n="@@mesurer.calc.compute">
+      Calculer le gabarit
+    </button>
+  </form>
+
+  <!-- Annonce « hors plage » (scopée, ancrée par texte — L-010). -->
+  <p class="calc__status" role="status" aria-live="polite" aria-atomic="true">
+    @if (outOfRange()) {
+    <ng-container i18n="@@mesurer.calc.outOfRange">
+      Le gabarit obtenu dépasse la taille maximale prise en charge. Réduisez le nombre de
+      véhicules ou ajustez les dimensions.
+    </ng-container>
+    }
+  </p>
+</div>

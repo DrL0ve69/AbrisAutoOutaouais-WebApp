@@ -171,6 +171,11 @@ test.describe('connecté avec adresse de profil', () => {
   }) => {
     await page.goto('/mesurer');
 
+    // EPIC 13 : l'adresse vit DÉSORMAIS dans la voie « Mesurer sur la carte » de l'étape
+    // « Dimensionner » (plus d'étape adresse préalable). On sélectionne d'abord la voie carte
+    // pour révéler l'input adresse (L-037 : migrer la couverture, pas la supprimer).
+    await page.getByRole('radio', { name: /mesurer sur la carte/i }).click();
+
     await expect(page.getByText('Adresse de mon profil')).toBeVisible();
     await expect(page.getByText(FORMATTED)).toBeVisible();
     await expect(page.locator('#mesurer-rue')).toHaveCount(0);
@@ -228,6 +233,8 @@ test.describe('anonyme (aucune adresse de profil)', () => {
 
   test('Mesurer (/mesurer) — formulaire direct, AUCUNE pastille', async ({ page }) => {
     await page.goto('/mesurer');
+    // EPIC 13 : l'adresse vit dans la voie « Mesurer sur la carte » → on la sélectionne d'abord.
+    await page.getByRole('radio', { name: /mesurer sur la carte/i }).click();
     await expect(page.locator('#mesurer-rue')).toBeVisible();
     await expect(page.getByText('Adresse de mon profil')).toHaveCount(0);
   });
@@ -239,10 +246,10 @@ test.describe('anonyme (aucune adresse de profil)', () => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// MESURER — en mode profil, « Continuer » géocode l'adresse profil et centre la carte.
+// MESURER — en mode profil (voie carte), l'adresse profil est AUTO-géocodée et la carte se centre.
 // ─────────────────────────────────────────────────────────────────────────────
 
-test('Mesurer — mode profil : « Continuer » géocode l’adresse profil et CENTRE la carte (capacité, L-019)', async ({
+test('Mesurer — mode profil (voie carte) : l’adresse profil est AUTO-géocodée et la carte CENTRÉE (capacité, L-019)', async ({
   page,
 }) => {
   test.setTimeout(60000);
@@ -273,22 +280,33 @@ test('Mesurer — mode profil : « Continuer » géocode l’adresse profil et C
   );
 
   await page.goto('/mesurer');
-  await expect(page.getByText('Adresse de mon profil')).toBeVisible();
-
-  // En mode profil, « Continuer » est toujours visible : il géocode l'adresse profil (barrière
-  // réseau sur `suggest`, jamais waitForTimeout — L-012) puis avance à l'étape Mesure.
-  const submit = page.getByRole('button', { name: /continuer vers la mesure/i });
+  // EPIC 13 : l'adresse vit dans la voie « Mesurer sur la carte ». On la sélectionne ; en mode
+  // profil (D6/L-003), `MapVoieComponent` géocode AUTOMATIQUEMENT l'adresse profil (`/auth/me`) et
+  // centre la carte dessus, sans action utilisateur. Barrière réseau sur `suggest` (L-012).
   await Promise.all([
     page.waitForResponse((r) => /places\/suggest/.test(r.url())),
-    submit.click(),
+    page.getByRole('radio', { name: /mesurer sur la carte/i }).click(),
   ]);
-  await expect(page.getByRole('heading', { level: 2, name: /mesure/i })).toBeVisible();
-
-  // Bascule en mode carte, attend le conteneur (barrière, L-012).
-  await page.getByRole('radio', { name: /mesurer sur la carte/i }).click();
+  await expect(page.getByText('Adresse de mon profil')).toBeVisible();
   await expect(page.locator('.leaflet-container')).toBeVisible({ timeout: 30000 });
 
   // CAPACITÉ (L-019) : la carte est CENTRÉE sur l'adresse profil géocodée, pas sur le repli Gatineau.
+  // Le centrage suit la résolution asynchrone du géocodage → on poll l'input `lat()` jusqu'à la valeur.
+  await expect
+    .poll(
+      () =>
+        page.locator('app-map-measure').evaluate((el) => {
+          const cmp = (
+            window as unknown as {
+              ng: { getComponent(node: Element): { lat(): number | null } };
+            }
+          ).ng.getComponent(el);
+          return cmp.lat();
+        }),
+      { timeout: 10000 },
+    )
+    .toBeCloseTo(GEO.lat, 4);
+
   const coords = await page.locator('app-map-measure').evaluate((el) => {
     const cmp = (
       window as unknown as {

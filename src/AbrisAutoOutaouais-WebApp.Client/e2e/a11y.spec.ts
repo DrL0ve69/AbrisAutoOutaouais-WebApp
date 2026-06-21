@@ -183,14 +183,14 @@ const routes = [
         page.getByRole('heading', { level: 2, name: /foire aux questions/i }),
       ).toBeVisible(),
   },
-  // Outil « Mesurer » — on atterrit sur l'étape 1 (Adresse) : AUCUNE carte n'est rendue
-  // (la carte vit derrière un `@defer (on viewport)` à l'étape 2), donc AUCUNE exclusion
-  // axe ici — la page entière est scannée.
+  // Outil « Trouver mon abri » (EPIC 13) — on atterrit sur l'étape 1 « Dimensionner », voie
+  // « véhicules » par défaut : AUCUNE carte n'est rendue (la carte vit dans la voie « carte »,
+  // derrière un `@defer`), donc AUCUNE exclusion axe ici — la page entière est scannée.
   {
-    nom: 'Mesurer (/mesurer) — étape adresse',
+    nom: 'Mesurer (/mesurer) — étape Dimensionner',
     chemin: '/mesurer',
     pret: (page: Page) =>
-      expect(page.getByRole('heading', { level: 2, name: /adresse/i })).toBeVisible(),
+      expect(page.getByRole('heading', { level: 2, name: /dimensionner/i })).toBeVisible(),
   },
 ] as const;
 

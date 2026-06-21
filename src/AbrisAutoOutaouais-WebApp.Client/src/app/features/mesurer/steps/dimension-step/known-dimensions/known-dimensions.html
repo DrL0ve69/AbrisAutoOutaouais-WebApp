@@ -1,0 +1,65 @@
+<div class="known">
+  <form class="known__form" [formGroup]="form" (ngSubmit)="compute()" novalidate>
+    <fieldset class="known__fieldset">
+      <legend class="known__legend" i18n="@@mesurer.known.legend">
+        Dimensions du stationnement (en pieds)
+      </legend>
+      <p class="known__hint" i18n="@@mesurer.known.hint">
+        Indiquez la largeur et la longueur de l'espace à couvrir. Nous proposerons les abris
+        Tempo compatibles.
+      </p>
+
+      <div class="known__row">
+        <label for="known-width" i18n="@@mesurer.known.width">Largeur (pi)</label>
+        <input
+          id="known-width"
+          type="number"
+          inputmode="decimal"
+          min="1"
+          max="65"
+          step="0.5"
+          formControlName="widthFt"
+          [attr.aria-invalid]="f.widthFt.touched && f.widthFt.invalid"
+          aria-describedby="known-width-err" />
+        @if (f.widthFt.touched && f.widthFt.invalid) {
+        <p id="known-width-err" class="known__error" role="alert" i18n="@@mesurer.known.widthErr">
+          Entrez une largeur entre 1 et 65 pieds.
+        </p>
+        }
+      </div>
+
+      <div class="known__row">
+        <label for="known-length" i18n="@@mesurer.known.length">Longueur (pi)</label>
+        <input
+          id="known-length"
+          type="number"
+          inputmode="decimal"
+          min="1"
+          max="65"
+          step="0.5"
+          formControlName="lengthFt"
+          [attr.aria-invalid]="f.lengthFt.touched && f.lengthFt.invalid"
+          aria-describedby="known-length-err" />
+        @if (f.lengthFt.touched && f.lengthFt.invalid) {
+        <p id="known-length-err" class="known__error" role="alert" i18n="@@mesurer.known.lengthErr">
+          Entrez une longueur entre 1 et 65 pieds.
+        </p>
+        }
+      </div>
+    </fieldset>
+
+    <button type="submit" class="btn btn--primary known__submit" i18n="@@mesurer.known.compute">
+      Voir les abris compatibles
+    </button>
+  </form>
+
+  <!-- Annonce « hors plage » (scopée, ancrée par texte — L-010). -->
+  <p class="known__status" role="status" aria-live="polite" aria-atomic="true">
+    @if (outOfRange()) {
+    <ng-container i18n="@@mesurer.known.outOfRange">
+      Les dimensions saisies dépassent la taille maximale prise en charge. Réduisez la largeur
+      ou la longueur.
+    </ng-container>
+    }
+  </p>
+</div>
