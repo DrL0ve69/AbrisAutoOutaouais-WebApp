@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Text;
 using AbrisAutoOutaouais_WebApp.Application.Common.Models;
 using AbrisAutoOutaouais_WebApp.Application.Products.Queries.GetShelterCatalog;
-using AbrisAutoOutaouais_WebApp.Application.Products.Queries.SuggestShelters;
 using AbrisAutoOutaouais_WebApp.Domain.Entities;
 
 namespace AbrisAutoOutaouais_WebApp.IntegrationTest.Products;
@@ -307,56 +306,6 @@ public sealed class ProductsEndpointTests : IClassFixture<WebAppFactory>
         problem!.Status.Should().Be(422);
 
         _client.DefaultRequestHeaders.Authorization = null;
-    }
-
-    // ── GET /api/v1/products/suggest-shelters ────────────────────────────────
-
-    /// <summary>Seed direct avec dimensions (DbHelper.SeedProductAsync n'expose pas les dims).</summary>
-    private async Task SeedShelterAsync(string name, string slug, int widthCm, int lengthCm)
-    {
-        using var scope = _factory.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        var category = ProductCategory.Create($"Cat {slug}", $"cat-{slug}");
-        var product = Product.Create(
-            name, slug, 199.99m, 5, category.Id, widthCm: widthCm, lengthCm: lengthCm);
-        db.ProductCategories.Add(category);
-        db.Products.Add(product);
-        await db.SaveChangesAsync();
-    }
-
-    [Fact]
-    public async Task SuggestShelters_Anonymous_Returns200WithFilteredSortedList()
-    {
-        await SeedShelterAsync("Suggest Grand", "suggest-grand", widthCm: 600, lengthCm: 600);
-        await SeedShelterAsync("Suggest Petit", "suggest-petit", widthCm: 400, lengthCm: 500);
-        await SeedShelterAsync("Suggest Trop Petit", "suggest-trop-petit", widthCm: 200, lengthCm: 200);
-
-        var response = await _client.GetAsync(
-            "/api/v1/products/suggest-shelters?requiredWidthCm=300&requiredLengthCm=400");
-
-        // La route littérale prime sur {slug} : on obtient bien une LISTE (200), pas un 404 GetBySlug.
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var body = await response.Content.ReadFromJsonAsync<List<ShelterSuggestionDto>>();
-        body.Should().NotBeNull();
-
-        var slugs = body!.Select(s => s.Slug).ToList();
-        slugs.Should().Contain(new[] { "suggest-petit", "suggest-grand" });
-        slugs.Should().NotContain("suggest-trop-petit");  // exclu : dimensions < requis
-        // Empreinte croissante : petit (200000) avant grand (360000)
-        slugs.IndexOf("suggest-petit").Should().BeLessThan(slugs.IndexOf("suggest-grand"));
-    }
-
-    [Fact]
-    public async Task SuggestShelters_WithInvalidRequired_Returns422()
-    {
-        // requiredWidthCm=0 viole GreaterThan(0) → confirme que le validator de query
-        // est bien exécuté par le pipeline avant le handler.
-        var response = await _client.GetAsync(
-            "/api/v1/products/suggest-shelters?requiredWidthCm=0&requiredLengthCm=400");
-
-        response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
-        var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>();
-        problem!.Status.Should().Be(422);
     }
 
     // ── GET /api/v1/products/shelter-catalog ─────────────────────────────────

@@ -13,10 +13,11 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence;
 ///  1. Premier démarrage (table vide) → crée catégories + produits.
 ///  2. Table déjà peuplée → BACKFILL (G3) : les dimensions hors-tout et la marque/modèle ont
 ///     été ajoutées APRÈS le premier seed (D1 puis G1) ; un dev DB déjà semé portait donc des
-///     produits aux <c>WidthCm</c>/<c>Brand</c> NULL, ce qui faisait retourner « suggest-shelters »
-///     systématiquement vide (la proposition d'abris ne fonctionnait pas). Le backfill renseigne
-///     ces champs, par SLUG (donc seulement le catalogue connu — jamais un produit créé/édité par
-///     un admin), et UNIQUEMENT quand ils sont absents (n'écrase pas une valeur déjà saisie).
+///     produits aux <c>WidthCm</c>/<c>Brand</c> NULL, ce qui faisait retourner le catalogue marque
+///     (« shelter-catalog », alimentant le formulaire d'installation) systématiquement vide. Le
+///     backfill renseigne ces champs, par SLUG (donc seulement le catalogue connu — jamais un
+///     produit créé/édité par un admin), et UNIQUEMENT quand ils sont absents (n'écrase pas une
+///     valeur déjà saisie).
 /// </summary>
 public static class ProductSeeder
 {
@@ -176,8 +177,8 @@ public static class ProductSeeder
     /// jamais une donnée saisie par un admin. Idempotent : un 2e passage ne change rien.
     /// </summary>
     // internal (et non private) pour permettre un test de non-régression direct (L-005) : le
-    // backfill répare « suggest-shelters vide » et doit donc être gardé par CI. Cf.
-    // ProductSeederBackfillTests. InternalsVisibleTo est déjà posé sur le projet UnitTest.
+    // backfill répare « catalogue marque (shelter-catalog) vide » et doit donc être gardé par CI.
+    // Cf. ProductSeederBackfillTests. InternalsVisibleTo est déjà posé sur le projet UnitTest.
     internal static async Task BackfillShelterDataAsync(ApplicationDbContext db, ILogger logger)
     {
         var slugs = ShelterSpecs.Select(s => s.Slug)
