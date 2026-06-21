@@ -37,7 +37,11 @@ public sealed class SuggestShelterModelsQueryHandler(IApplicationDbContext db)
         var fitted = models
             .Select(m =>
             {
-                var widthCm = m.WidthOptionsCm[0]; // « une largeur = un modèle » : une seule valeur.
+                // « une largeur = un modèle » : une seule valeur attendue. Garde explicite : un modèle
+                // sans largeur (donnée malformée) est ignoré plutôt que de faire planter tout /suggest.
+                if (m.WidthOptionsCm.Count == 0)
+                    return null;
+                var widthCm = m.WidthOptionsCm[0];
                 if (!ShelterFitCalculator.Fits(widthCm, query.RequiredWidthCm))
                     return null;
 

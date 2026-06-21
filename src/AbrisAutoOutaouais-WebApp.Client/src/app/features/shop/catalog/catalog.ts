@@ -154,6 +154,14 @@ export class CatalogComponent implements OnInit {
       this.load(category);
     } else {
       this.load(null);
+      // Deep-link « configure » SANS catégorie paramétrique valide : `loadShelterModels` ne tournera
+      // pas, donc on ouvre l'overlay DIRECTEMENT (le configurateur recharge le modèle par slug). Le
+      // nom reste vide ici → `displayTitle` de l'overlay fournit un repli accessible (jamais vide).
+      if (this.pendingDeepLink) {
+        const { slug: modelSlug, lengthCm } = this.pendingDeepLink;
+        this.pendingDeepLink = null;
+        this.openConfiguratorFromDeepLink(modelSlug, lengthCm);
+      }
     }
   }
 

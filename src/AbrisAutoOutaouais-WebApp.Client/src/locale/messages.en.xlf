@@ -1232,6 +1232,10 @@
       </trans-unit>
 
       <!-- ===== BOUTIQUE — OVERLAY DE CONFIGURATION ===== -->
+      <trans-unit id="shop.overlay.titleFallback" datatype="html">
+        <source>Configuration de l&apos;abri</source>
+        <target>Shelter configuration</target>
+      </trans-unit>
       <trans-unit id="shop.overlay.closeAria" datatype="html">
         <source>Fermer la configuration</source>
         <target>Close the configuration</target>
