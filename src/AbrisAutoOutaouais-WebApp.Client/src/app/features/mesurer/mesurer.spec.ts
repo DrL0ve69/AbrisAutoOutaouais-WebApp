@@ -10,30 +10,32 @@ import { MesurerComponent } from './mesurer';
 import { PlacesService } from '../../core/services/places.service';
 import { ProfileService } from '../../core/services/profile.service';
 import { ShelterSuggestionService } from '../../core/services/shelter-suggestion.service';
-import { ShelterSuggestionDto } from '../../core/models/shelter-suggestion.model';
+import { ShelterFitResult } from '../../core/models/shelter-fit.model';
 import { expectNoA11yViolations } from '../../../testing/axe-helper';
 
 registerLocaleData(localeFrCa);
 
 const VIEWPORT = { width: 1024, height: 768 };
 
-const SHELTER: ShelterSuggestionDto = {
-  id: 's1',
-  name: 'Abri double Tempo',
-  slug: 'abri-double',
-  price: 899,
-  rentalPrice: 79,
-  categoryName: 'Abris doubles',
-  imageUrl: null,
-  widthCm: 320,
-  lengthCm: 620,
-  heightCm: 250,
-  widthMarginCm: 20,
-  lengthMarginCm: 20,
-  isTightFit: false,
-  brand: 'Abris Tempo',
-  model: 'Tempo Duo 18x20',
-};
+const SHELTER_RESULTS: ShelterFitResult[] = [
+  {
+    categorySlug: 'abris-doubles',
+    categoryName: 'Abris doubles',
+    categoryMaxWidthCm: 320,
+    models: [
+      {
+        id: 's1',
+        slug: 'abri-double',
+        name: 'Abri double Tempo',
+        widthCm: 320,
+        basePrice: 899,
+        minLengthCm: 488,
+        lengthStepCm: 122,
+        availableLengthsCm: [488, 610],
+      },
+    ],
+  },
+];
 
 async function setup() {
   await page.viewport(VIEWPORT.width, VIEWPORT.height);
@@ -52,7 +54,7 @@ async function setup() {
     defaultDeliveryAddress: (() => null) as ProfileService['defaultDeliveryAddress'],
   };
   const shelters: Partial<ShelterSuggestionService> = {
-    suggestShelters: vi.fn().mockReturnValue(of([SHELTER])),
+    suggestModels: vi.fn().mockReturnValue(of(SHELTER_RESULTS)),
   };
   const rendered = await render(MesurerComponent, {
     providers: [
@@ -77,7 +79,7 @@ async function completeAddress(user: ReturnType<typeof userEvent.setup>, q: Retu
 }
 
 describe('MesurerComponent — assistant 3 étapes', () => {
-  it('navigue Adresse → Mesure → Résultats et appelle suggest-shelters', async () => {
+  it('navigue Adresse → Mesure → Résultats et appelle la suggestion de modèles', async () => {
     const user = userEvent.setup();
     const { q, shelters } = await setup();
 
@@ -93,7 +95,7 @@ describe('MesurerComponent — assistant 3 étapes', () => {
 
     // Étape 3 : résultats.
     expect(await q.findByRole('heading', { level: 2, name: /résultats/i })).toBeInTheDocument();
-    expect(shelters.suggestShelters).toHaveBeenCalled();
+    expect(shelters.suggestModels).toHaveBeenCalled();
     expect(await q.findByText('Abri double Tempo')).toBeInTheDocument();
   });
 

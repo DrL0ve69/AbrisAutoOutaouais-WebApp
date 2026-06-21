@@ -55,6 +55,9 @@ export class ShelterConfiguratorOverlayComponent implements AfterViewChecked {
   /** Nom du modèle — sert de titre accessible du dialogue (`aria-labelledby`). */
   readonly modelName = input.required<string>();
 
+  /** Longueur initiale (cm), forwardée au configurateur — deep-link depuis `/mesurer` (EPIC 10). */
+  readonly initialLengthCm = input<number | null>(null);
+
   /** Demande de fermeture (Échap / bouton « Fermer » / clic sur le fond). */
   readonly close = output<void>();
 

@@ -2,14 +2,15 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { ShelterSuggestionDto } from '../models/shelter-suggestion.model';
+import { ShelterFitResult } from '../models/shelter-fit.model';
 
 /**
- * Suggestion d'abris adaptés à un gabarit de stationnement (Epic D, D3 → endpoint D2).
+ * Suggestion de MODÈLES d'abris paramétriques adaptés à un gabarit de stationnement
+ * (EPIC 10, US-10.1 → endpoint `GET /shelters/suggest`).
  *
- * Appelle l'endpoint public `GET /products/suggest-shelters` avec la largeur et la longueur
- * requises (cm). Le serveur exige deux entiers `1..2000` (sinon 422) : l'appelant DOIT borner
- * et arrondir AVANT d'appeler (voir `footprint.util`). Singleton applicatif.
+ * Le serveur exige deux entiers `1..2000` (sinon 422) : l'appelant DOIT borner et arrondir AVANT
+ * d'appeler (voir `footprint.util`). Les résultats sont déjà groupés par catégorie et leurs
+ * longueurs admissibles bornées côté serveur. Singleton applicatif.
  */
 @Injectable({ providedIn: 'root' })
 export class ShelterSuggestionService {
@@ -17,18 +18,16 @@ export class ShelterSuggestionService {
   private readonly baseUrl = environment.apiUrl;
 
   /**
-   * Récupère les abris dont l'emprise couvre le gabarit requis (cm).
+   * Récupère les modèles d'abris compatibles avec le gabarit requis (cm), groupés par catégorie.
    * Les paramètres sont supposés déjà bornés/arrondis à des entiers `1..2000`.
    */
-  suggestShelters(
+  suggestModels(
     requiredWidthCm: number,
     requiredLengthCm: number,
-  ): Observable<ShelterSuggestionDto[]> {
+  ): Observable<ShelterFitResult[]> {
     const params = new HttpParams()
       .set('requiredWidthCm', String(requiredWidthCm))
       .set('requiredLengthCm', String(requiredLengthCm));
-    return this.http.get<ShelterSuggestionDto[]>(`${this.baseUrl}/products/suggest-shelters`, {
-      params,
-    });
+    return this.http.get<ShelterFitResult[]>(`${this.baseUrl}/shelters/suggest`, { params });
   }
 }

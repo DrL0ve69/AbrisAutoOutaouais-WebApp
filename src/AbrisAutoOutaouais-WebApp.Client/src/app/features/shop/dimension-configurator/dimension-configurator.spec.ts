@@ -39,11 +39,11 @@ const SINGLE_WIDTH_MODEL: ShelterModelDetail = { ...MODEL, widthOptionsCm: [335]
 
 const base = environment.apiUrl;
 
-async function setup(model: ShelterModelDetail = MODEL) {
+async function setup(model: ShelterModelDetail = MODEL, initialLengthCm: number | null = null) {
   await page.viewport(VIEWPORT.width, VIEWPORT.height);
   const emitted: ShelterConfiguration[] = [];
   const rendered = await render(DimensionConfiguratorComponent, {
-    inputs: { slug: 'simple' },
+    inputs: { slug: 'simple', initialLengthCm },
     on: { configurationChange: (c: ShelterConfiguration) => emitted.push(c) },
     providers: [provideHttpClient(), provideHttpClientTesting()],
   });
@@ -181,6 +181,21 @@ describe('DimensionConfiguratorComponent', () => {
     // La région role="status" finit par porter le message de prix (CD post-réponse serveur).
     const status = await q.findByText(/Prix mis à jour/i);
     expect(status).toHaveAttribute('aria-live', 'polite');
+  });
+
+  it('initialLengthCm (deep-link) : clampe à la plus grande option ≤ valeur demandée (EPIC 10)', async () => {
+    // Demande 500 cm : les options sont 122, 244, 366, 488, 610… → la plus grande ≤ 500 est 488.
+    // Le 1er appel de prix part donc sur 488 (pas 122) : la longueur clampée pilote tout.
+    const { emitted, http } = await setup(MODEL, 500);
+    await flushPrice(http, 488, 3, 649); // 488 = 122 + 3 pas.
+
+    expect(emitted.at(-1)).toMatchObject({ lengthCm: 488 });
+  });
+
+  it('initialLengthCm null/invalide : retombe sur la longueur minimale', async () => {
+    const { http } = await setup(MODEL, null);
+    // Aucun clamp → 1re requête de prix sur la longueur min (122).
+    await flushPrice(http, 122, 0, 349);
   });
 
   it('ne présente aucune violation WCAG A/AA (axe)', async () => {
