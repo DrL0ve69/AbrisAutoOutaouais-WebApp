@@ -16,7 +16,7 @@
 > nits `new FormBuilder()`→`inject()` corrigés) ; **L-042** (target EN figé sur `@@id` réutilisé) +
 > **L-043** (`effect` sur source async) capturées. Gates : `npm run build` ✅ · `npm test` **338/338** ✅ ·
 > `npm run e2e` **130/130** (3 voies + contraste dual-thème non-vacueux) ✅ · i18n 793 symétrique ✅.
-> **PR à ouvrir + CI verte + merge `master`** (clôture d'épic en cours).
+> **PR #51 MERGÉE (`9d3f2a4`)**, CI verte, prod auto-déployée (2026-06-21).
 > **EPIC 10 TERMINÉ (2026-06-21)** : 9 commits sur `feat/epic-10-smart-suggestion` —
 > US-10.1 (suggestion par catégorie-qui-rentre, endpoint `/shelters/suggest`, deep-link configurateur,
 > retrait ancien `suggest-shelters` Product) + US-10.2 (orientation véhicules côte à côte / derrière,
