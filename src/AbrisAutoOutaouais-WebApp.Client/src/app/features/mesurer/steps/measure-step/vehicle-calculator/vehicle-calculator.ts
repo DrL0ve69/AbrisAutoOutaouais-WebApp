@@ -2,16 +2,21 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  computed,
   output,
   signal,
   viewChildren,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   Footprint,
-  footprintForVehicles,
   footprintFromManual,
 } from '../../../util/footprint.util';
+import {
+  ParkingOrientation,
+  footprintForVehiclesOriented,
+} from '../../../util/orientation.util';
 import { isRadioNavKey, nextRadioIndex } from '../../../util/radio-nav.util';
 import { feetToCm } from '../../../util/units.util';
 import { VehicleType } from '../../../util/vehicle-dims.const';
@@ -59,7 +64,23 @@ export class VehicleCalculatorComponent {
   /** Boutons radio de mode (ordre DOM) pour déplacer le focus au clavier. */
   private readonly modeRadios = viewChildren<ElementRef<HTMLButtonElement>>('modeRadio');
 
-  /** Message « hors plage » à annoncer si le gabarit dépasse les bornes D2. */
+  // ── Orientation du stationnement (US-10.2) ───────────────────────────────────
+  /** Orientation courante : côte à côte (défaut) ou les uns derrière les autres. */
+  protected readonly orientation = signal<ParkingOrientation>('side-by-side');
+
+  /** Ordre des options du radiogroup d'orientation (roving tabindex + flèches, APG). */
+  protected readonly orientations = ['side-by-side', 'behind'] as const;
+
+  /** Boutons radio d'orientation (ordre DOM) pour déplacer le focus au clavier. */
+  private readonly orientationRadios = viewChildren<ElementRef<HTMLButtonElement>>('orientationRadio');
+
+  /** Libellés i18n des orientations (affichage). */
+  protected readonly orientationLabels: Readonly<Record<ParkingOrientation, string>> = {
+    'side-by-side': $localize`:@@mesurer.calc.orientationSideBySide:Côte à côte`,
+    behind: $localize`:@@mesurer.calc.orientationBehind:L'un derrière l'autre`,
+  };
+
+  /** Message « hors plage » à annoncer si le gabarit dépasse les bornes serveur. */
   protected readonly outOfRange = signal(false);
 
   /** Lignes de véhicules : libellés i18n ici (la const ne porte que les dimensions). */
@@ -104,9 +125,47 @@ export class VehicleCalculatorComponent {
     return this.manualForm.controls;
   }
 
+  /** Total de véhicules sélectionnés (signal réactif sur le formulaire) pour piloter l'affichage. */
+  protected readonly totalVehicles = signal(0);
+
+  constructor() {
+    // Maintient `totalVehicles` à jour à chaque changement de quantité (réactif sans CD manuel).
+    this.vehiclesForm.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(v =>
+        this.totalVehicles.set(
+          (v.compact ?? 0) + (v.berline ?? 0) + (v.vus ?? 0) + (v.pickup ?? 0) + (v.fourgonnette ?? 0),
+        ),
+      );
+  }
+
+  /**
+   * Le sélecteur d'orientation n'a de sens qu'en mode « véhicules » ET avec ≥ 2 véhicules
+   * (un seul véhicule ⇒ orientation sans effet sur le gabarit).
+   */
+  protected readonly showOrientation = computed(
+    () => this.mode() === 'vehicles' && this.totalVehicles() >= 2,
+  );
+
   protected setMode(mode: 'vehicles' | 'manual'): void {
     this.mode.set(mode);
     this.outOfRange.set(false);
+  }
+
+  protected setOrientation(orientation: ParkingOrientation): void {
+    this.orientation.set(orientation);
+  }
+
+  /** Navigation APG du radiogroup d'orientation : flèches/Home/End déplacent ET sélectionnent. */
+  protected onOrientationKeydown(event: KeyboardEvent): void {
+    if (event.ctrlKey || event.altKey || event.metaKey) return;
+    if (!isRadioNavKey(event.key)) return;
+    event.preventDefault();
+    const current = this.orientations.indexOf(this.orientation());
+    const next = nextRadioIndex(event.key, current, this.orientations.length);
+    this.setOrientation(this.orientations[next]);
+    // Les deux boutons existent toujours dans le DOM (mêmes conditions d'affichage) → focus synchrone sûr.
+    this.orientationRadios()[next]?.nativeElement.focus();
   }
 
   /** Navigation APG du radiogroup de mode : flèches/Home/End déplacent ET sélectionnent. */
@@ -124,13 +183,16 @@ export class VehicleCalculatorComponent {
 
   protected computeVehicles(): void {
     const v = this.vehiclesForm.getRawValue();
-    const footprint = footprintForVehicles([
-      { type: 'compact', quantity: v.compact ?? 0 },
-      { type: 'berline', quantity: v.berline ?? 0 },
-      { type: 'vus', quantity: v.vus ?? 0 },
-      { type: 'pickup', quantity: v.pickup ?? 0 },
-      { type: 'fourgonnette', quantity: v.fourgonnette ?? 0 },
-    ]);
+    const footprint = footprintForVehiclesOriented(
+      [
+        { type: 'compact', quantity: v.compact ?? 0 },
+        { type: 'berline', quantity: v.berline ?? 0 },
+        { type: 'vus', quantity: v.vus ?? 0 },
+        { type: 'pickup', quantity: v.pickup ?? 0 },
+        { type: 'fourgonnette', quantity: v.fourgonnette ?? 0 },
+      ],
+      this.orientation(),
+    );
     this.emit(footprint);
   }
 
