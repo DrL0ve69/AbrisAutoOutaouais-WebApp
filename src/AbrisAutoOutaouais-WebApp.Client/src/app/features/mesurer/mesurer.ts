@@ -8,7 +8,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { DimensionStepComponent } from './steps/dimension-step/dimension-step';
-import { ResultsStepComponent } from './steps/results-step/results-step';
+import { ConseilStepComponent } from './steps/conseil-step/conseil-step';
 import { Footprint } from './util/footprint.util';
 
 type Step = 1 | 2;
@@ -19,8 +19,9 @@ type Step = 1 | 2;
  *  2. Conseil (abris compatibles).
  *
  * (13.1) Le stepper a été INVERSÉ/simplifié : l'ancienne étape « Adresse » préalable a été
- * retirée du shell — l'adresse migrera DANS la voie carte de l'étape Dimensionner en 13.2.
- * Le renommage de `results-step` en `conseil-step` + la migration e2e complète viennent en 13.3.
+ * retirée du shell — l'adresse vit DANS la voie carte de l'étape Dimensionner (13.2).
+ * (13.3) L'étape finale est rendue par `app-conseil-step` (ex-`results-step`, renommé sans
+ * changement de logique) ; la suite e2e couvre les 3 voies du flux Dimensionner → Conseil.
  *
  * Accessibilité (CLAUDE.md + leçons) :
  *  - Focus inter-étapes (L-006) : à chaque changement d'étape, on déplace le focus sur le titre
@@ -34,7 +35,7 @@ type Step = 1 | 2;
 @Component({
   selector: 'app-mesurer',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DimensionStepComponent, ResultsStepComponent],
+  imports: [DimensionStepComponent, ConseilStepComponent],
   templateUrl: './mesurer.html',
   styleUrl: './mesurer.scss',
 })
