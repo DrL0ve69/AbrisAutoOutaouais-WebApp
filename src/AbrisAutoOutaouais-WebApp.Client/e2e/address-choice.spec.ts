@@ -94,7 +94,7 @@ async function mockCommonApi(page: Page): Promise<void> {
   await page.route('**/api/v1/bookings/available-slots*', (route) =>
     route.fulfill({ json: SLOTS }),
   );
-  await page.route('**/api/v1/products/suggest-shelters*', (route) => route.fulfill({ json: [] }));
+  await page.route('**/api/v1/shelters/suggest*', (route) => route.fulfill({ json: [] }));
   await page.route('**/api/v1/products*', (route) => route.fulfill({ json: RENTABLE_PRODUCTS }));
   await page.route('**/api/v1/categories', (route) => route.fulfill({ json: [] }));
   await page.route('**/api/v1/places/suggest*', (route) => route.fulfill({ json: [] }));
@@ -250,7 +250,7 @@ test('Mesurer — mode profil : « Continuer » géocode l’adresse profil et C
   // `suggest` (réutilisé par `geocode`) renvoie des coordonnées CONNUES pour l'adresse profil.
   const GEO = { lat: 45.3201, lng: -75.8702 };
   await page.route('**/api/v1/bookings/available-slots*', (route) => route.fulfill({ json: SLOTS }));
-  await page.route('**/api/v1/products/suggest-shelters*', (route) => route.fulfill({ json: [] }));
+  await page.route('**/api/v1/shelters/suggest*', (route) => route.fulfill({ json: [] }));
   await page.route('**/api/v1/products*', (route) => route.fulfill({ json: RENTABLE_PRODUCTS }));
   await page.route('**/api/v1/places/lookup-postal-code*', (route) =>
     route.fulfill({ json: { postalCode: null } }),

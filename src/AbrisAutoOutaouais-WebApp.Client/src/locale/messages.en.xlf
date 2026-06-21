@@ -2732,6 +2732,22 @@
         <source> Le gabarit obtenu dépasse la taille maximale prise en charge. Réduisez le nombre de véhicules ou ajustez les dimensions. </source>
         <target> The resulting footprint exceeds the maximum supported size. Reduce the number of vehicles or adjust the dimensions. </target>
       </trans-unit>
+      <trans-unit id="mesurer.calc.orientationGroup" datatype="html">
+        <source>Disposition des véhicules</source>
+        <target>Vehicle arrangement</target>
+      </trans-unit>
+      <trans-unit id="mesurer.calc.orientationPrompt" datatype="html">
+        <source> Comment les véhicules sont-ils disposés ? </source>
+        <target> How are the vehicles arranged? </target>
+      </trans-unit>
+      <trans-unit id="mesurer.calc.orientationSideBySide" datatype="html">
+        <source>Côte à côte</source>
+        <target>Side by side</target>
+      </trans-unit>
+      <trans-unit id="mesurer.calc.orientationBehind" datatype="html">
+        <source>L&apos;un derrière l&apos;autre</source>
+        <target>One behind the other</target>
+      </trans-unit>
       <trans-unit id="mesurer.vehicle.compact" datatype="html">
         <source>Compacte</source>
         <target>Compact</target>
@@ -2757,36 +2773,36 @@
         <target> Required footprint: <x id="INTERPOLATION" equiv-text="{{ toFeet(fp.widthCm) | number: &apos;1.1-1&apos; }}"/> ft wide × <x id="INTERPOLATION_1" equiv-text="{{ toFeet(fp.lengthCm) | number: &apos;1.1-1&apos; }}"/> ft long. </target>
       </trans-unit>
       <trans-unit id="mesurer.results.loading" datatype="html">
-        <source> Recherche des abris adaptés… </source>
-        <target> Searching for suitable shelters… </target>
+        <source> Recherche des modèles d&apos;abris adaptés… </source>
+        <target> Searching for suitable shelter models… </target>
       </trans-unit>
       <trans-unit id="mesurer.results.error" datatype="html">
         <source> La recherche d&apos;abris a échoué. Veuillez réessayer. </source>
         <target> The shelter search failed. Please try again. </target>
       </trans-unit>
       <trans-unit id="mesurer.results.empty" datatype="html">
-        <source> Aucun abri ne convient à ce gabarit pour le moment. Essayez un stationnement plus petit ou contactez-nous pour une solution sur mesure. </source>
-        <target> No shelter fits this footprint at the moment. Try a smaller driveway or contact us for a custom solution. </target>
+        <source> Aucun modèle d&apos;abri ne convient à ce gabarit pour le moment. Essayez un stationnement plus petit ou contactez-nous pour une solution sur mesure. </source>
+        <target> No shelter model fits this footprint at the moment. Try a smaller driveway or contact us for a custom solution. </target>
       </trans-unit>
-      <trans-unit id="mesurer.results.tightFit" datatype="html">
-        <source>Ajusté serré</source>
-        <target>Tight fit</target>
+      <trans-unit id="mesurer.results.modelWidth" datatype="html">
+        <source> Largeur : <x id="INTERPOLATION" equiv-text="{{ toFeet(model.widthCm) | number: &apos;1.1-1&apos; }}"/> pi </source>
+        <target> Width: <x id="INTERPOLATION" equiv-text="{{ toFeet(model.widthCm) | number: &apos;1.1-1&apos; }}"/> ft </target>
       </trans-unit>
-      <trans-unit id="mesurer.results.dims" datatype="html">
-        <source> Dimensions : <x id="INTERPOLATION" equiv-text="{{ toFeet(shelter.widthCm) | number: &apos;1.1-1&apos; }}"/> × <x id="INTERPOLATION_1" equiv-text="{{ toFeet(shelter.lengthCm) | number: &apos;1.1-1&apos; }}"/> pi </source>
-        <target> Dimensions: <x id="INTERPOLATION" equiv-text="{{ toFeet(shelter.widthCm) | number: &apos;1.1-1&apos; }}"/> × <x id="INTERPOLATION_1" equiv-text="{{ toFeet(shelter.lengthCm) | number: &apos;1.1-1&apos; }}"/> ft </target>
+      <trans-unit id="mesurer.results.modelLengths" datatype="html">
+        <source> Longueurs offertes (pi) : <x id="INTERPOLATION" equiv-text="{{ availableFeet(model.availableLengthsCm) }}"/> </source>
+        <target> Available lengths (ft): <x id="INTERPOLATION" equiv-text="{{ availableFeet(model.availableLengthsCm) }}"/> </target>
       </trans-unit>
-      <trans-unit id="mesurer.results.rent" datatype="html">
-        <source>Location</source>
-        <target>Rental</target>
+      <trans-unit id="mesurer.results.fromPrice" datatype="html">
+        <source>À partir de</source>
+        <target>Starting at</target>
       </trans-unit>
-      <trans-unit id="mesurer.results.month" datatype="html">
-        <source>mois</source>
-        <target>month</target>
+      <trans-unit id="mesurer.results.configure" datatype="html">
+        <source>Configurer ce modèle</source>
+        <target>Configure this model</target>
       </trans-unit>
-      <trans-unit id="mesurer.results.view" datatype="html">
-        <source>Voir l&apos;abri</source>
-        <target>View the shelter</target>
+      <trans-unit id="mesurer.results.configureLabel" datatype="html">
+        <source>Configurer le modèle <x id="name" equiv-text="name"/></source>
+        <target>Configure the <x id="name" equiv-text="name"/> model</target>
       </trans-unit>
       <trans-unit id="navbar.measure" datatype="html">
         <source>Mesurer</source>

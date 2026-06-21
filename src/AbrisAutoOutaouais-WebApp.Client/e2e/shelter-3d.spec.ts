@@ -45,7 +45,7 @@ const categories = [
 
 async function mockApi(page: Page): Promise<void> {
   await page.route('**/api/v1/categories', (route) => route.fulfill({ json: categories }));
-  await page.route('**/api/v1/products/suggest-shelters*', (route) =>
+  await page.route('**/api/v1/shelters/suggest*', (route) =>
     route.fulfill({ json: [] }),
   );
   await page.route('**/api/v1/products/*', (route) => route.fulfill({ json: product }));
