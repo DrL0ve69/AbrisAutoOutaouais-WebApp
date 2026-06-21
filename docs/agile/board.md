@@ -453,4 +453,4 @@ indépendante `code-reviewer` → mentor*. **Revue indépendante : APPROVE WITH 
 - `npm run e2e` `/mesurer` dual-thème axe 0 violation ✅
 - Round-trip live LocalDB : 2 exemples vérifiés (30×40 pi → 3 catégories ; 16×30 pi → 2 catégories) ✅
 
-**Statut git** : PR #… (à compléter après création) → CI verte → merge `master`. **Prochain : EPIC 13** (refonte parcours `/mesurer` — ordre + adresse optionnelle).
+**Statut git** : **PR #50 MERGÉE vers `master` (`30f4b41`), CI verte (Backend 1m06s / Frontend 8m25s / Build & Deploy 1m34s / SonarCloud 32s), branche supprimée.** Prod auto-déployée. **Prochain : EPIC 13** (refonte parcours `/mesurer` — ordre + adresse optionnelle).

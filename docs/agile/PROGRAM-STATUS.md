@@ -10,7 +10,7 @@
 > US-10.1 (suggestion par catégorie-qui-rentre, endpoint `/shelters/suggest`, deep-link configurateur,
 > retrait ancien `suggest-shelters` Product) + US-10.2 (orientation véhicules côte à côte / derrière,
 > noyau `footprint` neutre L-041) — revue indépendante APPROVE WITH NITS, Minor L-028 fermé,
-> L-040/L-041 capturées, PR #… (voir `board.md`).
+> L-040/L-041 capturées, PR #50 MERGÉE (`30f4b41`).
 > Ordre Phase 2 restant : ~~9~~ ~~10~~ → **13** → 14 → 11 → 8 → 7.
 > **Programme G terminé (A→H) :** `C:\Users\phili\.claude\plans\majestic-soaring-sprout.md`
 > **Programme initial terminé (A→F) :** `C:\Users\phili\.claude\plans\1-i-want-you-glistening-barto.md`

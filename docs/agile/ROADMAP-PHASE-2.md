@@ -36,7 +36,7 @@
 | **EPIC 7** | Paiements en ligne (Interac e-Transfer + cartes) | 1 | — | 21+ | Could | 🔴 Élevé (réglementaire, frais, sécurité) |
 | **EPIC 8** | Gestion des employés & paie (informative) | 2 | EPIC 11 | 8–13 | Could | 🟠 Moyen (conformité fiscale si paie réelle) |
 | **EPIC 9** | Catalogue par dimensions configurables | 3 | — | 13 | Should | ✅ **TERMINÉ (2026-06-19)** — PR #45 |
-| **EPIC 10** | Suggestion d'abris intelligente (mesure & véhicule) | 4 | EPIC 9 | 8 | Should | ✅ **TERMINÉ (2026-06-21)** — PR #… |
+| **EPIC 10** | Suggestion d'abris intelligente (mesure & véhicule) | 4 | EPIC 9 | 8 | Should | ✅ **TERMINÉ (2026-06-21)** — PR #50 |
 | **EPIC 11** | Calendrier & planification terrain (horaires, RDV, routage) | 5 | — | 21 | Could | 🟠 Moyen (nouveau domaine + routage) |
 | **EPIC 12** | Correctifs de contraste formulaires/focus | 6 / (1)·2 | — | 3 | **Should** | 🟢 Faible — **partie 1 LIVRÉE 2026-06-17** |
 | **EPIC 13** | Refonte du parcours `/mesurer` (ordre, adresse optionnelle, Mesure+Conseil) | (1)·6 | EPIC 9·10·15 | 8 | Should | 🟠 Moyen (UX + dépend du fit) |
@@ -210,7 +210,7 @@ Deux approches, à arbitrer avec l'architecte :
 > rentrent** (pas les dimensions exactes — « ça fonctionne à moitié présentement »), à partir d'une
 > **mesure sur carte** ou d'une **sélection de véhicules**.
 >
-> **Livré (PR #…, 2026-06-21).** US-10.1 : endpoint `GET /api/v1/shelters/suggest`, filtrage par catégorie
+> **Livré (PR #50, 2026-06-21).** US-10.1 : endpoint `GET /api/v1/shelters/suggest`, filtrage par catégorie
 > (largeur ≤ W, longueurs ≤ L plafonnées 40 pi), deep-link configurateur, retrait ancien `suggest-shelters`
 > basé `Product`. US-10.2 : orientation véhicules (côte à côte / l'un derrière l'autre), noyau `footprint`
 > neutre (L-041). Leçons L-040/L-041 capturées. Gates : `dotnet test` 354+96 ✅ · `npm test` ✅ · e2e axe 0 ✅ · round-trip live ✅.
