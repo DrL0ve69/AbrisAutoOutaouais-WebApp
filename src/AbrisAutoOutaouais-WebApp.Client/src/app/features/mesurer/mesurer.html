@@ -2,10 +2,10 @@
   <div class="container container--narrow">
     <header class="mesurer__head">
       <p class="mesurer__eyebrow" i18n="@@mesurer.eyebrow">Outil</p>
-      <h1 id="mesurer-heading" i18n="@@mesurer.title">Mesurer mon stationnement</h1>
+      <h1 id="mesurer-heading" i18n="@@mesurer.title">Trouver mon abri</h1>
       <p class="mesurer__lead" i18n="@@mesurer.lead">
-        Trouvez l'abri Tempo adapté à votre espace en trois étapes&nbsp;: votre adresse, la
-        mesure de votre stationnement, puis nos abris compatibles.
+        Trouvez l'abri Tempo adapté à votre espace en deux étapes&nbsp;: dimensionnez votre
+        stationnement, puis découvrez nos abris compatibles et nos conseils.
       </p>
     </header>
 
@@ -33,21 +33,11 @@
 
     @switch (step()) {
       @case (1) {
-      <app-address-step (addressSelected)="onAddressSelected($event)" />
+      <app-dimension-step (footprintComputed)="onFootprintComputed($event)" />
       }
       @case (2) {
       <button type="button" class="mesurer__back btn btn--ghost btn--sm" (click)="goToStep(1)" i18n="@@mesurer.back">
-        ← Modifier l'adresse
-      </button>
-      <app-measure-step
-        [lat]="address()?.lat ?? null"
-        [lng]="address()?.lng ?? null"
-        [outOfServiceArea]="address()?.outOfServiceArea ?? false"
-        (footprintComputed)="onFootprintComputed($event)" />
-      }
-      @case (3) {
-      <button type="button" class="mesurer__back btn btn--ghost btn--sm" (click)="goToStep(2)" i18n="@@mesurer.backMeasure">
-        ← Refaire la mesure
+        ← Refaire le dimensionnement
       </button>
       <app-results-step [footprint]="footprint()" />
       }

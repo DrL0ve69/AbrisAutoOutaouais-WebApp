@@ -1,0 +1,43 @@
+.dimension {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+// Choix de la voie : boutons radio accessibles (jetons sémantiques uniquement).
+.dimension__methods {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.dimension__method {
+  flex: 1 1 12rem;
+  min-height: 44px; // cible tactile WCAG 2.5.8
+  padding: var(--space-3) var(--space-4);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+
+  &--active {
+    border-color: var(--color-primary);
+    background: var(--color-primary-soft, var(--color-surface));
+    color: var(--color-primary);
+  }
+}
+
+.dimension__map-placeholder,
+.dimension__map-loading {
+  padding: var(--space-4);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+
+  p {
+    margin: 0;
+  }
+}

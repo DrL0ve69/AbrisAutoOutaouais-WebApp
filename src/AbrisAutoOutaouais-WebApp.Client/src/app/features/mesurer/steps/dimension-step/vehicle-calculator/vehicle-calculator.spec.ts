@@ -1,6 +1,6 @@
 import { render, within } from '@testing-library/angular';
 import { userEvent } from '@testing-library/user-event';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { page } from 'vitest/browser';
 import { VehicleCalculatorComponent } from './vehicle-calculator';
 import { Footprint } from '../../../util/footprint.util';
@@ -36,60 +36,15 @@ describe('VehicleCalculatorComponent', () => {
     expect(emitted[0]).toMatchObject({ widthCm: 310, lengthCm: 600, outOfRange: false });
   });
 
-  it('saisie manuelle (PIEDS) : bascule de mode, convertit en cm et émet le gabarit', async () => {
-    const user = userEvent.setup();
-    const { q, emitted } = await setup();
-
-    await user.click(q.getByRole('radio', { name: /dimensions manuelles/i }));
-
-    // Saisie en pieds → conversion cm (canonique) + arrondi au cm supérieur :
-    // 10 pi = 304,8 → 305 cm ; 20 pi = 609,6 → 610 cm.
-    await user.type(q.getByLabelText(/largeur/i), '10');
-    await user.type(q.getByLabelText(/longueur/i), '20');
-    await user.click(q.getByRole('button', { name: /calculer le gabarit/i }));
-
-    expect(emitted).toHaveLength(1);
-    expect(emitted[0]).toMatchObject({ widthCm: 305, lengthCm: 610, outOfRange: false });
-  });
-
-  it('valeur manuelle hors plage (>65 pi) : aucune émission, message annoncé', async () => {
-    const user = userEvent.setup();
-    const { q, emitted } = await setup();
-
-    await user.click(q.getByRole('radio', { name: /dimensions manuelles/i }));
-    await user.type(q.getByLabelText(/largeur/i), '70');
-    await user.type(q.getByLabelText(/longueur/i), '20');
-    await user.click(q.getByRole('button', { name: /calculer le gabarit/i }));
-
-    // Le validateur Validators.max(65) rend le formulaire invalide → pas d'émission.
-    expect(emitted).toHaveLength(0);
-    // Un message d'erreur de champ est annoncé (role="alert").
-    const alert = q.getByRole('alert');
-    expect(alert).toBeInTheDocument();
-  });
-
-  it('radiogroup APG : flèche bascule le mode et déplace le focus (roving tabindex)', async () => {
-    const user = userEvent.setup();
+  it('le formulaire véhicules est rendu directement (plus de bascule de mode — 13.1)', async () => {
     const { q } = await setup();
 
-    const vehicles = q.getByRole('radio', { name: /par véhicules/i });
-    const manual = q.getByRole('radio', { name: /dimensions manuelles/i });
-
-    // État initial APG : seule l'option cochée est dans l'ordre de tabulation.
-    expect(vehicles).toHaveAttribute('aria-checked', 'true');
-    expect(vehicles).toHaveAttribute('tabindex', '0');
-    expect(manual).toHaveAttribute('tabindex', '-1');
-
-    // Flèche droite depuis l'option focalisée → sélectionne ET focalise l'autre option.
-    vehicles.focus();
-    await user.keyboard('{ArrowRight}');
-
-    expect(manual).toHaveAttribute('aria-checked', 'true');
-    expect(manual).toHaveFocus();
-    expect(manual).toHaveAttribute('tabindex', '0');
-    expect(vehicles).toHaveAttribute('tabindex', '-1');
-    // Le panneau manuel est bien affiché (assertion positive, pas seulement l'attribut).
-    expect(q.getByLabelText(/largeur/i)).toBeInTheDocument();
+    // EPIC 13.1 : l'ancien radiogroup « véhicules / manuel » a disparu ; le calculateur
+    // ne porte plus que le radiogroup d'orientation (et seulement avec ≥ 2 véhicules).
+    expect(q.queryByRole('radio', { name: /dimensions manuelles/i })).toBeNull();
+    expect(q.queryByRole('radio', { name: /par véhicules/i })).toBeNull();
+    // Positive : le formulaire véhicules est bien présent d'emblée.
+    expect(q.getByLabelText(/berline/i)).toBeInTheDocument();
   });
 
   it('orientation : le radiogroup n’apparaît qu’avec ≥ 2 véhicules', async () => {
@@ -149,13 +104,16 @@ describe('VehicleCalculatorComponent', () => {
     expect(emitted.at(-1)).toMatchObject({ widthCm: 310, lengthCm: 1140 });
   });
 
-  it('ne présente aucune violation WCAG A/AA (mode véhicules puis manuel)', async () => {
+  it('ne présente aucune violation WCAG A/AA (véhicules + orientation)', async () => {
     const user = userEvent.setup();
     const { container, q } = await setup();
 
     await expectNoA11yViolations(container);
 
-    await user.click(q.getByRole('radio', { name: /dimensions manuelles/i }));
+    // Avec orientation visible (≥ 2 véhicules).
+    await user.click(q.getByLabelText(/berline/i));
+    await user.keyboard('{Backspace}2');
+    await q.findByRole('radiogroup', { name: /disposition des véhicules/i });
     await expectNoA11yViolations(container);
   });
 });
