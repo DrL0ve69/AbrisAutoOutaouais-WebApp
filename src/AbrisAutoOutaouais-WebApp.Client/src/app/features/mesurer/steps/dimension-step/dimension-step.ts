@@ -10,7 +10,7 @@ import { Footprint } from '../../util/footprint.util';
 import { isRadioNavKey, nextRadioIndex } from '../../util/radio-nav.util';
 import { KnownDimensionsComponent } from './known-dimensions/known-dimensions';
 import { VehicleCalculatorComponent } from './vehicle-calculator/vehicle-calculator';
-import { MapMeasureComponent } from './map-measure/map-measure';
+import { MapVoieComponent } from './map-voie/map-voie';
 
 /** Les trois voies pour obtenir le gabarit du stationnement. */
 type DimensionMethod = 'known' | 'vehicles' | 'map';
@@ -31,13 +31,14 @@ type DimensionMethod = 'known' | 'vehicles' | 'map';
  *    STATIQUES toujours montées → focus synchrone après `set()` sûr.
  *  - Nom accessible du radiogroup NON vide (L-040) : libellé i18n statique (`aria-label`).
  *
- * NOTE 13.2 : la voie `map` est branchée sur la carte existante SANS étape adresse préalable
- * (l'adresse migrera dans cette voie en 13.2). En attendant, la carte se centre sur son repli.
+ * (13.2) La voie `map` rend désormais `<app-map-voie>` : l'input adresse et la carte cohabitent
+ * sur la même page (géocodage → centrage, zone de service → avertissement doux). Le gabarit
+ * tracé remonte via `footprintComputed`.
  */
 @Component({
   selector: 'app-dimension-step',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [KnownDimensionsComponent, VehicleCalculatorComponent, MapMeasureComponent],
+  imports: [KnownDimensionsComponent, VehicleCalculatorComponent, MapVoieComponent],
   templateUrl: './dimension-step.html',
   styleUrl: './dimension-step.scss',
 })

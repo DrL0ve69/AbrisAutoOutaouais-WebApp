@@ -29,15 +29,3 @@
     color: var(--color-primary);
   }
 }
-
-.dimension__map-placeholder,
-.dimension__map-loading {
-  padding: var(--space-4);
-  border: 1px dashed var(--color-border);
-  border-radius: var(--radius-md);
-  color: var(--color-text-muted);
-
-  p {
-    margin: 0;
-  }
-}

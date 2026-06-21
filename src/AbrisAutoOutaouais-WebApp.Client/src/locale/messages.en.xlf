@@ -2692,9 +2692,17 @@
         <source> Localisation de l&apos;adresse… </source>
         <target> Locating address… </target>
       </trans-unit>
-      <trans-unit id="mesurer.address.next" datatype="html">
-        <source> Continuer vers la mesure </source>
-        <target> Continue to measurement </target>
+      <trans-unit id="mesurer.address.outOfZone" datatype="html">
+        <source> Cette adresse semble hors de notre zone de livraison et d&apos;installation (rayon d&apos;environ 100 km). Vous pouvez tout de même mesurer votre stationnement. </source>
+        <target> This address seems outside our delivery and installation area (radius of about 100 km). You can still measure your driveway. </target>
+      </trans-unit>
+      <trans-unit id="mesurer.map.centerHint" datatype="html">
+        <source> La carte se centre sur votre adresse. Ajustez-la au besoin, puis tracez votre stationnement. </source>
+        <target> The map centres on your address. Adjust it if needed, then draw your driveway. </target>
+      </trans-unit>
+      <trans-unit id="mesurer.map.centerButton" datatype="html">
+        <source> Centrer la carte sur cette adresse </source>
+        <target> Centre the map on this address </target>
       </trans-unit>
       <trans-unit id="mesurer.map.instructions" datatype="html">
         <source> La carte se manipule à la souris ou au tactile : utilisez l&apos;outil rectangle (en haut à droite) pour tracer votre stationnement. Pour un calcul entièrement au clavier, revenez au calculateur de véhicules. </source>

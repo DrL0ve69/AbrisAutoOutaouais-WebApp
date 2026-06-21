@@ -30,21 +30,9 @@
     <app-vehicle-calculator (footprintComputed)="onFootprint($event)" />
     }
     @case ('map') {
-    <!-- L'utilisateur a explicitement choisi le mode carte → on charge immédiatement le chunk
-         différé (Leaflet/geoman/turf reste hors du bundle initial, SSR-safe). `on immediate`
-         (et non `on viewport`) : déclenchement déterministe pour l'e2e. NOTE 13.2 : l'adresse
-         (lat/lng pour centrer) arrive dans cette voie en 13.2 ; pour l'instant null → repli. -->
-    @defer (on immediate) {
-    <app-map-measure [lat]="null" [lng]="null" (footprintComputed)="onFootprint($event)" />
-    } @placeholder {
-    <div class="dimension__map-placeholder">
-      <p i18n="@@mesurer.dimension.mapPlaceholder">Préparation de la carte satellite…</p>
-    </div>
-    } @loading {
-    <div class="dimension__map-loading" aria-busy="true">
-      <p i18n="@@mesurer.dimension.mapLoading">Chargement de la carte…</p>
-    </div>
-    }
+    <!-- (13.2) Voie carte : l'input adresse + la carte cohabitent dans `app-map-voie` (qui gère
+         lui-même le géocodage, le centrage et le `@defer (on immediate)` de la carte). -->
+    <app-map-voie (footprintComputed)="onFootprint($event)" />
     }
   }
 </div>
