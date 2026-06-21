@@ -3,6 +3,7 @@ import {
   Component,
   ElementRef,
   computed,
+  inject,
   output,
   signal,
   viewChildren,
@@ -49,7 +50,7 @@ interface VehicleRow {
   styleUrl: './vehicle-calculator.scss',
 })
 export class VehicleCalculatorComponent {
-  private readonly fb = new FormBuilder();
+  private readonly fb = inject(FormBuilder);
 
   /** Gabarit prêt pour l'étape Conseil (toujours dans la plage `[1, 2000]`). */
   readonly footprintComputed = output<Footprint>();

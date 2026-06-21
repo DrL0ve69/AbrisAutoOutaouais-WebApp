@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Validators } from '@angular/forms';
 import { Footprint, footprintFromManual } from '../../../util/footprint.util';
@@ -24,7 +24,7 @@ import { feetToCm } from '../../../util/units.util';
   styleUrl: './known-dimensions.scss',
 })
 export class KnownDimensionsComponent {
-  private readonly fb = new FormBuilder();
+  private readonly fb = inject(FormBuilder);
 
   /** Gabarit prêt pour l'étape Conseil (toujours dans la plage `[1, 2000]`). */
   readonly footprintComputed = output<Footprint>();
