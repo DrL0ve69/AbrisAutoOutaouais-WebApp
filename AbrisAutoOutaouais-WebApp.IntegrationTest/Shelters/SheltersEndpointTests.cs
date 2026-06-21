@@ -220,6 +220,23 @@ public sealed class SheltersEndpointTests : IClassFixture<WebAppFactory>
         problem!.Status.Should().Be(422);
     }
 
+    /// <summary>
+    /// Filet « sibling-action » (L-028) : ouvrir GET /suggest en <c>[AllowAnonymous]</c> n'a PAS
+    /// élargi l'auth des actions protégées du MÊME contrôleur. Contraste direct avec
+    /// <see cref="GetSuggestions_Anonymous_Returns200GroupedByCategory"/> : un appel anonyme à
+    /// l'action AdminOnly POST /api/v1/shelters (création de ShelterModel) reste refusé en 401.
+    /// L'auth coupe AVANT la liaison de modèle, donc un corps vide suffit (le 401 précède la
+    /// validation). Verrouille le second volet de la revue L-028 (couverture des actions voisines).
+    /// </summary>
+    [Fact]
+    public async Task CreateShelterModel_Anonymous_StillReturns401_SiblingActionUnaffected()
+    {
+        // Aucun JWT : l'en-tête Authorization est nul (réinitialisé au ctor).
+        var response = await _client.PostAsJsonAsync("/api/v1/shelters", new { });
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
     /// <summary>Ajoute un modèle dans une catégorie DÉJÀ semée (slug unique, une seule largeur).</summary>
     private async Task SeedShelterModelInCategoryAsync(string slug, Guid categoryId, int width)
     {
