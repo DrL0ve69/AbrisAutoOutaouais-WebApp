@@ -5,6 +5,7 @@ using AbrisAutoOutaouais_WebApp.Application.Shelters.Commands.UpdateShelterModel
 using AbrisAutoOutaouais_WebApp.Application.Shelters.Queries.GetShelterModelBySlug;
 using AbrisAutoOutaouais_WebApp.Application.Shelters.Queries.GetShelterModels;
 using AbrisAutoOutaouais_WebApp.Application.Shelters.Queries.GetShelterPrice;
+using AbrisAutoOutaouais_WebApp.Application.Shelters.Queries.SuggestShelterModels;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -43,6 +44,23 @@ public sealed class SheltersController(IDispatcher dispatcher) : ControllerBase
     public async Task<IActionResult> GetPrice(
         string slug, [FromQuery] int lengthCm, CancellationToken ct)
         => Ok(await dispatcher.DispatchAsync(new GetShelterPriceQuery(slug, lengthCm), ct));
+
+    /// <summary>
+    /// Suggère les MODÈLES d'abris paramétriques compatibles avec une empreinte mesurée
+    /// (largeur × longueur en cm, EPIC 10) : modèles assez étroits, agrégés par catégorie, annotés
+    /// de leurs longueurs admissibles (bornées par la mesure et le plafond métier de 40 pi). Le
+    /// segment littéral « suggest » l'emporte sur le paramètre <c>{slug}</c> par précédence de
+    /// gabarit de route (un template plus spécifique prime) ; on le déclare AVANT par lisibilité,
+    /// et un test IT verrouille le comportement. Dimensions hors plage (≤ 0 ou &gt; 2000) → 422.
+    /// </summary>
+    [HttpGet("suggest")]
+    [AllowAnonymous]
+    [ProducesResponseType<IReadOnlyList<ShelterFitResultDto>>(200)]
+    [ProducesResponseType<ProblemDetails>(422)]
+    public async Task<IActionResult> GetSuggestions(
+        [FromQuery] int requiredWidthCm, [FromQuery] int requiredLengthCm, CancellationToken ct)
+        => Ok(await dispatcher.DispatchAsync(
+            new SuggestShelterModelsQuery(requiredWidthCm, requiredLengthCm), ct));
 
     /// <summary>Détail d'un modèle par slug (incl. options de largeur et de hauteur dégagée).</summary>
     [HttpGet("{slug}")]
