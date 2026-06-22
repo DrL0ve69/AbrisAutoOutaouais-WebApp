@@ -113,5 +113,12 @@ export class AdminDashboardComponent {
       icon: '👥',
       route: '/admin/utilisateurs',
     },
+    {
+      id: 'payroll',
+      label: $localize`:@@admin.section.payroll:Employés & paie`,
+      description: $localize`:@@admin.section.payrollDesc:Suivre les heures travaillées, le taux horaire et le statut de paie (informatif).`,
+      icon: '💵',
+      route: '/admin/paie',
+    },
   ];
 }

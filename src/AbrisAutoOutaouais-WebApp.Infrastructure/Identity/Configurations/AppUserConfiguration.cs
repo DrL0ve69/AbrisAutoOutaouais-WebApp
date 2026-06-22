@@ -34,6 +34,10 @@ internal sealed class AppUserConfiguration : IEntityTypeConfiguration<AppUser>
         builder.Property(u => u.IsExpress)
             .HasDefaultValue(false);
 
+        // Taux horaire CAD (EPIC 8) — decimal(18,2) nullable, idiome Product.Price / Order.TotalAmount.
+        builder.Property(u => u.HourlyRate)
+            .HasColumnType("decimal(18,2)");
+
         // Owned Entity — Address de Domain.ValueObjects
         // Stockée dans AspNetUsers avec colonnes préfixées "DefaultAddress_"
         builder.OwnsOne(u => u.DefaultDeliveryAddress, addr =>

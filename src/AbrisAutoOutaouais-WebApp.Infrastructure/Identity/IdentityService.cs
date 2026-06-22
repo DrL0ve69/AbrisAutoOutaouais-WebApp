@@ -165,6 +165,42 @@ public sealed class IdentityService : IIdentityService
             .ToList();
     }
 
+    public async Task<IReadOnlyList<StaffPayRateDto>> GetStaffWithRatesAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var staff = await _userManager.GetUsersInRoleAsync(Roles.Staff);
+        return staff
+            .Select(u => new StaffPayRateDto(u.Id, u.FullName, u.HourlyRate))
+            .OrderBy(s => s.FullName, StringComparer.CurrentCultureIgnoreCase)
+            .ToList();
+    }
+
+    public async Task<decimal?> GetHourlyRateAsync(
+        Guid employeeId, CancellationToken cancellationToken = default)
+    {
+        var user = await _userManager.FindByIdAsync(employeeId.ToString());
+        return user?.HourlyRate;
+    }
+
+    public async Task<Result> SetHourlyRateAsync(
+        Guid employeeId, decimal? hourlyRate, CancellationToken cancellationToken = default)
+    {
+        var user = await _userManager.FindByIdAsync(employeeId.ToString());
+        if (user is null) return Result.Failure("Employé introuvable.");
+
+        // Le taux horaire n'a de sens que pour un membre du personnel (Staff).
+        if (!await _userManager.IsInRoleAsync(user, Roles.Staff))
+            return Result.Failure("L'utilisateur n'est pas un membre du personnel.");
+
+        user.HourlyRate = hourlyRate;
+        user.UpdatedAt = DateTime.UtcNow;
+
+        var result = await _userManager.UpdateAsync(user);
+        return result.Succeeded
+            ? Result.Success()
+            : Result.Failure(string.Join(", ", result.Errors.Select(e => e.Description)));
+    }
+
     public async Task<IReadOnlyList<CustomerSearchResultDto>> SearchCustomersAsync(
         string term, int take, CancellationToken cancellationToken = default)
     {

@@ -1,4 +1,5 @@
 using AbrisAutoOutaouais_WebApp.Domain.Entities;
+using AbrisAutoOutaouais_WebApp.Domain.Enums;
 using AbrisAutoOutaouais_WebApp.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -18,6 +19,12 @@ internal sealed class WorkHoursEntryConfiguration : IEntityTypeConfiguration<Wor
         builder.HasKey(w => w.Id);
 
         builder.Property(w => w.Note).HasMaxLength(500);
+
+        // Statut de paie persisté en string (idiome RentalContract.Status) — défaut « À payer ».
+        builder.Property(w => w.PayStatus)
+            .HasConversion<string>()
+            .HasMaxLength(20)
+            .HasDefaultValue(PayStatus.AnsPayer);
 
         builder.HasOne<AppUser>()
             .WithMany()
