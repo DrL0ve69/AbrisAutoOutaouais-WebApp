@@ -35,3 +35,14 @@ export interface UpsertWorkHoursRequest {
   readonly endMinutes: number | null;
   readonly note: string | null;
 }
+
+/**
+ * Résultat de recherche d'un client (US-11.2 : ajout d'un RDV depuis le calendrier admin) —
+ * miroir EXACT du `CustomerSearchResultDto` C# (GET /planning/customers?term=). `id` est l'identité
+ * opaque à envoyer en `targetCustomerId` (jamais une recherche inverse par nom — L-036).
+ */
+export interface CustomerSearchResult {
+  readonly id: string;
+  readonly fullName: string;
+  readonly email: string;
+}

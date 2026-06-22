@@ -1,5 +1,6 @@
 using AbrisAutoOutaouais_WebApp.Application.Auth.DTOs;
 using AbrisAutoOutaouais_WebApp.Application.Bookings.Commands.CreateBooking;
+using AbrisAutoOutaouais_WebApp.Application.Common.Models;
 using AbrisAutoOutaouais_WebApp.Domain.Constants;
 using AbrisAutoOutaouais_WebApp.Domain.Enums;
 using FluentValidation.TestHelper;
@@ -88,6 +89,43 @@ public sealed class CreateBookingCommandValidatorTests
     {
         _validator.TestValidate(Command(model: null))
             .ShouldNotHaveValidationErrorFor(x => x.Model);
+    }
+
+    // ── Cible client (US-11.2) + exclusivité avec le contact invité ─────────────
+    private static GuestContact Guest()
+        => new("Jean", "Tremblay", "jean@test.com", null);
+
+    [Fact]
+    public void Validate_TargetCustomerIdEmpty_HasError()
+    {
+        var cmd = Command() with { TargetCustomerId = Guid.Empty };
+        _validator.TestValidate(cmd)
+            .ShouldHaveValidationErrorFor(x => x.TargetCustomerId)
+            .WithErrorMessage("Le client ciblé est invalide.");
+    }
+
+    [Fact]
+    public void Validate_TargetCustomerIdReal_HasNoError()
+    {
+        var cmd = Command() with { TargetCustomerId = Guid.NewGuid() };
+        _validator.TestValidate(cmd)
+            .ShouldNotHaveValidationErrorFor(x => x.TargetCustomerId);
+    }
+
+    [Fact]
+    public void Validate_NullTargetCustomerId_HasNoError()
+    {
+        _validator.TestValidate(Command())
+            .ShouldNotHaveValidationErrorFor(x => x.TargetCustomerId);
+    }
+
+    [Fact]
+    public void Validate_BothTargetCustomerIdAndGuestContact_HasError()
+    {
+        var cmd = Command() with { TargetCustomerId = Guid.NewGuid(), GuestContact = Guest() };
+        _validator.TestValidate(cmd)
+            .ShouldHaveValidationErrorFor(x => x)
+            .WithErrorMessage("Choisissez soit un client existant, soit un nouveau contact, pas les deux.");
     }
 
     // ── Épinglage de la source canonique (leçon L-004) ──────────────────────────

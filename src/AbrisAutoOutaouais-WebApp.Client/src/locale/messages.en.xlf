@@ -512,6 +512,155 @@
         <source><x id="date" equiv-text="date"/>, <x id="count" equiv-text="count"/> rendez-vous</source>
         <target><x id="date" equiv-text="date"/>, <x id="count" equiv-text="count"/> appointment(s)</target>
       </trans-unit>
+      <!-- ===== AJOUT D'UN RDV (US-11.2 p2) ===== -->
+      <trans-unit id="admin.calendar.add.heading" datatype="html">
+        <source>Ajouter un rendez-vous</source>
+        <target>Add an appointment</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.open" datatype="html">
+        <source>+ Ajouter un RDV</source>
+        <target>+ Add an appointment</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.formTitle" datatype="html">
+        <source>Nouveau rendez-vous</source>
+        <target>New appointment</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.slotLegend" datatype="html">
+        <source>Créneau</source>
+        <target>Time slot</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.slotsLoading" datatype="html">
+        <source>Chargement des créneaux disponibles…</source>
+        <target>Loading available time slots…</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.noSlots" datatype="html">
+        <source>Aucun créneau disponible ce jour-là.</source>
+        <target>No time slots available on this day.</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.slotGroup" datatype="html">
+        <source>Créneaux disponibles</source>
+        <target>Available time slots</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.clientLegend" datatype="html">
+        <source>Client</source>
+        <target>Customer</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.modeGroup" datatype="html">
+        <source>Type de client</source>
+        <target>Customer type</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.modeNew" datatype="html">
+        <source>Nouveau contact</source>
+        <target>New contact</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.modeExisting" datatype="html">
+        <source>Client existant</source>
+        <target>Existing customer</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.searchLabel" datatype="html">
+        <source>Rechercher un client</source>
+        <target>Search for a customer</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.searchHelp" datatype="html">
+        <source>Tapez au moins 2 caractères (nom ou courriel).</source>
+        <target>Type at least 2 characters (name or email).</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.searching" datatype="html">
+        <source>Recherche en cours…</source>
+        <target>Searching…</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.selected" datatype="html">
+        <source> Client sélectionné : <x id="INTERPOLATION" equiv-text="{{ sc.fullName }}"/> (<x id="INTERPOLATION_1" equiv-text="{{ sc.email }}"/>) </source>
+        <target> Selected customer: <x id="INTERPOLATION" equiv-text="{{ sc.fullName }}"/> (<x id="INTERPOLATION_1" equiv-text="{{ sc.email }}"/>) </target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.detailsLegend" datatype="html">
+        <source>Détails</source>
+        <target>Details</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.type" datatype="html">
+        <source>Type</source>
+        <target>Type</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.civic" datatype="html">
+        <source>N° civique</source>
+        <target>Civic no.</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.street" datatype="html">
+        <source>Rue</source>
+        <target>Street</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.apartment" datatype="html">
+        <source>App.</source>
+        <target>Apt.</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.city" datatype="html">
+        <source>Ville</source>
+        <target>City</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.province" datatype="html">
+        <source>Province</source>
+        <target>Province</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.postal" datatype="html">
+        <source>Code postal</source>
+        <target>Postal code</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.brand" datatype="html">
+        <source>Marque</source>
+        <target>Brand</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.model" datatype="html">
+        <source>Modèle</source>
+        <target>Model</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.notes" datatype="html">
+        <source>Notes</source>
+        <target>Notes</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.submit" datatype="html">
+        <source>Créer le rendez-vous</source>
+        <target>Create the appointment</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.cancel" datatype="html">
+        <source>Annuler</source>
+        <target>Cancel</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.searchCount" datatype="html">
+        <source><x id="count" equiv-text="results.length"/> client(s) trouvé(s).</source>
+        <target><x id="count" equiv-text="results.length"/> customer(s) found.</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.slotsError" datatype="html">
+        <source>Échec du chargement des créneaux disponibles.</source>
+        <target>Failed to load available time slots.</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.customerSelected" datatype="html">
+        <source>Client sélectionné : <x id="name" equiv-text="customer.fullName"/>.</source>
+        <target>Selected customer: <x id="name" equiv-text="customer.fullName"/>.</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.noSlot" datatype="html">
+        <source>Veuillez choisir un créneau.</source>
+        <target>Please choose a time slot.</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.invalid" datatype="html">
+        <source>Veuillez corriger le formulaire.</source>
+        <target>Please correct the form.</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.noCustomer" datatype="html">
+        <source>Veuillez choisir un client.</source>
+        <target>Please choose a customer.</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.saving" datatype="html">
+        <source>Création du rendez-vous…</source>
+        <target>Creating the appointment…</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.success" datatype="html">
+        <source>Rendez-vous ajouté.</source>
+        <target>Appointment added.</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.error" datatype="html">
+        <source>L'ajout du rendez-vous a échoué. Réessayez.</source>
+        <target>Adding the appointment failed. Please try again.</target>
+      </trans-unit>
       <trans-unit id="admin.section.rentals" datatype="html">
         <source>Locations</source>
         <target>Rentals</target>

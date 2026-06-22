@@ -1065,7 +1065,7 @@
   grid constants), `IntegrationTest/Bookings/BookingsEndpointTests.cs`
   (`Reschedule_ToSlotTakenByAnotherBooking_Returns422`).
 
-## L-006 · Move focus AFTER render, not in the same tick that removes the element
+## L-006 · Move focus AFTER render, not in the same tick that removes the element; the focus target must be UNCONDITIONALLY rendered
 
 - **Symptom.** A « retour de focus » handler called `element.focus()` **synchronously** inside an
   RxJS `next`, right after a signal update that removes the triggering button from the DOM (the
@@ -1074,18 +1074,39 @@
   `<body>`. WCAG 2.4.3 (focus order) was violated even though the code "looked" right, and an
   `isConnected` heuristic hid it. The status-only e2e passed; the bug surfaced only when a **vitest**
   `expect(heading).toHaveFocus()` assertion was added and failed.
-- **Rule.** When the focus target only exists **after** the next render (a signal add/removes DOM),
-  focus it **after** the view updates — `setTimeout(() => target.focus())` (macrotask, post-CD),
-  `afterNextRender`, or an `effect()` reading the target's `viewChild()` signal so it re-runs once the
-  element is in the DOM. Never call `.focus()` in the same tick as the signal update that changes
-  which elements exist. Split the cases: focus the **trigger** (still present) when nothing changed
-  (dismiss / error), but focus a **stable fallback** (the heading) *after render* when the trigger is
-  being removed. And **assert focus at the unit level** (vitest `toHaveFocus()`) — a status-only e2e
-  never catches a focus bug. Same discipline as [[L-002]]: the a11y assertion must test the real
-  post-condition, not a proxy.
+  **Second hit (EPIC 11, US-11.2 — calendar add-appointment overlay):** an `effect()` targeted a
+  `viewChild` (`#addFormFirstField`) declared inside `@if (availableSlots().length > 0)`. On any day
+  with no free slots or while slots are loading — the normal case for a busy installation company — the
+  branch was inactive, the `viewChild` returned `undefined`, the effect silently no-oped, and focus
+  fell to `<body>`. Invisible to happy-path tests (which always provided slots) and to axe. Caught by
+  the independent reviewer as a Minor.
+- **Rule.** Two rules, both required:
+  (1) **Timing.** When the focus target only exists **after** the next render (a signal add/removes
+  DOM), focus it **after** the view updates — `setTimeout(() => target.focus())` (macrotask, post-CD),
+  `afterNextRender`, or an `effect()` reading the target's `viewChild()` signal. Never call `.focus()`
+  in the same tick as the signal update that changes which elements exist. Focus the **trigger** (still
+  present) when nothing changed (dismiss / error); focus a **stable fallback** (the heading) *after
+  render* when the trigger is being removed.
+  (2) **Stability of the target.** The element a `viewChild` targets for post-open focus must be
+  **unconditionally rendered** within the container — a heading or `<legend>` with `tabindex="-1"`
+  placed at the top of the sub-form, **outside** any `@if/@else` guard. A `viewChild` whose element
+  lives inside a conditional branch returns `undefined` on the empty/loading path and silently no-ops.
+  This is the most dangerous failure mode: no error, no warning, focus drops to `<body>`, and happy-
+  path tests never exercise the empty branch (see also [[L-040]]: the unresolved/empty path is both
+  the one that breaks and the one tests skip). Guard with a vitest test that passes `availableSlots =
+  []` (or equivalent empty/loading state) and asserts `toHaveFocus()` on the unconditional element.
+  **Corollary — static target → synchronous focus is safe (see [[L-015]]):** when the focus target is
+  a static template element (only `tabindex`/class toggled, never added/removed), `.focus()` right
+  after `signal.set(...)` is correct — `tabindex="-1"` does not block programmatic focus.
+  And **assert focus at the unit level** (vitest `toHaveFocus()`) in all cases — a status-only e2e
+  never catches a focus bug ([[L-002]]).
 - **Refs.** `features/account/rentals/rentals.ts` (`confirmCancel` / `focusTrigger` /
   `focusHeadingAfterRender`, the `effect()` reading `cancelDialog()`),
-  `features/account/rentals/rentals.spec.ts` (the `toHaveFocus()` assertions).
+  `features/account/rentals/rentals.spec.ts` (the `toHaveFocus()` assertions);
+  `features/admin/calendar/calendar.ts` (`addFormHeading` unconditional `viewChild` + focus effect),
+  `features/admin/calendar/calendar.html` (`#addFormHeading tabindex="-1"` outside `@if (availableSlots().length > 0)`),
+  `features/admin/calendar/calendar.spec.ts` (test « jour sans créneau libre » → focus on heading),
+  branch `feat/epic-11-calendrier`.
 
 ## L-005 · A regression guard only guards if CI actually runs it
 

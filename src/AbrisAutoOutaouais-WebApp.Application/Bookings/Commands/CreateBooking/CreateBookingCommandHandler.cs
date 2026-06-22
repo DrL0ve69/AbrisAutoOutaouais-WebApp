@@ -1,5 +1,6 @@
 using AbrisAutoOutaouais_WebApp.Application.Common.Interfaces;
 using AbrisAutoOutaouais_WebApp.Application.Common.Mediator;
+using AbrisAutoOutaouais_WebApp.Domain.Constants;
 using AbrisAutoOutaouais_WebApp.Domain.Exceptions;
 using Domain.Entities;
 using Domain.ValueObjects;
@@ -19,11 +20,19 @@ internal sealed class CreateBookingCommandHandler(
 
     public async Task<Guid> HandleAsync(CreateBookingCommand cmd, CancellationToken ct)
     {
-        // Utilisateur connecté → son Id ; sinon visiteur → compte express trouvé-ou-créé par courriel.
-        var userId = currentUser.UserId
-            ?? (cmd.GuestContact is not null
+        // Résolution sécurisée du client rattaché au RDV, par ordre de priorité :
+        //   1) Staff/Admin ciblant un client existant (calendrier admin, US-11.2) → ce client.
+        //      TargetCustomerId d'un appelant NON staff est ignoré EN SILENCE (repli) — décision
+        //      propriétaire, pas de ForbiddenException ; la garde isStaff est la barrière.
+        //   2) Visiteur fournissant un contact → compte express trouvé-ou-créé par courriel.
+        //   3) Utilisateur connecté → son propre Id.
+        var isStaff = currentUser.IsInRole(Roles.Staff) || currentUser.IsInRole(Roles.Admin);
+        var userId =
+            (isStaff && cmd.TargetCustomerId is { } target && target != Guid.Empty) ? target
+            : cmd.GuestContact is not null
                 ? await express.FindOrCreateByEmailAsync(cmd.GuestContact, ct)
-                : throw new BusinessRuleException("Coordonnées requises pour réserver un créneau."));
+                : currentUser.UserId
+                    ?? throw new BusinessRuleException("Coordonnées requises pour réserver un créneau.");
 
         var address = Address.Create(
             cmd.Address.CivicNumber,

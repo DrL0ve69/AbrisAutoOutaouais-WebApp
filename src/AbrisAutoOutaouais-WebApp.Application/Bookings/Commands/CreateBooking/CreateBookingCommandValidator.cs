@@ -41,5 +41,19 @@ public sealed class CreateBookingCommandValidator : AbstractValidator<CreateBook
         {
             RuleFor(x => x.GuestContact!).SetValidator(new GuestContactValidator());
         });
+
+        // Cible client (calendrier admin, US-11.2) : si fournie, doit être un Guid réel — pas Empty,
+        // qui signifie « aucune sélection » et serait silencieusement traité comme un client valide.
+        When(x => x.TargetCustomerId is not null, () =>
+        {
+            RuleFor(x => x.TargetCustomerId)
+                .NotEqual(Guid.Empty).WithMessage("Le client ciblé est invalide.");
+        });
+
+        // Saisie ambiguë : cibler un client existant ET fournir un contact invité en même temps.
+        // L'admin choisit l'un OU l'autre (radiogroup « Client existant » vs « Nouveau contact »).
+        RuleFor(x => x)
+            .Must(x => !(x.TargetCustomerId is not null && x.GuestContact is not null))
+            .WithMessage("Choisissez soit un client existant, soit un nouveau contact, pas les deux.");
     }
 }

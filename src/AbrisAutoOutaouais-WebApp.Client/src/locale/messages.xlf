@@ -785,221 +785,488 @@
           <context context-type="linenumber">195,196</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="admin.calendar.add.heading" datatype="html">
+        <source>Ajouter un rendez-vous</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.html</context>
+          <context context-type="linenumber">216,217</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.open" datatype="html">
+        <source> + Ajouter un RDV </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.html</context>
+          <context context-type="linenumber">220,221</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.formTitle" datatype="html">
+        <source>Nouveau rendez-vous</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.html</context>
+          <context context-type="linenumber">228</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.slotLegend" datatype="html">
+        <source> Créneau </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.html</context>
+          <context context-type="linenumber">230,231</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.slotsLoading" datatype="html">
+        <source> Chargement des créneaux disponibles… </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.html</context>
+          <context context-type="linenumber">234,235</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.noSlots" datatype="html">
+        <source> Aucun créneau disponible ce jour-là. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.html</context>
+          <context context-type="linenumber">238,239</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.slotGroup" datatype="html">
+        <source>Créneaux disponibles</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.html</context>
+          <context context-type="linenumber">242,243</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.clientLegend" datatype="html">
+        <source> Client </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.html</context>
+          <context context-type="linenumber">270,271</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.modeGroup" datatype="html">
+        <source>Type de client</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.html</context>
+          <context context-type="linenumber">273,274</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.modeNew" datatype="html">
+        <source>Nouveau contact</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.html</context>
+          <context context-type="linenumber">285,286</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.modeExisting" datatype="html">
+        <source>Client existant</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.html</context>
+          <context context-type="linenumber">296,299</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.searchLabel" datatype="html">
+        <source>Rechercher un client</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.html</context>
+          <context context-type="linenumber">305,307</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.searchHelp" datatype="html">
+        <source> Tapez au moins 2 caractères (nom ou courriel). </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.html</context>
+          <context context-type="linenumber">316,317</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.searching" datatype="html">
+        <source> Recherche en cours… </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.html</context>
+          <context context-type="linenumber">326,327</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.selected" datatype="html">
+        <source> Client sélectionné : <x id="INTERPOLATION" equiv-text="{{ sc.fullName }}"/> (<x id="INTERPOLATION_1" equiv-text="{{ sc.email }}"/>) </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.html</context>
+          <context context-type="linenumber">348,349</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.detailsLegend" datatype="html">
+        <source> Détails </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.html</context>
+          <context context-type="linenumber">358,359</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.type" datatype="html">
+        <source>Type</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.html</context>
+          <context context-type="linenumber">362,363</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.civic" datatype="html">
+        <source>N° civique</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.html</context>
+          <context context-type="linenumber">370,371</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.street" datatype="html">
+        <source>Rue</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.html</context>
+          <context context-type="linenumber">375,376</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.apartment" datatype="html">
+        <source>App.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.html</context>
+          <context context-type="linenumber">380,381</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.city" datatype="html">
+        <source>Ville</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.html</context>
+          <context context-type="linenumber">385,386</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.province" datatype="html">
+        <source>Province</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.html</context>
+          <context context-type="linenumber">390,391</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.postal" datatype="html">
+        <source>Code postal</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.html</context>
+          <context context-type="linenumber">395,396</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.brand" datatype="html">
+        <source>Marque</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.html</context>
+          <context context-type="linenumber">400,401</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.model" datatype="html">
+        <source>Modèle</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.html</context>
+          <context context-type="linenumber">405,406</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.notes" datatype="html">
+        <source>Notes</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.html</context>
+          <context context-type="linenumber">410,411</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.submit" datatype="html">
+        <source>Créer le rendez-vous</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.html</context>
+          <context context-type="linenumber">419,420</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.cancel" datatype="html">
+        <source>Annuler</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.html</context>
+          <context context-type="linenumber">422,424</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="admin.calendar.back" datatype="html">
         <source> ← Retour au tableau de bord </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.html</context>
-          <context context-type="linenumber">219,222</context>
+          <context context-type="linenumber">437,440</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.view.month" datatype="html">
         <source>Mois</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">114</context>
+          <context context-type="linenumber">205</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.view.week" datatype="html">
         <source>Semaine</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">115</context>
+          <context context-type="linenumber">206</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.view.day" datatype="html">
         <source>Jour</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">116</context>
+          <context context-type="linenumber">207</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.weekday.sun" datatype="html">
         <source>dim.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">121</context>
+          <context context-type="linenumber">212</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.weekday.mon" datatype="html">
         <source>lun.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">122</context>
+          <context context-type="linenumber">213</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.weekday.tue" datatype="html">
         <source>mar.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">123</context>
+          <context context-type="linenumber">214</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.weekday.wed" datatype="html">
         <source>mer.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">124</context>
+          <context context-type="linenumber">215</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.weekday.thu" datatype="html">
         <source>jeu.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">125</context>
+          <context context-type="linenumber">216</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.weekday.fri" datatype="html">
         <source>ven.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">126</context>
+          <context context-type="linenumber">217</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.weekday.sat" datatype="html">
         <source>sam.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">127</context>
+          <context context-type="linenumber">218</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.searchCount" datatype="html">
+        <source><x id="count" equiv-text="results.length"/> client(s) trouvé(s).</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
+          <context context-type="linenumber">299</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.toast.loadError" datatype="html">
         <source>Échec du chargement du calendrier.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">188</context>
+          <context context-type="linenumber">320</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.toast.detailError" datatype="html">
         <source>Échec du chargement du détail du jour.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">315</context>
+          <context context-type="linenumber">447</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.hours.invalid" datatype="html">
         <source>L&apos;heure de fin doit être postérieure à l&apos;heure de début.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">361</context>
+          <context context-type="linenumber">494</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.hours.saving" datatype="html">
         <source>Enregistrement des heures…</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">367</context>
+          <context context-type="linenumber">500</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.hours.saved" datatype="html">
         <source>Heures de <x id="name" equiv-text="staff.fullName"/> enregistrées.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">381</context>
+          <context context-type="linenumber">514</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.hours.saveError" datatype="html">
         <source>Échec de l&apos;enregistrement des heures.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">387</context>
+          <context context-type="linenumber">520</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.slotsError" datatype="html">
+        <source>Échec du chargement des créneaux disponibles.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
+          <context context-type="linenumber">548</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.customerSelected" datatype="html">
+        <source>Client sélectionné : <x id="name" equiv-text="customer.fullName"/>.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
+          <context context-type="linenumber">624</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.noSlot" datatype="html">
+        <source>Veuillez choisir un créneau.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
+          <context context-type="linenumber">638</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.invalid" datatype="html">
+        <source>Veuillez corriger le formulaire.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
+          <context context-type="linenumber">643</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
+          <context context-type="linenumber">655</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.noCustomer" datatype="html">
+        <source>Veuillez choisir un client.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
+          <context context-type="linenumber">650</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.saving" datatype="html">
+        <source>Création du rendez-vous…</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
+          <context context-type="linenumber">681</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.success" datatype="html">
+        <source>Rendez-vous ajouté.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
+          <context context-type="linenumber">687</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.error" datatype="html">
+        <source>L&apos;ajout du rendez-vous a échoué. Réessayez.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
+          <context context-type="linenumber">698</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
+          <context context-type="linenumber">701</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.hours.group" datatype="html">
         <source>Heures de <x id="name" equiv-text="name"/></source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">395</context>
+          <context context-type="linenumber">722</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.hours.saveAria" datatype="html">
         <source>Enregistrer les heures de <x id="name" equiv-text="name"/></source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">400</context>
+          <context context-type="linenumber">727</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.hours.unspecified" datatype="html">
         <source>Horaire non précisé</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">410</context>
+          <context context-type="linenumber">737</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.announce" datatype="html">
         <source>Période affichée : <x id="period" equiv-text="this.periodLabel()"/></source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">415</context>
+          <context context-type="linenumber">742</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.weekOf" datatype="html">
         <source>Semaine du <x id="date" equiv-text="from.toLocaleDateString(&apos;fr-CA&apos;)"/></source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">433</context>
+          <context context-type="linenumber">760</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.status.pending" datatype="html">
         <source>En attente</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">448</context>
+          <context context-type="linenumber">775</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.status.confirmed" datatype="html">
         <source>Confirmée</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">450</context>
+          <context context-type="linenumber">777</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.status.completed" datatype="html">
         <source>Complétée</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">452</context>
+          <context context-type="linenumber">779</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.status.cancelled" datatype="html">
         <source>Annulée</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">454</context>
+          <context context-type="linenumber">781</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.type.installation" datatype="html">
         <source>Installation</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">461</context>
+          <context context-type="linenumber">788</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.type.delivery" datatype="html">
         <source>Livraison</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">463</context>
+          <context context-type="linenumber">790</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.type.removal" datatype="html">
         <source>Démontage</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">465</context>
+          <context context-type="linenumber">792</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.cellAriaEmpty" datatype="html">
         <source><x id="date" equiv-text="date"/>, aucun rendez-vous</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">482</context>
+          <context context-type="linenumber">809</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.cellAriaCount" datatype="html">
         <source><x id="date" equiv-text="date"/>, <x id="count" equiv-text="count"/> rendez-vous</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">484</context>
+          <context context-type="linenumber">811</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.eyebrow" datatype="html">

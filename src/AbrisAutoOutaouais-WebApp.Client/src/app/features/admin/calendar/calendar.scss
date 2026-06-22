@@ -457,6 +457,179 @@
   min-height: 44px;
 }
 
+// ── Ajout d'un RDV (US-11.2 p2) ─────────────────────────────────
+.cal__add-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.cal__add-toggle {
+  min-height: 44px;
+}
+
+.cal__add-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+// Titre du sous-formulaire d'ajout — cible de focus stable (tabindex="-1", L-006).
+.cal__add-form-title {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+}
+
+.cal__add-fieldset {
+  margin: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.cal__add-legend {
+  padding: 0 var(--space-1);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+}
+
+.cal__add-slots,
+.cal__add-modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.cal__add-slot,
+.cal__add-mode {
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+
+  &:hover {
+    background: var(--color-bg-muted);
+  }
+
+  &--active {
+    // Jeton marque-FIXE (identique aux 2 thèmes) — miroir de .btn--primary (L-023/L-033).
+    background: var(--color-red-600);
+    color: var(--color-on-brand);
+    border-color: var(--color-red-600);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.cal__add-search {
+  margin-top: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.cal__add-help {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.cal__add-results {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.cal__add-result {
+  width: 100%;
+  min-height: 44px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-bg-muted);
+  }
+
+  &--active {
+    border-color: var(--color-red-600);
+    background: var(--color-bg-muted);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.cal__add-result-name {
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+}
+
+.cal__add-result-email {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.cal__add-selected {
+  margin: 0;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+}
+
+.cal__add-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-2) var(--space-3);
+}
+
+.cal__add-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  &--wide {
+    grid-column: 1 / -1;
+  }
+}
+
+.cal__add-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+
+  .btn {
+    min-height: 44px;
+  }
+}
+
 .cal__back {
   display: inline-block;
   margin-top: var(--space-6);
@@ -472,7 +645,9 @@
 // ── Mouvement réduit ─────────────────────────────────────────────
 @media (prefers-reduced-motion: reduce) {
   .cal__view-option,
-  .cal__cell {
+  .cal__cell,
+  .cal__add-slot,
+  .cal__add-mode {
     transition: none;
   }
 }

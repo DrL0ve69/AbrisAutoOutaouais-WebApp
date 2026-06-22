@@ -142,6 +142,27 @@ async function signIn(page: Page, user: typeof STAFF_USER): Promise<void> {
   await page.route('**/api/v1/planning/work-hours', (route) =>
     route.fulfill({ json: { id: 'wh1' } }),
   );
+  // Créneaux libres du jour (US-11.2 p2) — un créneau stocké 12:00Z (→ 08:00 EDT) dérivé du `from`.
+  await page.route('**/api/v1/bookings/available-slots**', (route) => {
+    const from = new URL(route.request().url()).searchParams.get('from') ?? '2026-06-08';
+    route.fulfill({
+      json: [{ start: `${from}T12:00:00Z`, end: `${from}T14:00:00Z` }],
+    });
+  });
+  // Recherche de clients (US-11.2 p2) — liste filtrée simulée.
+  await page.route('**/api/v1/planning/customers**', (route) =>
+    route.fulfill({
+      json: [{ id: 'cust-1', fullName: 'Roxane Existante', email: 'roxane@test.com' }],
+    }),
+  );
+  // POST /bookings (création du RDV) — 201 simulé.
+  await page.route('**/api/v1/bookings', (route) => {
+    if (route.request().method() === 'POST') {
+      route.fulfill({ status: 201, json: { id: 'new-rdv' } });
+    } else {
+      route.fallback();
+    }
+  });
 }
 
 function forceTheme(page: Page, theme: 'light' | 'dark'): Promise<void> {
@@ -321,6 +342,69 @@ test('Admin — formulaire d’heures éditable ; enregistrer appelle l’API', 
   expect(body.endMinutes).toBe(1020);
 });
 
+test('Admin — ajout d’un RDV (client existant) bout-en-bout ; créneau 12:00Z → « 08:00 » (L-044)', async ({
+  page,
+}) => {
+  await signIn(page, ADMIN_USER);
+  await gotoPlanning(page);
+
+  // Ouvrir le dialogue jour puis déployer le sous-formulaire d'ajout.
+  await page.locator('.cal__cell--has').first().click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole('button', { name: /\+ ajouter un rdv/i }).click();
+
+  // Le créneau libre s'affiche en heure LOCALE (12:00Z → 08 h en America/Toronto, L-044).
+  // fr-CA formate « 08 h 00 » (pas « 08:00 ») — l'essentiel : 08 h, jamais 12 h.
+  const slotGroup = dialog.getByRole('radiogroup', { name: /créneaux disponibles/i });
+  const slot = slotGroup.getByRole('radio').first();
+  await expect(slot).toContainText(/08\s*h\s*00/);
+  await expect(slotGroup.getByText(/12\s*h/)).toHaveCount(0);
+  await slot.click();
+  await expect(slot).toHaveAttribute('aria-checked', 'true');
+
+  // Mode « Client existant » → rechercher et sélectionner.
+  await dialog.getByRole('radio', { name: /client existant/i }).click();
+  await dialog.getByRole('searchbox', { name: /rechercher un client/i }).fill('rox');
+  const result = dialog.getByRole('button', { name: /roxane existante/i });
+  await expect(result).toBeVisible();
+  await result.click();
+
+  // Adresse minimale.
+  await dialog.getByRole('textbox', { name: /n° civique/i }).fill('12');
+  await dialog.getByRole('textbox', { name: /rue/i }).fill('rue Test');
+  await dialog.getByRole('textbox', { name: /ville/i }).fill('Gatineau');
+  await dialog.getByRole('textbox', { name: /code postal/i }).fill('J8X 1A1');
+
+  // Soumettre → le POST /bookings part avec le bon créneau + targetCustomerId.
+  const postPromise = page.waitForRequest(
+    (req) => req.url().endsWith('/api/v1/bookings') && req.method() === 'POST',
+  );
+  await dialog.getByRole('button', { name: /créer le rendez-vous/i }).click();
+  const request = await postPromise;
+  const body = JSON.parse(request.postData() ?? '{}');
+  expect(body.targetCustomerId).toBe('cust-1');
+  expect(body.guestContact).toBeNull();
+  expect(body.slotStart).toMatch(/T12:00:00/); // valeur ISO UTC brute envoyée (L-044)
+});
+
+test('Admin — sous-formulaire d’ajout : focus + Échap ferme le dialogue (APG)', async ({ page }) => {
+  await signIn(page, ADMIN_USER);
+  await gotoPlanning(page);
+
+  await page.locator('.cal__cell--has').first().click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByRole('button', { name: /\+ ajouter un rdv/i }).click();
+
+  // Le 1er créneau (1er champ du sous-formulaire) reçoit le focus après rendu (L-006).
+  const slot = dialog.getByRole('radiogroup', { name: /créneaux disponibles/i }).getByRole('radio').first();
+  await expect(slot).toBeFocused();
+
+  // Échap referme le dialogue entier (et donc le sous-formulaire).
+  await page.keyboard.press('Escape');
+  await expect(dialog).toBeHidden();
+});
+
 // ── Balayage axe : /planning × deux thèmes, navbar scrollée (verre) ─────────────
 const themes = [
   { id: 'light', libelle: 'thème clair' },
@@ -344,6 +428,11 @@ for (const theme of themes) {
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
     await expect(dialog.getByRole('group', { name: /heures de/i }).first()).toBeVisible();
+
+    // Déploie le sous-formulaire d'ajout (US-11.2 p2) pour scanner sa nouvelle surface
+    // (radiogroups créneaux/mode, recherche, champs adresse) dans les deux thèmes.
+    await dialog.getByRole('button', { name: /\+ ajouter un rdv/i }).click();
+    await expect(dialog.getByRole('radiogroup', { name: /créneaux disponibles/i })).toBeVisible();
 
     // Scroll → navbar en verre translucide (.navbar--scrolled), si la page défile.
     await page.evaluate(() => window.scrollTo(0, 300));

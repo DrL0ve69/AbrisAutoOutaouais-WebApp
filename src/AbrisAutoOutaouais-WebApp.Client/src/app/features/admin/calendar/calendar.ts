@@ -10,10 +10,19 @@ import {
   viewChildren,
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { FormArray, FormGroup, FormControl, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  FormControl,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { Subject, debounceTime, distinctUntilChanged, map, switchMap, of, catchError } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CalendarService } from '../../../core/services/calendar.service';
 import { PlanningService } from '../../../core/services/planning.service';
+import { BookingService } from '../../../core/services/booking.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import {
@@ -21,9 +30,29 @@ import {
   CalendarCell,
   CalendarView,
 } from '../../../core/models/calendar.model';
-import { DayDetailDto, StaffWorkHoursDto } from '../../../core/models/planning.model';
-import { BookingStatus, BookingType } from '../../../core/models/booking.model';
+import {
+  CustomerSearchResult,
+  DayDetailDto,
+  StaffWorkHoursDto,
+} from '../../../core/models/planning.model';
+import {
+  AvailableSlotDto,
+  BookingStatus,
+  BookingType,
+  CreateBookingRequest,
+} from '../../../core/models/booking.model';
 import { isRadioNavKey, nextRadioIndex } from '../../mesurer/util/radio-nav.util';
+import {
+  CIVIC_PATTERN,
+  POSTAL_PATTERN,
+  normalizePostal,
+} from '../../../core/validators/address.validators';
+import {
+  buildGuestContactGroup,
+  toGuestContactRequest,
+} from '../../../core/validators/guest-contact.validators';
+import { excludedBrandValidator } from '../../../core/validators/brand.validators';
+import { GuestContactComponent } from '../../../shared/components/a11y-components/guest-contact/guest-contact.component';
 import { hhmmToMinutes, minutesToHhmm } from './util/work-hours.util';
 import {
   buildGrid,
@@ -34,6 +63,9 @@ import {
   startOfDay,
   viewRange,
 } from './util/calendar-grid.util';
+
+/** Mode de saisie du client pour un nouveau RDV (radiogroup APG). */
+type AddMode = 'new' | 'existing';
 
 /** Option de la bascule de vue (radiogroup APG). */
 interface ViewOption {
@@ -52,8 +84,14 @@ type WorkHoursForm = FormGroup<{
  * Vue planning (US-11.1 + US-11.2) — calendrier des créneaux existants + détail du jour.
  * Cliquer un jour ouvre un DIALOGUE accessible (`role="dialog"`) listant les RDV du jour
  * (lecture seule) ET les heures de chaque employé (Staff). L'Admin saisit/édite les heures
- * (formulaire réactif par employé) ; le Staff voit les heures en lecture seule. Ajouter des RDV
- * ou des employés est HORS périmètre.
+ * (formulaire réactif par employé) ; le Staff voit les heures en lecture seule.
+ *
+ * US-11.2 p2 — l'Admin peut AJOUTER un RDV depuis le dialogue : un sous-formulaire propose un
+ * créneau libre du jour (radiogroup APG des `available-slots`), le client (« Nouveau contact » via
+ * `app-guest-contact` + compte express OU « Client existant » par recherche débouncée), l'adresse,
+ * le type et la marque/modèle. La soumission envoie `targetCustomerId` (mode existant) OU
+ * `guestContact` (nouveau contact), puis recharge le détail du jour ET la grille (cohérence des
+ * pastilles). Ajouter un employé reste HORS périmètre (déjà couvert par la saisie d'heures, p1).
  *
  * Accessible au clavier (WCAG 2.2 AA) :
  *  - grille `role="grid"` roving tabindex + flèches/Home/End/PageUp/PageDown (pattern grid APG, L-015) ;
@@ -68,7 +106,7 @@ type WorkHoursForm = FormGroup<{
 @Component({
   selector: 'app-admin-calendar',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, DatePipe, ReactiveFormsModule],
+  imports: [RouterLink, DatePipe, ReactiveFormsModule, GuestContactComponent],
   templateUrl: './calendar.html',
   styleUrl: './calendar.scss',
   host: {
@@ -79,8 +117,10 @@ type WorkHoursForm = FormGroup<{
 export class AdminCalendarComponent {
   private readonly calendar = inject(CalendarService);
   private readonly planning = inject(PlanningService);
+  private readonly booking = inject(BookingService);
   private readonly auth = inject(AuthService);
   private readonly toast = inject(ToastService);
+  private readonly fb = inject(FormBuilder);
 
   // ── État ─────────────────────────────────────────────────────────────────
   protected readonly view = signal<CalendarView>('month');
@@ -109,6 +149,57 @@ export class AdminCalendarComponent {
   protected readonly hoursForms = signal<readonly WorkHoursForm[]>([]);
   /** Employé en cours de sauvegarde (par id) — désactive son bouton et annonce l'état. */
   protected readonly savingEmployeeId = signal<string | null>(null);
+
+  // ── Ajout d'un RDV (US-11.2 p2, Admin) ─────────────────────────────────────
+  /** Le sous-formulaire « Ajouter un RDV » est-il déployé ? */
+  protected readonly showAddForm = signal(false);
+  /** Créneaux libres du jour ouvert (radiogroup APG). */
+  protected readonly availableSlots = signal<readonly AvailableSlotDto[]>([]);
+  protected readonly loadingSlots = signal(false);
+  /** Créneau sélectionné (sa valeur `start` ISO UTC brute — pas de Date locale, L-044). */
+  protected readonly selectedSlot = signal<string | null>(null);
+  /** Mode de saisie du client : nouveau contact (défaut) ou client existant. */
+  protected readonly addMode = signal<AddMode>('new');
+  /** Résultats de la recherche de clients (mode existant). */
+  protected readonly customerResults = signal<readonly CustomerSearchResult[]>([]);
+  protected readonly searchingCustomers = signal(false);
+  /** Client existant sélectionné (son id est envoyé en `targetCustomerId` — L-036). */
+  protected readonly selectedCustomer = signal<CustomerSearchResult | null>(null);
+  protected readonly submittingBooking = signal(false);
+  /** Annonce scopée de l'ajout de RDV (reset neutre avant ré-annonce — L-027). */
+  protected readonly addAnnouncement = signal('');
+
+  /** Flux de termes de recherche client (poussé par l'`(input)` du champ — mode existant). */
+  private readonly customerSearch$ = new Subject<string>();
+
+  protected readonly types: readonly BookingType[] = ['Installation', 'Delivery', 'Removal'];
+
+  /**
+   * Formulaire du nouveau RDV (adresse structurée + type + marque/modèle + notes). Le client est
+   * géré à part (radiogroup mode + `app-guest-contact` ou recherche). `province` défaut « QC ».
+   */
+  protected readonly addForm = this.fb.nonNullable.group({
+    type: ['Installation' as BookingType, Validators.required],
+    civicNumber: ['', [Validators.required, Validators.pattern(CIVIC_PATTERN)]],
+    street: ['', Validators.required],
+    apartment: ['', Validators.maxLength(20)],
+    city: ['', Validators.required],
+    province: ['QC', Validators.required],
+    postalCode: ['', [Validators.required, Validators.pattern(POSTAL_PATTERN)]],
+    brand: ['', [excludedBrandValidator, Validators.maxLength(100)]],
+    model: ['', Validators.maxLength(100)],
+    notes: [''],
+  });
+
+  /** Coordonnées du nouveau contact (mode « new ») — validées seulement dans ce mode. */
+  protected readonly guestForm = buildGuestContactGroup(this.fb);
+
+  /** Terme de recherche client (mode « existing »). */
+  protected readonly customerSearchTerm = new FormControl('', { nonNullable: true });
+
+  protected get af() {
+    return this.addForm.controls;
+  }
 
   protected readonly views: readonly ViewOption[] = [
     { view: 'month', label: $localize`:@@admin.calendar.view.month:Mois` },
@@ -155,6 +246,18 @@ export class AdminCalendarComponent {
   private readonly gridCells = viewChildren<ElementRef<HTMLElement>>('gridCell');
   private readonly viewRadios = viewChildren<ElementRef<HTMLButtonElement>>('viewRadio');
   private readonly dayDialog = viewChild<ElementRef<HTMLElement>>('dayDialog');
+  /** Options du radiogroup « mode client » (Nouveau contact / Client existant) — roving focus. */
+  private readonly modeRadios = viewChildren<ElementRef<HTMLButtonElement>>('modeRadio');
+  /** Options du radiogroup « créneau libre » — roving focus. */
+  private readonly slotRadios = viewChildren<ElementRef<HTMLButtonElement>>('slotRadio');
+  /**
+   * Cible de focus du sous-formulaire d'ajout (focus après ouverture — L-006). C'est le titre du
+   * sous-formulaire (`tabindex="-1"`), TOUJOURS rendu quel que soit l'état des créneaux — contrairement
+   * au bouton radio de créneau, qui n'existe que dans la branche `@else` (≥ 1 créneau libre). Un jour
+   * complet/sans créneau est fréquent pour une entreprise d'installation : sans cible stable, le focus
+   * tomberait sur `<body>` (WCAG 2.4.3, famille L-006).
+   */
+  private readonly addFormHeading = viewChild<ElementRef<HTMLElement>>('addFormHeading');
 
   /** Cellule (bouton) ayant ouvert le dialogue — pour lui rendre le focus à la fermeture. */
   private dayTriggerEl: HTMLElement | null = null;
@@ -168,6 +271,48 @@ export class AdminCalendarComponent {
         dialog.nativeElement.focus();
       }
     });
+
+    // Focus le titre du sous-formulaire d'ajout APRÈS son rendu (L-006 : l'effet relit
+    // addFormHeading() pour se ré-exécuter une fois l'élément monté par le @if). Cible STABLE
+    // (rendue dans tous les états de créneaux), donc le focus atterrit toujours dans le formulaire,
+    // même un jour sans créneau libre (WCAG 2.4.3).
+    effect(() => {
+      const heading = this.addFormHeading();
+      if (this.showAddForm() && heading) {
+        heading.nativeElement.focus();
+      }
+    });
+
+    // Recherche client débouncée (mode existant) : 250 ms, dé-doublonnée, annulation par switchMap,
+    // résiliente (catchError → liste vide). Terme < 2 caractères → on vide les résultats sans appel.
+    // Pilotée par un Subject poussé depuis l'`(input)` du champ (même idiome que l'autocomplete
+    // d'adresse) — fiable au test (userEvent dispatche l'input natif → le handler pousse le terme).
+    this.customerSearch$
+      .pipe(
+        debounceTime(250),
+        map((term) => term.trim()),
+        distinctUntilChanged(),
+        switchMap((term) => {
+          // Une frappe invalide la sélection précédente (on cherche à nouveau).
+          this.selectedCustomer.set(null);
+          if (term.length < 2) {
+            this.searchingCustomers.set(false);
+            this.customerResults.set([]);
+            return of<CustomerSearchResult[]>([]);
+          }
+          this.searchingCustomers.set(true);
+          return this.planning.searchCustomers(term).pipe(catchError(() => of([])));
+        }),
+        takeUntilDestroyed(),
+      )
+      .subscribe((results) => {
+        this.searchingCustomers.set(false);
+        this.customerResults.set(results);
+        this.announceAdd(
+          $localize`:@@admin.calendar.add.searchCount:${results.length}:count: client(s) trouvé(s).`,
+        );
+      });
+
     this.load();
   }
 
@@ -333,6 +478,7 @@ export class AdminCalendarComponent {
     this.openDay.set(null);
     this.dayDetail.set(null);
     this.hoursForms.set([]);
+    this.resetAddForm();
     // Retour du focus à la cellule déclencheuse (WCAG 2.4.3).
     const trigger = this.dayTriggerEl;
     this.dayTriggerEl = null;
@@ -388,6 +534,199 @@ export class AdminCalendarComponent {
           );
         },
       });
+  }
+
+  // ── Ajout d'un RDV (US-11.2 p2, Admin) ─────────────────────────────────────
+  /**
+   * Déploie le sous-formulaire et charge les créneaux libres du jour ouvert. On envoie la valeur
+   * `start` ISO UTC BRUTE du créneau choisi (jamais une Date locale reconstruite — L-044).
+   */
+  protected openAddForm(): void {
+    const day = this.openDay();
+    if (!day) return;
+    this.showAddForm.set(true);
+    this.loadingSlots.set(true);
+    this.availableSlots.set([]);
+    this.selectedSlot.set(null);
+
+    // Créneaux libres du seul jour ouvert (from == to == clé locale du jour).
+    this.booking.getAvailableSlots(day.isoDate, day.isoDate).subscribe({
+      next: (slots) => {
+        this.availableSlots.set(slots ?? []);
+        this.loadingSlots.set(false);
+      },
+      error: () => {
+        this.loadingSlots.set(false);
+        this.announceAdd(
+          $localize`:@@admin.calendar.add.slotsError:Échec du chargement des créneaux disponibles.`,
+        );
+      },
+    });
+  }
+
+  /** Replie et réinitialise le sous-formulaire d'ajout (sans toucher au dialogue jour). */
+  protected resetAddForm(): void {
+    this.showAddForm.set(false);
+    this.availableSlots.set([]);
+    this.selectedSlot.set(null);
+    this.addMode.set('new');
+    this.customerResults.set([]);
+    this.selectedCustomer.set(null);
+    this.submittingBooking.set(false);
+    this.addAnnouncement.set('');
+    this.addForm.reset({ type: 'Installation', province: 'QC' });
+    this.guestForm.reset();
+    this.customerSearchTerm.reset('');
+  }
+
+  protected cancelAddForm(): void {
+    this.resetAddForm();
+  }
+
+  /** Sélectionne un créneau libre (sa valeur `start` ISO UTC brute). */
+  protected selectSlot(start: string): void {
+    this.selectedSlot.set(start);
+  }
+
+  protected onSlotKeydown(event: KeyboardEvent, index: number): void {
+    if (event.ctrlKey || event.altKey || event.metaKey) return;
+    if (!isRadioNavKey(event.key)) return;
+    event.preventDefault();
+    const slots = this.availableSlots();
+    if (slots.length === 0) return;
+    const next = nextRadioIndex(event.key, index, slots.length);
+    this.selectSlot(slots[next].start);
+    // Les boutons de créneau restent montés tant que le formulaire est ouvert → focus synchrone (L-015).
+    this.slotRadios()[next]?.nativeElement.focus();
+  }
+
+  /** Bascule le mode de saisie du client (radiogroup APG). */
+  protected setAddMode(mode: AddMode): void {
+    if (mode === this.addMode()) return;
+    this.addMode.set(mode);
+    // Repartir propre : on vide la sélection/recherche de l'autre mode.
+    this.selectedCustomer.set(null);
+    this.customerResults.set([]);
+    this.customerSearchTerm.reset('');
+    this.guestForm.reset();
+  }
+
+  protected onModeKeydown(event: KeyboardEvent): void {
+    if (event.ctrlKey || event.altKey || event.metaKey) return;
+    if (!isRadioNavKey(event.key)) return;
+    event.preventDefault();
+    const modes: readonly AddMode[] = ['new', 'existing'];
+    const current = modes.indexOf(this.addMode());
+    const next = nextRadioIndex(event.key, current, modes.length);
+    this.setAddMode(modes[next]);
+    // Les 2 boutons de mode restent montés → focus synchrone sûr (L-015).
+    this.modeRadios()[next]?.nativeElement.focus();
+  }
+
+  /** Saisie dans le champ de recherche → pousse le terme dans le flux débouncé (mode existant). */
+  protected onCustomerSearchInput(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.customerSearch$.next(value);
+  }
+
+  /** Sélectionne un client existant (on retient l'objet ; son id sera envoyé — L-036). */
+  protected selectCustomer(customer: CustomerSearchResult): void {
+    this.selectedCustomer.set(customer);
+    this.announceAdd(
+      $localize`:@@admin.calendar.add.customerSelected:Client sélectionné : ${customer.fullName}:name:.`,
+    );
+  }
+
+  /**
+   * Crée le RDV : envoie `targetCustomerId` (mode existant) OU `guestContact` (nouveau contact),
+   * puis recharge le détail du jour ET la grille (cohérence des pastilles), et annonce le résultat.
+   */
+  protected submitBooking(): void {
+    const day = this.openDay();
+    if (this.submittingBooking() || !day) return;
+
+    const slot = this.selectedSlot();
+    if (!slot) {
+      this.announceAdd($localize`:@@admin.calendar.add.noSlot:Veuillez choisir un créneau.`);
+      return;
+    }
+    if (this.addForm.invalid) {
+      this.addForm.markAllAsTouched();
+      this.announceAdd($localize`:@@admin.calendar.add.invalid:Veuillez corriger le formulaire.`);
+      return;
+    }
+
+    const mode = this.addMode();
+    const customer = this.selectedCustomer();
+    if (mode === 'existing' && !customer) {
+      this.announceAdd($localize`:@@admin.calendar.add.noCustomer:Veuillez choisir un client.`);
+      return;
+    }
+    if (mode === 'new' && this.guestForm.invalid) {
+      this.guestForm.markAllAsTouched();
+      this.announceAdd($localize`:@@admin.calendar.add.invalid:Veuillez corriger le formulaire.`);
+      return;
+    }
+
+    const v = this.addForm.getRawValue();
+    const request: CreateBookingRequest = {
+      slotStart: slot, // valeur ISO UTC brute du créneau (L-044)
+      type: v.type,
+      address: {
+        civicNumber: v.civicNumber,
+        street: v.street,
+        apartment: v.apartment.trim() || null,
+        city: v.city,
+        province: v.province || 'QC',
+        postalCode: normalizePostal(v.postalCode),
+        country: 'Canada',
+      },
+      notes: v.notes.trim() || null,
+      brand: v.brand?.trim() || null,
+      model: v.model?.trim() || null,
+      // Exclusifs : un client existant OU un nouveau contact (jamais les deux — re-validé serveur).
+      targetCustomerId: mode === 'existing' ? (customer?.id ?? null) : null,
+      guestContact: mode === 'new' ? toGuestContactRequest(this.guestForm) : null,
+    };
+
+    this.submittingBooking.set(true);
+    this.announceAdd($localize`:@@admin.calendar.add.saving:Création du rendez-vous…`);
+
+    this.booking.createBooking(request).subscribe({
+      next: () => {
+        this.submittingBooking.set(false);
+        this.toast.show(
+          $localize`:@@admin.calendar.add.success:Rendez-vous ajouté.`,
+          'success',
+        );
+        this.resetAddForm();
+        // Cohérence : recharge le détail du jour (liste des RDV) ET la grille (pastilles).
+        this.loadDayDetail(day);
+        this.load();
+      },
+      error: () => {
+        this.submittingBooking.set(false);
+        this.announceAdd(
+          $localize`:@@admin.calendar.add.error:L'ajout du rendez-vous a échoué. Réessayez.`,
+        );
+        this.toast.show(
+          $localize`:@@admin.calendar.add.error:L'ajout du rendez-vous a échoué. Réessayez.`,
+          'error',
+        );
+      },
+    });
+  }
+
+  /** Heure lisible d'un créneau libre (fuseau LOCAL, cohérent avec l'affichage des RDV — L-044). */
+  protected slotLabel(slot: AvailableSlotDto): string {
+    const fmt = (iso: string) =>
+      new Date(iso).toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit' });
+    return `${fmt(slot.start)} – ${fmt(slot.end)}`;
+  }
+
+  private announceAdd(message: string): void {
+    this.addAnnouncement.set('');
+    this.addAnnouncement.set(message);
   }
 
   /** Étiquette accessible d'un fieldset/formulaire d'heures (interpolée → $localize, pas i18n-, L-024). */

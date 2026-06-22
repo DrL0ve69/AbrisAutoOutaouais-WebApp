@@ -1,4 +1,6 @@
+using AbrisAutoOutaouais_WebApp.Application.Auth.DTOs;
 using AbrisAutoOutaouais_WebApp.Application.Common.Mediator;
+using AbrisAutoOutaouais_WebApp.Application.Customers.Queries.SearchCustomers;
 using AbrisAutoOutaouais_WebApp.Application.Planning.Commands.UpsertWorkHours;
 using AbrisAutoOutaouais_WebApp.Application.Planning.Queries.GetDayDetail;
 using Asp.Versioning;
@@ -25,6 +27,17 @@ public sealed class PlanningController(IDispatcher dispatcher) : ControllerBase
     [ProducesResponseType<ProblemDetails>(422)]
     public async Task<IActionResult> GetDay([FromQuery] DateOnly date, CancellationToken ct)
         => Ok(await dispatcher.DispatchAsync(new GetDayDetailQuery(date), ct));
+
+    /// <summary>
+    /// Recherche de clients (rôle <c>Customer</c>) pour rattacher un RDV à un client existant
+    /// depuis le calendrier admin (US-11.2). Réservé à l'Admin (saisie de RDV).
+    /// </summary>
+    [HttpGet("customers")]
+    [Authorize(Policy = "AdminOnly")]
+    [ProducesResponseType<IReadOnlyList<CustomerSearchResultDto>>(200)]
+    [ProducesResponseType<ProblemDetails>(422)]
+    public async Task<IActionResult> SearchCustomers([FromQuery] string term, CancellationToken ct)
+        => Ok(await dispatcher.DispatchAsync(new SearchCustomersQuery(term), ct));
 
     /// <summary>Crée ou met à jour les heures d'un employé pour une date (Admin).</summary>
     [HttpPut("work-hours")]

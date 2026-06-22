@@ -9,6 +9,9 @@ namespace AbrisAutoOutaouais_WebApp.Application.Bookings.Commands.CreateBooking;
 /// Réserver un créneau d'installation / livraison / démontage.
 /// <paramref name="GuestContact"/> non nul = visiteur non connecté (compte express créé/réutilisé) ;
 /// null = utilisateur connecté. Dernier paramètre (défaut null) pour ne pas casser les appels existants.
+/// <paramref name="TargetCustomerId"/> : rattacher le RDV à un client existant — N'EST HONORÉ que si
+/// l'appelant est Staff/Admin (calendrier admin, US-11.2) ; pour tout autre appelant il est ignoré
+/// EN SILENCE (repli sur GuestContact/utilisateur courant), pas d'exception (décision propriétaire).
 /// </summary>
 public sealed record CreateBookingCommand(
     DateTime SlotStart,
@@ -17,4 +20,5 @@ public sealed record CreateBookingCommand(
     string? Notes,
     string? Brand = null,
     string? Model = null,
-    GuestContact? GuestContact = null) : ICommand<Guid>;
+    GuestContact? GuestContact = null,
+    Guid? TargetCustomerId = null) : ICommand<Guid>;
