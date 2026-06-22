@@ -26,8 +26,19 @@ public sealed class GetShelterModelBySlugQueryHandler(IApplicationDbContext db)
             .AsNoTracking()
             .Include(m => m.Category)
             .Include(m => m.Dimensions)
+            .Include(m => m.PriceEntries)
             .FirstOrDefaultAsync(m => m.Slug == query.Slug, ct)
             ?? throw new NotFoundException(nameof(ShelterModel), query.Slug);
+
+        // « À partir de » en dollars : min de la grille (0 si grille vide — modèle non tarifé).
+        var basePrice = model.StartingPrice;
+
+        // Grille triée (longueur puis hauteur) pour un ordre stable côté client (L-030).
+        var grid = model.PriceEntries
+            .OrderBy(e => e.LengthCm)
+            .ThenBy(e => e.ClearHeightCm)
+            .Select(e => new ShelterPriceGridEntryDto(e.LengthCm, e.ClearHeightCm, e.PriceCents))
+            .ToList();
 
         return new ShelterModelDetailDto(
             model.Id,
@@ -35,13 +46,13 @@ public sealed class GetShelterModelBySlugQueryHandler(IApplicationDbContext db)
             model.Name,
             model.Category.Id,
             model.Category.Name,
-            model.BasePrice,
+            basePrice,
             model.MinLengthCm,
             model.MaxLengthCm,
             model.LengthStepCm,
-            model.PricePerArchCents,
             model.WidthOptionsCm,
-            model.ClearHeightOptionsCm);
+            model.ClearHeightOptionsCm,
+            grid);
     }
 
     public ValueTask<ShelterModelDetailDto> Handle(

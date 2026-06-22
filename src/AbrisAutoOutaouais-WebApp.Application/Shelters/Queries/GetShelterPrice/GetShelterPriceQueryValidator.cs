@@ -3,9 +3,9 @@ using FluentValidation;
 namespace AbrisAutoOutaouais_WebApp.Application.Shelters.Queries.GetShelterPrice;
 
 /// <summary>
-/// Garde d'entrée : la longueur demandée doit être strictement positive. Les bornes précises
-/// (plage [Min, Max] et alignement sur le pas) dépendent du modèle ciblé et sont donc validées
-/// dans le handler une fois le modèle chargé — d'où une seule règle générique ici.
+/// Garde d'entrée : la longueur ET la hauteur dégagée demandées doivent être strictement positives.
+/// La validité fine (combinaison présente dans la grille du modèle, bornes/alignement de longueur)
+/// dépend du modèle ciblé et est donc vérifiée dans le handler une fois le modèle chargé.
 /// </summary>
 public sealed class GetShelterPriceQueryValidator : AbstractValidator<GetShelterPriceQuery>
 {
@@ -13,5 +13,8 @@ public sealed class GetShelterPriceQueryValidator : AbstractValidator<GetShelter
     {
         RuleFor(x => x.LengthCm)
             .GreaterThan(0).WithMessage("La longueur demandée doit être supérieure à 0.");
+
+        RuleFor(x => x.ClearHeightCm)
+            .GreaterThan(0).WithMessage("La hauteur dégagée demandée doit être supérieure à 0.");
     }
 }

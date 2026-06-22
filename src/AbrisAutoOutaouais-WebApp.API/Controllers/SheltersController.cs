@@ -34,7 +34,8 @@ public sealed class SheltersController(IDispatcher dispatcher) : ControllerBase
     /// Calcule le prix d'un modèle pour une longueur configurée (en cm). Le segment littéral
     /// « price » l'emporte sur le paramètre <c>{slug}</c> par précédence de gabarit de route (un
     /// template plus spécifique prime) ; on le déclare AVANT par lisibilité, et un test IT verrouille
-    /// le comportement. Longueur hors plage / désalignée → 422 ; slug inconnu → 404.
+    /// le comportement. Le prix provient d'un LOOKUP dans la grille exacte (longueur × hauteur
+    /// dégagée). Combinaison absente de la grille → 422 ; slug inconnu → 404.
     /// </summary>
     [HttpGet("{slug}/price")]
     [AllowAnonymous]
@@ -42,8 +43,8 @@ public sealed class SheltersController(IDispatcher dispatcher) : ControllerBase
     [ProducesResponseType<ProblemDetails>(404)]
     [ProducesResponseType<ProblemDetails>(422)]
     public async Task<IActionResult> GetPrice(
-        string slug, [FromQuery] int lengthCm, CancellationToken ct)
-        => Ok(await dispatcher.DispatchAsync(new GetShelterPriceQuery(slug, lengthCm), ct));
+        string slug, [FromQuery] int lengthCm, [FromQuery] int clearHeightCm, CancellationToken ct)
+        => Ok(await dispatcher.DispatchAsync(new GetShelterPriceQuery(slug, lengthCm, clearHeightCm), ct));
 
     /// <summary>
     /// Suggère les MODÈLES d'abris paramétriques compatibles avec une empreinte mesurée

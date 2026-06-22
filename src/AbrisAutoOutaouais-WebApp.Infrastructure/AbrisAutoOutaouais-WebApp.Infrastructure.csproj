@@ -36,4 +36,12 @@
     <Folder Include="Persistence\Seeders\" />
   </ItemGroup>
 
+  <!-- Données de référence semées au runtime via Assembly.GetManifestResourceStream (pas de fichier
+       externe). La grille de prix exacte des abris est lue depuis cette ressource embarquée. -->
+  <ItemGroup>
+    <EmbeddedResource Include="Persistence\Data\shelter-price-grids.json">
+      <LogicalName>shelter-price-grids.json</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>

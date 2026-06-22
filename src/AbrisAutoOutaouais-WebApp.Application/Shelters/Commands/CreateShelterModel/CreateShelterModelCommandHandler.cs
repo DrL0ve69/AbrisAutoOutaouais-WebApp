@@ -28,6 +28,8 @@ public sealed class CreateShelterModelCommandHandler(IApplicationDbContext db)
         if (!categoryExists)
             throw new NotFoundException(nameof(ProductCategory), command.CategoryId);
 
+        // Aucune grille de prix à la création (l'admin ne tarife pas) : le modèle reste non tarifé
+        // tant qu'une grille n'est pas semée pour son slug.
         var model = ShelterModel.Create(
             slug: normalizedSlug,
             name: command.Name,
@@ -35,8 +37,6 @@ public sealed class CreateShelterModelCommandHandler(IApplicationDbContext db)
             lengthStepCm: command.LengthStepCm,
             minLengthCm: command.MinLengthCm,
             maxLengthCm: command.MaxLengthCm,
-            basePrice: command.BasePrice,
-            pricePerArchCents: command.PricePerArchCents,
             widthsCm: command.WidthsCm,
             clearHeightsCm: command.ClearHeightsCm);
 

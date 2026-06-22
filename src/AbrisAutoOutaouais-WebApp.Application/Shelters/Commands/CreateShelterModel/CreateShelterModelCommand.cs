@@ -3,8 +3,9 @@ using AbrisAutoOutaouais_WebApp.Application.Common.Mediator;
 namespace AbrisAutoOutaouais_WebApp.Application.Shelters.Commands.CreateShelterModel;
 
 /// <summary>
-/// Crée un modèle d'abri paramétrique (référentiel admin, EPIC 9.5).
-/// <c>BasePrice</c> est en DOLLARS ; <c>PricePerArchCents</c> est en CENTS (miroir de l'entité).
+/// Crée un modèle d'abri paramétrique (référentiel admin, EPIC 9.5). L'admin ne fixe PLUS les prix :
+/// la tarification provient d'une grille EXACTE semée (lecture seule). Un modèle créé ici n'a donc
+/// AUCUNE grille et reste « non tarifé » tant qu'une grille n'est pas semée pour son slug.
 /// </summary>
 public sealed record CreateShelterModelCommand(
     string Slug,
@@ -13,8 +14,6 @@ public sealed record CreateShelterModelCommand(
     int LengthStepCm,
     int MinLengthCm,
     int MaxLengthCm,
-    decimal BasePrice,
-    int PricePerArchCents,
     IReadOnlyList<int> WidthsCm,
     IReadOnlyList<int> ClearHeightsCm
 ) : ICommand<Guid>;

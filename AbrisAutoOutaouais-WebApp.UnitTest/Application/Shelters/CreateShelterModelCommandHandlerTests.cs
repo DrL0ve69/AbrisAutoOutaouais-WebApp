@@ -21,7 +21,6 @@ public sealed class CreateShelterModelCommandHandlerTests : IDisposable
         => new(
             Slug: slug, Name: "Abri test", CategoryId: categoryId,
             LengthStepCm: 122, MinLengthCm: 122, MaxLengthCm: 1830,
-            BasePrice: 349m, PricePerArchCents: 15000,
             WidthsCm: [335, 366], ClearHeightsCm: [198]);
 
     [Fact]

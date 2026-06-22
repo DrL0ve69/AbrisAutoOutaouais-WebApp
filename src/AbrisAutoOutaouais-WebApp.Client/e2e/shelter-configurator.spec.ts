@@ -19,8 +19,8 @@ import AxeBuilder from '@axe-core/playwright';
 //
 // On mocke les endpoints `/shelters` (aucun backend requis) en MIROIR du provider réel (L-011) :
 //   forme `ShelterModelSummaryDto` / `ShelterModelDetailDto` / `ShelterPriceDto` (camelCase .NET),
-//   slugs PAR LARGEUR (`simple-11pi`, largeur unique 335 cm → ligne statique), et `/price` calculé
-//   comme `ShelterPriceCalculator.cs` (base + archCount × pricePerArchCents/100, min/step en cm).
+//   slugs PAR LARGEUR (`simple-11pi`, largeur unique 335 cm → ligne statique), et `/price` servi par
+//   LOOKUP dans la grille (modèle × longueur × hauteur) ; couple absent → 422 (grille éparse).
 
 const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 
@@ -38,21 +38,30 @@ function priceRe(amount: number): RegExp {
 // Catégorie paramétrique (chip du catalogue) — slug reconnu par `PARAMETRIC_CATEGORY_SLUGS`.
 const CATEGORY = { id: 'cat-simples', name: 'Abris simples', slug: 'abris-simples', productCount: 2 };
 
+// Grille de prix exacte (CENTS), une seule hauteur (198 cm). Prix = base + (longueur−min)/pas × 150 $.
+function buildGrid(minLengthCm: number, maxLengthCm: number, stepCm: number, baseCents: number) {
+  const grid: { lengthCm: number; clearHeightCm: number; priceCents: number }[] = [];
+  for (let l = minLengthCm; l <= maxLengthCm; l += stepCm) {
+    grid.push({ lengthCm: l, clearHeightCm: 198, priceCents: baseCents + ((l - minLengthCm) / stepCm) * 15000 });
+  }
+  return grid;
+}
+
 // Modèle PAR LARGEUR (miroir de `ShelterModelSeeder.cs` → spec `simple-11pi`) :
 //  - largeur UNIQUE 335 cm (« 11 pi ») → ligne statique (pas de radiogroup) ;
 //  - hauteur 198 cm (« 6 pi 6 po ») ;
-//  - longueur 488→1830 cm par pas de 122 cm (« 16 pi » → « 60 pi »), base 1099 $, 150 $/arche.
+//  - longueur 488→1830 cm par pas de 122 cm (« 16 pi » → « 60 pi »), prix issu de la GRILLE.
 const MODEL = {
   id: 'm-simple-11pi',
   slug: 'simple-11pi',
   name: 'Abri simple 11 pi — Abris Tempo',
   categoryId: CATEGORY.id,
   categoryName: CATEGORY.name,
-  basePrice: 1099,
+  basePrice: 1099, // « à partir de » = min de la grille
   minLengthCm: 488,
   maxLengthCm: 1830,
   lengthStepCm: 122,
-  pricePerArchCents: 15000, // 150 $ / arche (DefaultPricePerArchCents)
+  priceGrid: buildGrid(488, 1830, 122, 109900),
   widthOptionsCm: [335],
   clearHeightOptionsCm: [198],
 };
@@ -95,14 +104,17 @@ async function mockApi(page: Page): Promise<void> {
   // Détail du modèle (options largeur/hauteur incluses).
   await page.route(`**/api/v1/shelters/${MODEL.slug}`, (route) => route.fulfill({ json: MODEL }));
 
-  // Prix serveur : miroir EXACT de ShelterPriceCalculator.cs (déterministe).
+  // Prix serveur : LOOKUP dans la grille par (longueur, hauteur). Couple absent → 422.
   await page.route(`**/api/v1/shelters/${MODEL.slug}/price*`, (route) => {
     const url = new URL(route.request().url());
     const lengthCm = Number(url.searchParams.get('lengthCm'));
-    const archCount = (lengthCm - MODEL.minLengthCm) / MODEL.lengthStepCm;
-    const totalPrice = MODEL.basePrice + archCount * (MODEL.pricePerArchCents / 100);
+    const clearHeightCm = Number(url.searchParams.get('clearHeightCm'));
+    const entry = MODEL.priceGrid.find((e) => e.lengthCm === lengthCm && e.clearHeightCm === clearHeightCm);
+    if (!entry) {
+      return route.fulfill({ status: 422, json: { title: 'Combinaison non offerte' } });
+    }
     return route.fulfill({
-      json: { modelId: MODEL.id, slug: MODEL.slug, lengthCm, archCount, totalPrice },
+      json: { modelId: MODEL.id, slug: MODEL.slug, lengthCm, clearHeightCm, totalPrice: entry.priceCents / 100 },
     });
   });
 }

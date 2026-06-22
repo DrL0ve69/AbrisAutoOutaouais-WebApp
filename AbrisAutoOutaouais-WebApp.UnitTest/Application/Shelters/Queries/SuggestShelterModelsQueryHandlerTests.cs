@@ -31,9 +31,9 @@ public sealed class SuggestShelterModelsQueryHandlerTests : IDisposable
     private void SeedReferential()
     {
         void Add(string slug, Guid categoryId, int width, int step, int min, int max)
-            => _db.ShelterModels.Add(ShelterModel.Create(
+            => _db.ShelterModels.Add(ShelterModelTestData.CreateWithGrid(
                 slug, $"Modèle {slug}", categoryId, step, min, max,
-                basePrice: 999.00m, pricePerArchCents: ShelterPricing.DefaultPricePerArchCents,
+                basePrice: 999.00m, pricePerArchCents: 15000,
                 widthsCm: [width], clearHeightsCm: [198]));
 
         Add("simple-11pi", _simples.Id, 335, 122, 488, 1830);

@@ -11,6 +11,60 @@
 
 ---
 
+## L-048 · Text rendered BOTH in a visible surface AND an `aria-live` region causes `findByText`/`getByText` to match multiple nodes — scope the query or use a role locator
+
+- **Symptom.** While testing the « combinaison non offerte » message in `DimensionConfiguratorComponent`:
+  the error message string was present both in the visible template (e.g. a `<p>`) and in the backing
+  `aria-live` / `role="status"` node used to announce it to screen readers. `findByText('combinaison non
+  offerte')` (or `getByText`) returned **two nodes** — one visible, one in the live region — and the test
+  threw « found multiple elements with the text ». The live region is often off-screen or empty-looking
+  visually, so the duplication is non-obvious.
+- **Rule.** When a message is echoed into both a visible element and a `role="status"` / `aria-live`
+  region, bare text queries (`getByText`, `findByText`, `queryByText`) are ambiguous — **scope the query**
+  to the visible container (`within(visibleContainer).getByText(...)`) or use a **role locator**
+  (`getByRole('paragraph', { name: /.../ })`, `getByRole('status')`). Never assert on an unscoped
+  text query when the component carries a live region. Cousin of [[L-010]] (global role nodes widen
+  match sets in unrelated specs) on the **duplicate-text-node** axis: the live region is a second
+  owner of the same text, and the query tool finds both.
+- **Refs.** `src/AbrisAutoOutaouais-WebApp.Client/src/app/features/shop/dimension-configurator/dimension-configurator.spec.ts`
+  (scoped `within` or role locator to disambiguate « combinaison non offerte »),
+  this delivery cycle (pricing rework).
+
+## L-047 · A child component that emits only on VALID state leaves the parent with stale `canAdd = true` when the state silently becomes invalid — the output must emit `null` on every invalid transition
+
+- **Symptom.** `DimensionConfiguratorComponent` (`features/shop/dimension-configurator/`) emitted
+  `configurationChange` only after a successful server-price round-trip. When the user switched to a
+  (length, height) combination not offered in the sparse pricing grid, the server returned 422 — but
+  the component stayed **silent**: it neither updated nor cleared its last emission. The parent
+  (`shelter-configurator-overlay`, `product-detail`) held the last valid `ShelterConfiguration` and
+  kept `canAdd` true. Staff could place an order for a configuration marked « non offerte » in the
+  UI — a **silent ordering invariant bypass**. Caught by the independent code-reviewer. Fix: the
+  `output` type becomes `output<ShelterConfiguration | null>`; the component emits `null` whenever the
+  configuration is no longer orderable (recalculation in progress OR 422 from the server); the parent
+  does `configuration.set(null)` on receiving `null` → `canAdd` falls to false immediately.
+- **Rule.** A child component that drives a parent's « can submit » gate via an `output()` must emit
+  `null` (or an equivalent « not valid » sentinel) **on every transition that makes the state invalid**
+  — not only on transitions to a new valid state. This is the frontend `output()` analog of [[L-046]]
+  (an invariant held on one write path is not a guarantee if a parallel path can bypass it): here the
+  « parallel path » is a silent no-emit when the state degrades. The parent's gate must be driven
+  exclusively by the **most recent emission**, not by a cached one. Two guards: (1) After writing any
+  child `output()` that a parent uses for `canSubmit`/`canAdd`, enumerate every code path that makes
+  the child's state invalid (validation failure, 422, loading reset) and confirm each path emits `null`
+  before the handler returns. (2) Write a spec that exercises the sequence « valid confirmed → switch to
+  invalid combination » and asserts the parent's gate becomes `false` — a test that only covers the
+  initial-invalid path is vacuous for this regression ([[L-009]]: an assertion that cannot distinguish
+  stale-valid from re-valid catches nothing). Also cousin of [[L-027]] (a signal-driven state that
+  doesn't change on certain paths leaves a stale value).
+- **Refs.**
+  `src/AbrisAutoOutaouais-WebApp.Client/src/app/features/shop/dimension-configurator/dimension-configurator.ts`
+  (`output<ShelterConfiguration | null>()`, emit `null` in `requestServerPrice` error branch +
+  `reemitOnDimensionChange` reset),
+  `features/shop/shelter-configurator-overlay/shelter-configurator-overlay.ts` +
+  `features/shop/product-detail/product-detail.ts` (`onConfigurationChange(config | null)`,
+  `canAdd` derived from non-null config),
+  `dimension-configurator.spec.ts` + `shelter-configurator-overlay.spec.ts`
+  (« valid → switch to non-offered → canAdd false » guard), this delivery cycle (pricing rework).
+
 ## L-046 · An invariant enforced in one write path is NOT a domain guarantee — a new parallel write path on the same resource must re-apply the same guard
 
 - **Symptom.** EPIC 11, US-11.3 (`OptimizeRouteCommandHandler`): the handler rewrites the `SlotStart`
@@ -365,17 +419,21 @@
   collection, then call `db.Set<TChild>().AddRange(model.Children.ToList())` — all in one
   `SaveChanges`. Verify the fix covers all providers by running `dotnet test` (InMemory) AND a live
   round-trip ([[L-001]]) on SQL Server.
+  **Corollary — seeder backfill on an already-tracked parent requires `db.Set<TChild>().AddRange(...)` explicitly.** When a seeder loads an existing parent (`ShelterModel`) without `AsNoTracking` and calls a domain method that clears + rebuilds a regular-entity child collection (`PriceEntries`), the new children must be added to the DbSet explicitly: `db.Set<PriceEntry>().AddRange(model.PriceEntries)`. The cascade path (parent → navigation → children) that works for a freshly-`AddAsync`-ed parent does **not** reliably track the new children under InMemory when the parent is already in the change tracker — InMemory raises `DbUpdateConcurrencyException` on the child insert. The parent-is-fresh path never exercises this; only the backfill path does. Add a dedicated backfill spec that loads an existing parent and confirms the new children persist ([[L-031]]: backfill paths need their own regression tests).
+  **Style guard — update `<summary>` comments when the EF mapping changes.** After converting from `OwnsMany` to `HasMany`, grep the configuration file's XML doc comments (`<summary>`) and update any that still describe the old mapping — stale comments mislead future readers about which [[L-035]] trap applies and which approach is correct.
 - **Refs.**
   `src/AbrisAutoOutaouais-WebApp.Domain/Entities/ShelterModelDimension.cs` (regular entity),
   `src/AbrisAutoOutaouais-WebApp.Infrastructure/Persistence/Configurations/ShelterModelConfiguration.cs`
-  (`HasMany().WithOne().IsRequired().OnDelete(Cascade)` replacing `OwnsMany`),
+  (`HasMany().WithOne().IsRequired().OnDelete(Cascade)` replacing `OwnsMany`; `<summary>` updated),
   `src/AbrisAutoOutaouais-WebApp.Infrastructure/Persistence/Migrations/20260619150301_ShelterModelDimensionRegularEntity.cs`
   (empty `Up`/`Down` — schema unchanged on SQL Server),
   `src/AbrisAutoOutaouais-WebApp.Application/Shelters/Commands/UpdateShelterModel/UpdateShelterModelCommandHandler.cs`
   (`RemoveRange` / `Reconfigure` / `AddRange` pattern),
   `src/AbrisAutoOutaouais-WebApp.Application/Shelters/Queries/GetShelterModelBySlug/GetShelterModelBySlugQueryHandler.cs`
   (explicit `.Include(m => m.Dimensions)`),
-  branch `feat/epic-9-dimension-catalog`.
+  `src/AbrisAutoOutaouais-WebApp.Infrastructure/Persistence/ShelterModelSeeder.cs`
+  (`db.Set<PriceEntry>().AddRange(...)` in backfill path; `ShelterModelSeederBackfillTests`),
+  branch `feat/epic-9-dimension-catalog`; pricing rework (backfill corollary).
 
 ## L-034 · An axis-aligned `turf.bbox()` over-estimates a drawn rectangle's width/length when it isn't aligned North–South — measure with per-edge great-circle distances or an oriented bbox
 
@@ -808,10 +866,13 @@
   layer » discipline as [[L-016]] / [[L-001]], extended to the dynamic-import axis. (For the actual
   geoman attach fix — `globalThis.L` + import-before-construct, NOT a CJS/ESM interop dedup — see
   [[L-021]].)
+  **Corollary — asserting a component INPUT is not the same as asserting the EFFECT it should trigger (production fix #3, `/mesurer` map recentring).** The e2e « carte centrée sur l'adresse » test asserted `cmp.lat()` — the Angular input signal, which is propagated by the parent before the map lib is ready. The input was correctly set even when the map stayed frozen on the Gatineau fallback: `map.setView()` was never called because the recentring effect fired before `leaflet` was initialised. The test passed in CI while prod was broken. Fix: expose a `getMapCenter()` method that reads the **real Leaflet map centre** and assert its value after the effect fires. The rule is the same as [[L-009]] (test the capability, not the wrapper) applied to the **input-propagated vs effect-applied** axis: the input being set and the side-effect being executed are two distinct facts, and only the latter proves the feature works.
 - **Refs.** `features/mesurer/steps/measure-step/measure-step.ts` (`notLocated()` computed; map init
   `if (!pm) return;` guard), the `/mesurer` map spec (capability assertion on `.leaflet-pm-toolbar`),
   `docs/agile/board.md` (open geoman `map.pm` follow-up, Épic D), branch `fix/f2-heuristics-followup`
-  (F2-B).
+  (F2-B);
+  `features/mesurer/steps/measure-step/map-measure/map-measure.ts` (`getMapCenter()` + recentring
+  effect), `e2e/mesurer.spec.ts` (asserts `getMapCenter()` not `cmp.lat()`), production fix #3.
 
 ## L-018 · Deleting the last consumer of a dep / i18n string isn't done until you finish the removal at EVERY layer
 

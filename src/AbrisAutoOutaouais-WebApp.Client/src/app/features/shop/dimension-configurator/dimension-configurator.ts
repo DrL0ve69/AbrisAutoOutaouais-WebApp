@@ -27,7 +27,6 @@ export interface ShelterConfiguration {
   readonly widthCm: number;
   readonly clearHeightCm: number;
   readonly lengthCm: number;
-  readonly archCount: number;
   /** Prix total en DOLLARS (issu de l'endpoint serveur — source unique, L-004). */
   readonly totalPrice: number;
 }
@@ -41,10 +40,15 @@ export interface ShelterConfiguration {
  * - Hauteur dégagée : `radiogroup` APG (inchangé).
  * - Longueur : choix DISCRET via un `<select>` natif lié à `lengthControl` (reactive form). Les
  *   options sont les multiples du pas entre `min` et `max` (alignement garanti par construction).
- * - Prix : calcul OPTIMISTE local immédiat (miroir EXACT de `ShelterPriceCalculator.cs`),
- *   puis ÉCRASÉ par la réponse de `/price` (source unique — L-004), debounce 300 ms.
- * - Annonce de prix en `aria-live="polite"` avec passage par un état NEUTRE avant chaque
- *   réannonce, pour réannoncer même une valeur identique (L-027).
+ * - Prix : dépend de (modèle × longueur × HAUTEUR dégagée) via une GRILLE potentiellement ÉPARSE.
+ *   Calcul OPTIMISTE local immédiat = LOOKUP dans `model.priceGrid` par (longueur, hauteur) ;
+ *   `null` si le couple est absent (combinaison non offerte). Puis ÉCRASÉ par la réponse de
+ *   `/price` (source unique — L-004), debounce 300 ms. La LONGUEUR **et** la HAUTEUR pilotent le
+ *   prix : changer l'une ou l'autre relance le pipeline serveur.
+ * - Combinaison non offerte (grille éparse → optimiste null et/ou `/price` 422) : pas de prix,
+ *   `canAdd` reste faux et un message clair est annoncé en `aria-live`.
+ * - Annonce de prix/indisponibilité en `aria-live="polite"` avec passage par un état NEUTRE avant
+ *   chaque réannonce, pour réannoncer même une valeur identique (L-027).
  *
  * Jetons sémantiques uniquement (contraste validé en e2e dual-thème — L-016).
  */
@@ -70,8 +74,14 @@ export class DimensionConfiguratorComponent implements OnInit {
    */
   readonly initialLengthCm = input<number | null>(null);
 
-  /** Émet la configuration retenue à chaque prix serveur confirmé (pour 9.4). */
-  readonly configurationChange = output<ShelterConfiguration>();
+  /**
+   * Émet la configuration retenue quand un prix serveur est confirmé, ou **`null`** dès qu'elle
+   * cesse d'être commandable : recalcul de prix en cours, ou couple (longueur, hauteur) non offert
+   * (grille éparse → 422). Le parent DOIT invalider son état d'ajout sur `null`, sinon une
+   * configuration périmée resterait commandable après une bascule vers un couple non offert
+   * (cf. L-046 : un invariant tenu sur un chemin n'est pas garanti si un autre chemin le contourne).
+   */
+  readonly configurationChange = output<ShelterConfiguration | null>();
 
   protected readonly model = signal<ShelterModelDetail | null>(null);
   protected readonly loading = signal(true);
@@ -91,19 +101,22 @@ export class DimensionConfiguratorComponent implements OnInit {
   /** Longueur courante (signal synchronisé sur le contrôle) pour le calcul optimiste. */
   protected readonly lengthCm = signal(0);
 
-  /** Prix optimiste local immédiat (dollars), puis écrasé par la réponse serveur. */
+  /** Prix optimiste local immédiat (dollars) issu de la grille, puis écrasé par la réponse serveur. */
   protected readonly optimisticPrice = signal<number | null>(null);
 
   /** Prix confirmé par le serveur (dollars) — source unique pour l'affichage et l'émission. */
   protected readonly serverPrice = signal<number | null>(null);
 
-  /** Nombre d'arches confirmé par le serveur. */
-  protected readonly serverArchCount = signal<number | null>(null);
+  /**
+   * Vrai quand le serveur a tranché que le couple (longueur, hauteur) n'est PAS offert (422 → prix
+   * `null`). Distinct de « calcul en cours » : pilote le message d'indisponibilité et bloque l'ajout.
+   */
+  protected readonly unavailable = signal(false);
 
   /** Vrai pendant un recalcul serveur en cours (affichage « calcul… »). */
   protected readonly pricing = signal(false);
 
-  /** Message d'annonce du prix (aria-live) — repassé à '' avant chaque réannonce (L-027). */
+  /** Message d'annonce du prix / d'indisponibilité (aria-live) — repassé à '' avant réannonce (L-027). */
   protected readonly priceAnnouncement = signal('');
 
   /** Largeur sélectionnée (cm), dérivée de l'index et du modèle. */
@@ -132,8 +145,12 @@ export class DimensionConfiguratorComponent implements OnInit {
   /** Prix affiché : le serveur prime ; à défaut l'optimiste (jamais les deux mélangés). */
   protected readonly displayedPrice = computed(() => this.serverPrice() ?? this.optimisticPrice());
 
-  /** Déclencheur des appels `/price` (debounce + switchMap pour annuler les requêtes obsolètes). */
-  private readonly priceRequest = new Subject<number>();
+  /**
+   * Déclencheur des appels `/price` (debounce + switchMap pour annuler les requêtes obsolètes).
+   * Transporte le COUPLE (longueur, hauteur) : la hauteur influe sur le prix et ne doit pas se
+   * perdre dans le debounce/switchMap.
+   */
+  private readonly priceRequest = new Subject<{ lengthCm: number; clearHeightCm: number }>();
 
   protected formatFeetInches = formatFeetInches;
 
@@ -144,12 +161,12 @@ export class DimensionConfiguratorComponent implements OnInit {
       .subscribe(value => this.onLengthChange(Number(value)));
 
     // Pipeline de prix serveur : debounce 300 ms, annule la requête précédente (switchMap),
-    // tolère l'erreur (422 hors plage) sans casser le flux.
+    // tolère l'erreur (422 = couple non offert) sans casser le flux (mappée en `null`).
     this.priceRequest
       .pipe(
         debounceTime(300),
-        switchMap(lengthCm =>
-          this.shelterService.getPrice(this.slug(), lengthCm).pipe(
+        switchMap(({ lengthCm, clearHeightCm }) =>
+          this.shelterService.getPrice(this.slug(), lengthCm, clearHeightCm).pipe(
             catchError(() => of(null)),
           ),
         ),
@@ -158,10 +175,17 @@ export class DimensionConfiguratorComponent implements OnInit {
       .subscribe(price => {
         this.pricing.set(false);
         if (price) {
+          this.unavailable.set(false);
           this.serverPrice.set(price.totalPrice);
-          this.serverArchCount.set(price.archCount);
           this.announcePrice(price.totalPrice);
-          this.emitConfiguration(price.totalPrice, price.archCount);
+          this.emitConfiguration(price.totalPrice);
+        } else {
+          // Couple (longueur, hauteur) absent de la grille : pas de prix → non commandable.
+          // On émet `null` pour que le parent INVALIDE sa config (sinon une config confirmée
+          // précédente resterait commandable après bascule vers un couple non offert — L-046).
+          this.unavailable.set(true);
+          this.announceUnavailable();
+          this.configurationChange.emit(null);
         }
       });
 
@@ -223,29 +247,35 @@ export class DimensionConfiguratorComponent implements OnInit {
     this.requestServerPrice();
   }
 
-  /** Calcul OPTIMISTE local — miroir EXACT de `ShelterPriceCalculator.cs` (L-004). */
+  /**
+   * Calcul OPTIMISTE local = simple LOOKUP dans la grille de prix par (longueur, hauteur) — la
+   * grille étant la source serveur (L-004), aucune formule à reproduire. `null` si le couple est
+   * absent de la grille (combinaison non offerte) : le serveur confirmera via 422.
+   */
   private recomputeOptimistic(): void {
     const m = this.model();
     if (!m) return;
     const length = this.lengthCm();
-    const offset = length - m.minLengthCm;
-    // Hors plage ou désaligné : pas d'estimation optimiste (le serveur tranchera / 422).
-    if (length < m.minLengthCm || length > m.maxLengthCm || offset % m.lengthStepCm !== 0) {
-      this.optimisticPrice.set(null);
-      return;
-    }
-    const archCount = offset / m.lengthStepCm;
-    this.optimisticPrice.set(m.basePrice + archCount * (m.pricePerArchCents / 100));
+    const height = this.selectedHeightCm();
+    const entry = m.priceGrid.find(e => e.lengthCm === length && e.clearHeightCm === height);
+    this.optimisticPrice.set(entry ? entry.priceCents / 100 : null);
   }
 
-  /** Programme un recalcul serveur (debounce). Réinitialise le prix serveur le temps du calcul. */
+  /**
+   * Programme un recalcul serveur (debounce) pour le couple (longueur, hauteur) courant.
+   * Réinitialise le prix serveur et l'état d'indisponibilité le temps du calcul.
+   */
   private requestServerPrice(): void {
     const m = this.model();
     if (!m) return;
     this.serverPrice.set(null);
-    this.serverArchCount.set(null);
+    this.unavailable.set(false);
     this.pricing.set(true);
-    this.priceRequest.next(this.lengthCm());
+    // Tant que le serveur n'a pas (re)confirmé un prix pour le couple courant, la config n'est PAS
+    // commandable : on émet `null` pour invalider l'état d'ajout du parent pendant le recalcul
+    // (il redeviendra commandable à la confirmation du prix, ou restera bloqué si couple non offert).
+    this.configurationChange.emit(null);
+    this.priceRequest.next({ lengthCm: this.lengthCm(), clearHeightCm: this.selectedHeightCm() });
   }
 
   /** Réannonce le prix en repassant par un état neutre (sinon valeur identique non relue — L-027). */
@@ -260,18 +290,31 @@ export class DimensionConfiguratorComponent implements OnInit {
     );
   }
 
-  private emitConfiguration(totalPrice: number, archCount: number): void {
+  /** Annonce qu'un couple (longueur, hauteur) n'est pas offert (état neutre avant message — L-027). */
+  private announceUnavailable(): void {
+    this.priceAnnouncement.set('');
+    this.priceAnnouncement.set(
+      $localize`:@@shop.configurator.unavailableAnnounce:Cette combinaison longueur/hauteur n'est pas offerte pour ce modèle.`,
+    );
+  }
+
+  private emitConfiguration(totalPrice: number): void {
+    const config = this.buildConfiguration(totalPrice);
+    if (config) this.configurationChange.emit(config);
+  }
+
+  /** Construit la configuration courante pour un prix confirmé (null si le modèle n'est pas chargé). */
+  private buildConfiguration(totalPrice: number): ShelterConfiguration | null {
     const m = this.model();
-    if (!m) return;
-    this.configurationChange.emit({
+    if (!m) return null;
+    return {
       slug: m.slug,
       modelName: m.name,
       widthCm: this.selectedWidthCm(),
       clearHeightCm: this.selectedHeightCm(),
       lengthCm: this.lengthCm(),
-      archCount,
       totalPrice,
-    });
+    };
   }
 
   // ── Radiogroups APG : largeur ───────────────────────────────────────────────
@@ -290,7 +333,10 @@ export class DimensionConfiguratorComponent implements OnInit {
   // ── Radiogroups APG : hauteur dégagée ────────────────────────────────────────
   protected selectHeight(index: number): void {
     this.heightIndex.set(index);
-    this.reemitOnDimensionChange();
+    // La HAUTEUR influe sur le prix (grille) : on relance le pipeline de prix serveur comme pour
+    // la longueur — pas seulement une réémission de config.
+    this.recomputeOptimistic();
+    this.requestServerPrice();
   }
 
   protected onHeightKeydown(event: KeyboardEvent): void {
@@ -314,12 +360,15 @@ export class DimensionConfiguratorComponent implements OnInit {
     apply(next);
   }
 
-  /** Largeur/hauteur n'affectent pas le prix serveur, mais la config émise change → réémet. */
+  /**
+   * La largeur reste IMPLICITE au slug (un modèle = une largeur ; le radiogroup largeur a au plus
+   * une option), donc elle n'affecte pas le prix serveur. Si jamais elle change, la config émise
+   * change : on réémet avec le prix serveur déjà confirmé, sans relancer d'appel `/price`.
+   */
   private reemitOnDimensionChange(): void {
     const price = this.serverPrice();
-    const arches = this.serverArchCount();
-    if (price !== null && arches !== null) {
-      this.emitConfiguration(price, arches);
-    }
+    // Prix serveur confirmé → réémet la config ; sinon (recalcul en cours / couple non offert) on
+    // émet `null` pour que le parent reste non commandable (cohérent avec requestServerPrice).
+    this.configurationChange.emit(price !== null ? this.buildConfiguration(price) : null);
   }
 }

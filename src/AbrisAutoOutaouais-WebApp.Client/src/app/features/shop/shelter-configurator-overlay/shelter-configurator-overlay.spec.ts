@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/angular';
 import { userEvent } from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { registerLocaleData } from '@angular/common';
 import localeFrCa from '@angular/common/locales/fr-CA';
 import { ShelterConfiguratorOverlayComponent } from './shelter-configurator-overlay';
@@ -23,7 +23,10 @@ const model: ShelterModelDetail = {
   minLengthCm: 600,
   maxLengthCm: 900,
   lengthStepCm: 150,
-  pricePerArchCents: 25000,
+  priceGrid: [
+    { lengthCm: 600, clearHeightCm: 198, priceCents: 120000 },
+    { lengthCm: 600, clearHeightCm: 244, priceCents: 150000 },
+  ],
   widthOptionsCm: [335],
   clearHeightOptionsCm: [198, 244],
 };
@@ -32,7 +35,7 @@ const price: ShelterPrice = {
   modelId: 'm1',
   slug: 'simple',
   lengthCm: 600,
-  archCount: 0,
+  clearHeightCm: 198,
   totalPrice: 1200,
 };
 
@@ -114,6 +117,27 @@ describe('ShelterConfiguratorOverlayComponent', () => {
     // L'overlay délègue la fermeture/toast/focus au parent : il émet `added` avec le nom du modèle.
     expect(added).toHaveBeenCalledTimes(1);
     expect(added).toHaveBeenCalledWith('Abri simple');
+  });
+
+  it('bascule vers un couple NON offert après un prix confirmé : « Ajouter » redevient aria-disabled (L-046)', async () => {
+    const user = userEvent.setup();
+    // getPrice OK pour la hauteur 198, mais 422 pour 244 (couple non offert dans la grille éparse).
+    const shelter = shelterStub({
+      getPrice: (_slug: string, _len: number, h: number) =>
+        h === 244 ? throwError(() => new Error('422')) : of(price),
+    });
+    await setup(shelter);
+
+    const add = await screen.findByRole('button', { name: /ajouter au panier/i });
+    // (600, 198) confirmé → commandable.
+    await waitFor(() => expect(add).toHaveAttribute('aria-disabled', 'false'));
+
+    // Bascule sur la hauteur 244 cm (« 8 pi ») : couple (600, 244) non offert → 422.
+    await user.click(screen.getByRole('radio', { name: /8 pi/i }));
+
+    // Le configurateur émet `null` → l'overlay invalide la config → bouton de nouveau aria-disabled.
+    // Sans le correctif, la config (600, 198) périmée resterait commandable.
+    await waitFor(() => expect(add).toHaveAttribute('aria-disabled', 'true'));
   });
 
   it('garde « Ajouter » aria-disabled tant qu’aucun prix n’est confirmé', async () => {

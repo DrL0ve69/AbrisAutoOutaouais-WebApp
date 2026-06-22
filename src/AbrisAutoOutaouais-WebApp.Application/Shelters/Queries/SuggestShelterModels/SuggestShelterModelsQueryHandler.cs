@@ -29,6 +29,7 @@ public sealed class SuggestShelterModelsQueryHandler(IApplicationDbContext db)
         var models = await db.ShelterModels
             .AsNoTracking()
             .Include(m => m.Dimensions)
+            .Include(m => m.PriceEntries)   // « à partir de » = min de la grille (entité régulière, L-035)
             .Include(m => m.Category)
             .ToListAsync(ct);
 
@@ -50,12 +51,15 @@ public sealed class SuggestShelterModelsQueryHandler(IApplicationDbContext db)
                 if (lengths.Count == 0)
                     return null;
 
+                // « À partir de » en dollars : min de la grille de prix (0 si grille vide).
+                var basePrice = m.StartingPrice;
+
                 return new
                 {
                     m.Category.Slug,
                     CategoryName = m.Category.Name,
                     Model = new ShelterFitModelDto(
-                        m.Id, m.Slug, m.Name, widthCm, m.BasePrice,
+                        m.Id, m.Slug, m.Name, widthCm, basePrice,
                         m.MinLengthCm, m.LengthStepCm, lengths),
                 };
             })

@@ -159,48 +159,13 @@
             </div>
           </div>
 
-          <!-- Prix -->
-          <div class="adminp__row">
-            <div class="adminp__field">
-              <label for="sm-base" i18n="@@admin.shelterModels.form.basePrice">Prix de base ($)</label>
-              <input
-                id="sm-base"
-                type="number"
-                step="0.01"
-                min="0"
-                formControlName="basePrice"
-                aria-describedby="sm-base-err"
-                [attr.aria-invalid]="basePriceCtrl.touched && basePriceCtrl.invalid ? 'true' : null"
-              />
-              @if (basePriceCtrl.touched && basePriceCtrl.invalid) {
-                <p id="sm-base-err" class="adminp__err" role="alert" i18n="@@admin.shelterModels.form.basePriceError">
-                  Le prix de base ne peut pas être négatif.
-                </p>
-              }
-            </div>
-
-            <div class="adminp__field">
-              <label for="sm-arch" i18n="@@admin.shelterModels.form.archCents">Prix par arche (cents)</label>
-              <input
-                id="sm-arch"
-                type="number"
-                step="1"
-                min="0"
-                inputmode="numeric"
-                formControlName="pricePerArchCents"
-                aria-describedby="sm-arch-hint sm-arch-err"
-                [attr.aria-invalid]="archCentsCtrl.touched && archCentsCtrl.invalid ? 'true' : null"
-              />
-              <p id="sm-arch-hint" class="adminp__hint" i18n="@@admin.shelterModels.form.archHint">
-                en CENTS · ex : 15000 = 150,00&nbsp;$
-              </p>
-              @if (archCentsCtrl.touched && archCentsCtrl.invalid) {
-                <p id="sm-arch-err" class="adminp__err" role="alert" i18n="@@admin.shelterModels.form.archError">
-                  Le prix par arche ne peut pas être négatif.
-                </p>
-              }
-            </div>
-          </div>
+          <!-- Prix : non éditable. Les prix proviennent de la grille semée côté serveur
+               (modèle × longueur × hauteur) ; l'admin ne tarife plus. Le « à partir de » est
+               affiché en lecture seule dans la liste ci-contre. -->
+          <p class="adminp__hint" i18n="@@admin.shelterModels.form.pricingNote">
+            Les prix sont gérés par la grille tarifaire du serveur (longueur × hauteur) et ne se
+            modifient pas ici.
+          </p>
 
           <!-- Listes de dimensions (cm séparés par virgule) -->
           <div class="adminp__field">

@@ -7,9 +7,11 @@
  *  - `ShelterPriceDto`         (Application/Shelters/Queries/GetShelterPrice)
  *
  * JSON .NET camelCase. ⚠️ UNITÉS MONÉTAIRES : `basePrice` et `totalPrice` sont en DOLLARS ;
- * `pricePerArchCents` est en CENTS. Le PRIX AFFICHÉ vient toujours de l'endpoint `/price`
- * (source unique de vérité — L-004) ; tout calcul optimiste local doit reproduire EXACTEMENT
- * `Domain/Services/ShelterPriceCalculator.cs`.
+ * la grille de prix (`priceGrid`) est en CENTS. Depuis le chantier « grille de prix exacte »,
+ * le prix dépend de (modèle × longueur × HAUTEUR dégagée) via une GRILLE potentiellement ÉPARSE
+ * — il n'y a plus de formule linéaire base + arches (`pricePerArchCents`/`archCount` n'existent
+ * plus). Le PRIX AFFICHÉ vient toujours de l'endpoint `/price` (source unique de vérité — L-004) ;
+ * le calcul optimiste local se contente d'un LOOKUP dans `priceGrid` (pas de recalcul de formule).
  */
 
 /**
@@ -26,19 +28,34 @@ export interface ShelterModelSummary {
   readonly slug: string;
   readonly name: string;
   readonly categoryName: string;
-  /** Prix de base en DOLLARS (longueur minimale, 0 arche supplémentaire). */
+  /** Prix « à partir de » en DOLLARS (= minimum de la grille de prix du modèle). */
   readonly basePrice: number;
   readonly minLengthCm: number;
   readonly maxLengthCm: number;
   readonly lengthStepCm: number;
 }
 
-/** Détail complet d'un modèle : résumé + tarif par arche (CENTS) + options largeur/hauteur (cm). */
+/**
+ * Une cellule de la GRILLE de prix d'un modèle : un prix exact (en CENTS) pour un couple
+ * (longueur, hauteur dégagée) donné. La grille peut être ÉPARSE — un couple absent signifie que
+ * la combinaison n'est PAS offerte pour ce modèle (donc non commandable).
+ */
+export interface ShelterPriceGridEntry {
+  readonly lengthCm: number;
+  readonly clearHeightCm: number;
+  /** Prix exact en CENTS pour ce couple (longueur, hauteur). */
+  readonly priceCents: number;
+}
+
+/** Détail complet d'un modèle : résumé + grille de prix (CENTS) + options largeur/hauteur (cm). */
 export interface ShelterModelDetail extends ShelterModelSummary {
   /** Id (Guid) de la catégorie produit — sert à l'édition admin (résolution PAR ID, pas par nom). */
   readonly categoryId: string;
-  /** Prix d'une arche supplémentaire en CENTS (≠ dollars — ne pas mélanger). */
-  readonly pricePerArchCents: number;
+  /**
+   * Grille de prix exacte (triée côté serveur), en CENTS. Source du calcul optimiste local :
+   * un simple LOOKUP par (longueur, hauteur) — pas de formule. Peut être ÉPARSE.
+   */
+  readonly priceGrid: readonly ShelterPriceGridEntry[];
   readonly widthOptionsCm: readonly number[];
   readonly clearHeightOptionsCm: readonly number[];
 }
@@ -46,7 +63,8 @@ export interface ShelterModelDetail extends ShelterModelSummary {
 /**
  * Corps d'une requête de CRÉATION d'un modèle paramétrique (admin, EPIC 9.5).
  * À garder synchro avec `CreateShelterModelCommand` (Application/Shelters/Commands/CreateShelterModel).
- * ⚠️ UNITÉS : `basePrice` est en DOLLARS ; `pricePerArchCents` est en CENTS.
+ * L'admin ne TARIFE plus : les prix proviennent de la grille SEMÉE côté serveur, donc ni
+ * `basePrice` ni `pricePerArchCents` ne sont envoyés (le contrat les a retirés).
  * `widthsCm` / `clearHeightsCm` : entiers > 0 en centimètres, au moins une valeur chacun.
  */
 export interface CreateShelterModelRequest {
@@ -56,10 +74,6 @@ export interface CreateShelterModelRequest {
   readonly lengthStepCm: number;
   readonly minLengthCm: number;
   readonly maxLengthCm: number;
-  /** DOLLARS. */
-  readonly basePrice: number;
-  /** CENTS. */
-  readonly pricePerArchCents: number;
   readonly widthsCm: number[];
   readonly clearHeightsCm: number[];
 }
@@ -70,13 +84,17 @@ export interface CreateShelterModelRequest {
  */
 export type UpdateShelterModelRequest = Omit<CreateShelterModelRequest, 'slug'>;
 
-/** Résultat d'un calcul de prix serveur (longueur configurée). `totalPrice` en DOLLARS. */
+/**
+ * Résultat d'un calcul de prix serveur pour un couple (longueur, hauteur dégagée) configuré.
+ * Le couple doit exister dans la grille du modèle, sinon le serveur répond 422 (combinaison non
+ * offerte). `totalPrice` en DOLLARS. À garder synchro avec `ShelterPriceDto`.
+ */
 export interface ShelterPrice {
   readonly modelId: string;
   readonly slug: string;
   readonly lengthCm: number;
-  /** Nombre d'arches supplémentaires au-delà de la longueur de base. */
-  readonly archCount: number;
+  /** Hauteur dégagée (cm) du couple tarifé. */
+  readonly clearHeightCm: number;
   /** Prix total en DOLLARS. */
   readonly totalPrice: number;
 }

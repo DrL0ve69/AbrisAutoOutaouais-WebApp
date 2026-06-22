@@ -45,8 +45,6 @@ public sealed class UpdateShelterModelCommandHandler(IApplicationDbContext db)
             lengthStepCm: command.LengthStepCm,
             minLengthCm: command.MinLengthCm,
             maxLengthCm: command.MaxLengthCm,
-            basePrice: command.BasePrice,
-            pricePerArchCents: command.PricePerArchCents,
             widthsCm: command.WidthsCm,
             clearHeightsCm: command.ClearHeightsCm);
 
