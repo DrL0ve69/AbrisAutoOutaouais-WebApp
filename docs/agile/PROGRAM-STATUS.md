@@ -4,9 +4,9 @@
 > simplement **« continue la prochaine tâche »** ou lance **`/next-task`** : l'assistant lit ce
 > fichier + le plan actif, vérifie l'état git, puis enchaîne.
 >
-> **🟢 Programme ACTIF — Phase 2 (`docs/agile/ROADMAP-PHASE-2.md`), curseur sur EPIC 7** (paiements) — **EPIC 8 LIVRÉ, PR #55 ouverte (2026-06-22)**.
+> **🟢 Programme ACTIF — Phase 2 (`docs/agile/ROADMAP-PHASE-2.md`), curseur sur EPIC 7** (paiements) — **EPIC 8 MERGÉ — PR #55, SHA merge `7716216`, 2026-06-22**.
 > **Ordre Phase 2 restant : ~~9~~ ~~10~~ ~~13~~ ~~14~~ ~~11~~ ~~8~~ → 7.**
-> **EPIC 8 · US-8.1 — Module de paie informatif — LIVRÉ (2026-06-22), branche `feat/epic-8-paie` · PR #55 ouverte, CI en cours.**
+> **EPIC 8 · US-8.1 — Module de paie informatif — MERGÉ (2026-06-22), branche `feat/epic-8-paie` · PR #55, SHA merge `7716216`.**
 > Module **informatif** admin de paie : taux horaire `HourlyRate` (decimal nullable CAD) sur `AppUser`, statut `PayStatus` (`À payer`/`Payée`) sur `WorkHoursEntry`, query CQRS `GetPayrollSummary` (heures totales × taux, total masse salariale par fenêtre de dates), commandes `SetEmployeeHourlyRate` + `MarkEntriesAsPaid` (AdminOnly), `PayrollController` (`/api/v1/payroll`), vue admin `/admin/paie` accessible (tableau sémantique, sélecteur de période, édition taux inline, action « marquer payé » — focus retourné après action L-006).
 > **Hors périmètre** : aucun calcul fiscal/déduction, aucun virement. US-8.2 « versement réel » reste **Won't now** (dépend EPIC 7).
 > **Décisions propriétaire figées** : taux sur `AppUser` (pas d'entité Employee) ; statut par jour sur `WorkHoursEntry` (pas d'entité période de paie).
