@@ -4,8 +4,17 @@
 > simplement **« continue la prochaine tâche »** ou lance **`/next-task`** : l'assistant lit ce
 > fichier + le plan actif, vérifie l'état git, puis enchaîne.
 >
-> **🟢 Programme ACTIF — Phase 2 (`docs/agile/ROADMAP-PHASE-2.md`), curseur sur EPIC 8** (gestion employés & paie informative) — **EPIC 11 MERGÉ (PR #53, SHA merge `53dee27`, 2026-06-22)**.
-> **Ordre Phase 2 restant : ~~9~~ ~~10~~ ~~13~~ ~~14~~ ~~11~~ → 8 → 7.**
+> **🟢 Programme ACTIF — Phase 2 (`docs/agile/ROADMAP-PHASE-2.md`), curseur sur EPIC 7** (paiements) — **EPIC 8 LIVRÉ, PR #55 ouverte (2026-06-22)**.
+> **Ordre Phase 2 restant : ~~9~~ ~~10~~ ~~13~~ ~~14~~ ~~11~~ ~~8~~ → 7.**
+> **EPIC 8 · US-8.1 — Module de paie informatif — LIVRÉ (2026-06-22), branche `feat/epic-8-paie` · PR #55 ouverte, CI en cours.**
+> Module **informatif** admin de paie : taux horaire `HourlyRate` (decimal nullable CAD) sur `AppUser`, statut `PayStatus` (`À payer`/`Payée`) sur `WorkHoursEntry`, query CQRS `GetPayrollSummary` (heures totales × taux, total masse salariale par fenêtre de dates), commandes `SetEmployeeHourlyRate` + `MarkEntriesAsPaid` (AdminOnly), `PayrollController` (`/api/v1/payroll`), vue admin `/admin/paie` accessible (tableau sémantique, sélecteur de période, édition taux inline, action « marquer payé » — focus retourné après action L-006).
+> **Hors périmètre** : aucun calcul fiscal/déduction, aucun virement. US-8.2 « versement réel » reste **Won't now** (dépend EPIC 7).
+> **Décisions propriétaire figées** : taux sur `AppUser` (pas d'entité Employee) ; statut par jour sur `WorkHoursEntry` (pas d'entité période de paie).
+> **Migration** `AddPayrollHourlyRateAndPayStatus` : `HourlyRate decimal(18,2) NULL` + `PayStatus nvarchar(20) DEFAULT 'APayer'`. `MigrateOnStartup` reste OFF (L-022).
+> **Revue indépendante `code-reviewer` + `solid-review` : APPROVE WITH NITS** — 1 Minor L-006 (focus après « marquer payé ») corrigé pendant l'implémentation ; 2 nits corrigés commit `f3f6ad8` : retrait `GetHourlyRateAsync` mort (dead code / ISP) + commentaire e2e trompeur. Aucun bug de correction, aucune fuite Clean Architecture, aucun trou a11y.
+> **Coût** : zéro dépendance externe, zéro clé API — règle `budget-free-tier.md` respectée.
+> **Gates** : `dotnet test` **422 unit / 0 échec** ✅ · `dotnet test` **IntegrationTest 126 / 0** ✅ · round-trip live LocalDB (set rate 22.50 → 204, summary amount 202.50, mark-paid → Payée, persistance vérifiée) ✅ · `npm run build` ✅ · `npm test` **396/396** ✅ · `npm run e2e` admin-payroll **6/6** (axe dual-thème + clavier + barrière réseau, non-vacueux) ✅ · `npm run build:prod` bilingue, i18n 41 ids symétriques fr/en ✅.
+>
 > **EPIC 11 · US-11.3 — Optimisation de tournée admin — LIVRÉ (2026-06-22), branche `feat/epic-11-calendrier` · CLÔTURE EPIC 11.**
 > lat/lng stockées sur `BookingSlot` (migration `AddBookingSlotCoordinates`), géocodage Photon keyless via `IPlacesService.GeocodeAsync`.
 > `RouteOptimizer` maison (nearest-neighbour + Haversine, zéro dépendance) ; `OptimizeRouteCommand` + `POST /planning/optimize` (AdminOnly).

@@ -478,4 +478,24 @@ Branche `feat/epic-11-calendrier` — 4 commits (US-11.1 + US-11.2 p1 + US-11.2 
 - `npm run build:prod` bilingue ✅
 - `npm run e2e` admin-calendar **13/13** (optimize + dual-thème axe + `timezoneId: 'America/Toronto'` 12:00Z→08:00 non-vacueux, L-044) ✅
 
-**Statut git** : commit final + **PR ouverte → `master`**. Prochain : **EPIC 8** (gestion employés & paie informative).
+**Statut git** : **PR #53 MERGÉE vers `master` (`53dee27`), CI verte, branche supprimée.** Prochain : **EPIC 8** (gestion employés & paie informative).
+
+---
+
+## 🔵 Livraison EPIC 8 — Module de paie informatif (2026-06-22)
+
+Branche `feat/epic-8-paie` — 2 commits (`e400288` implémentation + `f3f6ad8` nits revue). Boucle *architecte → développeur → revue indépendante `code-reviewer` + `solid-review` → mentor*.
+
+| ID | Sous-tâche | Statut |
+|----|-----------|--------|
+| US-8.1 | `HourlyRate` (`decimal(18,2)` nullable CAD) sur `AppUser` + `PayStatus` (`À payer`/`Payée`) sur `WorkHoursEntry` ; migration `AddPayrollHourlyRateAndPayStatus` ; CQRS `GetPayrollSummary` (récap agrégée par employé/fenêtre dates) + `SetEmployeeHourlyRate` + `MarkEntriesAsPaid` (AdminOnly) ; `PayrollController` `/api/v1/payroll` ; vue admin `/admin/paie` accessible (tableau sémantique, sélecteur période, édition taux inline, action « marquer payé » + retour focus L-006) ; i18n 41 ids fr/en symétriques | 🔵 PR #55 ouverte |
+| US-8.2 | Versement réel (payout EPIC 7) | ⛔ Won't now (dépend EPIC 7) |
+
+**Revue indépendante `code-reviewer` + `solid-review` : APPROVE WITH NITS** — 1 Minor L-006 (focus après « marquer payé ») corrigé pendant l'implémentation ; 2 nits corrigés commit `f3f6ad8` (dead code ISP `GetHourlyRateAsync` + commentaire e2e). Aucun bug de correction.
+
+**Gates** :
+- `dotnet test` 422 unit + 126 IT / 0 échec ✅
+- Round-trip live LocalDB (taux 22.50, montant 202.50, mark-paid, persistance) ✅
+- `npm run build` ✅ · `npm test` **396/396** ✅ · `npm run e2e` admin-payroll **6/6** (axe dual-thème + clavier + barrière réseau, non-vacueux) ✅ · `npm run build:prod` bilingue ✅
+
+**Statut git** : **PR #55 ouverte → `master`**, CI en cours. Prochain (après merge) : **EPIC 7** (paiements).
