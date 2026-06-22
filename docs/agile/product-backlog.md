@@ -138,11 +138,17 @@ les critères a11y dans sa Definition of Done (voir `definition-of-done.md`).
 
 ### EPIC 7 — Paiements en ligne (Interac e-Transfer + cartes)
 
+> 🟡 **Spike de recherche LIVRÉ (2026-06-22)** → `docs/spikes/epic-7-payments-spike.md`. Reco : **MVP
+> e-Transfer manuel gratuit/keyless** (port `IPaymentService` calqué `IPlacesService` ; statut porté par
+> `Order.Confirm()`). APIs Interac (VoPay/Paysafe/Payment Source) **payantes → gelées** par la règle
+> budget. **Décisions §7 du spike en attente du propriétaire** avant tout code.
+
 | ID | User Story | Estimation | MoSCoW | Statut |
 |----|-----------|:----------:|:------:|--------|
-| US-7.1 | En tant que **client**, je veux **payer ma commande/location/installation par Interac e-Transfer** (demande par courriel/téléphone/ID) afin de payer sans carte de crédit. | 13 | **Could** | ⛔ À planifier (Phase 2) |
-| US-7.2 | En tant que **client**, je veux optionnellement **payer par redirection bancaire instantanée (Interac Debit / AccèsD Desjardins)** afin de confirmer le paiement immédiatement. | 8 | **Could** | ⛔ À planifier (Phase 2) |
-| US-7.3 | En tant qu'**équipe**, je veux un **port `IPaymentService` + adaptateurs** (manuel/VoPay/Paysafe) sélectionnés par config et des **webhooks signés idempotents** afin d'encaisser de façon asynchrone et fiable. | 13 | **Could** | ⛔ À planifier (Phase 2) |
+| US-7.0 | En tant qu'**équipe**, je veux un **spike de recherche** (voies gratuites vs payantes, archi port/adaptateur, Loi 25/sécurité, décisions) afin de trancher avant tout code. | 2 | **Could** | 🟡 **Livré (2026-06-22)** · `docs/spikes/epic-7-payments-spike.md` |
+| US-7.1 | En tant que **client**, je veux **payer ma commande/location/installation par Interac e-Transfer** (demande par courriel/téléphone/ID) afin de payer sans carte de crédit. | 13 | **Could** | ⛔ À planifier — **MVP manuel gratuit** recommandé par le spike (US-7.0), en attente décision propriétaire |
+| US-7.2 | En tant que **client**, je veux optionnellement **payer par redirection bancaire instantanée (Interac Debit / AccèsD Desjardins)** afin de confirmer le paiement immédiatement. | 8 | **Could** | 🔴 **Gelé (payant)** — intermédiaire réglementé requis → accord budget propriétaire obligatoire (spike §3) |
+| US-7.3 | En tant qu'**équipe**, je veux un **port `IPaymentService` + adaptateurs** (manuel/VoPay/Paysafe) sélectionnés par config et des **webhooks signés idempotents** afin d'encaisser de façon asynchrone et fiable. | 13 | **Could** | ⛔ À planifier — port + stubs keyless + patron webhook **documenté** (spike §4) ; adaptateurs payants non activés |
 
 ### EPIC 8 — Gestion des employés & paie (informative)
 
