@@ -5,7 +5,15 @@
 > fichier + le plan actif, vérifie l'état git, puis enchaîne.
 >
 > **🟢 Programme ACTIF — Phase 2 (`docs/agile/ROADMAP-PHASE-2.md`), curseur sur EPIC 11** (calendrier
-> & planification terrain) — **US-11.1 + US-11.2 partie 1 livrés (commits locaux), sous-épics suivants à venir**.
+> & planification terrain) — **US-11.1 + US-11.2 parties 1 et 2 livrés (commits locaux), US-11.3 optimisation de tournée à venir**.
+> **EPIC 11 · US-11.2 partie 2 — Ajout de RDV depuis le calendrier admin — LIVRÉ (commit local, 2026-06-22), branche `feat/epic-11-calendrier`.**
+> Sous-formulaire « ajouter un RDV » dans l'overlay détail-jour (Admin only) : contact libre (compte express) OU client existant via recherche.
+> Réutilise `CreateBooking` + `available-slots` (créneau UTC brut, L-044), **zéro migration**.
+> Query CQRS `SearchCustomers` via `IIdentityService` (DIP) ; attribution `CustomerId` sécurisée (garde `isStaff`, non-staff ignoré, L-028).
+> Radiogroups APG (L-015), focus cible inconditionnelle (L-006 corollaire B), 36 ids i18n symétriques fr/en (L-042).
+> **Revue indépendante `code-reviewer` : APPROVE WITH NITS** — 1 Minor focus corrigé ; **leçon L-006 enrichie** d'un corollaire B (retour-focus inconditionnel vers le champ déclencheur même sans suppression de DOM).
+> **Gates** : `dotnet test` **506 / 0 échec** ✅ · round-trip live LocalDB (attribution vérifiée) ✅ · `npm test` **384/384** ✅ · `npm run e2e` admin-calendar **12/12** ✅ · `build:prod` bilingue ✅.
+> **Prochain** : US-11.3 optimisation de tournée (heuristique maison `GeoDistance` ou OpenRouteService proxy), puis **clôture EPIC 11 + PR**.
 > **EPIC 11 · US-11.2 partie 1 — Overlay détail du jour + saisie des heures employé — LIVRÉ (commit local, 2026-06-22), branche `feat/epic-11-calendrier`.**
 > Cliquer un jour ouvre un `role="dialog"` (focus/Échap/retour-focus APG, mêmes mécanismes que le panneau RDV
 > US-11.1) affichant le détail du jour : liste des RDV + **tous les employés Staff** avec leurs heures de travail.
