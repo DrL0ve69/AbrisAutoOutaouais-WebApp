@@ -356,6 +356,107 @@
   }
 }
 
+// ── Sections du dialogue (RDV / heures) ─────────────────────────
+.cal__panel-section {
+  margin-top: var(--space-4);
+
+  &:first-of-type {
+    margin-top: 0;
+  }
+}
+
+.cal__panel-subtitle {
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-size-md);
+  color: var(--color-text);
+}
+
+// ── Liste des heures des employés ───────────────────────────────
+.cal__hours-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.cal__hours-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.cal__hours-name {
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+  min-width: 12ch;
+}
+
+.cal__hours-readonly {
+  color: var(--color-text);
+}
+
+.cal__hours-note {
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.cal__hours-form {
+  flex: 1 1 auto;
+}
+
+.cal__hours-fields {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-2) var(--space-3);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.cal__hours-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  &--note {
+    flex: 1 1 16ch;
+  }
+}
+
+.cal__hours-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+}
+
+.cal__hours-input {
+  min-height: 44px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+
+  &:focus-visible {
+    outline: 3px solid var(--color-focus-ring);
+    outline-offset: 2px;
+    border-color: var(--color-primary);
+  }
+}
+
+.cal__hours-save {
+  min-height: 44px;
+}
+
 .cal__back {
   display: inline-block;
   margin-top: var(--space-6);

@@ -41,6 +41,12 @@ public interface IIdentityService
     /// <summary>Tous les utilisateurs (réservé à l'administration), du plus récent au plus ancien.</summary>
     Task<IReadOnlyList<AdminUserDto>> GetAllUsersAsync(CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Tous les employés (utilisateurs de rôle <c>Staff</c>), triés par nom complet (US-11.2 planning).
+    /// Permet à la couche Application d'énumérer les employés sans référencer <c>AppUser</c> (frontière).
+    /// </summary>
+    Task<IReadOnlyList<StaffMemberDto>> GetStaffMembersAsync(CancellationToken cancellationToken = default);
+
     /// <summary>Met à jour les informations de profil.</summary>
     Task<Result> UpdateProfileAsync(Guid userId, UpdateProfileRequest request, CancellationToken cancellationToken = default);
 

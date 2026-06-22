@@ -3,12 +3,16 @@ import { userEvent } from '@testing-library/user-event';
 import { provideRouter } from '@angular/router';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { of } from 'rxjs';
+import { signal } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
 import localeFrCa from '@angular/common/locales/fr-CA';
 import { AdminCalendarComponent } from './calendar';
 import { CalendarService } from '../../../core/services/calendar.service';
+import { PlanningService } from '../../../core/services/planning.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { CalendarBookingDto } from '../../../core/models/calendar.model';
+import { DayDetailDto } from '../../../core/models/planning.model';
 import { expectNoA11yViolations } from '../../../../testing/axe-helper';
 
 registerLocaleData(localeFrCa);
@@ -37,19 +41,64 @@ const julyBookings: CalendarBookingDto[] = [
   },
 ];
 
-async function setup(bookings: CalendarBookingDto[] = julyBookings) {
-  const getCalendar = vi.fn().mockReturnValue(of(bookings));
+const dayDetail: DayDetailDto = {
+  date: '2026-07-08',
+  bookings: julyBookings,
+  staff: [
+    {
+      employeeId: 's1',
+      fullName: 'Sam Staff',
+      startMinutes: 480, // 08:00
+      endMinutes: 1020, // 17:00
+      note: 'Quart du matin',
+      hasEntry: true,
+    },
+    {
+      employeeId: 's2',
+      fullName: 'Nadia Nouvelle',
+      startMinutes: null,
+      endMinutes: null,
+      note: null,
+      hasEntry: false,
+    },
+  ],
+};
+
+interface SetupOptions {
+  isAdmin?: boolean;
+  detail?: DayDetailDto;
+  upsert?: ReturnType<typeof vi.fn>;
+}
+
+async function setup(options: SetupOptions = {}) {
+  const isAdmin = options.isAdmin ?? true;
+  const getCalendar = vi.fn().mockReturnValue(of(julyBookings));
+  const getDayDetail = vi.fn().mockReturnValue(of(options.detail ?? dayDetail));
+  const upsertWorkHours = options.upsert ?? vi.fn().mockReturnValue(of({ id: 'wh1' }));
+
   const calendarStub: Partial<CalendarService> = { getCalendar };
+  const planningStub: Partial<PlanningService> = { getDayDetail, upsertWorkHours };
+  const authStub = { isAdmin: signal(isAdmin) } as unknown as AuthService;
   const toastStub: Partial<ToastService> = { show: vi.fn() };
 
   const rendered = await render(AdminCalendarComponent, {
     providers: [
       provideRouter([]),
       { provide: CalendarService, useValue: calendarStub },
+      { provide: PlanningService, useValue: planningStub },
+      { provide: AuthService, useValue: authStub },
       { provide: ToastService, useValue: toastStub },
     ],
   });
-  return { ...rendered, getCalendar };
+  return { ...rendered, getCalendar, getDayDetail, upsertWorkHours };
+}
+
+/** Ouvre le dialogue du 8 juillet (cellule porteuse des RDV mockés). */
+async function openDialog(user: ReturnType<typeof userEvent.setup>) {
+  const cell8 = screen.getByRole('gridcell', { name: /8 juillet.*2 rendez-vous/i }) as HTMLElement;
+  await user.click(cell8);
+  const dialog = await screen.findByRole('dialog');
+  return { cell8, dialog };
 }
 
 describe('AdminCalendarComponent', () => {
@@ -60,10 +109,6 @@ describe('AdminCalendarComponent', () => {
     vi.setSystemTime(FIXED_NOW);
   });
 
-  // CRITIQUE : restaurer le vrai Date après CHAQUE test. En mode navigateur vitest, les
-  // fichiers de spec partagent le worker ; un Date figé qui fuit gèle Date.now() pour les
-  // specs suivants → leurs waitFor/timeouts ne s'écoulent plus et échouent de façon
-  // intermittente (contamination inter-fichiers, famille L-010/L-019).
   afterEach(() => {
     vi.useRealTimers();
   });
@@ -71,15 +116,12 @@ describe('AdminCalendarComponent', () => {
   it('affiche la grille du mois et charge les réservations de la fenêtre', async () => {
     const { getCalendar } = await setup();
 
-    // La grille est rendue (role="grid").
     expect(screen.getByRole('grid')).toBeInTheDocument();
-    // Le service a été appelé avec une fenêtre (from/to en YYYY-MM-DD).
     expect(getCalendar).toHaveBeenCalledTimes(1);
     const [from, to] = getCalendar.mock.calls[0];
     expect(from).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     expect(to).toMatch(/^\d{4}-\d{2}-\d{2}$/);
 
-    // La cellule du 8 juillet annonce 2 rendez-vous (aria-label).
     const cell8 = screen.getByRole('gridcell', { name: /8 juillet.*2 rendez-vous/i });
     expect(cell8).toBeInTheDocument();
   });
@@ -98,7 +140,6 @@ describe('AdminCalendarComponent', () => {
     const user = userEvent.setup();
     await setup();
 
-    // La cellule active initiale = aujourd'hui (15 juillet).
     const active = screen
       .getAllByRole('gridcell')
       .find((btn) => btn.getAttribute('tabindex') === '0')!;
@@ -108,7 +149,6 @@ describe('AdminCalendarComponent', () => {
 
     await user.keyboard('{ArrowRight}');
 
-    // Une AUTRE cellule (jour suivant) est désormais active ET focalisée.
     const newActive = screen
       .getAllByRole('gridcell')
       .find((btn) => btn.getAttribute('tabindex') === '0')!;
@@ -124,43 +164,85 @@ describe('AdminCalendarComponent', () => {
     await user.click(weekRadio);
 
     expect(weekRadio).toHaveAttribute('aria-checked', 'true');
-    // Un nouveau chargement est déclenché par le changement de vue.
     expect(getCalendar.mock.calls.length).toBeGreaterThanOrEqual(2);
   });
 
-  it('ouvre le panneau « RDV du jour » au clic, y déplace le focus, le ferme et rend le focus', async () => {
+  it('ouvre le dialogue détail au clic, y déplace le focus, le ferme et rend le focus', async () => {
     const user = userEvent.setup();
-    await setup();
+    const { getDayDetail } = await setup();
 
-    const cell8 = screen.getByRole('gridcell', {
-      name: /8 juillet.*2 rendez-vous/i,
-    }) as HTMLElement;
-    await user.click(cell8);
+    const { cell8, dialog } = await openDialog(user);
+    await waitFor(() => expect(dialog).toHaveFocus());
 
-    const panel = await screen.findByRole('region', { name: /8 juillet.*2 rendez-vous/i });
-    await waitFor(() => expect(panel).toHaveFocus());
+    // Le détail du jour a été demandé avec la clé locale du jour cliqué.
+    expect(getDayDetail).toHaveBeenCalledWith('2026-07-08');
 
-    // Le panneau liste les 2 RDV (lecture seule) avec leurs clients.
-    expect(within(panel).getByText('Camille Client')).toBeInTheDocument();
-    expect(within(panel).getByText('Benoît Acheteur')).toBeInTheDocument();
+    // Le dialogue liste les 2 RDV avec leurs clients (lecture seule).
+    expect(within(dialog).getByText('Camille Client')).toBeInTheDocument();
+    expect(within(dialog).getByText('Benoît Acheteur')).toBeInTheDocument();
 
     // Fermeture → retour du focus à la cellule déclencheuse (WCAG 2.4.3).
-    await user.click(within(panel).getByRole('button', { name: /fermer le détail du jour/i }));
+    await user.click(within(dialog).getByRole('button', { name: /fermer le détail du jour/i }));
     await waitFor(() => expect(cell8).toHaveFocus());
   });
 
-  it('ne présente aucune violation WCAG (grille + panneau ouvert)', async () => {
+  it('le dialogue a un nom accessible non vide (date) même via aria-labelledby (L-040)', async () => {
     const user = userEvent.setup();
-    const { container } = await setup();
+    await setup();
+
+    const dialog = (await openDialog(user)).dialog;
+    // getByRole avec { name } échouerait si le nom était vide.
+    expect(dialog).toHaveAccessibleName(/8 juillet 2026/i);
+  });
+
+  it('Admin : un formulaire d’heures par employé ; enregistrer appelle le service', async () => {
+    const user = userEvent.setup();
+    const { upsertWorkHours } = await setup({ isAdmin: true });
+
+    const dialog = (await openDialog(user)).dialog;
+
+    // Le formulaire de Sam Staff (pré-rempli 08:00 / 17:00) est éditable.
+    const samGroup = within(dialog).getByRole('group', { name: /heures de sam staff/i });
+    expect(samGroup).toBeInTheDocument();
+
+    const saveBtn = within(samGroup).getByRole('button', {
+      name: /enregistrer les heures de sam staff/i,
+    });
+    await user.click(saveBtn);
+
+    await waitFor(() => expect(upsertWorkHours).toHaveBeenCalledTimes(1));
+    const req = upsertWorkHours.mock.calls[0][0];
+    expect(req).toMatchObject({
+      employeeId: 's1',
+      date: '2026-07-08',
+      startMinutes: 480,
+      endMinutes: 1020,
+      note: 'Quart du matin',
+    });
+  });
+
+  it('Staff : les heures sont en lecture seule (aucun champ éditable)', async () => {
+    const user = userEvent.setup();
+    const { upsertWorkHours } = await setup({ isAdmin: false });
+
+    const dialog = (await openDialog(user)).dialog;
+
+    // Aucun formulaire/groupe d’édition, aucun input.
+    expect(within(dialog).queryByRole('group', { name: /heures de/i })).toBeNull();
+    expect(within(dialog).queryByRole('textbox')).toBeNull();
+    // Mais les heures sont affichées en lecture seule.
+    expect(within(dialog).getByText(/08:00\s*–\s*17:00/)).toBeInTheDocument();
+    expect(upsertWorkHours).not.toHaveBeenCalled();
+  });
+
+  it('ne présente aucune violation WCAG (grille + dialogue ouvert, Admin)', async () => {
+    const user = userEvent.setup();
+    const { container } = await setup({ isAdmin: true });
 
     await screen.findByRole('grid');
     await expectNoA11yViolations(container);
 
-    const cell8 = screen.getByRole('gridcell', {
-      name: /8 juillet.*2 rendez-vous/i,
-    }) as HTMLElement;
-    await user.click(cell8);
-    await screen.findByRole('region', { name: /8 juillet/i });
+    await openDialog(user);
     await expectNoA11yViolations(container);
   });
 });

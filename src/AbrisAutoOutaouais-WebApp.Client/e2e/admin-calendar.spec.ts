@@ -40,6 +40,16 @@ const CUSTOMER_USER = {
   avatar: null,
 };
 
+const ADMIN_USER = {
+  id: '99999999-9999-9999-9999-999999999999',
+  email: 'admin@abrisauto.com',
+  username: 'admin',
+  firstName: 'Ada',
+  lastName: 'Admin',
+  roles: ['Admin'],
+  avatar: null,
+};
+
 /**
  * Renvoie des réservations situées DANS la fenêtre demandée : on lit le `from`
  * (1ʳᵉ cellule visible) et on place les RDV à `from + 7/8 jours` à midi UTC (donc
@@ -75,6 +85,39 @@ function calendarRowsForWindow(fromIso: string) {
   ];
 }
 
+/**
+ * Détail d'une journée (US-11.2) dérivé de la date demandée : un RDV stocké 12:00Z–14:00Z (→
+ * 08:00–10:00 en EDT) et un employé dont StartMinutes=480 / EndMinutes=1020 (→ « 08:00 » local).
+ * Les minutes sont du LOCAL depuis minuit (pas d'UTC), donc 480 s'affiche « 08:00 » quel que soit
+ * le fuseau (L-044) — d'où le double contrôle : RDV en fuseau local ET heures en minutes locales.
+ */
+function dayDetailForDate(dateIso: string) {
+  return {
+    date: dateIso,
+    bookings: [
+      {
+        id: 'cal-1',
+        slotStart: `${dateIso}T12:00:00Z`,
+        slotEnd: `${dateIso}T14:00:00Z`,
+        type: 'Installation',
+        status: 'Confirmed',
+        customerName: 'Camille Client',
+        city: 'Gatineau',
+      },
+    ],
+    staff: [
+      {
+        employeeId: 's1',
+        fullName: 'Sam Staff',
+        startMinutes: 480, // 08:00 local
+        endMinutes: 1020, // 17:00 local
+        note: 'Quart du matin',
+        hasEntry: true,
+      },
+    ],
+  };
+}
+
 async function signIn(page: Page, user: typeof STAFF_USER): Promise<void> {
   await page.addInitScript(
     (data) => {
@@ -90,6 +133,15 @@ async function signIn(page: Page, user: typeof STAFF_USER): Promise<void> {
     const from = new URL(route.request().url()).searchParams.get('from') ?? '2026-06-01';
     route.fulfill({ json: calendarRowsForWindow(from) });
   });
+  await page.route('**/api/v1/planning/day**', (route) => {
+    const date =
+      new URL(route.request().url()).searchParams.get('date') ?? '2026-06-08';
+    route.fulfill({ json: dayDetailForDate(date) });
+  });
+  // PUT des heures (Admin) — réponse 200 simulée.
+  await page.route('**/api/v1/planning/work-hours', (route) =>
+    route.fulfill({ json: { id: 'wh1' } }),
+  );
 }
 
 function forceTheme(page: Page, theme: 'light' | 'dark'): Promise<void> {
@@ -191,7 +243,7 @@ test('Bascule de vue — radiogroup APG au clavier (flèche change la vue active
   await expect(page.locator('[role="gridcell"]')).toHaveCount(7);
 });
 
-test('Panneau « RDV du jour » — Enter ouvre + focus, Échap ferme + rend le focus (L-006)', async ({
+test('Dialogue « détail du jour » — Enter ouvre + focus, Échap ferme + rend le focus (L-006)', async ({
   page,
 }) => {
   await signIn(page, STAFF_USER);
@@ -201,16 +253,16 @@ test('Panneau « RDV du jour » — Enter ouvre + focus, Échap ferme + rend le 
   await trigger.focus();
   await page.keyboard.press('Enter');
 
-  // Le panneau (aside role="region") s'ouvre et reçoit le focus. On cible la classe :
-  // son aria-label (« <date>, … rendez-vous ») partage le mot « rendez-vous » avec la
-  // <section> « Calendrier des rendez-vous » → un getByRole par nom est ambigu (L-010).
-  const panel = page.locator('aside.cal__panel');
-  await expect(panel).toBeVisible();
-  await expect(panel).toBeFocused();
+  // Le dialogue (role="dialog") s'ouvre et reçoit le focus. Son nom accessible (date)
+  // est garanti non vide même avant l'arrivée du détail async (L-040).
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toBeVisible();
+  await expect(dialog).toBeFocused();
+  await expect(dialog).toHaveAccessibleName(/.+/);
 
   // Échap referme et rend le focus à la cellule déclencheuse (WCAG 2.4.3).
   await page.keyboard.press('Escape');
-  await expect(panel).toBeHidden();
+  await expect(dialog).toBeHidden();
   await expect(trigger).toBeFocused();
 });
 
@@ -231,6 +283,44 @@ test('Panneau — heure affichée en fuseau LOCAL, pas UTC (cohérence inter-éc
   await expect(panel.getByText(/12:00.*14:00/)).toHaveCount(0);
 });
 
+test('Heures (lecture seule Staff) — StartMinutes=480 s’affiche « 08:00 » (L-044)', async ({
+  page,
+}) => {
+  await signIn(page, STAFF_USER);
+  await gotoPlanning(page);
+
+  await page.locator('.cal__cell--has').first().click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toBeVisible();
+
+  // Staff = lecture seule : aucun champ éditable, mais les heures (480/1020 min locales) s'affichent.
+  await expect(dialog.getByRole('textbox')).toHaveCount(0);
+  await expect(dialog.getByText(/08:00\s*–\s*17:00/)).toBeVisible();
+});
+
+test('Admin — formulaire d’heures éditable ; enregistrer appelle l’API', async ({ page }) => {
+  await signIn(page, ADMIN_USER);
+  await gotoPlanning(page);
+
+  await page.locator('.cal__cell--has').first().click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toBeVisible();
+
+  // Le champ « Début » est pré-rempli avec l'heure LOCALE 08:00 (StartMinutes=480).
+  const group = dialog.getByRole('group', { name: /heures de sam staff/i });
+  const startInput = group.locator('input[type="time"]').first();
+  await expect(startInput).toHaveValue('08:00');
+
+  // Enregistrer déclenche le PUT (mocké 200) puis annonce la réussite.
+  const putPromise = page.waitForRequest('**/api/v1/planning/work-hours');
+  await group.getByRole('button', { name: /enregistrer les heures de sam staff/i }).click();
+  const request = await putPromise;
+  expect(request.method()).toBe('PUT');
+  const body = JSON.parse(request.postData() ?? '{}');
+  expect(body.startMinutes).toBe(480);
+  expect(body.endMinutes).toBe(1020);
+});
+
 // ── Balayage axe : /planning × deux thèmes, navbar scrollée (verre) ─────────────
 const themes = [
   { id: 'light', libelle: 'thème clair' },
@@ -241,16 +331,19 @@ for (const theme of themes) {
   test(`/planning — aucune violation WCAG AA (${theme.libelle}, navbar scrollée)`, async ({
     page,
   }) => {
-    await signIn(page, STAFF_USER);
+    // Connexion en ADMIN : scanne aussi le formulaire d'heures éditable (inputs/boutons —
+    // surface nouvelle à plus fort risque de contraste/nom accessible que la lecture seule).
+    await signIn(page, ADMIN_USER);
     await forceTheme(page, theme.id);
     await gotoPlanning(page);
     await expect(page.locator('html')).toHaveAttribute('data-theme', theme.id);
     await expect(page.locator('.cal__cell--has').first()).toBeVisible();
 
-    // Ouvre le panneau jour pour scanner aussi badges/chips de statut (pire cas contraste).
-    await page.locator('[role="gridcell"][tabindex="0"]').focus();
-    await page.keyboard.press('Enter');
-    await expect(page.locator('aside.cal__panel')).toBeVisible();
+    // Ouvre le dialogue jour pour scanner badges/chips de statut ET le formulaire d'heures.
+    await page.locator('.cal__cell--has').first().click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByRole('group', { name: /heures de/i }).first()).toBeVisible();
 
     // Scroll → navbar en verre translucide (.navbar--scrolled), si la page défile.
     await page.evaluate(() => window.scrollTo(0, 300));

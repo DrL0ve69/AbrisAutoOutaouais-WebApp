@@ -352,6 +352,74 @@
         <source> Aucun rendez-vous ce jour-là. </source>
         <target> No appointments on this day. </target>
       </trans-unit>
+      <trans-unit id="admin.calendar.detailLoading" datatype="html">
+        <source> Chargement du détail du jour… </source>
+        <target> Loading day details… </target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.detailError" datatype="html">
+        <source> Impossible de charger le détail du jour. Réessayez plus tard. </source>
+        <target> Unable to load day details. Please try again later. </target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.bookingsHeading" datatype="html">
+        <source>Rendez-vous du jour</source>
+        <target>Appointments for the day</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.staffHeading" datatype="html">
+        <source>Heures des employés</source>
+        <target>Employee hours</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.noStaff" datatype="html">
+        <source> Aucun employé enregistré. </source>
+        <target> No employees on file. </target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.hours.start" datatype="html">
+        <source>Début</source>
+        <target>Start</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.hours.end" datatype="html">
+        <source>Fin</source>
+        <target>End</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.hours.note" datatype="html">
+        <source>Note</source>
+        <target>Note</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.hours.save" datatype="html">
+        <source>Enregistrer</source>
+        <target>Save</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.hours.group" datatype="html">
+        <source>Heures de <x id="name" equiv-text="name"/></source>
+        <target>Hours for <x id="name" equiv-text="name"/></target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.hours.saveAria" datatype="html">
+        <source>Enregistrer les heures de <x id="name" equiv-text="name"/></source>
+        <target>Save hours for <x id="name" equiv-text="name"/></target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.hours.saving" datatype="html">
+        <source>Enregistrement des heures…</source>
+        <target>Saving hours…</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.hours.saved" datatype="html">
+        <source>Heures de <x id="name" equiv-text="staff.fullName"/> enregistrées.</source>
+        <target>Hours for <x id="name" equiv-text="staff.fullName"/> saved.</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.hours.saveError" datatype="html">
+        <source>Échec de l'enregistrement des heures.</source>
+        <target>Failed to save the hours.</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.hours.invalid" datatype="html">
+        <source>L'heure de fin doit être postérieure à l'heure de début.</source>
+        <target>The end time must be later than the start time.</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.hours.unspecified" datatype="html">
+        <source>Horaire non précisé</source>
+        <target>Schedule not specified</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.toast.detailError" datatype="html">
+        <source>Échec du chargement du détail du jour.</source>
+        <target>Failed to load the day details.</target>
+      </trans-unit>
       <trans-unit id="admin.calendar.back" datatype="html">
         <source> ← Retour au tableau de bord </source>
         <target> ← Back to dashboard </target>

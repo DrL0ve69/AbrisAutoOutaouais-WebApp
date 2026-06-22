@@ -100,44 +100,117 @@
         </div>
       </div>
 
-      <!-- ── Panneau « RDV du jour » (lecture seule) ────────────────────────── -->
+      <!-- ── Dialogue « détail du jour » (RDV + heures des employés) ──────────── -->
       @if (openDay(); as day) {
-        <aside #dayPanel class="cal__panel" tabindex="-1" role="region"
-               [attr.aria-label]="cellAria(day)">
+        <!-- role="dialog" ; nom accessible TOUJOURS non vide via #dialogTitle (date formatée,
+             présente dès l'ouverture même avant le détail async — L-040). -->
+        <aside #dayDialog class="cal__panel" tabindex="-1" role="dialog" aria-modal="true"
+               aria-labelledby="cal-dialog-title">
           <header class="cal__panel-head">
-            <h2 class="cal__panel-title">
-              {{ day.date | date: 'fullDate' : '' : 'fr-CA' }}
-            </h2>
+            <h2 id="cal-dialog-title" class="cal__panel-title">{{ dialogTitle() }}</h2>
             <button type="button" class="btn btn--ghost btn--small" (click)="closeDay()"
                     aria-label="Fermer le détail du jour" i18n-aria-label="@@admin.calendar.closeDay">
               <span aria-hidden="true">✕</span>
             </button>
           </header>
 
-          @if (day.bookings.length === 0) {
-            <p class="cal__panel-empty" i18n="@@admin.calendar.dayEmpty">
-              Aucun rendez-vous ce jour-là.
+          @if (loadingDetail()) {
+            <p class="cal__panel-empty" i18n="@@admin.calendar.detailLoading">
+              Chargement du détail du jour…
             </p>
-          } @else {
-            <ul class="cal__panel-list" role="list">
-              @for (b of day.bookings; track b.id) {
-                <li class="cal__panel-item">
-                  <span class="cal__panel-time">
-                    <!-- Fuseau LOCAL (TZ vide) — cohérent avec bookings.html/installation.html ET
-                         avec le regroupement par jour (lui aussi local) : afficher en UTC ici
-                         décalerait l'heure vs /admin/reservations pour le même RDV (L-004, axe fuseau). -->
-                    {{ b.slotStart | date: 'HH:mm' : '' : 'fr-CA' }}–{{ b.slotEnd | date: 'HH:mm' : '' : 'fr-CA' }}
-                  </span>
-                  <span class="cal__panel-type">{{ typeLabel(b.type) }}</span>
-                  <span class="cal__badge" [class]="'cal__badge--' + statusModifier(b.status)">
-                    {{ statusLabel(b.status) }}
-                  </span>
-                  <span class="cal__panel-customer">{{ b.customerName }}</span>
-                  <span class="cal__panel-city">{{ b.city }}</span>
-                </li>
+          } @else if (detailError()) {
+            <p class="cal__panel-empty cal__state--error" role="alert"
+               i18n="@@admin.calendar.detailError">
+              Impossible de charger le détail du jour. Réessayez plus tard.
+            </p>
+          } @else if (dayDetail(); as detail) {
+            <!-- Section RDV du jour (lecture seule) -->
+            <section class="cal__panel-section" aria-labelledby="cal-bookings-heading">
+              <h3 id="cal-bookings-heading" class="cal__panel-subtitle"
+                  i18n="@@admin.calendar.bookingsHeading">Rendez-vous du jour</h3>
+              @if (detail.bookings.length === 0) {
+                <p class="cal__panel-empty" i18n="@@admin.calendar.dayEmpty">
+                  Aucun rendez-vous ce jour-là.
+                </p>
+              } @else {
+                <ul class="cal__panel-list" role="list">
+                  @for (b of detail.bookings; track b.id) {
+                    <li class="cal__panel-item">
+                      <span class="cal__panel-time">
+                        <!-- Fuseau LOCAL (TZ vide) — cohérent avec bookings.html/installation.html ET
+                             avec le regroupement par jour (lui aussi local) : afficher en UTC ici
+                             décalerait l'heure vs /admin/reservations pour le même RDV (L-044). -->
+                        {{ b.slotStart | date: 'HH:mm' : '' : 'fr-CA' }}–{{ b.slotEnd | date: 'HH:mm' : '' : 'fr-CA' }}
+                      </span>
+                      <span class="cal__panel-type">{{ typeLabel(b.type) }}</span>
+                      <span class="cal__badge" [class]="'cal__badge--' + statusModifier(b.status)">
+                        {{ statusLabel(b.status) }}
+                      </span>
+                      <span class="cal__panel-customer">{{ b.customerName }}</span>
+                      <span class="cal__panel-city">{{ b.city }}</span>
+                    </li>
+                  }
+                </ul>
               }
-            </ul>
+            </section>
+
+            <!-- Section heures des employés -->
+            <section class="cal__panel-section" aria-labelledby="cal-staff-heading">
+              <h3 id="cal-staff-heading" class="cal__panel-subtitle"
+                  i18n="@@admin.calendar.staffHeading">Heures des employés</h3>
+
+              @if (detail.staff.length === 0) {
+                <p class="cal__panel-empty" i18n="@@admin.calendar.noStaff">
+                  Aucun employé enregistré.
+                </p>
+              } @else {
+                <ul class="cal__hours-list" role="list">
+                  @for (s of detail.staff; track s.employeeId; let i = $index) {
+                    <li class="cal__hours-item">
+                      <span class="cal__hours-name">{{ s.fullName }}</span>
+
+                      @if (isAdmin()) {
+                        <!-- Formulaire réactif par employé (édition Admin). Le fieldset porte un
+                             nom accessible interpolé via $localize (binding → pas i18n-, L-024). -->
+                        <form class="cal__hours-form" [formGroup]="hoursForms()[i]"
+                              (ngSubmit)="saveHours(s, i)">
+                          <fieldset class="cal__hours-fields"
+                                    [attr.aria-label]="hoursGroupLabel(s.fullName)">
+                            <label class="cal__hours-field">
+                              <span class="cal__hours-label" i18n="@@admin.calendar.hours.start">Début</span>
+                              <input type="time" class="cal__hours-input" formControlName="start" />
+                            </label>
+                            <label class="cal__hours-field">
+                              <span class="cal__hours-label" i18n="@@admin.calendar.hours.end">Fin</span>
+                              <input type="time" class="cal__hours-input" formControlName="end" />
+                            </label>
+                            <label class="cal__hours-field cal__hours-field--note">
+                              <span class="cal__hours-label" i18n="@@admin.calendar.hours.note">Note</span>
+                              <input type="text" class="cal__hours-input" formControlName="note"
+                                     maxlength="500" />
+                            </label>
+                            <button type="submit" class="btn btn--primary btn--small cal__hours-save"
+                                    [disabled]="savingEmployeeId() === s.employeeId"
+                                    [attr.aria-label]="saveLabel(s.fullName)"
+                                    i18n="@@admin.calendar.hours.save">Enregistrer</button>
+                          </fieldset>
+                        </form>
+                      } @else {
+                        <!-- Staff : lecture seule (aucun contrôle éditable, pas seulement désactivé). -->
+                        <span class="cal__hours-readonly">{{ hoursRange(s) }}</span>
+                        @if (s.note) {
+                          <span class="cal__hours-note">{{ s.note }}</span>
+                        }
+                      }
+                    </li>
+                  }
+                </ul>
+              }
+            </section>
           }
+
+          <!-- Live-region SCOPÉE de l'état de sauvegarde des heures (reset neutre avant ré-annonce, L-027). -->
+          <p class="sr-only" role="status" aria-live="polite">{{ saveAnnouncement() }}</p>
         </aside>
       }
     }

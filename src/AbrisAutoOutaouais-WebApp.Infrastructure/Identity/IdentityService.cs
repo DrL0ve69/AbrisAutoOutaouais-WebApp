@@ -1,6 +1,7 @@
 using AbrisAutoOutaouais_WebApp.Application.Auth.DTOs;
 using AbrisAutoOutaouais_WebApp.Application.Common.Interfaces;
 using AbrisAutoOutaouais_WebApp.Application.Common.Models;
+using AbrisAutoOutaouais_WebApp.Domain.Constants;
 using Domain.ValueObjects;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -152,6 +153,16 @@ public sealed class IdentityService : IIdentityService
         }
 
         return result;
+    }
+
+    public async Task<IReadOnlyList<StaffMemberDto>> GetStaffMembersAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var staff = await _userManager.GetUsersInRoleAsync(Roles.Staff);
+        return staff
+            .Select(u => new StaffMemberDto(u.Id, u.FullName))
+            .OrderBy(s => s.FullName, StringComparer.CurrentCultureIgnoreCase)
+            .ToList();
     }
 
     public async Task<Result> UpdateProfileAsync(

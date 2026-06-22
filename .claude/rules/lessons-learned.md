@@ -11,6 +11,34 @@
 
 ---
 
+## L-045 · A new `ISoftDeletable` entity with a unique business-key index must use `HasFilter("[IsDeleted] = 0")` — unconditional `IsUnique()` creates a latent re-insert trap
+
+- **Symptom.** EPIC 11, US-11.2: `WorkHoursEntry` implements `ISoftDeletable` (global `!IsDeleted`
+  query filter) but its initial `(EmployeeId, WorkDate)` unique index was unconditional —
+  `.IsUnique()` with no `HasFilter`. If a delete path is ever added, soft-deleting an entry for
+  employee E on day D marks it `IsDeleted = 1` but the invisible row still occupies the unique index
+  slot. A subsequent re-insert of hours for the same E/D pair would fail with a **unique-constraint
+  violation at the DB level**, even though EF's query filter hides the deleted row from every query.
+  No error at write time, no warning at migration time — the trap is detectable only when the re-insert
+  actually executes in prod. Caught as a Minor by the independent reviewer. The fix was
+  `.IsUnique().HasFilter("[IsDeleted] = 0")` — the identical idiom already used by `Product` and
+  `ShelterModel` in this codebase; the new entity simply diverged from the established pattern.
+- **Rule.** Every entity that implements `ISoftDeletable` AND carries a unique business-key index
+  must have `.HasFilter("[IsDeleted] = 0")` on that index — **always, even when no delete path
+  exists yet**. The filter is a pre-emptive contract between the unique-index invariant and the
+  soft-delete mechanism: a soft-deleted row must release its index slot. The established idiom in
+  this repo is `Product`/`ShelterModel` — follow it exactly. Two guards: (1) After writing any
+  `.IsUnique()` in an entity-type configuration, grep the corresponding domain entity for
+  `ISoftDeletable` — if the interface is present, add `HasFilter("[IsDeleted] = 0")` before
+  committing; (2) After adding `ISoftDeletable` to an existing entity, grep its configuration for
+  every `.IsUnique()` call and retrofit the filter. Regenerate the migration and snapshot after the
+  fix — the migration will add `filter: "[IsDeleted] = 0"` to the existing index definition.
+- **Refs.**
+  `src/AbrisAutoOutaouais-WebApp.Infrastructure/Persistence/Configurations/WorkHoursEntryConfiguration.cs`
+  (`.IsUnique().HasFilter("[IsDeleted] = 0")` — the fix),
+  `Configurations/ProductConfiguration.cs` + `Configurations/ShelterModelConfiguration.cs`
+  (the established repo idiom to follow), branch `feat/epic-11-calendrier`.
+
 ## L-044 · A datetime rendered with an explicit UTC timezone on one screen while sibling screens use local timezone creates a silent cross-screen mismatch — pick one canonical timezone and share it between display AND grouping
 
 - **Symptom.** EPIC 11, US-11.1 (`calendar.html`, read-only `/planning` view): the « RDV du jour »

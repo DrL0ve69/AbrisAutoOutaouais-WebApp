@@ -27,6 +27,7 @@ public interface IApplicationDbContext
     DbSet<OrderLine> OrderLines { get; }
     DbSet<RentalContract> RentalContracts { get; }
     DbSet<BookingSlot> BookingSlots { get; }
+    DbSet<WorkHoursEntry> WorkHoursEntries { get; }
 
     /// <summary>
     /// Accès générique à un <see cref="DbSet{TEntity}"/> — utilisé pour gérer explicitement une

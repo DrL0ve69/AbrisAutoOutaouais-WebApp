@@ -5,7 +5,28 @@
 > fichier + le plan actif, vérifie l'état git, puis enchaîne.
 >
 > **🟢 Programme ACTIF — Phase 2 (`docs/agile/ROADMAP-PHASE-2.md`), curseur sur EPIC 11** (calendrier
-> & planification terrain) — **sous-épic 1 / US-11.1 livré (commit local), sous-épics suivants à venir**.
+> & planification terrain) — **US-11.1 + US-11.2 partie 1 livrés (commits locaux), sous-épics suivants à venir**.
+> **EPIC 11 · US-11.2 partie 1 — Overlay détail du jour + saisie des heures employé — LIVRÉ (commit local, 2026-06-22), branche `feat/epic-11-calendrier`.**
+> Cliquer un jour ouvre un `role="dialog"` (focus/Échap/retour-focus APG, mêmes mécanismes que le panneau RDV
+> US-11.1) affichant le détail du jour : liste des RDV + **tous les employés Staff** avec leurs heures de travail.
+> **Admin** : formulaire saisie/édition heures par employé (End ≤ Start → 422) ; **Staff** : lecture seule.
+> **Entité** `WorkHoursEntry` — regular entity (non OwnsMany — L-035), minutes-from-midnight en heure **locale**
+> (L-044), `ISoftDeletable` + index unique filtré `(EmployeeId, WorkDate)` `HasFilter("[IsDeleted] = 0")`
+> (L-045, idiome `Product`/`ShelterModel`), FK `EmployeeId → AppUser` Restrict.
+> **Migration** `20260622052312_AddWorkHoursEntry` (MigrateOnStartup reste OFF — L-022) ; appliquée + round-trip
+> live LocalDB (upsert persist, même clé → UPDATE, End ≤ Start → 422). **CQRS** : `GetDayDetailQuery` (read,
+> `StaffOrAbove`) + `UpsertWorkHoursCommand` (write, `AdminOnly`) ; `IIdentityService.GetStaffMembersAsync`
+> (Application ne touche pas `AppUser` — DIP). **Contrôleur** : `PlanningController`
+> `GET /api/v1/planning/day` + `PUT /api/v1/planning/work-hours`. **Frontend** : planning model/service,
+> rework dialogue calendrier, util pur `work-hours.util`, 17 ids i18n **symétriques** fr/en.
+> **Revue indépendante `code-reviewer` + `solid-review` : APPROVE WITH NITS** — 1 Minor corrigé (index unique
+> `HasFilter("[IsDeleted]=0")` manquant → ajouté, migration régénérée) ; 2 nits acceptés. **Leçon L-045**
+> capturée (`ISoftDeletable` + index unique → toujours `HasFilter`).
+> **Gates** : `dotnet test` **383 unit + 110 IT / 0 échec** ✅ · migration appliquée + live LocalDB ✅ ·
+> `npm run build:prod` (bilingue) ✅ · `npm test` **378/378** ✅ · `npm run e2e` admin-calendar **10/10**
+> (APG dialog + dual-theme axe admin surface + `timezoneId: 'America/Toronto'` 12:00Z→08:00 L-044) ✅ · i18n symétrique ✅.
+> **Prochain** : ajout de RDV/employé sur le calendrier (puis optimisation de tournée US-11.3). **Commit LOCAL
+> uniquement** (sous-tâche intermédiaire — pas de PR/merge tant que l'épic n'est pas complet, cf. [[program-git-flow]]).
 > **EPIC 11 · US-11.1 — Vue calendrier LECTURE SEULE — LIVRÉ (commit local, 2026-06-22), branche `feat/epic-11-calendrier`.**
 > Calendrier `/planning` (mois/semaine/jour) accessible qui **agrège les `BookingSlot` existants** (zéro
 > nouveau mécanisme, **zéro migration**, zéro entité). **Décisions propriétaire figées** : (1) lecture seule
@@ -32,10 +53,7 @@
 > **Nits/Minor reportés (non bloquants, APPROVE)** : (a) Minor — grille mois = 42 `gridcell` dans **une seule**
 > `role="row"` (sémantique ARIA aplatie ; clavier + axe OK, lecteur d'écran annonce « 1/42 ») → restructurer en
 > rows hebdo dans un sous-épic ; (b) Nit fixtures hors heures d'affaires. **Pré-existant hors périmètre** :
-> orphelins EN `messages.en.xlf` (home.catalog.*, cart.orderError…) déjà sur master. **Prochain** : prochain
-> sous-épic EPIC 11 (saisie des heures par employé → alimente EPIC 8 ; puis ajout RDV/employé ; puis
-> optimisation de tournée). **Commit LOCAL uniquement** (sous-tâche intermédiaire — pas de PR/merge tant que
-> l'épic n'est pas complet, cf. [[program-git-flow]]).
+> orphelins EN `messages.en.xlf` (home.catalog.*, cart.orderError…) déjà sur master.
 > **EPIC 14 MERGÉ (2026-06-21)** — PR #52, SHA merge `fd8083f`.
 > **EPIC 14 TERMINÉ (2026-06-21)** — branche `feat/epic-14-carte-precise` : carte `/mesurer` plus précise,
 > **100 % gratuit** (source HD payante **écartée** — règle budget). **US-14.1** over-zoom Esri :
