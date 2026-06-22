@@ -307,7 +307,7 @@ si un SP devient disponible. Détail : `PROGRAM-STATUS.md` (Épic H) + `docs/dep
 | EPIC 8 | Employés & paie (informative) | 2 | EPIC 11 | 8–13 | Could | ⚠️ Paie réelle = conformité fiscale hors portée ; viser informatif |
 | EPIC 7 | Paiements (Interac e-Transfer + cartes) | 1 | — | 21+ | Could | ⚠️ .NET (pas l'Express du `.docx`) ; spike d'abord ; MVP e-Transfer manuel gratuit |
 | EPIC 13 | Refonte parcours `/mesurer` (ordre + adresse optionnelle) | (1)·6 | 9·10·15 | 8 | Should | ✅ **livré (2026-06-21, branche `feat/epic-13-mesurer-rework`)** — stepper inversé Dimensionner→Conseil (« Trouver mon abri ») ; radiogroup APG 3 voies ; adresse via `map-voie` (carte uniquement) ; `results-step`→`conseil-step`. Revue indép. APPROVE WITH NITS ; L-042/L-043 |
-| EPIC 14 | Carte satellite plus précise (zoom) | (1)·5.1 | — | 5 | Should | Over-zoom Esri d'abord ; sinon spike source HD payante via proxy |
+| EPIC 14 | Carte satellite plus précise (zoom) | (1)·5.1 | — | 5 | Should | ✅ **livré (2026-06-21, branche `feat/epic-14-carte-precise`)** — US-14.1 over-zoom Esri **gratuit** (`maxNativeZoom=19` + `maxZoom=21`, zoom localisé 21) ; US-14.2 mesure **par arête** (haversine, `measure-rect.util`) remplace `turf.bbox` aligné aux axes (L-034) — repli bbox pour polygone libre. Revue indép. **APPROVE** (0 Critical/Major). Source HD payante **écartée** (règle budget) |
 | EPIC 15 | Champ d'adresse unifié (spike→reco) | (1)·5.2 | — | 8 | Should | 🟡 **spike US-15.1 LIVRÉ 2026-06-18** (`docs/spikes/epic-15-address-field-spike.md`) — **décision : champ unique « n°+rue » + auto-rempli ÉDITABLE** (lecture seule écartée). Reste US-15.2/15.3 (refonte, ~6 pts) — touche tous les formulaires |
 | EPIC 16 | Doc d'architecture + briques manquantes | (1)·3·4 | — | 3 | Could | ✅ **diagramme livré** ; reste backlog cache/cookies/rate-limit/secrets/observabilité |
 
@@ -425,7 +425,8 @@ facturation (cf. consigne PS « ne dépense jamais d'argent »).
 
 | ID | Constat | Réf. | Recommandation | Statut |
 |----|---------|------|----------------|--------|
-| US-14.2 | `/mesurer` : `handleShape` mesure via `turf.bbox` **aligné aux axes** → **sur-estime** largeur/longueur d'un stationnement **pivoté** (ex. 3×6 m à 45° lu ~6,4×6,4 m) → abri suggéré trop grand | **L-034** | Distances **par arête** (`@turf/distance`/haversine, apparier arêtes opposées) **ou** bbox orientée — **gratuit** ; test avec rectangle pivoté. Hors périmètre cette passe (doc only) ; via `/feature-cycle` | 🟠 Ouvert (EPIC 14) |
+| US-14.2 | `/mesurer` : `handleShape` mesure via `turf.bbox` **aligné aux axes** → **sur-estime** largeur/longueur d'un stationnement **pivoté** (ex. 3×6 m à 45° lu ~6,4×6,4 m) → abri suggéré trop grand | **L-034** | Distances **par arête** (haversine, apparier arêtes opposées) — **gratuit** ; test rectangle pivoté | ✅ **Corrigé (EPIC 14, 2026-06-21)** — `measure-rect.util` (haversine pure, hand-roll), repli bbox pour polygone libre ; test pivoté 45° non-vacueux |
+| Dette-perf | `build:prod` : bundle **initial 504.90 kB > 500 kB (warn)** — pré-existant (introduit par EPIC 13, qui n'avait lancé que `npm run build` dev, jamais `build:prod`) ; **sous le seuil error 1 MB → CI ne casse pas** | — | Trancher : rogner l'initial (lazy supplémentaire) **ou** relever le budget warn (~520 kB) dans `angular.json` | 🟠 Ouvert (suivi séparé) |
 
 > **Note.** Bug-09 (badge « Ajusté serré » sombre) est **déjà corrigé** au jeton (EPIC 12 partie 2,
 > `--color-warning-solid`/`--color-on-warning`, L-033) — hors périmètre.

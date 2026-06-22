@@ -4,8 +4,21 @@
 > simplement **« continue la prochaine tâche »** ou lance **`/next-task`** : l'assistant lit ce
 > fichier + le plan actif, vérifie l'état git, puis enchaîne.
 >
-> **🟢 Programme ACTIF — Phase 2 (`docs/agile/ROADMAP-PHASE-2.md`), curseur sur EPIC 14** (carte
-> satellite plus précise — over-zoom Esri d'abord, sinon spike source HD via proxy ; sans dépendance).
+> **🟢 Programme ACTIF — Phase 2 (`docs/agile/ROADMAP-PHASE-2.md`), curseur sur EPIC 11** (calendrier
+> & planification terrain).
+> **EPIC 14 TERMINÉ (2026-06-21)** — branche `feat/epic-14-carte-precise` : carte `/mesurer` plus précise,
+> **100 % gratuit** (source HD payante **écartée** — règle budget). **US-14.1** over-zoom Esri :
+> `SATELLITE_MAX_NATIVE_ZOOM=19` + `SATELLITE_MAX_ZOOM=21` sur le tileLayer + zoom localisé 20→21
+> (`tile-provider.const.ts`, `map-measure.ts`). **US-14.2** corrige **L-034** : nouvel util **pur**
+> `measure-rect.util` mesure **par arête** (haversine hand-roll, pas de `@turf/distance`), apparie côtés
+> opposés ; `handleShape` l'essaie d'abord et **retombe sur `turf.bbox`** pour un polygone libre
+> (non-régression exacte). Test pivoté 45° **non-vacueux** (prouve le rejet du gonflement bbox). Revue
+> indép. `code-reviewer` **APPROVE** (0 Critical/Major/Minor ; nit JSDoc « quadrilatère » appliqué).
+> Gates : `npm run build` ✅ · `npm test` **345/345** ✅ · `npm run e2e` mesurer **12/12** (3 voies + geoman
+> dessinable + axe dual-thème) ✅ · `build:prod` ✅. **⚠️ Dette-perf** : bundle initial **504.90 kB > 500 kB
+> (WARN)** — **pré-existant** (EPIC 13 n'avait lancé que le build dev, jamais `build:prod`), **sous le seuil
+> error 1 MB → CI ne casse pas** ; à trancher séparément (rogner l'initial ou relever le budget warn ~520 kB).
+> Pas de nouvelle leçon (L-034 déjà documentée, correctement appliquée).
 > **EPIC 13 TERMINÉ (2026-06-21)** : 4 commits sur `feat/epic-13-mesurer-rework` (`ca247f3` 13.1 →
 > `68c6b82` 13.2 → `e5c262c` 13.3 → `e000f59` nits) — refonte `/mesurer` « Trouver mon abri » :
 > stepper **inversé** Adresse→Mesure→Résultats ⇒ **1. Dimensionner (radiogroup APG 3 voies : je connais
@@ -22,7 +35,7 @@
 > retrait ancien `suggest-shelters` Product) + US-10.2 (orientation véhicules côte à côte / derrière,
 > noyau `footprint` neutre L-041) — revue indépendante APPROVE WITH NITS, Minor L-028 fermé,
 > L-040/L-041 capturées, PR #50 MERGÉE (`30f4b41`).
-> Ordre Phase 2 restant : ~~9~~ ~~10~~ ~~13~~ → **14** → 11 → 8 → 7.
+> Ordre Phase 2 restant : ~~9~~ ~~10~~ ~~13~~ ~~14~~ → **11** → 8 → 7.
 > **Programme G terminé (A→H) :** `C:\Users\phili\.claude\plans\majestic-soaring-sprout.md`
 > **Programme initial terminé (A→F) :** `C:\Users\phili\.claude\plans\1-i-want-you-glistening-barto.md`
 > Maintiens ce pointeur à jour à la fin de chaque sous-tâche (c'est ce que l'assistant relit).
