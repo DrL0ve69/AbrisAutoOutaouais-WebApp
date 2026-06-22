@@ -55,11 +55,6 @@ public interface IIdentityService
     Task<IReadOnlyList<StaffPayRateDto>> GetStaffWithRatesAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Taux horaire CAD d'un employé (<c>null</c> si non défini ou employé introuvable). EPIC 8.
-    /// </summary>
-    Task<decimal?> GetHourlyRateAsync(Guid employeeId, CancellationToken cancellationToken = default);
-
-    /// <summary>
     /// Définit (ou retire si <paramref name="hourlyRate"/> est <c>null</c>) le taux horaire CAD d'un
     /// employé (EPIC 8). Échec si l'employé est introuvable ou n'a pas le rôle <c>Staff</c>.
     /// </summary>

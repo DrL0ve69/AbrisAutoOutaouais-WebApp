@@ -175,13 +175,6 @@ public sealed class IdentityService : IIdentityService
             .ToList();
     }
 
-    public async Task<decimal?> GetHourlyRateAsync(
-        Guid employeeId, CancellationToken cancellationToken = default)
-    {
-        var user = await _userManager.FindByIdAsync(employeeId.ToString());
-        return user?.HourlyRate;
-    }
-
     public async Task<Result> SetHourlyRateAsync(
         Guid employeeId, decimal? hourlyRate, CancellationToken cancellationToken = default)
     {

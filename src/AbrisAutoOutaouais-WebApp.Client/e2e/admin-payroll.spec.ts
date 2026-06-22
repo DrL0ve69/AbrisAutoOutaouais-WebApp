@@ -153,7 +153,7 @@ test('Paie admin — « Marquer payé » envoie PUT mark-paid (barrière réseau
   // Rechargement déclenché : nouveau GET summary.
   await page.waitForResponse(/payroll\/summary/);
 
-  // Le bouton « Marquer payé » disparaît (Alice toujours « À payer » dans la fixture rechargée),
+  // Le bouton « Marquer payé » disparaît (Alice passe à « Payée » dans la fixture rechargée),
   // donc le focus est redirigé sur son bouton « Taux » — jamais perdu sur <body> (L-006).
   await expect(page.locator('#rate-trigger-emp-1')).toBeFocused();
 });
