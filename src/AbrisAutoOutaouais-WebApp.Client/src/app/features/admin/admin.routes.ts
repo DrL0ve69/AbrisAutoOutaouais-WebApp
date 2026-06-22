@@ -43,6 +43,12 @@ export const ADMIN_ROUTES: Routes = [
       import('./users/users').then(m => m.AdminUsersComponent),
     title: 'AbrisTempo Local — Liste des utilisateurs',
   },
+  {
+    path: 'paie',
+    loadComponent: () =>
+      import('./payroll/payroll').then(m => m.AdminPayrollComponent),
+    title: 'AbrisTempo Local — Employés & paie',
+  },
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   { path: '**', redirectTo: 'dashboard' },
 ];

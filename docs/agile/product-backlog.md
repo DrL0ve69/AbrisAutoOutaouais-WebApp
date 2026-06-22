@@ -148,7 +148,7 @@ les critères a11y dans sa Definition of Done (voir `definition-of-done.md`).
 
 | ID | User Story | Estimation | MoSCoW | Statut |
 |----|-----------|:----------:|:------:|--------|
-| US-8.1 | En tant qu'**admin**, je veux **suivre les heures travaillées par employé** et leur **statut de paie** (à payer / payée) afin d'avoir une vue claire de la masse salariale. | 8 | **Could** | ⛔ À planifier (Phase 2 ; ⚠️ informatif — paie réelle = conformité fiscale hors portée) |
+| US-8.1 | En tant qu'**admin**, je veux **suivre les heures travaillées par employé** et leur **statut de paie** (à payer / payée) afin d'avoir une vue claire de la masse salariale. | 8 | **Could** | 🔵 **Livré — PR #55 ouverte (2026-06-22)** · branche `feat/epic-8-paie` · revue APPROVE WITH NITS |
 | US-8.2 | En tant qu'**admin**, je veux optionnellement **verser la paie** en réutilisant les rails de paiement (payout EPIC 7) afin d'automatiser le versement (mode démo). | 5 | **Won't (now)** | ⛔ À planifier (dépend EPIC 7 ; aucun calcul fiscal) |
 
 ### EPIC 9 — Catalogue par dimensions configurables

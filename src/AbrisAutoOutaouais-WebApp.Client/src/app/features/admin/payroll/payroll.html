@@ -1,0 +1,218 @@
+<section class="payroll" aria-labelledby="payroll-heading">
+  <div class="container">
+    <header class="payroll__head">
+      <p class="payroll__eyebrow" i18n="@@admin.payroll.eyebrow">Espace réservé</p>
+      <h1 id="payroll-heading" i18n="@@admin.payroll.title">Employés &amp; paie</h1>
+      <p class="payroll__lead" i18n="@@admin.payroll.lead">
+        Suivi informatif des heures travaillées et de la masse salariale. Aucune déduction ni taxe
+        n'est calculée : ce module sert uniquement au suivi.
+      </p>
+    </header>
+
+    <!-- Sélecteur de période -->
+    <form class="payroll__period" [formGroup]="periodForm" (ngSubmit)="loadSummary()">
+      <fieldset>
+        <legend i18n="@@admin.payroll.period.legend">Période</legend>
+
+        <div class="payroll__period-row">
+          <div class="field">
+            <label for="payroll-from" i18n="@@admin.payroll.period.from">Du</label>
+            <input
+              id="payroll-from"
+              type="date"
+              formControlName="from"
+              [attr.aria-invalid]="fromCtrl.invalid && fromCtrl.touched ? 'true' : null"
+            />
+          </div>
+
+          <div class="field">
+            <label for="payroll-to" i18n="@@admin.payroll.period.to">Au</label>
+            <input
+              id="payroll-to"
+              type="date"
+              formControlName="to"
+              [attr.aria-invalid]="(toCtrl.invalid && toCtrl.touched) || rangeInvalid() ? 'true' : null"
+              [attr.aria-describedby]="rangeInvalid() ? 'payroll-range-error' : null"
+            />
+          </div>
+
+          <button type="submit" class="btn btn--primary" [disabled]="loading()">
+            <span i18n="@@admin.payroll.period.apply">Afficher</span>
+          </button>
+        </div>
+
+        @if (rangeInvalid()) {
+        <p id="payroll-range-error" class="field__error" role="alert" i18n="@@admin.payroll.period.rangeError">
+          La date de début doit être antérieure ou égale à la date de fin.
+        </p>
+        }
+      </fieldset>
+    </form>
+
+    <!-- Région d'annonce vocale (statut async) -->
+    <output class="sr-only" role="status" aria-live="polite">{{ statusMessage() }}</output>
+
+    @if (loading()) {
+    <p class="payroll__status" i18n="@@admin.payroll.loading">Chargement du récap…</p>
+    } @else if (loadError()) {
+    <p class="payroll__status payroll__status--error" role="alert" i18n="@@admin.payroll.error">
+      Le récap de paie n'a pas pu être chargé. Veuillez réessayer.
+    </p>
+    } @else if (summary(); as s) {
+    <!-- Total masse salariale -->
+    <p class="payroll__total">
+      <span i18n="@@admin.payroll.total.label">Masse salariale (montants avec taux défini)&nbsp;:</span>
+      <strong>{{ s.totalPayroll | currency: 'CAD' : 'symbol-narrow' : '1.2-2' : 'fr-CA' }}</strong>
+    </p>
+
+    @if (employees().length === 0) {
+    <p class="payroll__status" i18n="@@admin.payroll.empty">
+      Aucun employé à afficher pour cette période.
+    </p>
+    } @else {
+    <div class="payroll__table-wrap">
+      <table class="payroll__table">
+        <caption class="sr-only" i18n="@@admin.payroll.table.caption">
+          Récap de paie par employé pour la période sélectionnée.
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col" i18n="@@admin.payroll.table.employee">Employé</th>
+            <th scope="col" i18n="@@admin.payroll.table.rate">Taux horaire</th>
+            <th scope="col" i18n="@@admin.payroll.table.hours">Heures</th>
+            <th scope="col" i18n="@@admin.payroll.table.amount">Montant</th>
+            <th scope="col" i18n="@@admin.payroll.table.status">Statut</th>
+            <th scope="col" i18n="@@admin.payroll.table.actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (emp of employees(); track emp.employeeId) {
+          <tr>
+            <th scope="row" class="payroll__name">{{ emp.fullName }}</th>
+
+            <!-- Taux horaire : affichage ou édition inline -->
+            <td>
+              @if (editingRateId() === emp.employeeId) {
+              <form class="payroll__rate-edit" [formGroup]="rateForm" (ngSubmit)="saveRate(emp.employeeId)">
+                <label class="sr-only" [attr.for]="'rate-' + emp.employeeId" i18n="@@admin.payroll.rate.inputLabel">
+                  Taux horaire en dollars
+                </label>
+                <input
+                  #rateInput
+                  [id]="'rate-' + emp.employeeId"
+                  type="number"
+                  min="0"
+                  max="10000"
+                  step="0.01"
+                  inputmode="decimal"
+                  formControlName="hourlyRate"
+                  [attr.aria-invalid]="rateCtrl.invalid && rateCtrl.touched ? 'true' : null"
+                  [attr.aria-describedby]="rateCtrl.invalid && rateCtrl.touched ? 'rate-error-' + emp.employeeId : null"
+                />
+                <button
+                  type="submit"
+                  class="btn btn--small btn--primary"
+                  [disabled]="savingRateId() === emp.employeeId"
+                  i18n="@@admin.payroll.rate.save"
+                >
+                  Enregistrer
+                </button>
+                <button
+                  type="button"
+                  class="btn btn--small"
+                  (click)="cancelEditRate(emp.employeeId)"
+                  i18n="@@admin.payroll.rate.cancel"
+                >
+                  Annuler
+                </button>
+                @if (rateCtrl.invalid && rateCtrl.touched) {
+                <span
+                  [id]="'rate-error-' + emp.employeeId"
+                  class="field__error"
+                  role="alert"
+                  i18n="@@admin.payroll.rate.error"
+                >
+                  Le taux doit être supérieur à 0 et au plus 10 000 $.
+                </span>
+                }
+              </form>
+              } @else {
+              <span class="payroll__rate-value">
+                @if (emp.hourlyRate !== null) {
+                {{ emp.hourlyRate | currency: 'CAD' : 'symbol-narrow' : '1.2-2' : 'fr-CA' }}
+                } @else {
+                <span class="payroll__muted" i18n="@@admin.payroll.table.rateUndefined">taux non défini</span>
+                }
+              </span>
+              }
+            </td>
+
+            <!-- Heures -->
+            <td>{{ hoursLabel(emp.totalMinutes) }}</td>
+
+            <!-- Montant -->
+            <td>
+              @if (emp.amount !== null) {
+              {{ emp.amount | currency: 'CAD' : 'symbol-narrow' : '1.2-2' : 'fr-CA' }}
+              } @else {
+              <span class="payroll__muted" aria-label="montant indisponible" i18n-aria-label="@@admin.payroll.table.amountUnavailable">—</span>
+              }
+            </td>
+
+            <!-- Statut de paie -->
+            <td>
+              @if (emp.entryCount === 0) {
+              <span class="payroll__muted" i18n="@@admin.payroll.table.noEntries">aucune heure</span>
+              } @else {
+              <span
+                class="payroll__badge"
+                [class.payroll__badge--paid]="isPaid(emp)"
+                [class.payroll__badge--unpaid]="!isPaid(emp)"
+              >
+                @if (isPaid(emp)) {
+                <span i18n="@@admin.payroll.status.paid">Payée</span>
+                } @else {
+                <span i18n="@@admin.payroll.status.unpaid">À payer</span>
+                }
+              </span>
+              }
+            </td>
+
+            <!-- Actions -->
+            <td class="payroll__actions">
+              <button
+                type="button"
+                class="btn btn--small"
+                [id]="'rate-trigger-' + emp.employeeId"
+                (click)="startEditRate(emp)"
+                [attr.aria-label]="editRateLabel(emp.fullName)"
+                i18n="@@admin.payroll.table.editRate"
+              >
+                Taux
+              </button>
+              @if (emp.entryCount > 0 && !isPaid(emp)) {
+              <button
+                type="button"
+                class="btn btn--small btn--primary"
+                (click)="markPaid(emp)"
+                [disabled]="markingId() === emp.employeeId"
+                [attr.aria-label]="markPaidLabel(emp.fullName)"
+                i18n="@@admin.payroll.table.markPaid"
+              >
+                Marquer payé
+              </button>
+              }
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    }
+    }
+
+    <a routerLink="/admin/dashboard" class="payroll__back" i18n="@@admin.payroll.back">
+      ← Retour au tableau de bord
+    </a>
+  </div>
+</section>

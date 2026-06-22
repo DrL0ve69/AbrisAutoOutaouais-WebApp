@@ -102,4 +102,59 @@ public sealed class WorkHoursEntryTests
 
         act.Should().Throw<BusinessRuleException>().WithMessage("*postérieure*");
     }
+
+    // ── Statut de paie (EPIC 8, US-8.1) ───────────────────────────────────────────
+
+    [Fact]
+    public void Create_DefaultsToAnsPayer()
+    {
+        var entry = WorkHoursEntry.Create(Employee, Day, 480, 1020);
+
+        entry.PayStatus.Should().Be(PayStatus.AnsPayer);
+    }
+
+    [Fact]
+    public void MarkPaid_TransitionsToPayee()
+    {
+        var entry = WorkHoursEntry.Create(Employee, Day, 480, 1020);
+
+        entry.MarkPaid();
+
+        entry.PayStatus.Should().Be(PayStatus.Payee);
+    }
+
+    [Fact]
+    public void MarkPaid_Idempotent()
+    {
+        var entry = WorkHoursEntry.Create(Employee, Day, 480, 1020);
+        entry.MarkPaid();
+
+        entry.MarkPaid(); // second appel : sans effet
+
+        entry.PayStatus.Should().Be(PayStatus.Payee);
+    }
+
+    [Fact]
+    public void MarkUnpaid_TransitionsBackToAnsPayer()
+    {
+        var entry = WorkHoursEntry.Create(Employee, Day, 480, 1020);
+        entry.MarkPaid();
+
+        entry.MarkUnpaid();
+
+        entry.PayStatus.Should().Be(PayStatus.AnsPayer);
+    }
+
+    [Fact]
+    public void UpdateHours_DoesNotResetPayStatus_NonRegression()
+    {
+        // Une ligne déjà « Payée » ne doit pas se faire « dé-payer » silencieusement quand on corrige
+        // ses heures — le statut de paie ne bascule QUE via MarkPaid/MarkUnpaid (L-046).
+        var entry = WorkHoursEntry.Create(Employee, Day, 480, 1020);
+        entry.MarkPaid();
+
+        entry.UpdateHours(540, 1080, "heures ajustées");
+
+        entry.PayStatus.Should().Be(PayStatus.Payee);
+    }
 }

@@ -24,6 +24,13 @@ public sealed class AppUser : IdentityUser<Guid>
     public string PreferredLanguage { get; set; } = "fr";
 
     /// <summary>
+    /// Taux horaire en CAD d'un employé (rôle <c>Staff</c>), éditable par l'admin (EPIC 8, US-8.1).
+    /// <c>null</c> = taux non défini (le récap de paie affiche « — » et n'additionne pas ce montant).
+    /// Informatif uniquement : aucun calcul de déduction/taxe. <c>decimal(18,2)</c> en base.
+    /// </summary>
+    public decimal? HourlyRate { get; set; }
+
+    /// <summary>
     /// Adresse de livraison par défaut sauvegardée par l'utilisateur.
     /// Owned Entity — colonnes préfixées "DefaultAddress_*" dans AspNetUsers.
     /// Utilisée pour pré-remplir le formulaire de commande.

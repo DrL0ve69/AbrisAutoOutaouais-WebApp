@@ -1,3 +1,4 @@
+using AbrisAutoOutaouais_WebApp.Domain.Enums;
 using AbrisAutoOutaouais_WebApp.Domain.Exceptions;
 using AbrisAutoOutaouais_WebApp.Domain.Interfaces;
 
@@ -39,6 +40,13 @@ public sealed class WorkHoursEntry : IAuditableEntity, ISoftDeletable
     /// <summary>Note libre facultative (≤ 500 caractères).</summary>
     public string? Note { get; private set; }
 
+    /// <summary>
+    /// Statut de paie INFORMATIF de cette journée (EPIC 8). Défaut <see cref="PayStatus.AnsPayer"/> à
+    /// la création ; transitionne via <see cref="MarkPaid"/> / <see cref="MarkUnpaid"/>. Aucun calcul
+    /// de déduction/virement — seulement un marqueur que l'admin bascule (US-8.1).
+    /// </summary>
+    public PayStatus PayStatus { get; private set; }
+
     public bool IsDeleted { get; set; }
     public DateTime? DeletedAt { get; set; }
     public DateTime CreatedAt { get; set; }
@@ -68,6 +76,7 @@ public sealed class WorkHoursEntry : IAuditableEntity, ISoftDeletable
             StartMinutes = startMinutes,
             EndMinutes = endMinutes,
             Note = NormalizeNote(note),
+            PayStatus = PayStatus.AnsPayer,
         };
     }
 
@@ -82,7 +91,23 @@ public sealed class WorkHoursEntry : IAuditableEntity, ISoftDeletable
         StartMinutes = startMinutes;
         EndMinutes = endMinutes;
         Note = NormalizeNote(note);
+        // NE TOUCHE PAS à PayStatus : modifier les heures d'une journée déjà marquée « Payée » ne
+        // doit pas la « dé-payer » silencieusement. Le statut de paie ne bascule QUE via les méthodes
+        // explicites MarkPaid/MarkUnpaid (L-046 : la garde de transition vit dans le domaine).
     }
+
+    /// <summary>
+    /// Marque cette journée comme PAYÉE (EPIC 8, US-8.1). Idempotent : appeler à nouveau sur une
+    /// ligne déjà <see cref="PayStatus.Payee"/> est sans effet. La garde de transition vit ici, dans
+    /// le domaine, et non dans le handler — toute écriture parallèle partage le même invariant (L-046).
+    /// </summary>
+    public void MarkPaid() => PayStatus = PayStatus.Payee;
+
+    /// <summary>
+    /// Repasse cette journée à <see cref="PayStatus.AnsPayer"/> (correction d'une erreur de saisie).
+    /// Idempotent : sans effet si déjà « À payer ». Garde de transition dans le domaine (L-046).
+    /// </summary>
+    public void MarkUnpaid() => PayStatus = PayStatus.AnsPayer;
 
     private static void ValidateHours(int? startMinutes, int? endMinutes)
     {

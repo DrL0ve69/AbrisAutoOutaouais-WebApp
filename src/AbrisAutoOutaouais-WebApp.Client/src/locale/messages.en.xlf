@@ -288,6 +288,180 @@
         <source>Gérer les comptes et les rôles des utilisateurs.</source>
         <target>Manage user accounts and roles.</target>
       </trans-unit>
+      <trans-unit id="admin.section.payroll" datatype="html">
+        <source>Employés &amp; paie</source>
+        <target>Employees &amp; payroll</target>
+      </trans-unit>
+      <trans-unit id="admin.section.payrollDesc" datatype="html">
+        <source>Suivre les heures travaillées, le taux horaire et le statut de paie (informatif).</source>
+        <target>Track hours worked, hourly rate and pay status (informational).</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.eyebrow" datatype="html">
+        <source>Espace réservé</source>
+        <target>Restricted area</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.title" datatype="html">
+        <source>Employés &amp; paie</source>
+        <target>Employees &amp; payroll</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.lead" datatype="html">
+        <source>Suivi informatif des heures travaillées et de la masse salariale. Aucune déduction ni taxe n'est calculée : ce module sert uniquement au suivi.</source>
+        <target>Informational tracking of hours worked and payroll. No deductions or taxes are calculated: this module is for tracking only.</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.period.legend" datatype="html">
+        <source>Période</source>
+        <target>Period</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.period.from" datatype="html">
+        <source>Du</source>
+        <target>From</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.period.to" datatype="html">
+        <source>Au</source>
+        <target>To</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.period.apply" datatype="html">
+        <source>Afficher</source>
+        <target>Show</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.period.rangeError" datatype="html">
+        <source>La date de début doit être antérieure ou égale à la date de fin.</source>
+        <target>The start date must be on or before the end date.</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.loading" datatype="html">
+        <source>Chargement du récap…</source>
+        <target>Loading summary…</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.error" datatype="html">
+        <source>Le récap de paie n'a pas pu être chargé. Veuillez réessayer.</source>
+        <target>The payroll summary could not be loaded. Please try again.</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.total.label" datatype="html">
+        <source>Masse salariale (montants avec taux défini) :</source>
+        <target>Payroll (amounts with a defined rate):</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.empty" datatype="html">
+        <source>Aucun employé à afficher pour cette période.</source>
+        <target>No employees to display for this period.</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.table.caption" datatype="html">
+        <source>Récap de paie par employé pour la période sélectionnée.</source>
+        <target>Payroll summary by employee for the selected period.</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.table.employee" datatype="html">
+        <source>Employé</source>
+        <target>Employee</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.table.rate" datatype="html">
+        <source>Taux horaire</source>
+        <target>Hourly rate</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.table.hours" datatype="html">
+        <source>Heures</source>
+        <target>Hours</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.table.amount" datatype="html">
+        <source>Montant</source>
+        <target>Amount</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.table.status" datatype="html">
+        <source>Statut</source>
+        <target>Status</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.table.actions" datatype="html">
+        <source>Actions</source>
+        <target>Actions</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.table.hoursValue" datatype="html">
+        <source><x id="hours" equiv-text="hours.toLocaleString(&apos;fr-CA&apos;, {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+    })"/> h</source>
+        <target><x id="hours" equiv-text="hours.toLocaleString(&apos;fr-CA&apos;, {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+    })"/> h</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.table.rateUndefined" datatype="html">
+        <source>taux non défini</source>
+        <target>rate not set</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.table.amountUnavailable" datatype="html">
+        <source>montant indisponible</source>
+        <target>amount unavailable</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.table.noEntries" datatype="html">
+        <source>aucune heure</source>
+        <target>no hours</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.table.editRate" datatype="html">
+        <source>Taux</source>
+        <target>Rate</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.table.markPaid" datatype="html">
+        <source>Marquer payé</source>
+        <target>Mark paid</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.table.editRateLabel" datatype="html">
+        <source>Modifier le taux horaire de <x id="name" equiv-text="name"/></source>
+        <target>Edit the hourly rate of <x id="name" equiv-text="name"/></target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.table.markPaidLabel" datatype="html">
+        <source>Marquer la paie de <x id="name" equiv-text="name"/> comme payée</source>
+        <target>Mark <x id="name" equiv-text="name"/>'s pay as paid</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.status.paid" datatype="html">
+        <source>Payée</source>
+        <target>Paid</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.status.unpaid" datatype="html">
+        <source>À payer</source>
+        <target>To pay</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.rate.inputLabel" datatype="html">
+        <source>Taux horaire en dollars</source>
+        <target>Hourly rate in dollars</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.rate.save" datatype="html">
+        <source>Enregistrer</source>
+        <target>Save</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.rate.cancel" datatype="html">
+        <source>Annuler</source>
+        <target>Cancel</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.rate.error" datatype="html">
+        <source>Le taux doit être supérieur à 0 et au plus 10 000 $.</source>
+        <target>The rate must be greater than 0 and at most $10,000.</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.status.loaded" datatype="html">
+        <source>Récap de paie mis à jour : <x id="count" equiv-text="data.employees.length"/> employé(s).</source>
+        <target>Payroll summary updated: <x id="count" equiv-text="data.employees.length"/> employee(s).</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.status.loadError" datatype="html">
+        <source>Échec du chargement du récap de paie.</source>
+        <target>Failed to load the payroll summary.</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.toast.rateSaved" datatype="html">
+        <source>Taux horaire enregistré.</source>
+        <target>Hourly rate saved.</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.toast.rateError" datatype="html">
+        <source>L'enregistrement du taux a échoué.</source>
+        <target>Saving the rate failed.</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.toast.marked" datatype="html">
+        <source>Paie marquée comme payée.</source>
+        <target>Pay marked as paid.</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.toast.markError" datatype="html">
+        <source>Le marquage de la paie a échoué.</source>
+        <target>Marking the pay failed.</target>
+      </trans-unit>
+      <trans-unit id="admin.payroll.back" datatype="html">
+        <source>← Retour au tableau de bord</source>
+        <target>← Back to dashboard</target>
+      </trans-unit>
       <trans-unit id="admin.section.reservations" datatype="html">
         <source>Réservations</source>
         <target>Bookings</target>
