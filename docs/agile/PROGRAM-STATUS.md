@@ -4,7 +4,7 @@
 > simplement **« continue la prochaine tâche »** ou lance **`/next-task`** : l'assistant lit ce
 > fichier + le plan actif, vérifie l'état git, puis enchaîne.
 >
-> **🟢 Programme ACTIF — Phase 2 (`docs/agile/ROADMAP-PHASE-2.md`), curseur sur EPIC 8** (gestion employés & paie informative) — **EPIC 11 COMPLET/MERGÉ (PR en cours, 2026-06-22)**.
+> **🟢 Programme ACTIF — Phase 2 (`docs/agile/ROADMAP-PHASE-2.md`), curseur sur EPIC 8** (gestion employés & paie informative) — **EPIC 11 MERGÉ (PR #53, SHA merge `53dee27`, 2026-06-22)**.
 > **Ordre Phase 2 restant : ~~9~~ ~~10~~ ~~13~~ ~~14~~ ~~11~~ → 8 → 7.**
 > **EPIC 11 · US-11.3 — Optimisation de tournée admin — LIVRÉ (2026-06-22), branche `feat/epic-11-calendrier` · CLÔTURE EPIC 11.**
 > lat/lng stockées sur `BookingSlot` (migration `AddBookingSlotCoordinates`), géocodage Photon keyless via `IPlacesService.GeocodeAsync`.
