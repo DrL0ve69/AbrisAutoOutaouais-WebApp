@@ -12,8 +12,10 @@ import {
   viewChild,
 } from '@angular/core';
 import { Footprint, footprintFromManual } from '../../../util/footprint.util';
+import { rectDimensionsFromPolygon } from '../../../util/measure-rect.util';
 import { SERVICE_BASE } from '../../../util/service-area.util';
 import {
+  SATELLITE_MAX_NATIVE_ZOOM,
   SATELLITE_MAX_ZOOM,
   SATELLITE_TILE_ATTRIBUTION,
   SATELLITE_TILE_URL,
@@ -117,14 +119,19 @@ export class MapMeasureComponent {
     const center: [number, number] = located ? [lat, lng] : [SERVICE_BASE.lat, SERVICE_BASE.lng];
 
     // Création de la carte APRÈS geoman → l'init hook attache `map.pm` à la construction.
+    // US-14.1 — over-zoom : cadrage localisé poussé au zoom max (21). Au-delà du natif Esri (19),
+    // Leaflet agrandit les dernières tuiles → plus de détail pour tracer un petit stationnement.
     const map = L.map(this.mapHost().nativeElement, {
       center,
-      zoom: located ? 20 : 19,
+      zoom: located ? 21 : 19,
       attributionControl: true,
     });
 
+    // `maxNativeZoom` = dernier niveau réellement servi par Esri ; `maxZoom` autorise l'over-zoom
+    // au-delà (agrandissement des tuiles natives, gratuit/keyless — aucune requête en plus). US-14.1.
     L.tileLayer(SATELLITE_TILE_URL, {
       maxZoom: SATELLITE_MAX_ZOOM,
+      maxNativeZoom: SATELLITE_MAX_NATIVE_ZOOM,
       attribution: SATELLITE_TILE_ATTRIBUTION,
     }).addTo(map);
 
@@ -182,24 +189,43 @@ export class MapMeasureComponent {
     });
   }
 
-  /** Calcule largeur/longueur (cm) depuis le rectangle dessiné via turf area+bbox. */
+  /**
+   * Calcule largeur/longueur (cm) depuis le tracé dessiné.
+   *
+   * L-034 — on mesure D'ABORD par arête (`rectDimensionsFromPolygon`) : la bbox alignée aux axes
+   * SUR-ESTIME un rectangle pivoté (un 3×6 m à 45° y lit ~6,4×6,4 → abri trop grand). Pour un vrai
+   * quadrilatère (4 sommets), la mesure great-circle des côtés opposés est invariante à
+   * l'orientation. Si le tracé n'est PAS un rectangle (polygone libre, triangle…), on conserve le
+   * calcul bbox comme repli.
+   */
   private handleShape(
     geojson: TurfArea extends (g: infer G) => number ? G : never,
     area: TurfArea,
     bbox: TurfBbox,
   ): void {
-    const [minX, minY, maxX, maxY] = bbox(geojson);
-    // Largeur/longueur de la boîte englobante en mètres (approximation locale planaire).
-    const midLat = (minY + maxY) / 2;
-    const metersPerDegLat = 111_320;
-    const metersPerDegLng = 111_320 * Math.cos((midLat * Math.PI) / 180);
-    const widthM = (maxX - minX) * metersPerDegLng;
-    const heightM = (maxY - minY) * metersPerDegLat;
     // `area` (m²) sert de garde-fou : un tracé dégénéré donne une aire ~0.
     if (area(geojson) < 1) {
       this.outOfRange.set(true);
       return;
     }
+
+    // Mesure exacte par arête pour un rectangle (invariante à l'orientation — L-034).
+    const rect = rectDimensionsFromPolygon(geojson);
+    let widthM: number;
+    let heightM: number;
+    if (rect !== null) {
+      widthM = rect.widthM;
+      heightM = rect.lengthM;
+    } else {
+      // Repli : boîte englobante alignée aux axes (polygone libre / non rectangulaire).
+      const [minX, minY, maxX, maxY] = bbox(geojson);
+      const midLat = (minY + maxY) / 2;
+      const metersPerDegLat = 111_320;
+      const metersPerDegLng = 111_320 * Math.cos((midLat * Math.PI) / 180);
+      widthM = (maxX - minX) * metersPerDegLng;
+      heightM = (maxY - minY) * metersPerDegLat;
+    }
+
     const footprint = footprintFromManual(
       Math.round(widthM * 100),
       Math.round(heightM * 100),

@@ -193,8 +193,8 @@ les critères a11y dans sa Definition of Done (voir `definition-of-done.md`).
 
 | ID | User Story | Estimation | MoSCoW | Statut |
 |----|-----------|:----------:|:------:|--------|
-| US-14.1 | En tant que **visiteur**, je veux **zoomer plus profond** sur la carte `/mesurer` afin de tracer une mesure précise de mon entrée. | 5 | **Should** | ⛔ À planifier (Phase 2 ; over-zoom Esri `maxNativeZoom` d'abord, sinon spike source HD payante via proxy) |
-| US-14.2 | En tant que **visiteur**, je veux que la **largeur/longueur mesurée soit exacte même si mon entrée n'est pas alignée nord-sud**, afin de ne pas me faire proposer un abri trop grand (et plus cher). | 3 | **Should** | ⛔ À planifier (Phase 2 ; `handleShape` utilise `turf.bbox` **aligné aux axes** → sur-estime un rectangle pivoté — voir **L-034**. Fix gratuit : distances par arête (`@turf/distance`/haversine) ou bbox orientée ; test avec rectangle pivoté) |
+| US-14.1 | En tant que **visiteur**, je veux **zoomer plus profond** sur la carte `/mesurer` afin de tracer une mesure précise de mon entrée. | 5 | **Should** | ✅ **Livré (2026-06-21, EPIC 14)** — over-zoom Esri **gratuit** : `maxNativeZoom=19` + `maxZoom=21` sur le tileLayer, zoom localisé relevé à 21 (`tile-provider.const.ts` / `map-measure.ts`). Source HD payante **écartée** (règle budget) |
+| US-14.2 | En tant que **visiteur**, je veux que la **largeur/longueur mesurée soit exacte même si mon entrée n'est pas alignée nord-sud**, afin de ne pas me faire proposer un abri trop grand (et plus cher). | 3 | **Should** | ✅ **Livré (2026-06-21, EPIC 14)** — corrige **L-034** : `measure-rect.util` mesure **par arête** (haversine pure, hand-roll, pas de `@turf/distance`), apparie côtés opposés ; repli `turf.bbox` pour polygone libre. Test rectangle pivoté 45° non-vacueux (prouve le rejet du gonflement bbox ~6,4×6,4) |
 
 ### EPIC 15 — Champ d'adresse : spike best-practices puis refonte
 
