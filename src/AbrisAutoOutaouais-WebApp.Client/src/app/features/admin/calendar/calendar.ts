@@ -33,6 +33,7 @@ import {
 import {
   CustomerSearchResult,
   DayDetailDto,
+  OptimizeRouteResult,
   StaffWorkHoursDto,
 } from '../../../core/models/planning.model';
 import {
@@ -168,6 +169,14 @@ export class AdminCalendarComponent {
   protected readonly submittingBooking = signal(false);
   /** Annonce scopée de l'ajout de RDV (reset neutre avant ré-annonce — L-027). */
   protected readonly addAnnouncement = signal('');
+
+  // ── Optimisation de tournée (US-11.3, Admin) ───────────────────────────────
+  /** Optimisation en cours (désactive le bouton + annonce l'état). */
+  protected readonly optimizing = signal(false);
+  /** Dernier résultat d'optimisation du jour ouvert (null = pas encore optimisé). */
+  protected readonly optimizeResult = signal<OptimizeRouteResult | null>(null);
+  /** Annonce scopée de l'optimisation (reset neutre avant ré-annonce — L-027). */
+  protected readonly optimizeAnnouncement = signal('');
 
   /** Flux de termes de recherche client (poussé par l'`(input)` du champ — mode existant). */
   private readonly customerSearch$ = new Subject<string>();
@@ -446,6 +455,9 @@ export class AdminCalendarComponent {
     this.detailError.set(false);
     this.loadingDetail.set(true);
     this.saveAnnouncement.set('');
+    // Le résultat d'optimisation appartient au jour précédent → on le réinitialise.
+    this.optimizeResult.set(null);
+    this.optimizeAnnouncement.set('');
 
     this.planning.getDayDetail(cell.isoDate).subscribe({
       next: (detail) => {
@@ -478,6 +490,8 @@ export class AdminCalendarComponent {
     this.openDay.set(null);
     this.dayDetail.set(null);
     this.hoursForms.set([]);
+    this.optimizeResult.set(null);
+    this.optimizeAnnouncement.set('');
     this.resetAddForm();
     // Retour du focus à la cellule déclencheuse (WCAG 2.4.3).
     const trigger = this.dayTriggerEl;
@@ -727,6 +741,78 @@ export class AdminCalendarComponent {
   private announceAdd(message: string): void {
     this.addAnnouncement.set('');
     this.addAnnouncement.set(message);
+  }
+
+  // ── Optimisation de tournée (US-11.3, Admin) ───────────────────────────────
+  /**
+   * Lance l'optimisation de la tournée du jour ouvert : le serveur réordonne les RDV
+   * (Pending/Confirmed) par plus proche voisin et réécrit leurs heures sur la grille. Au succès, on
+   * recharge le détail du jour ET la grille (les heures ont changé) et on annonce le résultat.
+   */
+  protected optimizeRoute(): void {
+    const day = this.openDay();
+    if (this.optimizing() || !day) return;
+
+    this.optimizing.set(true);
+    this.optimizeResult.set(null);
+    this.announceOptimize($localize`:@@admin.calendar.optimize.running:Optimisation de la tournée…`);
+
+    this.planning.optimizeRoute(day.isoDate).subscribe({
+      next: (result) => {
+        this.optimizing.set(false);
+        this.optimizeResult.set(result);
+        this.announceOptimize(this.optimizeSummary(result));
+        // Cohérence : les heures ont été réécrites → recharge le détail du jour ET la grille.
+        this.loadDayDetailKeepResult(day, result);
+        this.load();
+      },
+      error: () => {
+        this.optimizing.set(false);
+        this.announceOptimize(
+          $localize`:@@admin.calendar.optimize.error:L'optimisation a échoué. Réessayez.`,
+        );
+        this.toast.show(
+          $localize`:@@admin.calendar.optimize.error:L'optimisation a échoué. Réessayez.`,
+          'error',
+        );
+      },
+    });
+  }
+
+  /**
+   * Recharge le détail du jour après optimisation SANS effacer le résultat affiché (loadDayDetail le
+   * réinitialise volontairement quand on change de jour ; ici le jour est le même).
+   */
+  private loadDayDetailKeepResult(cell: CalendarCell, result: OptimizeRouteResult): void {
+    this.loadDayDetail(cell);
+    this.optimizeResult.set(result);
+  }
+
+  /** Résumé i18n du résultat (interpolé → $localize, pas i18n-, L-024). */
+  protected optimizeSummary(result: OptimizeRouteResult): string {
+    const rescheduled = result.stops.filter((s) => s.rescheduled).length;
+    const km = Math.round(result.totalKm);
+    return $localize`:@@admin.calendar.optimize.summary:Tournée optimisée : ${rescheduled}:count: RDV recalés, ${km}:km: km au total.`;
+  }
+
+  /** Étiquette du nombre de RDV exclus (interpolée → $localize, L-024). */
+  protected excludedLabel(count: number): string {
+    return $localize`:@@admin.calendar.optimize.excludedCount:${count}:count: RDV exclus (adresse non géolocalisée).`;
+  }
+
+  /** Distance lisible d'un segment de tournée (km arrondis). */
+  protected legKmLabel(km: number): string {
+    return $localize`:@@admin.calendar.optimize.legKm:${Math.round(km)}:km: km`;
+  }
+
+  /** Heure lisible d'un arrêt optimisé (fuseau LOCAL, cohérent avec l'affichage des RDV — L-044). */
+  protected stopTimeLabel(slotStart: string): string {
+    return new Date(slotStart).toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  private announceOptimize(message: string): void {
+    this.optimizeAnnouncement.set('');
+    this.optimizeAnnouncement.set(message);
   }
 
   /** Étiquette accessible d'un fieldset/formulaire d'heures (interpolée → $localize, pas i18n-, L-024). */

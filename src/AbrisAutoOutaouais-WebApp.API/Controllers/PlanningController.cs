@@ -1,6 +1,7 @@
 using AbrisAutoOutaouais_WebApp.Application.Auth.DTOs;
 using AbrisAutoOutaouais_WebApp.Application.Common.Mediator;
 using AbrisAutoOutaouais_WebApp.Application.Customers.Queries.SearchCustomers;
+using AbrisAutoOutaouais_WebApp.Application.Planning.Commands.OptimizeRoute;
 using AbrisAutoOutaouais_WebApp.Application.Planning.Commands.UpsertWorkHours;
 using AbrisAutoOutaouais_WebApp.Application.Planning.Queries.GetDayDetail;
 using Asp.Versioning;
@@ -38,6 +39,18 @@ public sealed class PlanningController(IDispatcher dispatcher) : ControllerBase
     [ProducesResponseType<ProblemDetails>(422)]
     public async Task<IActionResult> SearchCustomers([FromQuery] string term, CancellationToken ct)
         => Ok(await dispatcher.DispatchAsync(new SearchCustomersQuery(term), ct));
+
+    /// <summary>
+    /// Optimise la tournée des RDV (Pending/Confirmed) d'une journée (US-11.3) : réordonne par plus
+    /// proche voisin depuis la base de service et réécrit les heures sur la grille de créneaux.
+    /// Réservé à l'Admin (validation visuelle du résultat).
+    /// </summary>
+    [HttpPost("optimize")]
+    [Authorize(Policy = "AdminOnly")]
+    [ProducesResponseType<OptimizeRouteResultDto>(200)]
+    [ProducesResponseType<ProblemDetails>(422)]
+    public async Task<IActionResult> OptimizeRoute([FromQuery] DateOnly date, CancellationToken ct)
+        => Ok(await dispatcher.DispatchAsync(new OptimizeRouteCommand(date), ct));
 
     /// <summary>Crée ou met à jour les heures d'un employé pour une date (Admin).</summary>
     [HttpPut("work-hours")]

@@ -126,8 +126,48 @@
           } @else if (dayDetail(); as detail) {
             <!-- Section RDV du jour (lecture seule) -->
             <section class="cal__panel-section" aria-labelledby="cal-bookings-heading">
-              <h3 id="cal-bookings-heading" class="cal__panel-subtitle"
-                  i18n="@@admin.calendar.bookingsHeading">Rendez-vous du jour</h3>
+              <div class="cal__add-head">
+                <h3 id="cal-bookings-heading" class="cal__panel-subtitle"
+                    i18n="@@admin.calendar.bookingsHeading">Rendez-vous du jour</h3>
+                <!-- Optimisation de tournée (US-11.3) — Admin uniquement. -->
+                @if (isAdmin() && detail.bookings.length > 0) {
+                  <button type="button" class="btn btn--primary btn--small cal__optimize-btn"
+                          (click)="optimizeRoute()" [disabled]="optimizing()"
+                          i18n="@@admin.calendar.optimize.button">Optimiser la tournée</button>
+                }
+              </div>
+
+              <!-- Live-region SCOPÉE de l'état d'optimisation (reset neutre avant ré-annonce, L-027). -->
+              <p class="sr-only" role="status" aria-live="polite">{{ optimizeAnnouncement() }}</p>
+
+              <!-- Résultat de l'optimisation : ordre de visite + RDV exclus. -->
+              @if (optimizeResult(); as opt) {
+                <div class="cal__optimize-result">
+                  <p class="cal__optimize-summary">{{ optimizeSummary(opt) }}</p>
+                  @if (opt.stops.length > 0) {
+                    <ol class="cal__optimize-list">
+                      @for (stop of opt.stops; track stop.bookingId) {
+                        <li class="cal__optimize-stop"
+                            [class.cal__optimize-stop--kept]="!stop.rescheduled">
+                          <span class="cal__optimize-order" aria-hidden="true">{{ stop.order + 1 }}</span>
+                          <span class="cal__optimize-time">{{ stopTimeLabel(stop.slotStart) }}</span>
+                          <span class="cal__optimize-customer">{{ stop.customerName }}</span>
+                          <span class="cal__optimize-city">{{ stop.city }}</span>
+                          <span class="cal__optimize-km">{{ legKmLabel(stop.legKm) }}</span>
+                          @if (!stop.rescheduled) {
+                            <span class="cal__optimize-flag"
+                                  i18n="@@admin.calendar.optimize.notRescheduled">non recalé</span>
+                          }
+                        </li>
+                      }
+                    </ol>
+                  }
+                  @if (opt.excludedBookingIds.length > 0) {
+                    <p class="cal__optimize-excluded">{{ excludedLabel(opt.excludedBookingIds.length) }}</p>
+                  }
+                </div>
+              }
+
               @if (detail.bookings.length === 0) {
                 <p class="cal__panel-empty" i18n="@@admin.calendar.dayEmpty">
                   Aucun rendez-vous ce jour-là.

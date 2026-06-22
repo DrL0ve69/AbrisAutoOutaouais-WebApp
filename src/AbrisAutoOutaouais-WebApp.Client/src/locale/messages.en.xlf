@@ -408,6 +408,34 @@
         <source>Échec de l'enregistrement des heures.</source>
         <target>Failed to save the hours.</target>
       </trans-unit>
+      <trans-unit id="admin.calendar.optimize.button" datatype="html">
+        <source>Optimiser la tournée</source>
+        <target>Optimize route</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.optimize.notRescheduled" datatype="html">
+        <source>non recalé</source>
+        <target>not rescheduled</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.optimize.running" datatype="html">
+        <source>Optimisation de la tournée…</source>
+        <target>Optimizing the route…</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.optimize.error" datatype="html">
+        <source>L'optimisation a échoué. Réessayez.</source>
+        <target>Optimization failed. Please try again.</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.optimize.summary" datatype="html">
+        <source>Tournée optimisée : <x id="count" equiv-text="rescheduled"/> RDV recalés, <x id="km" equiv-text="km"/> km au total.</source>
+        <target>Route optimized: <x id="count" equiv-text="rescheduled"/> appointments rescheduled, <x id="km" equiv-text="km"/> km in total.</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.optimize.excludedCount" datatype="html">
+        <source><x id="count" equiv-text="count"/> RDV exclus (adresse non géolocalisée).</source>
+        <target><x id="count" equiv-text="count"/> appointments excluded (address not geolocated).</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.optimize.legKm" datatype="html">
+        <source><x id="km" equiv-text="Math.round(km)"/> km</source>
+        <target><x id="km" equiv-text="Math.round(km)"/> km</target>
+      </trans-unit>
       <trans-unit id="admin.calendar.hours.invalid" datatype="html">
         <source>L'heure de fin doit être postérieure à l'heure de début.</source>
         <target>The end time must be later than the start time.</target>

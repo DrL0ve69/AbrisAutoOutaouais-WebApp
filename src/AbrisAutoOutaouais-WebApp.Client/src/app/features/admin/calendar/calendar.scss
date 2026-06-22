@@ -470,6 +470,91 @@
   min-height: 44px;
 }
 
+// ── Optimisation de tournée (US-11.3) ──────────────────────────────────────
+.cal__optimize-btn {
+  min-height: 44px;
+}
+
+.cal__optimize-result {
+  margin: var(--space-3) 0;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-muted);
+}
+
+.cal__optimize-summary {
+  margin: 0 0 var(--space-2);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.cal__optimize-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.cal__optimize-stop {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+
+  &--kept {
+    // Surplus non recalé : fond légèrement distinct (jeton sémantique, bascule par thème).
+    background: var(--color-bg-subtle);
+  }
+}
+
+.cal__optimize-order {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  font-weight: 700;
+  // Jeton marque-FIXE (identique aux 2 thèmes) — cohérent avec .btn--primary (L-023).
+  background: var(--color-red-600);
+  color: var(--color-on-brand);
+}
+
+.cal__optimize-time {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.cal__optimize-customer {
+  color: var(--color-text);
+}
+
+.cal__optimize-city,
+.cal__optimize-km {
+  color: var(--color-text-muted);
+}
+
+.cal__optimize-flag {
+  font-size: 0.85em;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.cal__optimize-excluded {
+  margin: var(--space-2) 0 0;
+  // Info importante (RDV non optimisés) sur fond --color-bg-muted : --color-text-muted n'y passe
+  // PAS le ratio AA (axe wcag143), on utilise --color-text (contraste plein, L-016).
+  color: var(--color-text);
+}
+
 .cal__add-form {
   display: flex;
   flex-direction: column;

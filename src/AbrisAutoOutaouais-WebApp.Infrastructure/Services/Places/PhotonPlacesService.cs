@@ -87,6 +87,34 @@ internal sealed class PhotonPlacesService(
         }
     }
 
+    public async Task<(double Lat, double Lng)?> GeocodeAsync(
+        string civicNumber, string street, string city, string province, CancellationToken ct = default)
+    {
+        var terms = string.Join(' ', new[] { civicNumber, street, city, province }
+            .Where(t => !string.IsNullOrWhiteSpace(t)));
+
+        var requestUri =
+            $"api/?q={Uri.EscapeDataString(terms)}" +
+            $"&lat={_options.BiasLat.ToString(System.Globalization.CultureInfo.InvariantCulture)}" +
+            $"&lon={_options.BiasLng.ToString(System.Globalization.CultureInfo.InvariantCulture)}" +
+            "&limit=1&lang=fr";
+
+        try
+        {
+            var payload = await httpClient.GetFromJsonAsync<PhotonFeatureCollection>(requestUri, ct);
+            // GeoJSON : coordinates = [longitude, latitude] (ordre inversé vs lat/lng).
+            var coords = payload?.Features?
+                .Select(f => f.Geometry?.Coordinates)
+                .FirstOrDefault(c => c is { Length: >= 2 });
+            return coords is { Length: >= 2 } ? (coords[1], coords[0]) : null;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            logger.LogWarning(ex, "Échec du géocodage Photon pour « {Street} ».", street);
+            return null;
+        }
+    }
+
     private static PlaceSuggestionDto MapToSuggestion(PhotonFeature feature)
     {
         var p = feature.Properties;

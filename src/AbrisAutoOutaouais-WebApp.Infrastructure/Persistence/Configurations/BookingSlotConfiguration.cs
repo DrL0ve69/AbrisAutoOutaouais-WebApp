@@ -20,6 +20,10 @@ internal sealed class BookingSlotConfiguration : IEntityTypeConfiguration<Bookin
         builder.Property(b => b.Brand).HasMaxLength(100);
         builder.Property(b => b.Model).HasMaxLength(100);
 
+        // Coordonnées géocodées à la création (US-11.3) — nullable, sans index ni précision spéciale.
+        builder.Property(b => b.Lat);
+        builder.Property(b => b.Lng);
+
         builder.OwnsOne(b => b.Address, addr =>
         {
             addr.Property(a => a.CivicNumber).HasColumnName("Address_CivicNumber").HasMaxLength(10);

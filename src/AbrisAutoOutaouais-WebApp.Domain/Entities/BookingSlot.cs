@@ -28,6 +28,16 @@ public sealed class BookingSlot : ISoftDeletable, IAuditableEntity
     /// <summary>Modèle de l'abri (optionnel).</summary>
     public string? Model { get; private set; }
 
+    /// <summary>
+    /// Latitude du lieu du RDV (degrés décimaux), géocodée À LA CRÉATION via le port de géocodage
+    /// (US-11.3). <c>null</c> si le géocodage a échoué ou pour les RDV créés avant cette fonctionnalité ;
+    /// un RDV sans coordonnées est exclu de l'optimisation de tournée (pas de backfill automatique).
+    /// </summary>
+    public double? Lat { get; private set; }
+
+    /// <summary>Longitude du lieu du RDV (degrés décimaux). Voir <see cref="Lat"/>.</summary>
+    public double? Lng { get; private set; }
+
     public bool IsDeleted { get; set; }
     public DateTime? DeletedAt { get; set; }
     public DateTime CreatedAt { get; set; }
@@ -41,7 +51,8 @@ public sealed class BookingSlot : ISoftDeletable, IAuditableEntity
         Guid customerId, DateTime slotStart, int durationMin,
         BookingType type, Address address,
         Guid? orderId = null, string? notes = null,
-        string? brand = null, string? model = null)
+        string? brand = null, string? model = null,
+        double? lat = null, double? lng = null)
     {
         if (slotStart <= DateTime.UtcNow)
             throw new BusinessRuleException("Le créneau doit être dans le futur.");
@@ -68,7 +79,20 @@ public sealed class BookingSlot : ISoftDeletable, IAuditableEntity
             Notes = notes?.Trim(),
             Brand = trimmedBrand,
             Model = trimmedModel,
+            // Coordonnées géocodées à la création (US-11.3) — null si le géocodage a échoué.
+            Lat = lat,
+            Lng = lng,
         };
+    }
+
+    /// <summary>
+    /// Renseigne (ou efface) les coordonnées géographiques du lieu du RDV. Appelé par le handler
+    /// de création après géocodage, ou pour corriger des coordonnées. Les deux valeurs vont de pair.
+    /// </summary>
+    public void SetCoordinates(double? lat, double? lng)
+    {
+        Lat = lat;
+        Lng = lng;
     }
 
     public void Confirm()

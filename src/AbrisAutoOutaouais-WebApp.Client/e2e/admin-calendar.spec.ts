@@ -149,6 +149,29 @@ async function signIn(page: Page, user: typeof STAFF_USER): Promise<void> {
       json: [{ start: `${from}T12:00:00Z`, end: `${from}T14:00:00Z` }],
     });
   });
+  // Optimisation de tournée (US-11.3) — résultat simulé : 1 RDV recalé à 12:00Z (→ 08:00 EDT)
+  // + 1 RDV exclu (sans coordonnées). La date est dérivée du paramètre demandé.
+  await page.route('**/api/v1/planning/optimize**', (route) => {
+    const date = new URL(route.request().url()).searchParams.get('date') ?? '2026-06-08';
+    route.fulfill({
+      json: {
+        date,
+        stops: [
+          {
+            bookingId: 'cal-1',
+            order: 0,
+            slotStart: `${date}T12:00:00Z`, // 08:00 en America/Toronto
+            customerName: 'Camille Client',
+            city: 'Gatineau',
+            legKm: 5.4,
+            rescheduled: true,
+          },
+        ],
+        excludedBookingIds: ['cal-2'],
+        totalKm: 5.4,
+      },
+    });
+  });
   // Recherche de clients (US-11.2 p2) — liste filtrée simulée.
   await page.route('**/api/v1/planning/customers**', (route) =>
     route.fulfill({
@@ -396,13 +419,46 @@ test('Admin — sous-formulaire d’ajout : focus + Échap ferme le dialogue (AP
   const dialog = page.getByRole('dialog');
   await dialog.getByRole('button', { name: /\+ ajouter un rdv/i }).click();
 
-  // Le 1er créneau (1er champ du sous-formulaire) reçoit le focus après rendu (L-006).
-  const slot = dialog.getByRole('radiogroup', { name: /créneaux disponibles/i }).getByRole('radio').first();
-  await expect(slot).toBeFocused();
+  // Le TITRE du sous-formulaire (cible STABLE, rendue dans tous les états de créneaux) reçoit le
+  // focus après rendu (L-006). On vise le titre — et non le 1er créneau — car c'est la cible réelle
+  // de l'effet de focus du composant (cohérent avec calendar.spec.ts) et elle existe même un jour
+  // sans créneau libre (le bouton radio n'existe alors pas → focus sur <body>, WCAG 2.4.3).
+  const formTitle = dialog.getByRole('heading', { name: /nouveau rendez-vous/i });
+  await expect(formTitle).toBeFocused();
 
   // Échap referme le dialogue entier (et donc le sous-formulaire).
   await page.keyboard.press('Escape');
   await expect(dialog).toBeHidden();
+});
+
+test('Admin — optimisation de tournée : annonce + heures réécrites en LOCAL (12:00Z → 08:00, L-044)', async ({
+  page,
+}) => {
+  await signIn(page, ADMIN_USER);
+  await gotoPlanning(page);
+
+  // Ouvrir un jour porteur de RDV.
+  await page.locator('.cal__cell--has').first().click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toBeVisible();
+
+  // Lancer l'optimisation → le POST part avec la date du jour.
+  const optimizePromise = page.waitForRequest(
+    (req) => req.url().includes('/planning/optimize') && req.method() === 'POST',
+  );
+  await dialog.getByRole('button', { name: /optimiser la tournée/i }).click();
+  await optimizePromise;
+
+  // Le résumé (live-region role=status) est annoncé.
+  await expect(dialog.getByText(/Tournée optimisée/i)).toBeVisible();
+
+  // L'arrêt recalé affiche l'heure en fuseau LOCAL : 12:00Z → 08 h en America/Toronto (EDT),
+  // jamais 12 h (si rendu en UTC le test échouerait — L-044). fr-CA formate « 08 h 00 ».
+  await expect(dialog.getByText(/08\s*h\s*00/)).toBeVisible();
+  await expect(dialog.getByText(/12\s*h\s*00/)).toHaveCount(0);
+
+  // La liste des RDV exclus (1, sans coordonnées) est affichée.
+  await expect(dialog.getByText(/1\s*RDV exclus/i)).toBeVisible();
 });
 
 // ── Balayage axe : /planning × deux thèmes, navbar scrollée (verre) ─────────────
@@ -428,6 +484,11 @@ for (const theme of themes) {
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
     await expect(dialog.getByRole('group', { name: /heures de/i }).first()).toBeVisible();
+
+    // Optimisation de tournée (US-11.3) : scanne la nouvelle surface du résultat (ordre, badges
+    // d'ordre, RDV exclus) dans les deux thèmes — le contraste n'est PAS couvert en vitest (L-016).
+    await dialog.getByRole('button', { name: /optimiser la tournée/i }).click();
+    await expect(dialog.getByText(/Tournée optimisée/i)).toBeVisible();
 
     // Déploie le sous-formulaire d'ajout (US-11.2 p2) pour scanner sa nouvelle surface
     // (radiogroups créneaux/mode, recherche, champs adresse) dans les deux thèmes.

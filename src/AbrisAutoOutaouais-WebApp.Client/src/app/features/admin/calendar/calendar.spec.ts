@@ -12,7 +12,11 @@ import { PlanningService } from '../../../core/services/planning.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { CalendarBookingDto } from '../../../core/models/calendar.model';
-import { CustomerSearchResult, DayDetailDto } from '../../../core/models/planning.model';
+import {
+  CustomerSearchResult,
+  DayDetailDto,
+  OptimizeRouteResult,
+} from '../../../core/models/planning.model';
 import { AvailableSlotDto } from '../../../core/models/booking.model';
 import { BookingService } from '../../../core/services/booking.service';
 import { expectNoA11yViolations } from '../../../../testing/axe-helper';
@@ -76,6 +80,24 @@ const customers: CustomerSearchResult[] = [
   { id: 'c2', fullName: 'Robert Régulier', email: 'robert@test.com' },
 ];
 
+// Résultat d'optimisation : un RDV recalé (12:00Z → 08:00 local) + un RDV exclu (sans coords).
+const optimizeResult: OptimizeRouteResult = {
+  date: '2026-07-08',
+  stops: [
+    {
+      bookingId: 'b1',
+      order: 0,
+      slotStart: '2026-07-08T12:00:00Z', // 08:00 en America/Toronto (EDT)
+      customerName: 'Camille Client',
+      city: 'Gatineau',
+      legKm: 5.4,
+      rescheduled: true,
+    },
+  ],
+  excludedBookingIds: ['b2'],
+  totalKm: 5.4,
+};
+
 interface SetupOptions {
   isAdmin?: boolean;
   detail?: DayDetailDto;
@@ -83,6 +105,7 @@ interface SetupOptions {
   searchCustomers?: ReturnType<typeof vi.fn>;
   createBooking?: ReturnType<typeof vi.fn>;
   getAvailableSlots?: ReturnType<typeof vi.fn>;
+  optimizeRoute?: ReturnType<typeof vi.fn>;
 }
 
 async function setup(options: SetupOptions = {}) {
@@ -93,9 +116,15 @@ async function setup(options: SetupOptions = {}) {
   const searchCustomers = options.searchCustomers ?? vi.fn().mockReturnValue(of(customers));
   const getAvailableSlots = options.getAvailableSlots ?? vi.fn().mockReturnValue(of(slots));
   const createBooking = options.createBooking ?? vi.fn().mockReturnValue(of({ id: 'new-booking' }));
+  const optimizeRoute = options.optimizeRoute ?? vi.fn().mockReturnValue(of(optimizeResult));
 
   const calendarStub: Partial<CalendarService> = { getCalendar };
-  const planningStub: Partial<PlanningService> = { getDayDetail, upsertWorkHours, searchCustomers };
+  const planningStub: Partial<PlanningService> = {
+    getDayDetail,
+    upsertWorkHours,
+    searchCustomers,
+    optimizeRoute,
+  };
   const bookingStub: Partial<BookingService> = { getAvailableSlots, createBooking };
   const authStub = { isAdmin: signal(isAdmin) } as unknown as AuthService;
   const toastStub: Partial<ToastService> = { show: vi.fn() };
@@ -118,6 +147,7 @@ async function setup(options: SetupOptions = {}) {
     searchCustomers,
     getAvailableSlots,
     createBooking,
+    optimizeRoute,
   };
 }
 
@@ -381,6 +411,59 @@ describe('AdminCalendarComponent', () => {
     // Aucun créneau sélectionné → submit ne déclenche pas l'appel.
     await user.click(within(dialog).getByRole('button', { name: /créer le rendez-vous/i }));
     expect(createBooking).not.toHaveBeenCalled();
+  });
+
+  // ── Optimisation de tournée (US-11.3) ─────────────────────────────────────
+  it('Admin : « Optimiser la tournée » appelle le service, annonce et affiche l’ordre + exclus', async () => {
+    const user = userEvent.setup();
+    const optimizeRoute = vi.fn().mockReturnValue(of(optimizeResult));
+    const { getDayDetail } = await setup({ isAdmin: true, optimizeRoute });
+
+    const dialog = (await openDialog(user)).dialog;
+    const optimizeBtn = within(dialog).getByRole('button', { name: /optimiser la tournée/i });
+    await user.click(optimizeBtn);
+
+    // Le service est appelé avec la clé du jour ouvert.
+    await waitFor(() => expect(optimizeRoute).toHaveBeenCalledWith('2026-07-08'));
+
+    // L'ordre optimisé est affiché : l'arrêt recalé montre le client + sa ville (l'assertion sur
+    // l'HEURE LOCALE 12:00Z → 08 h est faite en e2e avec fuseau forcé — en vitest le fuseau CI est
+    // UTC, l'assertion serait vacueuse, L-044).
+    await waitFor(() =>
+      expect(within(dialog).getAllByText('Camille Client').length).toBeGreaterThanOrEqual(1),
+    );
+
+    // La liste des exclus apparaît (1 RDV sans coordonnées).
+    expect(within(dialog).getByText(/1\s*RDV exclus/i)).toBeInTheDocument();
+
+    // Le détail du jour est rechargé après succès (les heures ont changé).
+    expect(getDayDetail.mock.calls.length).toBeGreaterThanOrEqual(2);
+
+    // L'annonce live-region (role=status) porte le résumé.
+    await waitFor(() =>
+      expect(within(dialog).getByText(/Tournée optimisée/i)).toBeInTheDocument(),
+    );
+  });
+
+  it('le bouton « Optimiser la tournée » est absent s’il n’y a aucun RDV (rien à optimiser)', async () => {
+    const user = userEvent.setup();
+    const emptyDetail: DayDetailDto = { ...dayDetail, bookings: [] };
+    await setup({ isAdmin: true, detail: emptyDetail });
+
+    const dialog = (await openDialog(user)).dialog;
+    expect(
+      within(dialog).queryByRole('button', { name: /optimiser la tournée/i }),
+    ).toBeNull();
+  });
+
+  it('Staff : aucun bouton « Optimiser la tournée » (lecture seule)', async () => {
+    const user = userEvent.setup();
+    await setup({ isAdmin: false });
+
+    const dialog = (await openDialog(user)).dialog;
+    expect(
+      within(dialog).queryByRole('button', { name: /optimiser la tournée/i }),
+    ).toBeNull();
   });
 
   it('Staff : aucun bouton « Ajouter un RDV » (lecture seule)', async () => {

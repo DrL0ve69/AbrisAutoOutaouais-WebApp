@@ -46,3 +46,31 @@ export interface CustomerSearchResult {
   readonly fullName: string;
   readonly email: string;
 }
+
+/**
+ * Un arrêt de la tournée optimisée (US-11.3) — miroir EXACT du `OptimizedStopDto` C#.
+ * `slotStart` est une chaîne ISO 8601 (UTC brut) — le rendu se fait en fuseau LOCAL (L-044).
+ * `legKm` = distance (km) depuis l'arrêt précédent (ou la base pour le premier).
+ * `rescheduled` distingue les RDV effectivement recalés du surplus qui a gardé son heure.
+ */
+export interface OptimizedStop {
+  readonly bookingId: string;
+  readonly order: number;
+  readonly slotStart: string; // ISO 8601 (UTC)
+  readonly customerName: string;
+  readonly city: string;
+  readonly legKm: number;
+  readonly rescheduled: boolean;
+}
+
+/**
+ * Résultat de l'optimisation de tournée (US-11.3) — miroir EXACT du `OptimizeRouteResultDto` C#.
+ * `date` est une chaîne ISO `YYYY-MM-DD`. `excludedBookingIds` liste les RDV sans coordonnées,
+ * exclus de l'optimisation (pas de backfill). `totalKm` = distance totale de la tournée.
+ */
+export interface OptimizeRouteResult {
+  readonly date: string;
+  readonly stops: readonly OptimizedStop[];
+  readonly excludedBookingIds: readonly string[];
+  readonly totalKm: number;
+}

@@ -17,9 +17,10 @@ public sealed class CreateBookingCommandHandlerTests : IDisposable
     private readonly ApplicationDbContext _db = TestDbContextFactory.Create();
     private readonly ICurrentUserService _currentUser = Substitute.For<ICurrentUserService>();
     private readonly IExpressAccountService _express = Substitute.For<IExpressAccountService>();
+    private readonly IPlacesService _places = Substitute.For<IPlacesService>();
 
     private CreateBookingCommandHandler CreateHandler()
-        => new(_db, _currentUser, _express);
+        => new(_db, _currentUser, _express, _places);
 
     // Créneau futur aligné (10 h UTC un jour ouvré dans ~40 jours), pour passer les invariants de l'agrégat.
     private static DateTime FutureSlot()
@@ -105,6 +106,47 @@ public sealed class CreateBookingCommandHandlerTests : IDisposable
         var booking = await _db.BookingSlots.FindAsync([id], TestContext.Current.CancellationToken);
         booking!.CustomerId.Should().Be(ownId);
         booking.CustomerId.Should().NotBe(otherCustomerId);
+    }
+
+    [Fact]
+    public async Task Handle_GeocodeSucceeds_PersistsLatLng()
+    {
+        // US-11.3 : géocodage à la création → coordonnées stockées sur le BookingSlot. Le double
+        // imite le provider PAR DÉFAUT (Photon) qui renvoie un couple (lat, lng) (L-011).
+        var userId = Guid.NewGuid();
+        _currentUser.UserId.Returns(userId);
+        _places.GeocodeAsync(
+                Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(),
+                Arg.Any<CancellationToken>())
+            .Returns<(double Lat, double Lng)?>((45.4765, -75.7013));
+
+        var id = await CreateHandler().HandleAsync(
+            Command(), TestContext.Current.CancellationToken);
+
+        var booking = await _db.BookingSlots.FindAsync([id], TestContext.Current.CancellationToken);
+        booking!.Lat.Should().Be(45.4765);
+        booking.Lng.Should().Be(-75.7013);
+    }
+
+    [Fact]
+    public async Task Handle_GeocodeReturnsNull_StillCreatesBookingWithoutCoordinates()
+    {
+        // Résilience (US-11.3) : géocodage introuvable/échoué → null, le RDV est tout de même créé
+        // (il sera simplement exclu de l'optimisation de tournée, pas de blocage de la réservation).
+        var userId = Guid.NewGuid();
+        _currentUser.UserId.Returns(userId);
+        _places.GeocodeAsync(
+                Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(),
+                Arg.Any<CancellationToken>())
+            .Returns((((double, double)?)null));
+
+        var id = await CreateHandler().HandleAsync(
+            Command(), TestContext.Current.CancellationToken);
+
+        var booking = await _db.BookingSlots.FindAsync([id], TestContext.Current.CancellationToken);
+        booking!.CustomerId.Should().Be(userId);
+        booking.Lat.Should().BeNull();
+        booking.Lng.Should().BeNull();
     }
 
     [Fact]

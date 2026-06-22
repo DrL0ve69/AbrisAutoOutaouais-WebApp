@@ -455,3 +455,27 @@ indépendante `code-reviewer` → mentor*. **Revue indépendante : APPROVE WITH 
 - Round-trip live LocalDB : 2 exemples vérifiés (30×40 pi → 3 catégories ; 16×30 pi → 2 catégories) ✅
 
 **Statut git** : **PR #50 MERGÉE vers `master` (`30f4b41`), CI verte (Backend 1m06s / Frontend 8m25s / Build & Deploy 1m34s / SonarCloud 32s), branche supprimée.** Prod auto-déployée. **Prochain : EPIC 13** (refonte parcours `/mesurer` — ordre + adresse optionnelle).
+
+---
+
+## ✅ Clôture EPIC 11 — Calendrier & planification terrain (2026-06-22)
+
+Branche `feat/epic-11-calendrier` — 4 commits (US-11.1 + US-11.2 p1 + US-11.2 p2 + US-11.3). Boucle *architecte → développeur → revue indépendante `code-reviewer` → mentor* pour chaque sous-tâche.
+
+| ID | Sous-tâche | Statut |
+|----|-----------|--------|
+| US-11.1 | Vue calendrier `/planning` lecture seule (mois/semaine/jour) : `GetCalendarBookings` CQRS + `GET /bookings/calendar` (StaffOrAbove) ; grille APG maison (roving tabindex + flèches/Home/End/PageUp/PageDown, L-015) ; bascule vue `radiogroup` ; panneau RDV-du-jour lecture seule (focus/Échap/retour-focus, L-006) ; `staffGuard` ; i18n fr/en 35 ids. Revue APPROVE WITH NITS — Major UTC→local corrigé (L-044) | ✅ |
+| US-11.2 p1 | Overlay détail du jour (`role="dialog"` APG) + saisie/lecture heures employé : `WorkHoursEntry` (regular entity, minutes local, index unique filtré L-045) + migration `AddWorkHoursEntry` ; CQRS `GetDayDetailQuery` (StaffOrAbove) + `UpsertWorkHoursCommand` (AdminOnly) ; `PlanningController GET /planning/day` + `PUT /planning/work-hours` ; 17 ids i18n symétriques. Revue APPROVE WITH NITS (1 Minor HasFilter corrigé, L-045) | ✅ |
+| US-11.2 p2 | Sous-formulaire ajout RDV dans l'overlay : contact libre (compte express) OU client existant (`SearchCustomers` CQRS via `IIdentityService` DIP) ; attribution `CustomerId` sécurisée (L-028) ; radiogroups APG (L-015) ; focus inconditionnel (L-006 corollaire B) ; zéro migration ; 36 ids i18n symétriques. Revue APPROVE WITH NITS (1 Minor focus corrigé) | ✅ |
+| US-11.3 | Optimisation de tournée admin : lat/lng sur `BookingSlot` (migration `AddBookingSlotCoordinates`) + géocodage `IPlacesService.GeocodeAsync` (Photon keyless) ; `RouteOptimizer` maison (nearest-neighbour + Haversine, zéro dépendance) ; `OptimizeRouteCommand` + `POST /planning/optimize` (AdminOnly) — réécrit `SlotStart` Pending+Confirmed, anti-collision `SlotRules.Overlaps`, surplus/exclus listés non recalés ; bouton Admin calendrier + live-region (L-027) + heures fuseau local (L-044) + i18n fr/en symétrique. Revue APPROVE WITH NITS (1 Minor collision + 1 Nit N+1 corrigés, **L-046** capturée) | ✅ |
+
+**Leçons capturées :** **L-044** (fuseau horaire — une timezone UTC explicite sur un écran crée un décalage silencieux avec les écrans frères locaux ; choisir un fuseau canonique partagé entre affichage ET regroupement) · **L-045** (`ISoftDeletable` + index unique → toujours `HasFilter("[IsDeleted] = 0")`, idiome `Product`/`ShelterModel`) · **L-046** (invariant de non-chevauchement présent dans un chemin d'écriture, absent du chemin parallèle — vérifier TOUS les points d'entrée qui modifient le même slot).
+
+**Gates globales (US-11.3 / clôture) :**
+- `dotnet test` **403 unit + 119 IT / 0 échec** ✅
+- Migration `AddBookingSlotCoordinates` appliquée + round-trip live LocalDB (lat/lng Photon, SlotStart réécrits, total 7.20 km) ✅
+- `npm run build` (typecheck) ✅ · `npm test` **387/387** ✅ (color-contrast NON couvert, L-016)
+- `npm run build:prod` bilingue ✅
+- `npm run e2e` admin-calendar **13/13** (optimize + dual-thème axe + `timezoneId: 'America/Toronto'` 12:00Z→08:00 non-vacueux, L-044) ✅
+
+**Statut git** : commit final + **PR ouverte → `master`**. Prochain : **EPIC 8** (gestion employés & paie informative).

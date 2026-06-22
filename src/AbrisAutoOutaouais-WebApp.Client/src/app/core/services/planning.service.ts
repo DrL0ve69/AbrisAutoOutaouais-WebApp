@@ -5,6 +5,7 @@ import { environment } from '../../../environments/environment';
 import {
   CustomerSearchResult,
   DayDetailDto,
+  OptimizeRouteResult,
   UpsertWorkHoursRequest,
 } from '../models/planning.model';
 
@@ -36,5 +37,19 @@ export class PlanningService {
   searchCustomers(term: string): Observable<CustomerSearchResult[]> {
     const params = new HttpParams().set('term', term);
     return this.http.get<CustomerSearchResult[]>(`${this.baseUrl}/planning/customers`, { params });
+  }
+
+  /**
+   * Optimise la tournée des RDV (Pending/Confirmed) d'une journée (`YYYY-MM-DD`, US-11.3) : réordonne
+   * par plus proche voisin depuis la base et réécrit les heures sur la grille. Réservé à l'Admin
+   * (le serveur exige « AdminOnly »). Renvoie l'ordre optimisé + les RDV exclus + la distance totale.
+   */
+  optimizeRoute(date: string): Observable<OptimizeRouteResult> {
+    const params = new HttpParams().set('date', date);
+    return this.http.post<OptimizeRouteResult>(
+      `${this.baseUrl}/planning/optimize`,
+      null,
+      { params },
+    );
   }
 }

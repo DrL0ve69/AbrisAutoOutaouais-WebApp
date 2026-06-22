@@ -4,8 +4,15 @@
 > simplement **« continue la prochaine tâche »** ou lance **`/next-task`** : l'assistant lit ce
 > fichier + le plan actif, vérifie l'état git, puis enchaîne.
 >
-> **🟢 Programme ACTIF — Phase 2 (`docs/agile/ROADMAP-PHASE-2.md`), curseur sur EPIC 11** (calendrier
-> & planification terrain) — **US-11.1 + US-11.2 parties 1 et 2 livrés (commits locaux), US-11.3 optimisation de tournée à venir**.
+> **🟢 Programme ACTIF — Phase 2 (`docs/agile/ROADMAP-PHASE-2.md`), curseur sur EPIC 8** (gestion employés & paie informative) — **EPIC 11 COMPLET/MERGÉ (PR en cours, 2026-06-22)**.
+> **Ordre Phase 2 restant : ~~9~~ ~~10~~ ~~13~~ ~~14~~ ~~11~~ → 8 → 7.**
+> **EPIC 11 · US-11.3 — Optimisation de tournée admin — LIVRÉ (2026-06-22), branche `feat/epic-11-calendrier` · CLÔTURE EPIC 11.**
+> lat/lng stockées sur `BookingSlot` (migration `AddBookingSlotCoordinates`), géocodage Photon keyless via `IPlacesService.GeocodeAsync`.
+> `RouteOptimizer` maison (nearest-neighbour + Haversine, zéro dépendance) ; `OptimizeRouteCommand` + `POST /planning/optimize` (AdminOnly).
+> Réécrit `SlotStart` Pending+Confirmed, anti-collision `SlotRules.Overlaps`, surplus/exclus non recalés.
+> Frontend calendrier : bouton Admin, live-region (L-027), heures fuseau local (L-044), i18n fr/en symétrique.
+> **Revue indépendante `code-reviewer` : APPROVE WITH NITS** — 1 Minor collision (chemin parallèle sans garde `Overlaps`) + 1 Nit N+1 corrigés. **Leçon L-046** capturée (invariant non-chevauchement présent dans un chemin d'écriture, absent du chemin parallèle — vérifier TOUS les points d'entrée).
+> **Gates** : `dotnet test` **403 unit + 119 IT / 0 échec** ✅ · migration appliquée + round-trip live LocalDB (lat/lng Photon, SlotStart réécrits 08:00Z/10:00Z, total 7.20 km) ✅ · `npm run build` ✅ · `npm test` **387/387** ✅ · `npm run build:prod` bilingue ✅ · `npm run e2e` admin-calendar **13/13** (optimize + dual-thème axe + `timezoneId: 'America/Toronto'` 12:00Z→08:00 L-044, non-vacueux) ✅.
 > **EPIC 11 · US-11.2 partie 2 — Ajout de RDV depuis le calendrier admin — LIVRÉ (commit local, 2026-06-22), branche `feat/epic-11-calendrier`.**
 > Sous-formulaire « ajouter un RDV » dans l'overlay détail-jour (Admin only) : contact libre (compte express) OU client existant via recherche.
 > Réutilise `CreateBooking` + `available-slots` (créneau UTC brut, L-044), **zéro migration**.
@@ -92,7 +99,7 @@
 > retrait ancien `suggest-shelters` Product) + US-10.2 (orientation véhicules côte à côte / derrière,
 > noyau `footprint` neutre L-041) — revue indépendante APPROVE WITH NITS, Minor L-028 fermé,
 > L-040/L-041 capturées, PR #50 MERGÉE (`30f4b41`).
-> Ordre Phase 2 restant : ~~9~~ ~~10~~ ~~13~~ ~~14~~ → **11** → 8 → 7.
+> Ordre Phase 2 restant : ~~9~~ ~~10~~ ~~13~~ ~~14~~ ~~11~~ → **8** → 7.
 > **Programme G terminé (A→H) :** `C:\Users\phili\.claude\plans\majestic-soaring-sprout.md`
 > **Programme initial terminé (A→F) :** `C:\Users\phili\.claude\plans\1-i-want-you-glistening-barto.md`
 > Maintiens ce pointeur à jour à la fin de chaque sous-tâche (c'est ce que l'assistant relit).

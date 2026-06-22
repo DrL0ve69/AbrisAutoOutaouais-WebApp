@@ -11,6 +11,40 @@
 
 ---
 
+## L-046 · An invariant enforced in one write path is NOT a domain guarantee — a new parallel write path on the same resource must re-apply the same guard
+
+- **Symptom.** EPIC 11, US-11.3 (`OptimizeRouteCommandHandler`): the handler rewrites the `SlotStart`
+  of all bookings for a given day onto a 2-hour grid. First implementation assigned `gridSlots[index]`
+  without checking whether a slot was already occupied by a booking that keeps its original time — an
+  **excluded** booking (no lat/lng coordinates, not optimised) or a **surplus** one (grid slot in the
+  past → not reschedulable). Result: two bookings landing on the same slot = **silent double-booking**.
+  The existing `RescheduleBookingCommand` prevents exactly this via `SlotRules.Overlaps` (same-day
+  overlap check). That invariant lived in the « reschedule » write path but was **absent from the new
+  « optimise » write path**. All tests were green; caught as a Minor by the independent reviewer. Fix:
+  freeze the times of non-reschedulable bookings first, then assign only genuinely free grid slots via
+  `SlotRules.Overlaps`; a reschedulable booking with no free slot becomes surplus.
+- **Rule.** When adding a new write path (command handler, batch job, seeder) that places or moves
+  a resource governed by an invariant (appointment slot, stock unit, capacity…), grep **all other
+  write paths that mutate the same entity/aggregate** and enumerate the guards they enforce. Then
+  re-apply the identical guard in the new path — an invariant coded in one handler is not a domain
+  guarantee as long as a parallel path can bypass it. Concrete gesture: before finishing any handler
+  that mutates a shared resource, grep the codebase for other `Command`/`Handler` files touching the
+  same entity and cross-check their guard list against yours. The durable fix is to lift the invariant
+  into a shared domain rule or a well-named static method (`SlotRules.Overlaps`, `SlotRules.IsGridSlotFree`)
+  so every path shares the same callable — if you have to duplicate the guard, you've already accepted
+  the risk of a future divergence. Cousin of [[L-007]] (a temporal assumption that makes a query
+  correct lives far from the query that depends on it) on the **parallel-write-path** axis: the
+  assumption here is not about window size but about which paths are responsible for enforcing a
+  booking invariant.
+- **Refs.**
+  `src/AbrisAutoOutaouais-WebApp.Application/Planning/Commands/OptimizeRoute/OptimizeRouteCommandHandler.cs`
+  (frozen times + `IsGridSlotFree` via `SlotRules.Overlaps` — the fix),
+  `src/AbrisAutoOutaouais-WebApp.Application/Bookings/Commands/RescheduleBooking/RescheduleBookingCommand.cs`
+  (the origin of the `Overlaps` invariant),
+  `src/AbrisAutoOutaouais-WebApp.Application/Bookings/Common/SlotRules.cs`,
+  `OptimizeRouteCommandHandlerTests.Handle_GridSlotOccupiedByExcludedBooking_ReschedulesOntoFreeSlot_NoCollision`,
+  branch `feat/epic-11-calendrier`.
+
 ## L-045 · A new `ISoftDeletable` entity with a unique business-key index must use `HasFilter("[IsDeleted] = 0")` — unconditional `IsUnique()` creates a latent re-insert trap
 
 - **Symptom.** EPIC 11, US-11.2: `WorkHoursEntry` implements `ISoftDeletable` (global `!IsDeleted`

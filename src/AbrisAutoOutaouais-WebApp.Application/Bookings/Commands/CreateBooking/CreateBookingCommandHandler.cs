@@ -14,7 +14,8 @@ namespace AbrisAutoOutaouais_WebApp.Application.Bookings.Commands.CreateBooking;
 internal sealed class CreateBookingCommandHandler(
     IApplicationDbContext db,
     ICurrentUserService currentUser,
-    IExpressAccountService express) : ICommandHandler<CreateBookingCommand, Guid>
+    IExpressAccountService express,
+    IPlacesService places) : ICommandHandler<CreateBookingCommand, Guid>
 {
     private const int DurationMin = 120;
 
@@ -43,10 +44,17 @@ internal sealed class CreateBookingCommandHandler(
             cmd.Address.PostalCode,
             string.IsNullOrWhiteSpace(cmd.Address.Country) ? "Canada" : cmd.Address.Country);
 
+        // Géocodage du lieu du RDV pour l'optimisation de tournée (US-11.3). RÉSILIENT : le port ne
+        // lève jamais ; null si introuvable/échec → le RDV est tout de même créé (sans coordonnées il
+        // sera simplement exclu de l'optimisation, pas de blocage de la réservation).
+        var coords = await places.GeocodeAsync(
+            address.CivicNumber, address.Street, address.City, address.Province, ct);
+
         // Règles métier (créneau futur, durée positive, exclusion ShelterLogic) dans BookingSlot.Create()
         var booking = BookingSlot.Create(
             userId, cmd.SlotStart, DurationMin, cmd.Type, address,
-            notes: cmd.Notes, brand: cmd.Brand, model: cmd.Model);
+            notes: cmd.Notes, brand: cmd.Brand, model: cmd.Model,
+            lat: coords?.Lat, lng: coords?.Lng);
 
         db.BookingSlots.Add(booking);
         await db.SaveChangesAsync(ct);
