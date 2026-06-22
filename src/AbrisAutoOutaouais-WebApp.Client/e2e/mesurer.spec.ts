@@ -92,6 +92,42 @@ async function chooseVoie(page: Page, name: RegExp): Promise<void> {
 }
 
 /**
+ * Voie « véhicules » (défaut) : saisit N berlines, clique « calculer le gabarit », et attend
+ * que l'étape Conseil affiche le modèle suggéré — TOUTE la séquence enveloppée dans un
+ * `expect(...).toPass()` (L-012).
+ *
+ * Pourquoi `toPass` et pas un simple `fill` + `click` : `/mesurer` est SSR + hydratation. En CI
+ * (démarrage à froid + bruit SSR `ECONNREFUSED` qui retarde l'hydratation), un `fill`/`click` lancé
+ * AVANT que les listeners Angular soient recâblés est perdu — le `fill` natif n'atteint pas le
+ * modèle réactif (`getRawValue().berline` reste 0 → gabarit nul → rien n'est émis), ou le clic ne
+ * déclenche aucun handler → on ne passe jamais à l'étape Conseil → le heading n'apparaît pas
+ * (le flake dark préexistant de cette suite, vert en local sur serveur chaud). On REJOUE donc la
+ * saisie + le clic jusqu'à ce que l'interaction atterrisse réellement, sans aucun `waitForTimeout`.
+ *
+ * Non-vacuité : si le mock `/shelters/suggest` ne fournit pas le modèle attendu, la barrière
+ * `toBeVisible()` finit en échec — le test reste discriminant (cf. L-005/L-009).
+ */
+async function calculerVehiculeBerline(
+  page: Page,
+  count: string,
+  modelName: string,
+): Promise<void> {
+  const berline = page.getByLabel(/berline/i);
+  const calculer = page.getByRole('button', { name: /calculer le gabarit/i });
+  const heading = page.getByRole('heading', { name: modelName });
+
+  await expect(async () => {
+    // Le `fill` doit ATTERRIR dans le modèle réactif (corollaire civic de L-012) : on revérifie
+    // la valeur native avant de cliquer ; tant qu'elle ne tient pas, `toPass` rejoue le bloc.
+    await berline.fill(count);
+    await expect(berline).toHaveValue(count);
+    await calculer.click();
+    // Le clic doit déclencher la transition d'étape post-hydratation → le heading Conseil paraît.
+    await expect(heading).toBeVisible({ timeout: 2000 });
+  }).toPass({ timeout: 30000 });
+}
+
+/**
  * Renseigne l'adresse de la voie carte (SANS choisir de suggestion) puis centre la carte.
  *
  * Comme aucune suggestion n'est choisie, « Centrer la carte sur cette adresse » déclenche TOUJOURS
@@ -100,18 +136,33 @@ async function chooseVoie(page: Page, name: RegExp): Promise<void> {
  * coordonnées (mock D4/D5) ou une liste vide.
  */
 async function fillMapAddress(page: Page, city = 'Gatineau'): Promise<void> {
-  await page.getByLabel(/numéro civique/i).fill('123');
-  // Le champ « rue » est un combobox : on tape via le locator (auto-focus + actionability, L-012).
-  await page.locator('#mesurer-rue').pressSequentially('123 rue Principale');
-  await page.getByLabel(/ville/i).fill(city);
+  const civic = page.getByLabel(/numéro civique/i);
+  const rue = page.locator('#mesurer-rue');
+  const ville = page.getByLabel(/ville/i);
 
-  // Barrière réseau : la requête de géocodage part au clic, on attend sa réponse (la DERNIÈRE
-  // requête `suggest`, postérieure au clic) avant d'asserter le centrage de la carte.
+  // SSR + hydratation (L-012, corollaire civic) : un `fill`/`pressSequentially` lancé avant que le
+  // `ControlValueAccessor` soit hydraté pose la valeur NATIVE mais pas le modèle réactif (la valeur
+  // est ensuite réécrite par la CD). On rejoue donc la saisie jusqu'à ce que CHAQUE champ tienne sa
+  // valeur — sans cela, le géocodage part avec une adresse vide et le centrage/avertissement aval
+  // ne se produit pas (flake observé sous charge sur la voie carte).
+  await expect(async () => {
+    await civic.fill('123');
+    await rue.fill(''); // vide d'abord pour que la frappe re-déclenche le combobox
+    await rue.pressSequentially('123 rue Principale');
+    await ville.fill(city);
+    await expect(civic).toHaveValue('123');
+    await expect(rue).toHaveValue('123 rue Principale');
+    await expect(ville).toHaveValue(city);
+  }).toPass({ timeout: 15000 });
+
+  // Barrière réseau : la requête de géocodage part au clic. On enregistre l'attente AVANT le clic
+  // et on filtre par méthode/statut de réponse pour viser la requête postérieure au clic (et non une
+  // réponse d'autocomplétion résiduelle de la frappe ci-dessus). Les assertions aval (centrage D4 /
+  // avertissement D5) auto-réessaient de toute façon, ce qui couvre une résolution précoce éventuelle.
   const center = page.getByRole('button', { name: /centrer la carte sur cette adresse/i });
-  await Promise.all([
-    page.waitForResponse((r) => /places\/suggest/.test(r.url())),
-    center.click(),
-  ]);
+  const geocoded = page.waitForResponse((r) => /places\/suggest/.test(r.url()) && r.ok());
+  await center.click();
+  await geocoded;
 }
 
 // ── (a) VOIE `known` — je connais mes dimensions → Conseil + suggestions. ────────────────────────
@@ -122,16 +173,28 @@ test('voie « connue » : saisie en pieds → étape Conseil avec suggestions', 
   // On arrive directement à l'étape « Dimensionner » (plus d'étape adresse préalable).
   await expect(page.getByRole('heading', { level: 2, name: /dimensionner/i })).toBeVisible();
 
-  // Bascule sur la voie « Je connais mes dimensions » et saisis largeur × longueur (pieds).
+  // Bascule sur la voie « Je connais mes dimensions ».
   await chooseVoie(page, /je connais mes dimensions/i);
-  await page.getByLabel(/largeur \(pi\)/i).fill('16');
-  await page.getByLabel(/longueur \(pi\)/i).fill('30');
-  await page.getByRole('button', { name: /voir les abris compatibles/i }).click();
+
+  // Saisie largeur × longueur (pieds) + clic, robustes à l'hydratation SSR tardive (L-012) : on
+  // rejoue le bloc jusqu'à ce que les valeurs atterrissent dans le modèle réactif ET que le clic
+  // déclenche la transition vers Conseil. Sans cela, un `fill`/`click` pré-hydratation est perdu.
+  const heading = page.getByRole('heading', { name: 'Abri double pointu 16 pi' });
+  await expect(async () => {
+    const largeur = page.getByLabel(/largeur \(pi\)/i);
+    const longueur = page.getByLabel(/longueur \(pi\)/i);
+    await largeur.fill('16');
+    await longueur.fill('30');
+    await expect(largeur).toHaveValue('16');
+    await expect(longueur).toHaveValue('30');
+    await page.getByRole('button', { name: /voir les abris compatibles/i }).click();
+    await expect(heading).toBeVisible({ timeout: 2000 });
+  }).toPass({ timeout: 30000 });
 
   // Étape « Conseil » (EPIC 10) : titre d'étape + catégorie/modèle compatibles.
   await expect(page.getByRole('heading', { level: 2, name: /^conseil$/i })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Abris doubles' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Abri double pointu 16 pi' })).toBeVisible();
+  await expect(heading).toBeVisible();
 });
 
 // ── (b) VOIE `vehicles` (défaut) au CLAVIER — radiogroup APG → calculateur → Conseil + axe page. ──
@@ -161,13 +224,12 @@ test('voie « véhicules » au CLAVIER (radiogroup APG) → Conseil + aucune vio
   await expect(vehicles).toHaveAttribute('aria-checked', 'true');
   await expect(vehicles).toBeFocused();
 
-  // Calculateur (voie véhicules) : 1 berline → calcule le gabarit.
-  await page.getByLabel(/berline/i).fill('1');
-  await page.getByRole('button', { name: /calculer le gabarit/i }).click();
+  // Calculateur (voie véhicules) : 1 berline → calcule le gabarit. Saisie + clic + transition
+  // d'étape robustes à l'hydratation SSR tardive (L-012, voir helper) → étape Conseil.
+  await calculerVehiculeBerline(page, '1', 'Abri double pointu 16 pi');
 
   // Étape « Conseil » : catégorie → modèle compatible → longueurs admissibles (en pieds).
   await expect(page.getByRole('heading', { level: 2, name: /^conseil$/i })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Abri double pointu 16 pi' })).toBeVisible();
   const lengthsLine = page.getByText(/longueurs offertes/i);
   await expect(lengthsLine).toContainText('16,0');
   await expect(lengthsLine).toContainText('24,0');
@@ -249,9 +311,8 @@ for (const theme of ['light', 'dark'] as const) {
     await mockApi(page);
     await page.goto('/mesurer');
 
-    await page.getByLabel(/berline/i).fill('1');
-    await page.getByRole('button', { name: /calculer le gabarit/i }).click();
-    await expect(page.getByRole('heading', { name: 'Abri double pointu 16 pi' })).toBeVisible();
+    // Saisie + clic + transition d'étape robustes à l'hydratation SSR tardive (L-012, voir helper).
+    await calculerVehiculeBerline(page, '1', 'Abri double pointu 16 pi');
     await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
 
     // color-contrast inclus (app réelle, WCAG_TAGS) sur l'étape Conseil, dans les deux thèmes.

@@ -949,13 +949,29 @@
   keystrokes to whatever node has focus, but until Angular re-wires the `(input)` listener *after
   hydration*, those native keystrokes fire **no Angular event** → no `places/suggest` call → nothing
   renders. Under suite load hydration lands later, so the race flipped run-to-run.
-- **Rule.** In an SSR+hydration app, type through the **locator** (`locator.pressSequentially(...)`,
-  which auto-focuses and waits for actionability), not `page.keyboard.type`. Wrap any
-  « type → debounced request → rendered result » sequence so the hydration race self-heals: clear the
-  field first (so `distinctUntilChanged` re-emits), then `await page.waitForResponse(/places\/suggest/)`
-  as a **network barrier** before asserting the rendered suggestions — never a fixed `waitForTimeout`.
-  Same vacuity/flake family as [[L-009]] (assertions made meaningless by environment timing), but the
-  trigger here is hydration latency, not a CSS breakpoint.
+  **Second hit — a full interaction sequence, not just a bare `fill` (EPIC 11, `mesurer.spec.ts`
+  Conseil dark, flake préexistant sur master).** `fill('berline','1')` → click « calculer le gabarit »
+  → `expect(heading 'Abri double pointu 16 pi')` failed in CI on the dark-theme variant only (later
+  suite position → slower hydration, amplified by `[WebServer] ECONNREFUSED` noise from the SSR shell).
+  Before hydration: either the `fill` doesn't reach the reactive model (no emission → no result), or
+  the click fires before the step's handler is wired (stage never mounts). **Diagnostic trap:** the
+  `[WebServer] ECONNREFUSED` log line looks like a missing backend, but the suggestion data came from
+  a `page.route` mock (client-side, post-hydration) — `page.route` does **not** intercept SSR fetches,
+  but the relevant flow is client-side and correctly mocked. The real cause was the interaction race,
+  not missing data.
+- **Rule.** In an SSR+hydration app: (1) type through the **locator** (`locator.pressSequentially(...)`,
+  which auto-focuses and waits for actionability), not `page.keyboard.type`; (2) gate any
+  « type → debounced request → rendered result » sequence on a **network barrier**
+  (`page.waitForResponse(/…/)`) — never a fixed `waitForTimeout`; (3) wrap the **entire interaction
+  sequence** (`fill → toHaveValue → click → assert visible`) in `expect(async () => {…}).toPass()`
+  when the sequence spans a step transition or a network/render boundary — a `toPass` around the `fill`
+  alone is not enough if the subsequent click also fires before the handler is hydrated. **Rule of
+  thumb: every keystroke, `fill`, or click that must land in a reactive form or trigger a step
+  transition on an SSR+hydrated page goes through a `toPass` (or a network/state barrier), never a
+  bare one-shot.** When triaging a CI-only e2e red, get the REAL error from the CI log first
+  ([[L-001]]) and check whether the data is mocked via `page.route` — a `[WebServer] ECONNREFUSED`
+  is a **lure** when the relevant data flow is client-side post-hydration; the `ng-pristine`/empty-value
+  tell points straight at the interaction race, not at missing backend data.
   **Corollary — a one-shot `fill()` on a reactive-form control has the SAME race (Épic G).** The D1
   civic-preservation test did `await page.locator('#civicNumber').fill('77')` once, **outside** any
   retry, right after a `goto` that only awaited `#street` visibility. Before the civic field's
@@ -965,13 +981,11 @@
   locally — faster hydration), reproducible there across runs (it reads like a regression, but isn't:
   the spec is byte-identical to master and none of the `/location` cascade changed). Fix: wrap the
   `fill` in `await expect(async () => { await ctrl.fill('77'); await expect(ctrl).toHaveValue('77'); }).toPass()`
-  so Playwright replays it until Angular actually registers the value — the same self-heal you already
-  apply to combobox typing. **Rule of thumb: every keystroke/`fill` that must land in a reactive form
-  on an SSR+hydrated page goes through a `toPass` (or a network/state barrier), never a bare one-shot.**
-  When triaging such a CI-only e2e red, get the REAL error from the CI log first ([[L-001]]) — the
-  `ng-pristine`/empty-value tell points straight at the hydration race, not at the diff under review.
+  so Playwright replays it until Angular actually registers the value.
 - **Refs.** `e2e/address-autocomplete.spec.ts` (`pressSequentially` + `waitForResponse` barrier;
-  civic `fill` wrapped in `expect(...).toPass()`), commits `6e23b48` (combobox), `feat/epic-g-catalog` (civic).
+  civic `fill` wrapped in `expect(...).toPass()`), commits `6e23b48` (combobox), `feat/epic-g-catalog`
+  (civic); `e2e/mesurer.spec.ts` (helper `calculerVehiculeBerline` = fill→toHaveValue→click→heading
+  dans `toPass`; `fillMapAddress` durci), branch `feat/epic-11-calendrier`.
 
 ## L-011 · Interchangeable port implementations must each emit the CANONICAL format — and the test mock must mimic the DEFAULT provider, not a conformant one
 
