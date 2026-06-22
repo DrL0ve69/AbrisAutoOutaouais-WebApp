@@ -41,7 +41,7 @@ public sealed class PlaceOrderCommandHandlerTests : IDisposable
     private async Task<ShelterModel> SeedShelterModelAsync(string slug = "abri-simple")
     {
         var cat = ProductCategory.Create($"Cat {slug}", $"cat-{slug}");
-        var model = ShelterModel.Create(
+        var model = ShelterModelTestData.CreateWithGrid(
             slug, "Abri simple", cat.Id,
             lengthStepCm: 122, minLengthCm: 122, maxLengthCm: 1830,
             basePrice: 349.00m, pricePerArchCents: 15000,
@@ -52,12 +52,14 @@ public sealed class PlaceOrderCommandHandlerTests : IDisposable
         return model;
     }
 
-    private PlaceOrderCommand ShelterOrder(string slug, int lengthCm, int qty = 1, GuestContact? guest = null) => new(
+    // clearHeightCm par défaut = 198 : la seule hauteur dégagée semée par SeedShelterModelAsync.
+    private PlaceOrderCommand ShelterOrder(
+        string slug, int lengthCm, int qty = 1, GuestContact? guest = null, int clearHeightCm = 198) => new(
         Lines: [],
         DeliveryType: DeliveryType.Pickup,
         ShippingAddress: null,
         GuestContact: guest,
-        ShelterLines: [new ShelterLineRequest(slug, lengthCm, qty)]);
+        ShelterLines: [new ShelterLineRequest(slug, lengthCm, clearHeightCm, qty)]);
 
     private async Task<OrderLine> ReadSingleLineAsync(Guid orderId)
         => await _db.OrderLines.AsNoTracking()
@@ -127,9 +129,9 @@ public sealed class PlaceOrderCommandHandlerTests : IDisposable
         _currentUser.UserId.Returns(userId);
         _currentUser.Email.Returns("client@test.com");
 
-        // 488 cm = 122 + 3*122 → 3 arches → 349 + 3*150 = 799 $.
+        // 488 cm = 122 + 3*122 → entrée de grille 349 + 3*150 = 799 $ (hauteur 198).
         const int lengthCm = 488;
-        var expected = ShelterPriceCalculator.CalculatePrice(model, lengthCm);
+        var expected = ShelterPriceCalculator.CalculatePrice(model, lengthCm, 198);
 
         var id = await CreateHandler().HandleAsync(
             ShelterOrder(model.Slug, lengthCm), TestContext.Current.CancellationToken);
@@ -157,6 +159,35 @@ public sealed class PlaceOrderCommandHandlerTests : IDisposable
         var order = await _db.Orders.FindAsync([id], TestContext.Current.CancellationToken);
         order!.Lines.Should().HaveCount(1);
         order.TotalAmount.Should().Be(349.00m);   // longueur de base → 0 arche
+    }
+
+    [Fact]
+    public async Task Handle_ShelterLine_PersistsConfiguredClearHeight()
+    {
+        var model = await SeedShelterModelAsync();   // hauteur offerte : 198
+        _currentUser.UserId.Returns(Guid.NewGuid());
+
+        var id = await CreateHandler().HandleAsync(
+            ShelterOrder(model.Slug, 122, clearHeightCm: 198),
+            TestContext.Current.CancellationToken);
+
+        var line = await ReadSingleLineAsync(id);
+        line.ConfiguredClearHeightCm.Should().Be(198);   // la hauteur choisie est bien enregistrée
+        line.ProductName.Should().Contain("198");        // et visible dans le snapshot (personnel)
+    }
+
+    [Fact]
+    public async Task Handle_ShelterClearHeightNotOffered_ThrowsBusinessRule()
+    {
+        var model = await SeedShelterModelAsync();   // hauteur offerte : 198 uniquement
+        _currentUser.UserId.Returns(Guid.NewGuid());
+
+        // 244 cm n'est PAS une hauteur offerte par le modèle → 422 (BusinessRuleException), pas un
+        // choix silencieusement accepté hors catalogue.
+        var act = async () => await CreateHandler().HandleAsync(
+            ShelterOrder(model.Slug, 122, clearHeightCm: 244), TestContext.Current.CancellationToken);
+
+        await act.Should().ThrowAsync<BusinessRuleException>().WithMessage("*hauteur dégagée*");
     }
 
     [Fact]
@@ -204,14 +235,14 @@ public sealed class PlaceOrderCommandHandlerTests : IDisposable
         var model = await SeedShelterModelAsync();
         _currentUser.UserId.Returns(Guid.NewGuid());
 
-        const int lengthCm = 122;   // 0 arche → 349 $
-        var shelterPrice = ShelterPriceCalculator.CalculatePrice(model, lengthCm);
+        const int lengthCm = 122;   // entrée de base → 349 $ (hauteur 198)
+        var shelterPrice = ShelterPriceCalculator.CalculatePrice(model, lengthCm, 198);
 
         var cmd = new PlaceOrderCommand(
             Lines: [new OrderLineRequest(productId, 2)],   // 398 $
             DeliveryType: DeliveryType.Pickup,
             ShippingAddress: null,
-            ShelterLines: [new ShelterLineRequest(model.Slug, lengthCm, 1)]);
+            ShelterLines: [new ShelterLineRequest(model.Slug, lengthCm, 198, 1)]);
 
         var id = await CreateHandler().HandleAsync(cmd, TestContext.Current.CancellationToken);
 

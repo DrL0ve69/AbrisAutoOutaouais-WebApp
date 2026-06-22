@@ -45,7 +45,10 @@ const shelterModel: ShelterModelDetail = {
   minLengthCm: 600,
   maxLengthCm: 900,
   lengthStepCm: 150,
-  pricePerArchCents: 25000,
+  priceGrid: [
+    { lengthCm: 600, clearHeightCm: 198, priceCents: 120000 },
+    { lengthCm: 600, clearHeightCm: 244, priceCents: 150000 },
+  ],
   widthOptionsCm: [335],
   clearHeightOptionsCm: [198, 244],
 };

@@ -14,10 +14,9 @@ public sealed class CreateShelterModelCommandValidatorTests
     private static CreateShelterModelCommand Valid(
         string slug = "abri", string name = "Abri",
         int lengthStepCm = 122, int minLengthCm = 122, int maxLengthCm = 1830,
-        decimal basePrice = 349m, int pricePerArchCents = 15000,
         IReadOnlyList<int>? widths = null, IReadOnlyList<int>? heights = null)
         => new(slug, name, Guid.NewGuid(), lengthStepCm, minLengthCm, maxLengthCm,
-            basePrice, pricePerArchCents, widths ?? [335], heights ?? [198]);
+            widths ?? [335], heights ?? [198]);
 
     [Fact]
     public void Valid_PassesValidation()
@@ -69,13 +68,5 @@ public sealed class CreateShelterModelCommandValidatorTests
         => _validator.TestValidate(Valid(heights: []))
             .ShouldHaveValidationErrorFor(x => x.ClearHeightsCm);
 
-    [Fact]
-    public void NegativeBasePrice_Fails()
-        => _validator.TestValidate(Valid(basePrice: -1m))
-            .ShouldHaveValidationErrorFor(x => x.BasePrice);
-
-    [Fact]
-    public void NegativePricePerArch_Fails()
-        => _validator.TestValidate(Valid(pricePerArchCents: -1))
-            .ShouldHaveValidationErrorFor(x => x.PricePerArchCents);
+    // Plus de règles de prix : l'admin ne fixe plus la tarification (grille exacte semée).
 }

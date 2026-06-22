@@ -8,8 +8,8 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Configurations;
 /// <summary>
 /// Configuration EF du modèle d'abri paramétrique. Miroir de <see cref="ProductConfiguration"/> :
 /// slug unique filtré (réutilisable après soft-delete), filtre de requête soft-delete, FK catégorie
-/// en <c>Restrict</c>. La collection <c>Dimensions</c> est owned (<c>OwnsMany</c>, comme les images
-/// du produit) avec sa propre clé identifiante (Id Guid — cf. L-001).
+/// en <c>Restrict</c>. Les collections <c>Dimensions</c> et <c>PriceEntries</c> sont des entités
+/// RÉGULIÈRES (non owned : <c>HasMany</c>, cascade) → chargées via <c>.Include</c> explicite (L-035).
 /// </summary>
 internal sealed class ShelterModelConfiguration : IEntityTypeConfiguration<ShelterModel>
 {
@@ -19,7 +19,9 @@ internal sealed class ShelterModelConfiguration : IEntityTypeConfiguration<Shelt
 
         builder.Property(m => m.Slug).HasMaxLength(200).IsRequired();
         builder.Property(m => m.Name).HasMaxLength(200).IsRequired();
-        builder.Property(m => m.BasePrice).HasColumnType("decimal(18,2)").IsRequired();
+        // Plus de colonnes BasePrice/PricePerArchCents : le prix provient désormais de la grille
+        // exacte (PriceEntries), pas d'une formule linéaire. Le « à partir de » est calculé
+        // (StartingPriceCents = min de la grille) et n'est donc PAS persisté.
 
         // Index unique filtré — un slug soft-deleted peut être réutilisé (comme Product).
         builder.HasIndex(m => m.Slug)
@@ -44,6 +46,17 @@ internal sealed class ShelterModelConfiguration : IEntityTypeConfiguration<Shelt
 
         builder.Navigation(m => m.Dimensions).Metadata.SetField("_dimensions");
         builder.Navigation(m => m.Dimensions).UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        // Grille de prix EXACTE — entité RÉGULIÈRE (cf. ShelterPriceEntryConfiguration), même patron
+        // que Dimensions : FK ShelterModelId obligatoire en cascade, accès par champ via l'agrégat.
+        builder.HasMany(m => m.PriceEntries)
+            .WithOne()
+            .HasForeignKey(e => e.ShelterModelId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(m => m.PriceEntries).Metadata.SetField("_priceEntries");
+        builder.Navigation(m => m.PriceEntries).UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.HasOne(m => m.Category)
             .WithMany()

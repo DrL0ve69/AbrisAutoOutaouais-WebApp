@@ -1,24 +1,29 @@
+using AbrisAutoOutaouais_WebApp.Domain.Entities;
 using System;
 
 namespace AbrisAutoOutaouais_WebApp.UnitTest.Domain;
 
 /// <summary>
-/// Tests des invariants de la fabrique <see cref="ShelterModel.Create"/> et des options exposées.
+/// Tests des invariants de la fabrique <see cref="ShelterModel.Create"/>, des options exposées et du
+/// prix de départ dérivé de la grille (<see cref="ShelterModel.StartingPriceCents"/>). L'admin ne
+/// fixe plus de prix : le constructeur prend une grille OPTIONNELLE (modèle possiblement non tarifé).
 /// </summary>
 public sealed class ShelterModelTests
 {
+    private static IReadOnlyList<ShelterModel.PriceEntryInput> Grid(int length, int height, int priceCents)
+        => [new(length, height, priceCents)];
+
     private static ShelterModel CreateValid(
         IReadOnlyList<int>? widths = null,
         IReadOnlyList<int>? heights = null,
         int lengthStepCm = 122,
         int minLengthCm = 122,
         int maxLengthCm = 1830,
-        decimal basePrice = 349.00m,
-        int pricePerArchCents = 15000)
+        IReadOnlyList<ShelterModel.PriceEntryInput>? priceEntries = null)
         => ShelterModel.Create(
             "simple", "Abri simple", Guid.NewGuid(),
-            lengthStepCm, minLengthCm, maxLengthCm, basePrice, pricePerArchCents,
-            widths ?? [335, 366], heights ?? [198]);
+            lengthStepCm, minLengthCm, maxLengthCm,
+            widths ?? [335, 366], heights ?? [198], priceEntries);
 
     [Fact]
     public void Create_WithValidData_SetsState()
@@ -28,16 +33,70 @@ public sealed class ShelterModelTests
         var model = ShelterModel.Create(
             "Simple", "Abri simple", categoryId,
             lengthStepCm: 122, minLengthCm: 122, maxLengthCm: 1830,
-            basePrice: 349.00m, pricePerArchCents: 15000,
-            widthsCm: [366, 335], clearHeightsCm: [198]);
+            widthsCm: [366, 335], clearHeightsCm: [198],
+            priceEntries: Grid(122, 198, 34900));
 
         model.Id.Should().NotBeEmpty();
         model.Slug.Should().Be("simple");              // normalisé en minuscules
         model.Name.Should().Be("Abri simple");
         model.CategoryId.Should().Be(categoryId);
-        model.BasePrice.Should().Be(349.00m);
+        model.StartingPriceCents.Should().Be(34900);   // « à partir de » = min de la grille
         model.IsDeleted.Should().BeFalse();
         model.Dimensions.Should().HaveCount(3);        // 2 largeurs + 1 hauteur
+        model.PriceEntries.Should().HaveCount(1);
+    }
+
+    [Fact]
+    public void Create_WithoutPriceGrid_StartingPriceIsNull()
+    {
+        // Cas admin : modèle créé sans grille → non tarifé tant que rien n'est semé.
+        var model = CreateValid(priceEntries: null);
+
+        model.PriceEntries.Should().BeEmpty();
+        model.StartingPriceCents.Should().BeNull();
+    }
+
+    [Fact]
+    public void StartingPriceCents_IsMinimumOfGrid()
+    {
+        var model = CreateValid(
+            heights: [198, 229],
+            priceEntries:
+            [
+                new(122, 198, 50000),
+                new(122, 229, 34900),   // le plus bas
+                new(244, 198, 60000),
+            ]);
+
+        model.StartingPriceCents.Should().Be(34900);
+    }
+
+    [Fact]
+    public void PriceFor_ReturnsExactCents_OrNullWhenAbsent()
+    {
+        var model = CreateValid(
+            heights: [198, 229],
+            priceEntries:
+            [
+                new(122, 198, 34900),
+                new(244, 229, 59900),
+            ]);
+
+        model.PriceFor(122, 198).Should().Be(34900);
+        model.PriceFor(244, 229).Should().Be(59900);
+        model.PriceFor(244, 198).Should().BeNull();   // combinaison absente (grille éparse)
+    }
+
+    [Fact]
+    public void SetPriceGrid_WithDuplicateCombination_Throws()
+    {
+        var model = CreateValid();
+        var act = () => model.SetPriceGrid(
+        [
+            new(122, 198, 34900),
+            new(122, 198, 40000),   // doublon (longueur, hauteur)
+        ]);
+        act.Should().Throw<ArgumentException>().WithMessage("*double*");
     }
 
     [Fact]
@@ -89,20 +148,6 @@ public sealed class ShelterModelTests
         act.Should().Throw<ArgumentException>().WithMessage("*multiple*");
     }
 
-    [Fact]
-    public void Create_WithNegativeBasePrice_Throws()
-    {
-        var act = () => CreateValid(basePrice: -1m);
-        act.Should().Throw<ArgumentException>();
-    }
-
-    [Fact]
-    public void Create_WithNegativePricePerArch_Throws()
-    {
-        var act = () => CreateValid(pricePerArchCents: -1);
-        act.Should().Throw<ArgumentException>();
-    }
-
     [Theory]
     [InlineData("")]
     [InlineData("   ")]
@@ -110,7 +155,7 @@ public sealed class ShelterModelTests
     public void Create_WithEmptySlug_Throws(string? slug)
     {
         var act = () => ShelterModel.Create(
-            slug!, "Abri", Guid.NewGuid(), 122, 122, 1829, 349m, 15000, [335], [198]);
+            slug!, "Abri", Guid.NewGuid(), 122, 122, 1342, [335], [198]);
         act.Should().Throw<ArgumentException>();
     }
 }

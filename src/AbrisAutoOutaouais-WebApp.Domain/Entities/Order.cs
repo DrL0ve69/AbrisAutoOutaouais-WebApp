@@ -42,7 +42,7 @@ public sealed class Order : ISoftDeletable, IAuditableEntity
     /// RECALCULÉ côté serveur (<c>ShelterPriceCalculator</c>) — jamais une valeur fournie par le client.
     /// </summary>
     public readonly record struct ShelterLineInput(
-        string Slug, string ModelName, int LengthCm, decimal UnitPrice, int Qty);
+        string Slug, string ModelName, int LengthCm, int ClearHeightCm, decimal UnitPrice, int Qty);
 
     public static Order Create(
         Guid customerId, DeliveryType deliveryType,
@@ -79,7 +79,8 @@ public sealed class Order : ISoftDeletable, IAuditableEntity
         }
 
         foreach (var s in shelterLines)
-            order._lines.Add(OrderLine.CreateShelter(order.Id, s.Slug, s.ModelName, s.LengthCm, s.UnitPrice, s.Qty));
+            order._lines.Add(OrderLine.CreateShelter(
+                order.Id, s.Slug, s.ModelName, s.LengthCm, s.ClearHeightCm, s.UnitPrice, s.Qty));
 
         order.TotalAmount = order._lines.Sum(l => l.LineTotal);
         return order;

@@ -12,7 +12,7 @@ public sealed class DeleteShelterModelCommandHandlerTests : IDisposable
     private async Task<ShelterModel> SeedAsync()
     {
         var cat = ProductCategory.Create("Abris autos", "abris-autos");
-        var model = ShelterModel.Create(
+        var model = ShelterModelTestData.CreateWithGrid(
             "abri-supp", "Abri à supprimer", cat.Id,
             122, 122, 1830, 349m, 15000, [244], [198]);
         _db.ProductCategories.Add(cat);

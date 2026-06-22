@@ -445,6 +445,48 @@ test('voie « carte » D4 — la carte est CENTRÉE sur l’adresse géocodée (
   expect(coords.lng).toBeCloseTo(GEO.lng, 4);
   // Garde explicite anti-régression : ce n'est PAS le repli Gatineau (45.4765 / -75.7013).
   expect(coords.lat).not.toBeCloseTo(45.4765, 3);
+
+  // #3 — CAPACITÉ, pas l'enveloppe (L-019/L-009). L'assertion ci-dessus ne porte que sur l'INPUT
+  // lat/lng du composant (déjà propagé même AVANT le correctif) : elle est VACUE pour le vrai bug,
+  // où la carte restait figée sur Gatineau faute d'appel `setView`. On lit donc le centre RÉEL de la
+  // carte Leaflet (`getMapCenter()`), qui ne bouge que si l'effet de recentrage a bien appelé
+  // `setView`. Sans le correctif, ce centre resterait le repli Gatineau → ce test échouerait.
+  await expect
+    .poll(
+      () =>
+        page.locator('app-map-measure').evaluate((el) => {
+          const cmp = (
+            window as unknown as {
+              ng: {
+                getComponent(node: Element): {
+                  getMapCenter(): { lat: number; lng: number } | null;
+                };
+              };
+            }
+          ).ng.getComponent(el);
+          return cmp.getMapCenter()?.lat ?? null;
+        }),
+      { timeout: 10000 },
+    )
+    .toBeCloseTo(GEO.lat, 3);
+
+  const mapCenter = await page.locator('app-map-measure').evaluate((el) => {
+    const cmp = (
+      window as unknown as {
+        ng: {
+          getComponent(node: Element): {
+            getMapCenter(): { lat: number; lng: number } | null;
+          };
+        };
+      }
+    ).ng.getComponent(el);
+    return cmp.getMapCenter();
+  });
+  expect(mapCenter).not.toBeNull();
+  expect(mapCenter!.lat).toBeCloseTo(GEO.lat, 3);
+  expect(mapCenter!.lng).toBeCloseTo(GEO.lng, 3);
+  // La carte Leaflet est réellement déplacée — surtout PAS restée sur le repli Gatineau (45.4765).
+  expect(mapCenter!.lat).not.toBeCloseTo(45.4765, 3);
 });
 
 // ── (c) VOIE `map` — D5 : AVERTISSEMENT « hors zone » (doux, NON bloquant) + CONTRASTE DUAL-THÈME. ─

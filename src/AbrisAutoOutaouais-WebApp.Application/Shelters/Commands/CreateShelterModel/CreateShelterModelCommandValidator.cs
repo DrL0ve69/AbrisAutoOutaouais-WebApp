@@ -48,10 +48,6 @@ public sealed class CreateShelterModelCommandValidator : AbstractValidator<Creat
             .Must(h => h is not null && h.All(v => v > 0))
             .WithMessage("Chaque hauteur dégagée doit être un entier strictement positif.");
 
-        RuleFor(x => x.BasePrice)
-            .GreaterThanOrEqualTo(0).WithMessage("Le prix de base ne peut pas être négatif.");
-
-        RuleFor(x => x.PricePerArchCents)
-            .GreaterThanOrEqualTo(0).WithMessage("Le prix par arche ne peut pas être négatif.");
+        // Plus de règles de prix : l'admin ne fixe plus la tarification (grille exacte semée).
     }
 }

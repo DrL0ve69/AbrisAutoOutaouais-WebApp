@@ -57,7 +57,10 @@ const shelterModels: ShelterModelSummary[] = [
 const shelterModelDetail: ShelterModelDetail = {
   ...shelterModels[0],
   categoryId: 'c1',
-  pricePerArchCents: 25000,
+  priceGrid: [
+    { lengthCm: 600, clearHeightCm: 198, priceCents: 120000 },
+    { lengthCm: 600, clearHeightCm: 244, priceCents: 150000 },
+  ],
   widthOptionsCm: [335],
   clearHeightOptionsCm: [198, 244],
 };
@@ -66,7 +69,7 @@ const shelterPrice: ShelterPrice = {
   modelId: 'm1',
   slug: 'simple',
   lengthCm: 600,
-  archCount: 0,
+  clearHeightCm: 198,
   totalPrice: 1200,
 };
 

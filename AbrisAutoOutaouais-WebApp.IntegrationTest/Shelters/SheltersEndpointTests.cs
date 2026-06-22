@@ -51,15 +51,37 @@ public sealed class SheltersEndpointTests : IClassFixture<WebAppFactory>
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
         var category = ProductCategory.Create($"Cat {categorySlug}", categorySlug);
+        var heights = clearHeightsCm ?? [198];
         var model = ShelterModel.Create(
             slug, $"Modèle {slug}", category.Id,
-            lengthStepCm, minLengthCm, maxLengthCm, basePrice, pricePerArchCents,
-            widthsCm ?? [335, 366], clearHeightsCm ?? [198]);
+            lengthStepCm, minLengthCm, maxLengthCm,
+            widthsCm ?? [335, 366], heights,
+            BuildGrid(minLengthCm, maxLengthCm, lengthStepCm, basePrice, pricePerArchCents, heights));
 
         db.ProductCategories.Add(category);
         db.ShelterModels.Add(model);
         await db.SaveChangesAsync();
         return category.Id;
+    }
+
+    /// <summary>
+    /// Construit une grille de prix COMPLÈTE (longueur × hauteur sur [min, max] par pas) dont le prix
+    /// réplique l'ancienne formule par arches — pour que les assertions de prix héritées (base, +N
+    /// arches) restent valides via le LOOKUP. Prix indépendant de la hauteur (suffisant ici).
+    /// </summary>
+    private static List<ShelterModel.PriceEntryInput> BuildGrid(
+        int minLengthCm, int maxLengthCm, int lengthStepCm,
+        decimal basePrice, int pricePerArchCents, IReadOnlyList<int> heights)
+    {
+        var entries = new List<ShelterModel.PriceEntryInput>();
+        for (var length = minLengthCm; length <= maxLengthCm; length += lengthStepCm)
+        {
+            var arches = (length - minLengthCm) / lengthStepCm;
+            var priceCents = (int)(basePrice * 100) + arches * pricePerArchCents;
+            foreach (var h in heights)
+                entries.Add(new ShelterModel.PriceEntryInput(length, h, priceCents));
+        }
+        return entries;
     }
 
     // ── GET /api/v1/shelters ─────────────────────────────────────────────────
@@ -74,7 +96,10 @@ public sealed class SheltersEndpointTests : IClassFixture<WebAppFactory>
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var body = await response.Content.ReadFromJsonAsync<List<ShelterModelSummaryDto>>();
         body.Should().NotBeNull();
-        body!.Select(m => m.Slug).Should().Contain("simple-liste");
+        var seeded = body!.Single(m => m.Slug == "simple-liste");
+        // BasePrice = « à partir de » = MIN de la grille (projection corrélée). On l'assert
+        // explicitement : sinon un Include/projection qui ressort 0 passerait inaperçu (L-009/L-035).
+        seeded.BasePrice.Should().Be(349.00m);
     }
 
     [Fact]
@@ -115,6 +140,12 @@ public sealed class SheltersEndpointTests : IClassFixture<WebAppFactory>
         dto.MinLengthCm.Should().Be(122);
         dto.MaxLengthCm.Should().Be(1830);
         dto.LengthStepCm.Should().Be(122);
+
+        // Le détail expose la GRILLE DE PRIX complète (calcul optimiste du configurateur) et le « à
+        // partir de » = min de la grille. Grille seedée par BuildGrid (deux hauteurs × longueurs).
+        dto.PriceGrid.Should().NotBeEmpty();
+        dto.PriceGrid.Should().Contain(e => e.LengthCm == 122 && e.ClearHeightCm == 198 && e.PriceCents == 34900);
+        dto.BasePrice.Should().Be(349.00m);   // min de la grille (34900 ¢)
     }
 
     [Fact]
@@ -131,28 +162,30 @@ public sealed class SheltersEndpointTests : IClassFixture<WebAppFactory>
     // ── GET /api/v1/shelters/{slug}/price ────────────────────────────────────
 
     [Fact]
-    public async Task GetPrice_BaseLength_Returns200WithZeroArches()
+    public async Task GetPrice_BaseLength_Returns200WithGridPrice()
     {
         await SeedShelterModelAsync("prix-base", "cat-prix-base");
 
         // La route littérale {slug}/price prime sur {slug} : on obtient un prix (200), pas un détail.
-        var response = await _client.GetAsync("/api/v1/shelters/prix-base/price?lengthCm=122");
+        var response = await _client.GetAsync(
+            "/api/v1/shelters/prix-base/price?lengthCm=122&clearHeightCm=198");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var dto = await response.Content.ReadFromJsonAsync<ShelterPriceDto>();
         dto!.Slug.Should().Be("prix-base");
         dto.LengthCm.Should().Be(122);
-        dto.ArchCount.Should().Be(0);
+        dto.ClearHeightCm.Should().Be(198);
         dto.TotalPrice.Should().Be(349.00m);
     }
 
     [Fact]
-    public async Task GetPrice_OutOfRangeLength_Returns422()
+    public async Task GetPrice_CombinationAbsentFromGrid_Returns422()
     {
         await SeedShelterModelAsync("prix-hors-plage", "cat-prix-hors-plage");
 
-        // 2000 > MaxLengthCm (1830) → 422 (BusinessRuleException), jamais un 500.
-        var response = await _client.GetAsync("/api/v1/shelters/prix-hors-plage/price?lengthCm=2000");
+        // 2000 cm n'a aucune entrée dans la grille → 422 (BusinessRuleException), jamais un 500.
+        var response = await _client.GetAsync(
+            "/api/v1/shelters/prix-hors-plage/price?lengthCm=2000&clearHeightCm=198");
 
         response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
         var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>();
@@ -162,7 +195,8 @@ public sealed class SheltersEndpointTests : IClassFixture<WebAppFactory>
     [Fact]
     public async Task GetPrice_UnknownSlug_Returns404()
     {
-        var response = await _client.GetAsync("/api/v1/shelters/inexistant-xyz/price?lengthCm=122");
+        var response = await _client.GetAsync(
+            "/api/v1/shelters/inexistant-xyz/price?lengthCm=122&clearHeightCm=198");
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
@@ -245,8 +279,8 @@ public sealed class SheltersEndpointTests : IClassFixture<WebAppFactory>
         var model = ShelterModel.Create(
             slug, $"Modèle {slug}", categoryId,
             lengthStepCm: 122, minLengthCm: 488, maxLengthCm: 1830,
-            basePrice: 349.00m, pricePerArchCents: 15000,
-            widthsCm: [width], clearHeightsCm: [198]);
+            widthsCm: [width], clearHeightsCm: [198],
+            priceEntries: BuildGrid(488, 1830, 122, 349.00m, 15000, [198]));
         db.ShelterModels.Add(model);
         await db.SaveChangesAsync();
     }

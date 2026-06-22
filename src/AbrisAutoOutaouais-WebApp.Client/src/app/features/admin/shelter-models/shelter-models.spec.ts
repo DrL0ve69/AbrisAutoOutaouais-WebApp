@@ -46,7 +46,8 @@ const detail: ShelterModelDetail = {
   ...model,
   // Le détail porte le categoryId (Guid) : l'édition résout la catégorie PAR ID, pas par nom.
   categoryId: 'cat-1',
-  pricePerArchCents: 15000,
+  // Grille de prix exacte (lecture seule côté admin — l'admin ne tarife plus).
+  priceGrid: [{ lengthCm: 122, clearHeightCm: 198, priceCents: 34900 }],
   widthOptionsCm: [335, 366],
   clearHeightOptionsCm: [198],
 };
@@ -91,17 +92,17 @@ describe('atLeastOnePositiveInteger', () => {
 });
 
 describe('AdminShelterModelsComponent — création', () => {
-  it('envoie un payload de création complet (listes parsées, prix/arche en cents)', async () => {
+  it('envoie un payload de création complet (listes parsées, AUCUN champ de prix)', async () => {
     const { http } = await setup();
     const user = userEvent.setup();
+
+    // Plus aucun champ de prix dans le formulaire : l'admin ne tarife plus.
+    expect(screen.queryByLabelText(/prix de base/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/prix par arche/i)).not.toBeInTheDocument();
 
     await user.type(screen.getByLabelText(/identifiant \(slug\)/i), 'abri-tempo');
     await user.type(screen.getByLabelText(/^nom$/i), 'Abri Tempo');
     await user.selectOptions(screen.getByLabelText(/catégorie/i), 'cat-1');
-    await user.clear(screen.getByLabelText(/prix de base/i));
-    await user.type(screen.getByLabelText(/prix de base/i), '349');
-    await user.clear(screen.getByLabelText(/prix par arche/i));
-    await user.type(screen.getByLabelText(/prix par arche/i), '15000');
     await user.type(screen.getByLabelText(/largeurs proposées/i), '244, 305, 366');
     await user.type(screen.getByLabelText(/hauteurs dégagées/i), '198, 213');
 
@@ -111,7 +112,9 @@ describe('AdminShelterModelsComponent — création', () => {
     expect(req.request.method).toBe('POST');
     const body = req.request.body as CreateShelterModelRequest;
     expect(body.slug).toBe('abri-tempo');
-    expect(body.pricePerArchCents).toBe(15000);
+    // Le payload ne porte plus aucun champ de prix.
+    expect(body).not.toHaveProperty('basePrice');
+    expect(body).not.toHaveProperty('pricePerArchCents');
     expect(body.widthsCm).toEqual([244, 305, 366]);
     expect(body.clearHeightsCm).toEqual([198, 213]);
     req.flush({ id: 'new-id' });
@@ -179,7 +182,9 @@ describe('AdminShelterModelsComponent — édition (slug immuable)', () => {
     expect(put.request.body.name).toBe('Abri simple');
     // La catégorie est bindée PAR ID depuis le détail (et non re-résolue par nom).
     expect(put.request.body.categoryId).toBe('cat-1');
-    expect(put.request.body.pricePerArchCents).toBe(15000);
+    // Le payload de mise à jour ne porte plus de champ de prix.
+    expect(put.request.body).not.toHaveProperty('basePrice');
+    expect(put.request.body).not.toHaveProperty('pricePerArchCents');
     put.flush(null);
 
     http.expectOne(req => req.url === `${environment.apiUrl}/shelters`).flush([]);

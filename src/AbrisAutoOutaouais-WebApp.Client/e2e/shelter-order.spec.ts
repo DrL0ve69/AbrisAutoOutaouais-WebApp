@@ -19,6 +19,15 @@ import { test, expect, type Page } from '@playwright/test';
 
 const CATEGORY = { id: 'cat-simples', name: 'Abris simples', slug: 'abris-simples', productCount: 1 };
 
+// Grille de prix exacte (CENTS), une seule hauteur (198 cm). Prix = base + (longueur−min)/pas × 150 $.
+function buildGrid(minLengthCm: number, maxLengthCm: number, stepCm: number, baseCents: number) {
+  const grid: { lengthCm: number; clearHeightCm: number; priceCents: number }[] = [];
+  for (let l = minLengthCm; l <= maxLengthCm; l += stepCm) {
+    grid.push({ lengthCm: l, clearHeightCm: 198, priceCents: baseCents + ((l - minLengthCm) / stepCm) * 15000 });
+  }
+  return grid;
+}
+
 const MODEL = {
   id: 'm-simple-11pi',
   slug: 'simple-11pi',
@@ -29,7 +38,7 @@ const MODEL = {
   minLengthCm: 488,
   maxLengthCm: 1830,
   lengthStepCm: 122,
-  pricePerArchCents: 15000,
+  priceGrid: buildGrid(488, 1830, 122, 109900),
   widthOptionsCm: [335], // « 11 pi »
   clearHeightOptionsCm: [198], // « 6 pi 6 po »
 };
@@ -66,10 +75,13 @@ async function mockApi(page: Page): Promise<void> {
   await page.route(`**/api/v1/shelters/${MODEL.slug}/price*`, (route) => {
     const url = new URL(route.request().url());
     const lengthCm = Number(url.searchParams.get('lengthCm'));
-    const archCount = (lengthCm - MODEL.minLengthCm) / MODEL.lengthStepCm;
-    const totalPrice = MODEL.basePrice + archCount * (MODEL.pricePerArchCents / 100);
+    const clearHeightCm = Number(url.searchParams.get('clearHeightCm'));
+    const entry = MODEL.priceGrid.find((e) => e.lengthCm === lengthCm && e.clearHeightCm === clearHeightCm);
+    if (!entry) {
+      return route.fulfill({ status: 422, json: { title: 'Combinaison non offerte' } });
+    }
     return route.fulfill({
-      json: { modelId: MODEL.id, slug: MODEL.slug, lengthCm, archCount, totalPrice },
+      json: { modelId: MODEL.id, slug: MODEL.slug, lengthCm, clearHeightCm, totalPrice: entry.priceCents / 100 },
     });
   });
 }

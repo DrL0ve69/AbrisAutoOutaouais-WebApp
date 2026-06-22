@@ -5,6 +5,7 @@ import {
   ElementRef,
   afterNextRender,
   computed,
+  effect,
   inject,
   input,
   output,
@@ -82,6 +83,27 @@ export class MapMeasureComponent {
     afterNextRender(async () => {
       await this.initMap();
     });
+
+    // Recentrage RÉACTIF (correctif #3). La carte est construite UNE seule fois (`initMap`, garde
+    // `if (this.map) return`) en lisant lat/lng au montage. Or l'adresse est géocodée APRÈS le rendu :
+    // `map-voie` met à jour les signaux `lat()/lng()` de façon asynchrone (choix d'une suggestion ou
+    // /auth/me). Un `input()` n'est PAS relu par `initMap` → sans cet effet, la carte resterait figée
+    // sur le centre initial (Gatineau par défaut). On déplace donc la vue dès que la carte est prête
+    // (`ready()`) ET qu'une coordonnée arrive/change. Cible statique déjà montée → `setView` synchrone
+    // ici est sûr (L-015). SSR-safe : `this.map` n'existe que côté navigateur (créé dans `afterNextRender`).
+    effect(() => {
+      const lat = this.lat();
+      const lng = this.lng();
+      if (!this.ready()) return; // carte pas encore construite — le centre initial est posé par initMap
+      const map = this.map as { setView(center: [number, number], zoom: number): void } | null;
+      if (!map) return;
+      const located = lat !== null && lng !== null;
+      map.setView(
+        located ? [lat, lng] : [SERVICE_BASE.lat, SERVICE_BASE.lng],
+        located ? 21 : 19,
+      );
+    });
+
     this.destroyRef.onDestroy(() => this.teardown());
   }
 
@@ -236,6 +258,18 @@ export class MapMeasureComponent {
     }
     this.outOfRange.set(false);
     this.footprintComputed.emit(footprint);
+  }
+
+  /**
+   * Centre RÉEL de la carte Leaflet (lat/lng), ou `null` tant qu'elle n'est pas montée. Exposé pour
+   * la garde e2e du correctif #3 : prouver que `setView` a effectivement déplacé la carte (capacité,
+   * L-019), et non pas seulement que l'input lat/lng a été propagé — une assertion sur l'input seul
+   * serait VACUE (L-009), la carte pouvant rester figée sur le repli Gatineau malgré un input à jour.
+   */
+  getMapCenter(): { lat: number; lng: number } | null {
+    const map = this.map as { getCenter?(): { lat: number; lng: number } } | null;
+    const c = map?.getCenter?.();
+    return c ? { lat: c.lat, lng: c.lng } : null;
   }
 
   private teardown(): void {

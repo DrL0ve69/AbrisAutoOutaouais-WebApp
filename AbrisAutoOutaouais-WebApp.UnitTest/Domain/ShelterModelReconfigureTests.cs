@@ -1,10 +1,13 @@
+using AbrisAutoOutaouais_WebApp.Domain.Entities;
 using System;
 
 namespace AbrisAutoOutaouais_WebApp.UnitTest.Domain;
 
 /// <summary>
 /// Tests des invariants et de l'effet de <see cref="ShelterModel.Reconfigure"/> (EPIC 9.5) :
-/// mêmes gardes que <c>Create</c>, remplacement EN BLOC de la collection owned, slug IMMUABLE.
+/// mêmes gardes que <c>Create</c>, remplacement EN BLOC de la collection de dimensions, slug
+/// IMMUABLE. La reconfiguration ne touche PLUS aux prix (grille exacte semée en lecture seule) :
+/// la grille existante est PRÉSERVÉE.
 /// </summary>
 public sealed class ShelterModelReconfigureTests
 {
@@ -12,8 +15,8 @@ public sealed class ShelterModelReconfigureTests
         => ShelterModel.Create(
             "abri-edit", "Abri à éditer", Guid.NewGuid(),
             lengthStepCm: 122, minLengthCm: 122, maxLengthCm: 1830,
-            basePrice: 349.00m, pricePerArchCents: 15000,
-            widthsCm: widths ?? [244], clearHeightsCm: [198]);
+            widthsCm: widths ?? [244], clearHeightsCm: [198],
+            priceEntries: [new(122, 198, 34900)]);
 
     [Fact]
     public void Reconfigure_WithValidData_UpdatesScalarsAndKeepsSlug()
@@ -27,8 +30,6 @@ public sealed class ShelterModelReconfigureTests
             lengthStepCm: 100,
             minLengthCm: 200,
             maxLengthCm: 1000,
-            basePrice: 599.00m,
-            pricePerArchCents: 22000,
             widthsCm: [305, 366],
             clearHeightsCm: [213]);
 
@@ -38,8 +39,22 @@ public sealed class ShelterModelReconfigureTests
         model.LengthStepCm.Should().Be(100);
         model.MinLengthCm.Should().Be(200);
         model.MaxLengthCm.Should().Be(1000);
-        model.BasePrice.Should().Be(599.00m);
-        model.PricePerArchCents.Should().Be(22000);
+    }
+
+    [Fact]
+    public void Reconfigure_DoesNotTouchPriceGrid()
+    {
+        var model = CreateValid();
+        model.PriceEntries.Should().HaveCount(1);
+
+        model.Reconfigure(
+            name: "Abri à éditer", categoryId: Guid.NewGuid(),
+            lengthStepCm: 122, minLengthCm: 122, maxLengthCm: 1830,
+            widthsCm: [305], clearHeightsCm: [213]);
+
+        // La grille semée est préservée (l'admin ne tarife pas).
+        model.PriceEntries.Should().HaveCount(1);
+        model.StartingPriceCents.Should().Be(34900);
     }
 
     [Fact]
@@ -51,7 +66,6 @@ public sealed class ShelterModelReconfigureTests
         model.Reconfigure(
             name: "Abri à éditer", categoryId: Guid.NewGuid(),
             lengthStepCm: 122, minLengthCm: 122, maxLengthCm: 1830,
-            basePrice: 349.00m, pricePerArchCents: 15000,
             widthsCm: [305, 366], clearHeightsCm: [213]);
 
         // L'ancienne largeur 244 a disparu, remplacée en bloc.
@@ -64,7 +78,7 @@ public sealed class ShelterModelReconfigureTests
     {
         var model = CreateValid();
         var act = () => model.Reconfigure(
-            "Abri", Guid.NewGuid(), 122, 1830, 1830, 349m, 15000, [244], [198]);
+            "Abri", Guid.NewGuid(), 122, 1830, 1830, [244], [198]);
         act.Should().Throw<ArgumentException>();
     }
 
@@ -74,7 +88,7 @@ public sealed class ShelterModelReconfigureTests
         var model = CreateValid();
         // (1000 - 122) % 122 != 0 → désaligné
         var act = () => model.Reconfigure(
-            "Abri", Guid.NewGuid(), 122, 122, 1000, 349m, 15000, [244], [198]);
+            "Abri", Guid.NewGuid(), 122, 122, 1000, [244], [198]);
         act.Should().Throw<ArgumentException>();
     }
 
@@ -83,7 +97,7 @@ public sealed class ShelterModelReconfigureTests
     {
         var model = CreateValid();
         var act = () => model.Reconfigure(
-            "Abri", Guid.NewGuid(), 122, 122, 1830, 349m, 15000, [], [198]);
+            "Abri", Guid.NewGuid(), 122, 122, 1830, [], [198]);
         act.Should().Throw<ArgumentException>();
     }
 
@@ -92,7 +106,7 @@ public sealed class ShelterModelReconfigureTests
     {
         var model = CreateValid();
         var act = () => model.Reconfigure(
-            "Abri", Guid.NewGuid(), 122, 122, 1830, 349m, 15000, [244], []);
+            "Abri", Guid.NewGuid(), 122, 122, 1830, [244], []);
         act.Should().Throw<ArgumentException>();
     }
 }

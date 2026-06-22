@@ -38,11 +38,14 @@ export class ShelterService {
   }
 
   /**
-   * Calcule le prix serveur d'un modèle pour une longueur configurée (cm entiers).
-   * 404 si slug inconnu ; 422 si longueur hors plage ou désalignée sur le pas.
+   * Calcule le prix serveur d'un modèle pour un couple (longueur, hauteur dégagée) configuré
+   * (cm entiers). Le prix dépend de la GRILLE (modèle × longueur × hauteur).
+   * 404 si slug inconnu ; 422 si la combinaison n'existe pas dans la grille (couple non offert).
    */
-  getPrice(slug: string, lengthCm: number): Observable<ShelterPrice> {
-    const params = new HttpParams().set('lengthCm', String(lengthCm));
+  getPrice(slug: string, lengthCm: number, clearHeightCm: number): Observable<ShelterPrice> {
+    const params = new HttpParams()
+      .set('lengthCm', String(lengthCm))
+      .set('clearHeightCm', String(clearHeightCm));
     return this.http.get<ShelterPrice>(
       `${this.baseUrl}/shelters/${encodeURIComponent(slug)}/price`,
       { params },

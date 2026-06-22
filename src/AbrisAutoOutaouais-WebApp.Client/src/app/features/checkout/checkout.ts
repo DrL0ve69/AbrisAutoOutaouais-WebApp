@@ -135,11 +135,14 @@ export class CheckoutComponent {
       productId: i.product.id,
       quantity: i.quantity,
     }));
-    // Lignes d'abris configurés (EPIC 9.4) : { slug, lengthCm, quantity } — AUCUN prix
-    // (le serveur recalcule via ShelterPriceCalculator, source unique L-004). Omis si vide.
+    // Lignes d'abris configurés (EPIC 9.4) : { slug, lengthCm, clearHeightCm, quantity } — AUCUN prix
+    // (le serveur recalcule via ShelterPriceCalculator, source unique L-004). La hauteur dégagée est un
+    // vrai choix client : transmise et validée serveur (∈ options du modèle), sinon elle serait perdue
+    // au passage de commande. La largeur reste implicite au slug. Omis si vide.
     const shelterLines = this.shelterItems().map(s => ({
       slug: s.slug,
       lengthCm: s.lengthCm,
+      clearHeightCm: s.clearHeightCm,
       quantity: s.quantity,
     }));
     const shippingAddress =

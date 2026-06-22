@@ -72,7 +72,7 @@ public sealed class OrderTests
     // ── Lignes d'abri configuré (EPIC 9.4) ──────────────────────────────────────
 
     private static Order.ShelterLineInput Shelter(decimal unitPrice = 499m, int qty = 1)
-        => new("abri-simple", "Abri simple", 488, unitPrice, qty);
+        => new("abri-simple", "Abri simple", 488, 198, unitPrice, qty);
 
     [Fact]
     public void Create_WithShelterLineOnly_IsAccepted()
@@ -89,7 +89,9 @@ public sealed class OrderTests
         line.ProductId.Should().BeNull();
         line.ShelterModelSlug.Should().Be("abri-simple");
         line.ConfiguredLengthCm.Should().Be(488);
+        line.ConfiguredClearHeightCm.Should().Be(198);
         line.ProductName.Should().Contain("488");
+        line.ProductName.Should().Contain("198");
     }
 
     [Fact]

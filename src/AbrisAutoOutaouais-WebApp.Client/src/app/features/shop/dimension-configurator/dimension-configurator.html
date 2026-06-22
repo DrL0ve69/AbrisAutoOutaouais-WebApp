@@ -110,6 +110,14 @@
             </span>
           }
         </p>
+      } @else if (unavailable()) {
+        <p class="configurator__price-amount configurator__price-amount--invalid" i18n="@@shop.configurator.priceUnavailable">
+          Cette combinaison longueur/hauteur n'est pas offerte pour ce modèle.
+        </p>
+      } @else if (pricing()) {
+        <p class="configurator__price-amount configurator__price-pending" i18n="@@shop.configurator.priceComputing">
+          Calcul du prix en cours…
+        </p>
       } @else {
         <p class="configurator__price-amount configurator__price-amount--invalid" i18n="@@shop.configurator.priceInvalid">
           Longueur invalide — ajustez la valeur.

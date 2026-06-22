@@ -49,13 +49,33 @@ public sealed class OrdersEndpointTests : IClassFixture<WebAppFactory>
         var model = ShelterModel.Create(
             slug, $"Modèle {slug}", category.Id,
             lengthStepCm: 122, minLengthCm: 122, maxLengthCm: 1830,
-            basePrice: 349.00m, pricePerArchCents: 15000,
-            widthsCm: [335, 366], clearHeightsCm: [198]);
+            widthsCm: [335, 366], clearHeightsCm: [198],
+            priceEntries: BuildGrid(122, 1830, 122, 349.00m, 15000, [198]));
 
         db.ProductCategories.Add(category);
         db.ShelterModels.Add(model);
         await db.SaveChangesAsync();
         return model;
+    }
+
+    /// <summary>
+    /// Construit une grille de prix COMPLÈTE (longueur × hauteur sur [min, max] par pas) répliquant
+    /// l'ancienne formule par arches — pour que les assertions de prix héritées (base, +N arches)
+    /// restent valides via le LOOKUP serveur. Prix indépendant de la hauteur (suffisant ici).
+    /// </summary>
+    private static List<ShelterModel.PriceEntryInput> BuildGrid(
+        int minLengthCm, int maxLengthCm, int lengthStepCm,
+        decimal basePrice, int pricePerArchCents, IReadOnlyList<int> heights)
+    {
+        var entries = new List<ShelterModel.PriceEntryInput>();
+        for (var length = minLengthCm; length <= maxLengthCm; length += lengthStepCm)
+        {
+            var arches = (length - minLengthCm) / lengthStepCm;
+            var priceCents = (int)(basePrice * 100) + arches * pricePerArchCents;
+            foreach (var h in heights)
+                entries.Add(new ShelterModel.PriceEntryInput(length, h, priceCents));
+        }
+        return entries;
     }
 
     private async Task<OrderLine> ReadSingleLineAsync(Guid orderId)
@@ -84,7 +104,7 @@ public sealed class OrdersEndpointTests : IClassFixture<WebAppFactory>
 
         // 488 cm = 122 + 3*122 → 3 arches → 349 + 3*150 = 799 $ (prix calculé côté serveur).
         const int lengthCm = 488;
-        var expected = ShelterPriceCalculator.CalculatePrice(model, lengthCm);
+        var expected = ShelterPriceCalculator.CalculatePrice(model, lengthCm, 198);
 
         var response = await _client.PostAsJsonAsync("/api/v1/orders", new
         {
@@ -92,8 +112,8 @@ public sealed class OrdersEndpointTests : IClassFixture<WebAppFactory>
             deliveryType = "Pickup",
             shippingAddress = (object?)null,
             guestContact = GuestContact(email),
-            // Le client n'envoie PAS de prix : slug + longueur + quantité seulement.
-            shelterLines = new[] { new { slug = model.Slug, lengthCm, quantity = 1 } },
+            // Le client n'envoie PAS de prix : slug + longueur + hauteur dégagée + quantité.
+            shelterLines = new[] { new { slug = model.Slug, lengthCm, clearHeightCm = 198, quantity = 1 } },
         });
 
         response.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -103,8 +123,30 @@ public sealed class OrdersEndpointTests : IClassFixture<WebAppFactory>
         line.ProductId.Should().BeNull();
         line.ShelterModelSlug.Should().Be(model.Slug);
         line.ConfiguredLengthCm.Should().Be(lengthCm);
+        line.ConfiguredClearHeightCm.Should().Be(198);   // la hauteur choisie est persistée (round-trip)
         line.UnitPrice.Should().Be(expected);   // prix SERVEUR, pas une valeur client
         line.UnitPrice.Should().Be(799.00m);     // ancrage explicite de la formule
+    }
+
+    [Fact]
+    public async Task PlaceShelterOrder_ClearHeightNotOffered_Returns422()
+    {
+        var model = await SeedShelterModelAsync($"abri-hauteur-{Guid.NewGuid():N}");   // offre 198
+        var email = $"guest-h422-{Guid.NewGuid():N}@test.com";
+
+        // 244 cm n'est PAS une hauteur offerte par ce modèle → 422 (jamais accepté hors catalogue).
+        var response = await _client.PostAsJsonAsync("/api/v1/orders", new
+        {
+            lines = Array.Empty<object>(),
+            deliveryType = "Pickup",
+            shippingAddress = (object?)null,
+            guestContact = GuestContact(email),
+            shelterLines = new[] { new { slug = model.Slug, lengthCm = 488, clearHeightCm = 244, quantity = 1 } },
+        });
+
+        response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>();
+        problem!.Status.Should().Be(422);
     }
 
     [Fact]
@@ -120,7 +162,7 @@ public sealed class OrdersEndpointTests : IClassFixture<WebAppFactory>
             deliveryType = "Pickup",
             shippingAddress = (object?)null,
             guestContact = GuestContact(email),
-            shelterLines = new[] { new { slug = model.Slug, lengthCm = 2000, quantity = 1 } },
+            shelterLines = new[] { new { slug = model.Slug, lengthCm = 2000, clearHeightCm = 198, quantity = 1 } },
         });
 
         response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
@@ -138,7 +180,7 @@ public sealed class OrdersEndpointTests : IClassFixture<WebAppFactory>
         try
         {
             const int lengthCm = 244;   // 122 + 1*122 → 1 arche → 349 + 150 = 499 $.
-            var expected = ShelterPriceCalculator.CalculatePrice(model, lengthCm);
+            var expected = ShelterPriceCalculator.CalculatePrice(model, lengthCm, 198);
 
             var response = await _client.PostAsJsonAsync("/api/v1/orders", new
             {
@@ -146,7 +188,7 @@ public sealed class OrdersEndpointTests : IClassFixture<WebAppFactory>
                 deliveryType = "Pickup",
                 shippingAddress = (object?)null,
                 // Connecté : pas de guestContact.
-                shelterLines = new[] { new { slug = model.Slug, lengthCm, quantity = 1 } },
+                shelterLines = new[] { new { slug = model.Slug, lengthCm, clearHeightCm = 198, quantity = 1 } },
             });
 
             response.StatusCode.Should().Be(HttpStatusCode.Created);

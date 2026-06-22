@@ -31,7 +31,6 @@ function makeConfig(over: Partial<ShelterConfiguration> = {}): ShelterConfigurat
     widthCm: 335,
     clearHeightCm: 198,
     lengthCm: 366,
-    archCount: 2,
     totalPrice: 549,
     ...over,
   };

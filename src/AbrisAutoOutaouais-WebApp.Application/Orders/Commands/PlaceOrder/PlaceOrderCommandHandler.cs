@@ -86,8 +86,12 @@ internal sealed class PlaceOrderCommandHandler(
     /// saisie utilisateur). Le prix n'est JAMAIS refait à la main : on délègue à
     /// <see cref="ShelterPriceCalculator"/> (source unique de la formule — L-004).
     ///
-    /// On NE charge PAS la collection <c>Dimensions</c> (pas de <c>.Include</c>) — seuls les champs
-    /// scalaires de tarification (Min/Max/Step/BasePrice/PricePerArchCents) sont nécessaires ici.
+    /// On charge les collections <c>Dimensions</c> ET <c>PriceEntries</c> (<c>.Include</c>, entités
+    /// RÉGULIÈRES — L-035) car la HAUTEUR dégagée choisie par le client doit être une des options du
+    /// modèle (<c>ClearHeightOptionsCm</c>) ET la combinaison (longueur × hauteur) doit exister dans
+    /// la grille de prix (lookup) avant le snapshot. Les bornes Min/Max/Step servent encore à donner
+    /// un 422 précis sur la longueur. La largeur n'est PAS validée ici : implicite au slug
+    /// (« une largeur = un modèle »).
     /// </summary>
     private async Task<List<Order.ShelterLineInput>> BuildShelterLinesAsync(
         IReadOnlyList<ShelterLineRequest> requests, CancellationToken ct)
@@ -97,6 +101,9 @@ internal sealed class PlaceOrderCommandHandler(
 
         var slugs = requests.Select(r => r.Slug).Distinct().ToList();
         var models = await db.ShelterModels
+            .AsNoTracking()                 // lecture seule (convention dépôt) — on ne mute pas le modèle
+            .Include(m => m.Dimensions)     // entité régulière → Include explicite requis (L-035)
+            .Include(m => m.PriceEntries)   // grille de prix exacte (entité régulière) → Include requis (L-035)
             .Where(m => slugs.Contains(m.Slug))
             .ToDictionaryAsync(m => m.Slug, ct);
 
@@ -115,8 +122,24 @@ internal sealed class PlaceOrderCommandHandler(
                 throw new BusinessRuleException(
                     $"La longueur doit être alignée sur le pas de {model.LengthStepCm} cm depuis {model.MinLengthCm} cm.");
 
-            var unitPrice = ShelterPriceCalculator.CalculatePrice(model, r.LengthCm);
-            lines.Add(new Order.ShelterLineInput(model.Slug, model.Name, r.LengthCm, unitPrice, r.Quantity));
+            // La hauteur dégagée doit être une des options offertes par le modèle (sinon le choix client
+            // serait silencieusement accepté hors catalogue). Même rigueur que la longueur → 422.
+            if (!model.ClearHeightOptionsCm.Contains(r.ClearHeightCm))
+                throw new BusinessRuleException(
+                    $"La hauteur dégagée {r.ClearHeightCm} cm n'est pas offerte pour ce modèle " +
+                    $"(offertes : {string.Join(", ", model.ClearHeightOptionsCm)} cm).");
+
+            // La combinaison (longueur, hauteur) doit exister dans la grille EXACTE (grille éparse :
+            // une combinaison « dans les options » peut tout de même ne pas être tarifée). Lookup AVANT
+            // le calculateur (sinon ArgumentOutOfRangeException → 500) ; absence → 422.
+            if (model.PriceFor(r.LengthCm, r.ClearHeightCm) is null)
+                throw new BusinessRuleException(
+                    $"Aucun prix disponible pour la combinaison longueur {r.LengthCm} cm × " +
+                    $"hauteur dégagée {r.ClearHeightCm} cm pour ce modèle.");
+
+            var unitPrice = ShelterPriceCalculator.CalculatePrice(model, r.LengthCm, r.ClearHeightCm);
+            lines.Add(new Order.ShelterLineInput(
+                model.Slug, model.Name, r.LengthCm, r.ClearHeightCm, unitPrice, r.Quantity));
         }
 
         return lines;

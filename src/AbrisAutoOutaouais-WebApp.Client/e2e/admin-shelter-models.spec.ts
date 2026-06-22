@@ -40,7 +40,8 @@ const MODEL_DETAIL = {
   ...MODELS[0],
   // Le détail porte le categoryId (Guid) : l'édition résout la catégorie PAR ID, pas par nom.
   categoryId: 'cat-1',
-  pricePerArchCents: 15000,
+  // Grille de prix exacte (lecture seule côté admin — l'admin ne tarife plus).
+  priceGrid: [{ lengthCm: 122, clearHeightCm: 198, priceCents: 34900 }],
   widthOptionsCm: [335, 366],
   clearHeightOptionsCm: [198],
 };
@@ -100,8 +101,7 @@ test("Référentiel admin — créer un modèle envoie POST /shelters", async ({
   await page.getByLabel(/identifiant \(slug\)/i).fill('abri-tempo');
   await page.getByLabel(/^nom$/i).fill('Abri Tempo');
   await page.getByLabel(/catégorie/i).selectOption('cat-1');
-  await page.getByLabel(/prix de base/i).fill('349');
-  await page.getByLabel(/prix par arche/i).fill('15000');
+  // Plus de champs de prix : l'admin ne tarife plus (grille semée côté serveur).
   await page.getByLabel(/largeurs proposées/i).fill('244, 305, 366');
   await page.getByLabel(/hauteurs dégagées/i).fill('198, 213');
 

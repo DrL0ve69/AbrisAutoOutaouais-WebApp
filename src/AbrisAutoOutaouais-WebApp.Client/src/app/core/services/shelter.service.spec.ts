@@ -54,17 +54,19 @@ describe('ShelterService', () => {
     expect(status).toBe(404);
   });
 
-  it('getPrice(slug, lengthCm) : GET /shelters/{slug}/price?lengthCm={n}', () => {
-    service.getPrice('simple', 366).subscribe();
+  it('getPrice(slug, lengthCm, clearHeightCm) : GET /shelters/{slug}/price?lengthCm={n}&clearHeightCm={h}', () => {
+    service.getPrice('simple', 366, 198).subscribe();
     const req = httpMock.expectOne(r => r.url === `${base}/shelters/simple/price`);
     expect(req.request.method).toBe('GET');
     expect(req.request.params.get('lengthCm')).toBe('366');
-    req.flush({ modelId: 'm1', slug: 'simple', lengthCm: 366, archCount: 2, totalPrice: 549 });
+    // La hauteur dégagée fait désormais partie de la requête (le prix dépend de la grille).
+    expect(req.request.params.get('clearHeightCm')).toBe('198');
+    req.flush({ modelId: 'm1', slug: 'simple', lengthCm: 366, clearHeightCm: 198, totalPrice: 549 });
   });
 
-  it('getPrice() longueur hors plage / désalignée : propage le 422', () => {
+  it('getPrice() combinaison absente de la grille : propage le 422', () => {
     let status: number | undefined;
-    service.getPrice('simple', 200).subscribe({ error: e => (status = e.status) });
+    service.getPrice('simple', 200, 259).subscribe({ error: e => (status = e.status) });
     httpMock
       .expectOne(r => r.url === `${base}/shelters/simple/price`)
       .flush('Unprocessable', { status: 422, statusText: 'Unprocessable Entity' });

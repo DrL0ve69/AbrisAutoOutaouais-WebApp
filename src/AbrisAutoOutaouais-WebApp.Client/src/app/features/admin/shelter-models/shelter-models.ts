@@ -64,8 +64,9 @@ export function atLeastOnePositiveInteger(control: AbstractControl): ValidationE
  *
  * Décisions tranchées : le SLUG est IMMUABLE à l'édition (lecture seule, non envoyé). Les listes
  * de largeurs / hauteurs se saisissent en champ texte « cm séparés par virgule » (cf. parseCmList).
- * Le PRIX PAR ARCHE se saisit directement en CENTS (libellé explicite) pour éviter tout bug
- * d'arrondi monétaire ; le PRIX DE BASE reste en dollars.
+ * L'admin ne TARIFE plus : depuis le chantier « grille de prix exacte », les prix proviennent de la
+ * grille SEMÉE côté serveur (modèle × longueur × hauteur). Aucun champ de prix dans le formulaire ;
+ * le « à partir de » (`basePrice` = min de la grille) est affiché en LECTURE SEULE dans la liste.
  * WCAG AA : table sémantique, labels associés, erreurs role="alert", cibles ≥ 44px, hints liés.
  */
 @Component({
@@ -113,8 +114,6 @@ export class AdminShelterModelsComponent {
     lengthStepCm: this.fb.nonNullable.control(122, [Validators.required, Validators.min(1)]),
     minLengthCm: this.fb.nonNullable.control(122, [Validators.required, Validators.min(1)]),
     maxLengthCm: this.fb.nonNullable.control(1830, [Validators.required, Validators.min(1)]),
-    basePrice: this.fb.nonNullable.control(0, [Validators.required, Validators.min(0)]),
-    pricePerArchCents: this.fb.nonNullable.control(0, [Validators.required, Validators.min(0)]),
     widthsCm: this.fb.nonNullable.control('', [atLeastOnePositiveInteger]),
     clearHeightsCm: this.fb.nonNullable.control('', [atLeastOnePositiveInteger]),
   });
@@ -125,8 +124,6 @@ export class AdminShelterModelsComponent {
   protected get stepCtrl() { return this.form.controls.lengthStepCm; }
   protected get minCtrl() { return this.form.controls.minLengthCm; }
   protected get maxCtrl() { return this.form.controls.maxLengthCm; }
-  protected get basePriceCtrl() { return this.form.controls.basePrice; }
-  protected get archCentsCtrl() { return this.form.controls.pricePerArchCents; }
   protected get widthsCtrl() { return this.form.controls.widthsCm; }
   protected get heightsCtrl() { return this.form.controls.clearHeightsCm; }
 
@@ -191,7 +188,6 @@ export class AdminShelterModelsComponent {
     this.form.reset({
       slug: '', name: '', categoryId: '',
       lengthStepCm: 122, minLengthCm: 122, maxLengthCm: 1830,
-      basePrice: 0, pricePerArchCents: 0,
       widthsCm: '', clearHeightsCm: '',
     });
     this.slugCtrl.enable();
@@ -213,8 +209,6 @@ export class AdminShelterModelsComponent {
           lengthStepCm: detail.lengthStepCm,
           minLengthCm: detail.minLengthCm,
           maxLengthCm: detail.maxLengthCm,
-          basePrice: detail.basePrice,
-          pricePerArchCents: detail.pricePerArchCents,
           widthsCm: detail.widthOptionsCm.join(', '),
           clearHeightsCm: detail.clearHeightOptionsCm.join(', '),
         });
@@ -254,8 +248,6 @@ export class AdminShelterModelsComponent {
           lengthStepCm: v.lengthStepCm,
           minLengthCm: v.minLengthCm,
           maxLengthCm: v.maxLengthCm,
-          basePrice: v.basePrice,
-          pricePerArchCents: v.pricePerArchCents,
           widthsCm,
           clearHeightsCm,
         })
@@ -273,8 +265,6 @@ export class AdminShelterModelsComponent {
           lengthStepCm: v.lengthStepCm,
           minLengthCm: v.minLengthCm,
           maxLengthCm: v.maxLengthCm,
-          basePrice: v.basePrice,
-          pricePerArchCents: v.pricePerArchCents,
           widthsCm,
           clearHeightsCm,
         })

@@ -47,8 +47,6 @@ public sealed class SheltersAdminEndpointTests : IClassFixture<WebAppFactory>
         lengthStepCm = 122,
         minLengthCm = 122,
         maxLengthCm = 1830,
-        basePrice = 349.00,
-        pricePerArchCents = 15000,
         widthsCm = new[] { 335, 366 },
         clearHeightsCm = new[] { 198 },
     };
@@ -111,8 +109,6 @@ public sealed class SheltersAdminEndpointTests : IClassFixture<WebAppFactory>
             lengthStepCm = 122,
             minLengthCm = 122,
             maxLengthCm = 1830,
-            basePrice = 349.00,
-            pricePerArchCents = 15000,
             widthsCm = new[] { 244 },
             clearHeightsCm = new[] { 198 },
         });
@@ -135,8 +131,6 @@ public sealed class SheltersAdminEndpointTests : IClassFixture<WebAppFactory>
             lengthStepCm = 122,
             minLengthCm = 122,
             maxLengthCm = 1830,
-            basePrice = 599.00,
-            pricePerArchCents = 22000,
             widthsCm = new[] { 366, 305 },
             clearHeightsCm = new[] { 213 },
         });
@@ -182,8 +176,6 @@ public sealed class SheltersAdminEndpointTests : IClassFixture<WebAppFactory>
             lengthStepCm = 122,
             minLengthCm = 1830,   // min ≥ max → invalide
             maxLengthCm = 1830,
-            basePrice = 349.00,
-            pricePerArchCents = 15000,
             widthsCm = new[] { 335 },
             clearHeightsCm = new[] { 198 },
         });
@@ -227,8 +219,6 @@ public sealed class SheltersAdminEndpointTests : IClassFixture<WebAppFactory>
             lengthStepCm = 122,
             minLengthCm = 122,
             maxLengthCm = 1830,
-            basePrice = 349.00,
-            pricePerArchCents = 15000,
             widthsCm = new[] { 335 },
             clearHeightsCm = new[] { 198 },
         });

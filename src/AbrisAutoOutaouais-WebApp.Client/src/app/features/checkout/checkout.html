@@ -179,10 +179,10 @@
             <span>{{ item.product.price * item.quantity | currency:'CAD':'symbol-narrow':'1.2-2':'fr-CA' }}</span>
           </li>
           }
-          <!-- Abris configurés (EPIC 9.4) : nom + longueur en pieds + prix d'affichage. -->
+          <!-- Abris configurés (EPIC 9.4) : nom + largeur × longueur × hauteur dégagée + prix d'affichage. -->
           @for (shelter of shelterItems(); track shelter.key) {
           <li class="checkout__item">
-            <span>{{ shelter.quantity }} × {{ shelter.modelName }} ({{ formatFeetInches(shelter.lengthCm) }})</span>
+            <span>{{ shelter.quantity }} × {{ shelter.modelName }} ({{ formatFeetInches(shelter.widthCm) }} × {{ formatFeetInches(shelter.lengthCm) }} × {{ formatFeetInches(shelter.clearHeightCm) }})</span>
             <span>{{ shelter.price * shelter.quantity | currency:'CAD':'symbol-narrow':'1.2-2':'fr-CA' }}</span>
           </li>
           }

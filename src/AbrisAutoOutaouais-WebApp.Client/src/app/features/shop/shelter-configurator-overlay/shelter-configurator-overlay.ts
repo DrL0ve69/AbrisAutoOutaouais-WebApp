@@ -118,7 +118,9 @@ export class ShelterConfiguratorOverlayComponent implements AfterViewChecked {
     }
   }
 
-  protected onConfigurationChange(config: ShelterConfiguration): void {
+  // `null` = config devenue non commandable (recalcul en cours / couple non offert) → on invalide
+  // l'état d'ajout (canAdd retombe faux), sinon une config périmée resterait commandable (L-046).
+  protected onConfigurationChange(config: ShelterConfiguration | null): void {
     this.configuration.set(config);
   }
 

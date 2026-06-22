@@ -11,8 +11,12 @@ namespace AbrisAutoOutaouais_WebApp.Domain.Entities;
 ///  - une ou plusieurs HAUTEURS dégagées proposées (<see cref="ShelterDimensionKind.ClearHeight"/>),
 ///  - une LONGUEUR continue, choisie par pas (<see cref="LengthStepCm"/>) entre
 ///    <see cref="MinLengthCm"/> et <see cref="MaxLengthCm"/>.
-/// Le prix se calcule à partir du nombre d'arches (cf. <c>ShelterPriceCalculator</c>) : chaque pas
-/// de longueur au-delà de la longueur de base (= <see cref="MinLengthCm"/>) ajoute une arche.
+///
+/// Le prix NE se calcule plus par une formule linéaire (base + nb d'arches) : il dépend des TROIS
+/// axes (modèle × longueur × hauteur dégagée) et provient d'un LOOKUP dans une GRILLE EXACTE semée
+/// (<see cref="PriceEntries"/>). Cette grille peut être ÉPARSE (toutes les combinaisons longueur/
+/// hauteur n'existent pas pour tous les modèles, ex. double-rond). Le « à partir de » affiché au
+/// catalogue est le minimum de la grille (<see cref="StartingPriceCents"/> — null si grille vide).
 ///
 /// Hérite des bases audit/soft-delete COMME <see cref="Product"/> (<c>IAuditableEntity</c> +
 /// <c>ISoftDeletable</c>) — mêmes interceptors EF, mêmes garanties.
@@ -20,6 +24,7 @@ namespace AbrisAutoOutaouais_WebApp.Domain.Entities;
 public sealed class ShelterModel : ISoftDeletable, IAuditableEntity
 {
     private readonly List<ShelterModelDimension> _dimensions = [];
+    private readonly List<ShelterPriceEntry> _priceEntries = [];
 
     public Guid Id { get; private set; }
     public string Slug { get; private set; } = string.Empty;
@@ -28,20 +33,14 @@ public sealed class ShelterModel : ISoftDeletable, IAuditableEntity
     /// <summary>Catégorie produit associée (FK → <see cref="ProductCategory"/>).</summary>
     public Guid CategoryId { get; private set; }
 
-    /// <summary>Pas de longueur en centimètres (incrément d'une arche). Toujours &gt; 0.</summary>
+    /// <summary>Pas de longueur configurable en centimètres (incrément entre options). Toujours &gt; 0.</summary>
     public int LengthStepCm { get; private set; }
 
-    /// <summary>Longueur minimale en cm = longueur de BASE (0 arche supplémentaire).</summary>
+    /// <summary>Longueur minimale en cm = longueur de BASE.</summary>
     public int MinLengthCm { get; private set; }
 
     /// <summary>Longueur maximale configurable en cm.</summary>
     public int MaxLengthCm { get; private set; }
-
-    /// <summary>Prix de base (longueur = <see cref="MinLengthCm"/>), en dollars.</summary>
-    public decimal BasePrice { get; private set; }
-
-    /// <summary>Prix par arche supplémentaire, en cents (cf. <c>ShelterPricing</c>).</summary>
-    public int PricePerArchCents { get; private set; }
 
     public ProductCategory Category { get; private set; } = null!;
 
@@ -54,6 +53,13 @@ public sealed class ShelterModel : ISoftDeletable, IAuditableEntity
     /// publics <see cref="Create"/>/<see cref="Reconfigure"/> uniquement).
     /// </summary>
     public IReadOnlyList<ShelterModelDimension> Dimensions => _dimensions;
+
+    /// <summary>
+    /// Grille de prix EXACTE (entrées par longueur × hauteur dégagée). Même contrat d'exposition que
+    /// <see cref="Dimensions"/> : la liste sous-jacente est exposée directement (EF suit la
+    /// navigation via le champ <c>_priceEntries</c>) ; mutation uniquement via l'agrégat.
+    /// </summary>
+    public IReadOnlyList<ShelterPriceEntry> PriceEntries => _priceEntries;
 
     // ISoftDeletable
     public bool IsDeleted { get; set; }
@@ -73,8 +79,9 @@ public sealed class ShelterModel : ISoftDeletable, IAuditableEntity
     ///  - <c>MinLengthCm &lt; MaxLengthCm</c> et <c>MinLengthCm &gt; 0</c> ;
     ///  - <c>LengthStepCm &gt; 0</c> et la plage [min, max] est un multiple entier du pas
     ///    (<c>(MaxLengthCm - MinLengthCm) % LengthStepCm == 0</c>) — sinon la longueur max ne
-    ///    serait pas atteignable par pas ;
-    ///  - prix de base et prix/arche &gt;= 0.
+    ///    serait pas atteignable par pas.
+    /// La grille de prix (<paramref name="priceEntries"/>) est OPTIONNELLE : un modèle créé par
+    /// l'admin peut n'avoir aucune entrée (il reste non tarifé tant que la grille n'est pas semée).
     /// </summary>
     public static ShelterModel Create(
         string slug,
@@ -83,14 +90,13 @@ public sealed class ShelterModel : ISoftDeletable, IAuditableEntity
         int lengthStepCm,
         int minLengthCm,
         int maxLengthCm,
-        decimal basePrice,
-        int pricePerArchCents,
         IReadOnlyList<int> widthsCm,
-        IReadOnlyList<int> clearHeightsCm)
+        IReadOnlyList<int> clearHeightsCm,
+        IReadOnlyList<PriceEntryInput>? priceEntries = null)
     {
         ValidateInvariants(
             slug, name, categoryId, lengthStepCm, minLengthCm, maxLengthCm,
-            basePrice, pricePerArchCents, widthsCm, clearHeightsCm);
+            widthsCm, clearHeightsCm);
 
         var model = new ShelterModel
         {
@@ -101,14 +107,14 @@ public sealed class ShelterModel : ISoftDeletable, IAuditableEntity
             LengthStepCm = lengthStepCm,
             MinLengthCm = minLengthCm,
             MaxLengthCm = maxLengthCm,
-            BasePrice = basePrice,
-            PricePerArchCents = pricePerArchCents,
         };
 
         foreach (var w in widthsCm)
             model._dimensions.Add(ShelterModelDimension.Create(ShelterDimensionKind.Width, w));
         foreach (var h in clearHeightsCm)
             model._dimensions.Add(ShelterModelDimension.Create(ShelterDimensionKind.ClearHeight, h));
+
+        model.SetPriceGrid(priceEntries ?? []);
 
         return model;
     }
@@ -120,6 +126,10 @@ public sealed class ShelterModel : ISoftDeletable, IAuditableEntity
     /// <see cref="ShelterModelDimension"/> est une entité régulière (cf. sa configuration EF) :
     /// EF supprime les anciennes lignes et insère les nouvelles. Mêmes invariants que
     /// <see cref="Create"/>.
+    ///
+    /// La GRILLE DE PRIX n'est PAS touchée ici : l'admin ne fixe plus les prix (décision propriétaire,
+    /// grille en lecture seule semée). Voir <see cref="SetPriceGrid"/> pour (re)poser une grille
+    /// (utilisé par le seeder uniquement).
     /// </summary>
     public void Reconfigure(
         string name,
@@ -127,23 +137,19 @@ public sealed class ShelterModel : ISoftDeletable, IAuditableEntity
         int lengthStepCm,
         int minLengthCm,
         int maxLengthCm,
-        decimal basePrice,
-        int pricePerArchCents,
         IReadOnlyList<int> widthsCm,
         IReadOnlyList<int> clearHeightsCm)
     {
         // Slug INCHANGÉ : on passe le slug courant à la validation (jamais réécrit).
         ValidateInvariants(
             Slug, name, categoryId, lengthStepCm, minLengthCm, maxLengthCm,
-            basePrice, pricePerArchCents, widthsCm, clearHeightsCm);
+            widthsCm, clearHeightsCm);
 
         Name = name.Trim();
         CategoryId = categoryId;
         LengthStepCm = lengthStepCm;
         MinLengthCm = minLengthCm;
         MaxLengthCm = maxLengthCm;
-        BasePrice = basePrice;
-        PricePerArchCents = pricePerArchCents;
 
         // Remplacement EN BLOC de la collection des dimensions.
         _dimensions.Clear();
@@ -154,8 +160,33 @@ public sealed class ShelterModel : ISoftDeletable, IAuditableEntity
     }
 
     /// <summary>
+    /// (Re)pose la grille de prix EN BLOC (clear + ré-ajout) — même patron que la collection des
+    /// dimensions, réservé au seed du référentiel (l'admin ne fixe pas les prix). Rejette une grille
+    /// contenant des doublons (longueur, hauteur) : la clé (longueur × hauteur) doit être unique pour
+    /// que le lookup <see cref="PriceFor"/> soit déterministe (et l'index unique en base cohérent).
+    /// </summary>
+    public void SetPriceGrid(IReadOnlyList<PriceEntryInput> priceEntries)
+    {
+        ArgumentNullException.ThrowIfNull(priceEntries);
+
+        var seen = new HashSet<(int Length, int Height)>();
+        foreach (var e in priceEntries)
+        {
+            if (!seen.Add((e.LengthCm, e.ClearHeightCm)))
+                throw new ArgumentException(
+                    $"Entrée de grille en double pour (longueur {e.LengthCm} cm, hauteur {e.ClearHeightCm} cm).",
+                    nameof(priceEntries));
+        }
+
+        _priceEntries.Clear();
+        foreach (var e in priceEntries)
+            _priceEntries.Add(ShelterPriceEntry.Create(e.LengthCm, e.ClearHeightCm, e.PriceCents));
+    }
+
+    /// <summary>
     /// Gardes communes à <see cref="Create"/> et <see cref="Reconfigure"/> (DRY). Lève les mêmes
-    /// <see cref="ArgumentException"/> qu'avant l'extraction.
+    /// <see cref="ArgumentException"/> qu'avant l'extraction. La tarification ne fait PLUS partie des
+    /// invariants structurels (grille externe semée).
     /// </summary>
     private static void ValidateInvariants(
         string slug,
@@ -164,8 +195,6 @@ public sealed class ShelterModel : ISoftDeletable, IAuditableEntity
         int lengthStepCm,
         int minLengthCm,
         int maxLengthCm,
-        decimal basePrice,
-        int pricePerArchCents,
         IReadOnlyList<int> widthsCm,
         IReadOnlyList<int> clearHeightsCm)
     {
@@ -188,11 +217,6 @@ public sealed class ShelterModel : ISoftDeletable, IAuditableEntity
         if ((maxLengthCm - minLengthCm) % lengthStepCm != 0)
             throw new ArgumentException(
                 "La plage de longueur doit être un multiple entier du pas.", nameof(lengthStepCm));
-
-        if (basePrice < 0)
-            throw new ArgumentException("Le prix de base ne peut pas être négatif.", nameof(basePrice));
-        if (pricePerArchCents < 0)
-            throw new ArgumentException("Le prix par arche ne peut pas être négatif.", nameof(pricePerArchCents));
     }
 
     /// <summary>Largeurs proposées, en cm, triées croissant.</summary>
@@ -210,4 +234,38 @@ public sealed class ShelterModel : ISoftDeletable, IAuditableEntity
             .Select(d => d.ValueCm)
             .OrderBy(v => v)
             .ToList();
+
+    /// <summary>
+    /// Prix de départ (« à partir de ») en CENTS = minimum de la grille de prix ; <c>null</c> si la
+    /// grille est vide (modèle non tarifé, ex. créé par l'admin sans grille semée). Nécessite que
+    /// <see cref="PriceEntries"/> soit chargée (<c>.Include</c>) — sinon retourne null à tort (L-035).
+    /// </summary>
+    public int? StartingPriceCents =>
+        _priceEntries.Count == 0 ? null : _priceEntries.Min(e => e.PriceCents);
+
+    /// <summary>
+    /// Prix de départ EN DOLLARS (« à partir de ») = <see cref="StartingPriceCents"/> ÷ 100, ou
+    /// <c>0</c> si la grille est vide (modèle non tarifé). Source unique de la conversion cents →
+    /// dollars du « à partir de » (L-004), réutilisée par tous les DTO de lecture qui exposaient
+    /// l'ancien champ <c>BasePrice</c>. Nécessite <see cref="PriceEntries"/> chargée (L-035).
+    /// </summary>
+    public decimal StartingPrice =>
+        StartingPriceCents is { } cents ? cents / 100m : 0m;
+
+    /// <summary>
+    /// Lookup du prix EXACT en CENTS pour une combinaison (longueur, hauteur dégagée) ; <c>null</c>
+    /// si cette combinaison n'existe pas dans la grille (grille éparse). Nécessite
+    /// <see cref="PriceEntries"/> chargée (L-035).
+    /// </summary>
+    public int? PriceFor(int lengthCm, int clearHeightCm) =>
+        _priceEntries
+            .FirstOrDefault(e => e.LengthCm == lengthCm && e.ClearHeightCm == clearHeightCm)
+            ?.PriceCents;
+
+    /// <summary>
+    /// Donnée d'entrée pour (re)poser une entrée de grille de prix : prix (en CENTS) pour une
+    /// combinaison (longueur × hauteur dégagée), en cm. Sert d'argument à <see cref="Create"/> et
+    /// <see cref="SetPriceGrid"/> sans exposer le constructeur de <see cref="ShelterPriceEntry"/>.
+    /// </summary>
+    public readonly record struct PriceEntryInput(int LengthCm, int ClearHeightCm, int PriceCents);
 }

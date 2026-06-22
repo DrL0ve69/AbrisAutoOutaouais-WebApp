@@ -4,6 +4,7 @@ using AbrisAutoOutaouais_WebApp.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260622181245_AddOrderLineClearHeight")]
+    partial class AddOrderLineClearHeight
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -300,6 +303,9 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<decimal>("BasePrice")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("uniqueidentifier");
 
@@ -328,6 +334,9 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("PricePerArchCents")
+                        .HasColumnType("int");
 
                     b.Property<string>("Slug")
                         .IsRequired()
@@ -371,32 +380,6 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Migrations
                     b.HasIndex("ShelterModelId");
 
                     b.ToTable("ShelterModelDimension");
-                });
-
-            modelBuilder.Entity("AbrisAutoOutaouais_WebApp.Domain.Entities.ShelterPriceEntry", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("ClearHeightCm")
-                        .HasColumnType("int");
-
-                    b.Property<int>("LengthCm")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PriceCents")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("ShelterModelId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ShelterModelId", "LengthCm", "ClearHeightCm")
-                        .IsUnique();
-
-                    b.ToTable("ShelterPriceEntry");
                 });
 
             modelBuilder.Entity("AbrisAutoOutaouais_WebApp.Domain.Entities.WorkHoursEntry", b =>
@@ -965,15 +948,6 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("AbrisAutoOutaouais_WebApp.Domain.Entities.ShelterPriceEntry", b =>
-                {
-                    b.HasOne("AbrisAutoOutaouais_WebApp.Domain.Entities.ShelterModel", null)
-                        .WithMany("PriceEntries")
-                        .HasForeignKey("ShelterModelId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("AbrisAutoOutaouais_WebApp.Domain.Entities.WorkHoursEntry", b =>
                 {
                     b.HasOne("AbrisAutoOutaouais_WebApp.Infrastructure.Identity.AppUser", null)
@@ -1171,8 +1145,6 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("AbrisAutoOutaouais_WebApp.Domain.Entities.ShelterModel", b =>
                 {
                     b.Navigation("Dimensions");
-
-                    b.Navigation("PriceEntries");
                 });
 #pragma warning restore 612, 618
         }

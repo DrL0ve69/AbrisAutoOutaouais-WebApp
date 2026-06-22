@@ -19,17 +19,29 @@ registerLocaleData(localeFrCa);
 
 const VIEWPORT = { width: 1024, height: 768 };
 
+// Grille de prix exacte : le prix dépend de (longueur, HAUTEUR). On fait VOLONTAIREMENT varier le
+// prix par hauteur (à 122 cm : 198 → 349 $, 244 → 749 $) pour prouver que la hauteur change le prix.
+// La grille est ÉPARSE : le couple (122, 244) n'est offert QUE si on le déclare ; (366, 244) est
+// absent → combinaison non offerte (test dédié). priceCents = dollars × 100.
+const PRICE_GRID = [
+  { lengthCm: 122, clearHeightCm: 198, priceCents: 34900 }, // 349 $
+  { lengthCm: 122, clearHeightCm: 244, priceCents: 74900 }, // 749 $
+  { lengthCm: 366, clearHeightCm: 198, priceCents: 54900 }, // 549 $
+  { lengthCm: 488, clearHeightCm: 198, priceCents: 64900 }, // 649 $
+  // (366, 244) ABSENT volontairement → couple non offert.
+];
+
 const MODEL: ShelterModelDetail = {
   id: 'm1',
   slug: 'simple',
   name: 'Abri simple — Abris Tempo',
   categoryId: 'cat-1',
   categoryName: 'Abris simples',
-  basePrice: 349,
+  basePrice: 349, // « à partir de » = min de la grille
   minLengthCm: 122,
   maxLengthCm: 1830,
   lengthStepCm: 122,
-  pricePerArchCents: 10000, // 100 $ / arche
+  priceGrid: PRICE_GRID,
   widthOptionsCm: [335, 366],
   clearHeightOptionsCm: [198, 244],
 };
@@ -41,10 +53,11 @@ const base = environment.apiUrl;
 
 async function setup(model: ShelterModelDetail = MODEL, initialLengthCm: number | null = null) {
   await page.viewport(VIEWPORT.width, VIEWPORT.height);
-  const emitted: ShelterConfiguration[] = [];
+  // Le configurateur émet aussi `null` (recalcul en cours / couple non offert) → on collecte tout.
+  const emitted: (ShelterConfiguration | null)[] = [];
   const rendered = await render(DimensionConfiguratorComponent, {
     inputs: { slug: 'simple', initialLengthCm },
-    on: { configurationChange: (c: ShelterConfiguration) => emitted.push(c) },
+    on: { configurationChange: (c: ShelterConfiguration | null) => emitted.push(c) },
     providers: [provideHttpClient(), provideHttpClientTesting()],
   });
   const http = TestBed.inject(HttpTestingController);
@@ -59,12 +72,7 @@ async function setup(model: ShelterModelDetail = MODEL, initialLengthCm: number 
  * `debounceTime(300)` n'émet la requête qu'après le délai : on attend donc qu'elle apparaisse
  * (poll avec timers réels du runner navigateur), jamais un `expectOne` synchrone immédiat.
  */
-async function flushPrice(
-  http: HttpTestingController,
-  lengthCm: number,
-  archCount: number,
-  total: number,
-) {
+async function awaitPriceRequest(http: HttpTestingController) {
   const url = `${base}/shelters/simple/price`;
   const deadline = Date.now() + 2000;
   let matches = http.match(r => r.url === url);
@@ -73,9 +81,35 @@ async function flushPrice(
     matches = http.match(r => r.url === url);
   }
   expect(matches.length, 'la requête de prix débouncée doit avoir été émise').toBeGreaterThan(0);
-  const req = matches[matches.length - 1];
+  return matches[matches.length - 1];
+}
+
+/**
+ * Sert la prochaine requête de prix (debounce 300 ms) avec un prix valide. Vérifie que la requête
+ * porte le COUPLE (lengthCm, clearHeightCm). Réponse SANS `archCount` (retiré du contrat).
+ */
+async function flushPrice(
+  http: HttpTestingController,
+  lengthCm: number,
+  clearHeightCm: number,
+  total: number,
+) {
+  const req = await awaitPriceRequest(http);
   expect(req.request.params.get('lengthCm')).toBe(String(lengthCm));
-  req.flush({ modelId: 'm1', slug: 'simple', lengthCm, archCount, totalPrice: total });
+  expect(req.request.params.get('clearHeightCm')).toBe(String(clearHeightCm));
+  req.flush({ modelId: 'm1', slug: 'simple', lengthCm, clearHeightCm, totalPrice: total });
+}
+
+/** Sert la prochaine requête de prix par un 422 (couple non offert dans la grille éparse). */
+async function flushUnavailable(
+  http: HttpTestingController,
+  lengthCm: number,
+  clearHeightCm: number,
+) {
+  const req = await awaitPriceRequest(http);
+  expect(req.request.params.get('lengthCm')).toBe(String(lengthCm));
+  expect(req.request.params.get('clearHeightCm')).toBe(String(clearHeightCm));
+  req.flush('Unprocessable', { status: 422, statusText: 'Unprocessable Entity' });
 }
 
 describe('DimensionConfiguratorComponent', () => {
@@ -86,7 +120,7 @@ describe('DimensionConfiguratorComponent', () => {
 
   it('affiche les options de largeur/hauteur formatées en pieds', async () => {
     const { q, http } = await setup();
-    await flushPrice(http, 122, 0, 349);
+    await flushPrice(http, 122, 198, 349);
 
     // 335 cm → « 11 pi », 366 cm → « 12 pi ».
     expect(q.getByRole('radio', { name: '11 pi' })).toBeInTheDocument();
@@ -98,7 +132,7 @@ describe('DimensionConfiguratorComponent', () => {
   it('largeur MULTI-options : rendue en radiogroup APG (flèche bascule la sélection ET le focus)', async () => {
     const user = userEvent.setup();
     const { q, http } = await setup();
-    await flushPrice(http, 122, 0, 349);
+    await flushPrice(http, 122, 198, 349);
 
     const first = q.getByRole('radio', { name: '11 pi' });
     const second = q.getByRole('radio', { name: '12 pi' });
@@ -118,7 +152,7 @@ describe('DimensionConfiguratorComponent', () => {
 
   it('largeur à OPTION UNIQUE : rendue en ligne statique (pas de radiogroup) ; selectedWidthCm = la seule largeur', async () => {
     const { q, http, emitted } = await setup(SINGLE_WIDTH_MODEL);
-    await flushPrice(http, 122, 0, 349);
+    await flushPrice(http, 122, 198, 349);
 
     // Aucun radio de largeur : la largeur unique est une ligne statique « Largeur : 11 pi ».
     expect(q.queryByRole('radio', { name: '11 pi' })).toBeNull();
@@ -131,7 +165,7 @@ describe('DimensionConfiguratorComponent', () => {
 
   it('longueur : rendue comme <select> (choix discret), PAS de slider/number', async () => {
     const { q, container, http } = await setup();
-    await flushPrice(http, 122, 0, 349);
+    await flushPrice(http, 122, 198, 349);
 
     // Un <select> libellé « Longueur » avec les multiples du pas (122 → 1830 par 122 = 15 options).
     const select = q.getByLabelText(/longueur/i) as HTMLSelectElement;
@@ -147,36 +181,86 @@ describe('DimensionConfiguratorComponent', () => {
   it('recalcule le prix au changement de longueur (source serveur) et émet la config avec width+length+height', async () => {
     const user = userEvent.setup();
     const { q, http, emitted } = await setup();
-    // 1er prix : longueur min 122, 0 arche → 349 $. La config porte width/length/height.
-    await flushPrice(http, 122, 0, 349);
+    // 1er prix : longueur min 122, hauteur 198 → 349 $. La config porte width/length/height (sans archCount).
+    await flushPrice(http, 122, 198, 349);
     expect(emitted.at(-1)).toMatchObject({
       lengthCm: 122,
       widthCm: 335,
       clearHeightCm: 198,
-      archCount: 0,
       totalPrice: 349,
     });
+    // archCount a été RETIRÉ du contrat : il ne doit plus figurer dans la config émise.
+    expect(emitted.at(-1)).not.toHaveProperty('archCount');
 
     // Change la longueur via le <select> (366 cm → « 12 pi »).
     const select = q.getByLabelText(/longueur/i) as HTMLSelectElement;
     await user.selectOptions(select, '12 pi');
 
-    // 366 cm = min + 2 pas → 2 arches → 349 + 200 = 549 $.
-    await flushPrice(http, 366, 2, 549);
+    // (366, 198) → 549 $ (grille). La requête porte la longueur 366 ET la hauteur 198.
+    await flushPrice(http, 366, 198, 549);
 
     expect(await q.findByText(/549/)).toBeInTheDocument();
     expect(emitted.at(-1)).toMatchObject({
       lengthCm: 366,
       widthCm: 335,
       clearHeightCm: 198,
-      archCount: 2,
       totalPrice: 549,
     });
   });
 
+  it('le PRIX dépend de la HAUTEUR : changer la hauteur change le prix affiché ET relance /price avec le bon clearHeightCm', async () => {
+    const user = userEvent.setup();
+    const { q, http } = await setup();
+    // (122, 198) → 349 $ (prix optimiste = lookup grille, puis confirmé serveur).
+    await flushPrice(http, 122, 198, 349);
+    expect(await q.findByText(/349/)).toBeInTheDocument();
+
+    // Sélectionne la 2e hauteur (244 cm → « 8 pi ») : le prix optimiste passe IMMÉDIATEMENT à 749
+    // (lookup grille) et un nouvel appel /price part avec clearHeightCm=244.
+    const height244 = q.getByRole('radio', { name: '8 pi' });
+    await user.click(height244);
+
+    // La requête de prix relancée porte bien la NOUVELLE hauteur (244), pas l'ancienne (198).
+    await flushPrice(http, 122, 244, 749);
+    expect(await q.findByText(/749/)).toBeInTheDocument();
+  });
+
+  it('combinaison ÉPARSE non offerte : pas de prix, message « non offerte », pas d’émission de config', async () => {
+    const user = userEvent.setup();
+    const { q, http, emitted } = await setup();
+    // 1er couple offert (122, 198) → 349 $.
+    await flushPrice(http, 122, 198, 349);
+
+    // Passe à 366 cm (couple (366, 198) offert) — une config est émise ici.
+    const select = q.getByLabelText(/longueur/i) as HTMLSelectElement;
+    await user.selectOptions(select, '12 pi'); // 366 cm
+    await flushPrice(http, 366, 198, 549); // (366, 198) offert
+    // À CE POINT une config VALIDE (non-null) a été émise pour le couple offert.
+    expect(emitted.at(-1)).not.toBeNull();
+
+    // Passe à la hauteur 244 cm : le couple (366, 244) est ABSENT de la grille.
+    const height244 = q.getByRole('radio', { name: '8 pi' });
+    await user.click(height244);
+
+    // (366, 244) absent → le serveur répond 422.
+    await flushUnavailable(http, 366, 244);
+
+    // Message d’indisponibilité affiché ET annoncé : le texte apparaît à DEUX endroits (le bloc
+    // prix visible ET la région aria-live `role="status"`). On attend qu'au moins un nœud le porte,
+    // puis on vérifie que les deux surfaces (prix + status) sont bien présentes.
+    await q.findAllByText(/n.est pas offerte pour ce mod/i);
+    const matches = q.getAllByText(/n.est pas offerte pour ce mod/i);
+    expect(matches.length).toBeGreaterThanOrEqual(2);
+    expect(q.getByRole('status')).toHaveTextContent(/n.est pas offerte pour ce mod/i);
+    // CŒUR DU CORRECTIF (L-046) : la dernière émission est `null` → la config confirmée précédente
+    // est INVALIDÉE chez le parent (canAdd retombe faux). Sans cela, on pourrait commander un abri
+    // dont la combinaison est marquée « non offerte ».
+    expect(emitted.at(-1)).toBeNull();
+  });
+
   it('annonce le prix en aria-live (état neutre avant réannonce — L-027)', async () => {
     const { q, http } = await setup();
-    await flushPrice(http, 122, 0, 349);
+    await flushPrice(http, 122, 198, 349);
 
     // La région role="status" finit par porter le message de prix (CD post-réponse serveur).
     const status = await q.findByText(/Prix mis à jour/i);
@@ -187,7 +271,7 @@ describe('DimensionConfiguratorComponent', () => {
     // Demande 500 cm : les options sont 122, 244, 366, 488, 610… → la plus grande ≤ 500 est 488.
     // Le 1er appel de prix part donc sur 488 (pas 122) : la longueur clampée pilote tout.
     const { emitted, http } = await setup(MODEL, 500);
-    await flushPrice(http, 488, 3, 649); // 488 = 122 + 3 pas.
+    await flushPrice(http, 488, 198, 649); // (488, 198) offert dans la grille.
 
     expect(emitted.at(-1)).toMatchObject({ lengthCm: 488 });
   });
@@ -195,12 +279,12 @@ describe('DimensionConfiguratorComponent', () => {
   it('initialLengthCm null/invalide : retombe sur la longueur minimale', async () => {
     const { http } = await setup(MODEL, null);
     // Aucun clamp → 1re requête de prix sur la longueur min (122).
-    await flushPrice(http, 122, 0, 349);
+    await flushPrice(http, 122, 198, 349);
   });
 
   it('ne présente aucune violation WCAG A/AA (axe)', async () => {
     const { container, http } = await setup();
-    await flushPrice(http, 122, 0, 349);
+    await flushPrice(http, 122, 198, 349);
     await expectNoA11yViolations(container);
   });
 });

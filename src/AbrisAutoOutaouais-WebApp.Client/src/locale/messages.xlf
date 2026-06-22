@@ -1743,7 +1743,7 @@
         <source>Chargement du récap…</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/payroll/payroll.html</context>
-          <context context-type="linenumber">56,58</context>
+          <context context-type="linenumber">56,57</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.payroll.error" datatype="html">
@@ -1820,7 +1820,7 @@
         <source> Taux horaire en dollars </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/payroll/payroll.html</context>
-          <context context-type="linenumber">98,100</context>
+          <context context-type="linenumber">98,99</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.payroll.rate.save" datatype="html">
@@ -1848,7 +1848,7 @@
         <source>taux non défini</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/payroll/payroll.html</context>
-          <context context-type="linenumber">144,147</context>
+          <context context-type="linenumber">144,146</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.payroll.table.amountUnavailable" datatype="html">
@@ -1883,63 +1883,63 @@
         <source> Taux </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/payroll/payroll.html</context>
-          <context context-type="linenumber">190,192</context>
+          <context context-type="linenumber">191,193</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.payroll.table.markPaid" datatype="html">
         <source> Marquer payé </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/payroll/payroll.html</context>
-          <context context-type="linenumber">201,203</context>
+          <context context-type="linenumber">202,204</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.payroll.back" datatype="html">
         <source> ← Retour au tableau de bord </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/payroll/payroll.html</context>
-          <context context-type="linenumber">214,217</context>
+          <context context-type="linenumber">215,218</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.payroll.status.loaded" datatype="html">
         <source>Récap de paie mis à jour : <x id="count" equiv-text="data.employees.length"/> employé(s).</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/payroll/payroll.ts</context>
-          <context context-type="linenumber">118</context>
+          <context context-type="linenumber">123</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.payroll.status.loadError" datatype="html">
         <source>Échec du chargement du récap de paie.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/payroll/payroll.ts</context>
-          <context context-type="linenumber">125</context>
+          <context context-type="linenumber">134</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.payroll.toast.rateSaved" datatype="html">
         <source>Taux horaire enregistré.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/payroll/payroll.ts</context>
-          <context context-type="linenumber">162</context>
+          <context context-type="linenumber">172</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.payroll.toast.rateError" datatype="html">
         <source>L&apos;enregistrement du taux a échoué.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/payroll/payroll.ts</context>
-          <context context-type="linenumber">171</context>
+          <context context-type="linenumber">182</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.payroll.toast.marked" datatype="html">
         <source>Paie marquée comme payée.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/payroll/payroll.ts</context>
-          <context context-type="linenumber">187</context>
+          <context context-type="linenumber">198</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.payroll.toast.markError" datatype="html">
         <source>Le marquage de la paie a échoué.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/payroll/payroll.ts</context>
-          <context context-type="linenumber">195</context>
+          <context context-type="linenumber">209</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.payroll.table.hoursValue" datatype="html">
@@ -1949,21 +1949,21 @@
     })"/> h</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/payroll/payroll.ts</context>
-          <context context-type="linenumber">207,210</context>
+          <context context-type="linenumber">221,224</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.payroll.table.editRateLabel" datatype="html">
         <source>Modifier le taux horaire de <x id="name" equiv-text="name"/></source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/payroll/payroll.ts</context>
-          <context context-type="linenumber">219</context>
+          <context context-type="linenumber">233</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.payroll.table.markPaidLabel" datatype="html">
         <source>Marquer la paie de <x id="name" equiv-text="name"/> comme payée</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/payroll/payroll.ts</context>
-          <context context-type="linenumber">224</context>
+          <context context-type="linenumber">238</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.products.eyebrow" datatype="html">
@@ -2672,268 +2672,240 @@
           <context context-type="linenumber">156,158</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="admin.shelterModels.form.basePrice" datatype="html">
-        <source>Prix de base ($)</source>
+      <trans-unit id="admin.shelterModels.form.pricingNote" datatype="html">
+        <source> Les prix sont gérés par la grille tarifaire du serveur (longueur × hauteur) et ne se modifient pas ici. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">165,167</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="admin.shelterModels.form.basePriceError" datatype="html">
-        <source> Le prix de base ne peut pas être négatif. </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">177,179</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="admin.shelterModels.form.archCents" datatype="html">
-        <source>Prix par arche (cents)</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">183,185</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="admin.shelterModels.form.archHint" datatype="html">
-        <source> en CENTS · ex : 15000 = 150,00 $ </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">195,197</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="admin.shelterModels.form.archError" datatype="html">
-        <source> Le prix par arche ne peut pas être négatif. </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">199,201</context>
+          <context context-type="linenumber">166,170</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.form.widths" datatype="html">
         <source>Largeurs proposées (cm)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">207,209</context>
+          <context context-type="linenumber">172,174</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.form.listHint" datatype="html">
         <source> valeurs en cm séparées par des virgules · ex : 244, 305, 366 </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">218,220</context>
+          <context context-type="linenumber">183,185</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">239,241</context>
+          <context context-type="linenumber">204,206</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.form.widthsError" datatype="html">
         <source> Indiquez au moins une largeur (entiers positifs séparés par des virgules). </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">222,224</context>
+          <context context-type="linenumber">187,189</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.form.heights" datatype="html">
         <source>Hauteurs dégagées proposées (cm)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">228,230</context>
+          <context context-type="linenumber">193,195</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.form.heightsError" datatype="html">
         <source> Indiquez au moins une hauteur dégagée (entiers positifs séparés par des virgules). </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">243,245</context>
+          <context context-type="linenumber">208,210</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.form.save" datatype="html">
         <source>Enregistrer</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">251,253</context>
+          <context context-type="linenumber">216,218</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.form.create" datatype="html">
         <source>Créer le modèle</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">253,255</context>
+          <context context-type="linenumber">218,220</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.form.cancel" datatype="html">
         <source> Annuler </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">258,260</context>
+          <context context-type="linenumber">223,225</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.list.heading" datatype="html">
         <source> Modèles du référentiel </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">268,271</context>
+          <context context-type="linenumber">233,236</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.list.loading" datatype="html">
         <source>Chargement…</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">272,273</context>
+          <context context-type="linenumber">237,238</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.list.empty" datatype="html">
         <source> Aucun modèle dans le référentiel. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">275,277</context>
+          <context context-type="linenumber">240,242</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.table.caption" datatype="html">
         <source> Liste des modèles d&apos;abris avec nom, catégorie, prix de base et plage de longueur. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">281,283</context>
+          <context context-type="linenumber">246,248</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.table.name" datatype="html">
         <source>Nom</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">285,286</context>
+          <context context-type="linenumber">250,251</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.table.category" datatype="html">
         <source>Catégorie</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">286,287</context>
+          <context context-type="linenumber">251,252</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.table.basePrice" datatype="html">
         <source>Prix de base</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">287,288</context>
+          <context context-type="linenumber">252,253</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.table.range" datatype="html">
         <source>Longueur (min–max)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">288,289</context>
+          <context context-type="linenumber">253,254</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.table.actions" datatype="html">
         <source>Actions</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">289,291</context>
+          <context context-type="linenumber">254,256</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.table.edit" datatype="html">
         <source>Modifier</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">306,308</context>
+          <context context-type="linenumber">271,273</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.table.delete" datatype="html">
         <source>Supprimer</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">314,316</context>
+          <context context-type="linenumber">279,281</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.delete.title" datatype="html">
         <source>Confirmer la suppression</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">341,343</context>
+          <context context-type="linenumber">306,308</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.delete.message" datatype="html">
         <source>Voulez-vous vraiment supprimer ce modèle ?</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">343,344</context>
+          <context context-type="linenumber">308,309</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.delete.confirm" datatype="html">
         <source> Supprimer </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">348,350</context>
+          <context context-type="linenumber">313,315</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.delete.cancel" datatype="html">
         <source> Annuler </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.html</context>
-          <context context-type="linenumber">351,353</context>
+          <context context-type="linenumber">316,318</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.toast.loadError" datatype="html">
         <source>Échec du chargement.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.ts</context>
-          <context context-type="linenumber">163</context>
+          <context context-type="linenumber">160</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.ts</context>
-          <context context-type="linenumber">179</context>
+          <context context-type="linenumber">176</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.ts</context>
-          <context context-type="linenumber">226</context>
+          <context context-type="linenumber">220</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.toast.updated" datatype="html">
         <source>Modèle mis à jour.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.ts</context>
-          <context context-type="linenumber">264</context>
+          <context context-type="linenumber">256</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.toast.created" datatype="html">
         <source>Modèle créé.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.ts</context>
-          <context context-type="linenumber">283</context>
+          <context context-type="linenumber">273</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.toast.saveError" datatype="html">
         <source>Une erreur est survenue. Veuillez réessayer.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.ts</context>
-          <context context-type="linenumber">300</context>
+          <context context-type="linenumber">290</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.toast.deleted" datatype="html">
         <source>Modèle supprimé.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.ts</context>
-          <context context-type="linenumber">324</context>
+          <context context-type="linenumber">314</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.toast.deleteError" datatype="html">
         <source>La suppression a échoué.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.ts</context>
-          <context context-type="linenumber">339</context>
+          <context context-type="linenumber">329</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.table.editLabel" datatype="html">
         <source>Modifier <x id="name" equiv-text="name"/></source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.ts</context>
-          <context context-type="linenumber">369</context>
+          <context context-type="linenumber">359</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.shelterModels.table.deleteLabel" datatype="html">
         <source>Supprimer <x id="name" equiv-text="name"/></source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/shelter-models/shelter-models.ts</context>
-          <context context-type="linenumber">374</context>
+          <context context-type="linenumber">364</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.users.eyebrow" datatype="html">
@@ -3677,14 +3649,14 @@
         <source>Paiement (démo) accepté — commande confirmée !</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.ts</context>
-          <context context-type="linenumber">174</context>
+          <context context-type="linenumber">177</context>
         </context-group>
       </trans-unit>
       <trans-unit id="checkout.error" datatype="html">
         <source>Le paiement a échoué. Veuillez réessayer.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/checkout/checkout.ts</context>
-          <context context-type="linenumber">184</context>
+          <context context-type="linenumber">187</context>
         </context-group>
       </trans-unit>
       <trans-unit id="home.hero.badge" datatype="html">
@@ -5599,18 +5571,39 @@
           <context context-type="linenumber">109,111</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="shop.configurator.priceUnavailable" datatype="html">
+        <source> Cette combinaison longueur/hauteur n&apos;est pas offerte pour ce modèle. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/dimension-configurator/dimension-configurator.html</context>
+          <context context-type="linenumber">115,117</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.configurator.priceComputing" datatype="html">
+        <source> Calcul du prix en cours… </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/dimension-configurator/dimension-configurator.html</context>
+          <context context-type="linenumber">119,122</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="shop.configurator.priceInvalid" datatype="html">
         <source> Longueur invalide — ajustez la valeur. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/dimension-configurator/dimension-configurator.html</context>
-          <context context-type="linenumber">115,118</context>
+          <context context-type="linenumber">123,126</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.configurator.priceAnnounce" datatype="html">
         <source>Prix mis à jour : <x id="price" equiv-text="formatted"/>.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/shop/dimension-configurator/dimension-configurator.ts</context>
-          <context context-type="linenumber">259</context>
+          <context context-type="linenumber">276</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shop.configurator.unavailableAnnounce" datatype="html">
+        <source>Cette combinaison longueur/hauteur n&apos;est pas offerte pour ce modèle.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/shop/dimension-configurator/dimension-configurator.ts</context>
+          <context context-type="linenumber">284</context>
         </context-group>
       </trans-unit>
       <trans-unit id="shop.detail.back" datatype="html">

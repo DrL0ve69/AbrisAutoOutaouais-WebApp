@@ -37,16 +37,20 @@ export interface OrderLineRequest {
 
 /**
  * Ligne de commande d'un ABRI CONFIGURÉ (EPIC 9.4) — miroir EXACT du C#
- * `ShelterLineRequest(string Slug, int LengthCm, int Quantity)`
+ * `ShelterLineRequest(string Slug, int LengthCm, int ClearHeightCm, int Quantity)`
  * (Application/Orders/Commands/PlaceOrder). camelCase, sérialisation .NET.
  *
  * ⚠️ AUCUN champ prix : le serveur RECALCULE le montant via `ShelterPriceCalculator`
  * (source unique de vérité — L-004). Le prix affiché côté client (configurateur) ne sert
  * QU'À l'affichage ; il n'est jamais transmis dans la commande.
+ *
+ * La LARGEUR n'est pas transmise : elle est implicite au slug (« une largeur = un modèle », EPIC 9).
+ * La HAUTEUR dégagée, elle, est un vrai choix client → transmise et validée serveur (∈ options du modèle).
  */
 export interface ShelterLineRequest {
   readonly slug: string;
   readonly lengthCm: number;
+  readonly clearHeightCm: number;
   readonly quantity: number;
 }
 

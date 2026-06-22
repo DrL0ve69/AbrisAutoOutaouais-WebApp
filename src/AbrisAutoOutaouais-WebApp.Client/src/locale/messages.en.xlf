@@ -3431,6 +3431,18 @@
         <source> Longueur invalide — ajustez la valeur. </source>
         <target> Invalid length — adjust the value. </target>
       </trans-unit>
+      <trans-unit id="shop.configurator.priceUnavailable" datatype="html">
+        <source> Cette combinaison longueur/hauteur n&apos;est pas offerte pour ce modèle. </source>
+        <target> This length/height combination is not available for this model. </target>
+      </trans-unit>
+      <trans-unit id="shop.configurator.priceComputing" datatype="html">
+        <source> Calcul du prix en cours… </source>
+        <target> Calculating price… </target>
+      </trans-unit>
+      <trans-unit id="shop.configurator.unavailableAnnounce" datatype="html">
+        <source>Cette combinaison longueur/hauteur n&apos;est pas offerte pour ce modèle.</source>
+        <target>This length/height combination is not available for this model.</target>
+      </trans-unit>
       <trans-unit id="shop.configurator.priceAnnounce" datatype="html">
         <source>Prix mis à jour : <x id="price" equiv-text="formatted"/>.</source>
         <target>Price updated: <x id="price" equiv-text="formatted"/>.</target>
@@ -3531,25 +3543,9 @@
         <source> La longueur maximale doit être supérieure à la minimale. </source>
         <target>The maximum length must be greater than the minimum.</target>
       </trans-unit>
-      <trans-unit id="admin.shelterModels.form.basePrice" datatype="html">
-        <source>Prix de base ($)</source>
-        <target>Base price ($)</target>
-      </trans-unit>
-      <trans-unit id="admin.shelterModels.form.basePriceError" datatype="html">
-        <source> Le prix de base ne peut pas être négatif. </source>
-        <target>The base price cannot be negative.</target>
-      </trans-unit>
-      <trans-unit id="admin.shelterModels.form.archCents" datatype="html">
-        <source>Prix par arche (cents)</source>
-        <target>Price per arch (cents)</target>
-      </trans-unit>
-      <trans-unit id="admin.shelterModels.form.archHint" datatype="html">
-        <source> en CENTS · ex : 15000 = 150,00 $ </source>
-        <target>in CENTS · e.g. 15000 = $150.00</target>
-      </trans-unit>
-      <trans-unit id="admin.shelterModels.form.archError" datatype="html">
-        <source> Le prix par arche ne peut pas être négatif. </source>
-        <target>The price per arch cannot be negative.</target>
+      <trans-unit id="admin.shelterModels.form.pricingNote" datatype="html">
+        <source> Les prix sont gérés par la grille tarifaire du serveur (longueur × hauteur) et ne se modifient pas ici. </source>
+        <target>Prices are managed by the server pricing grid (length × height) and cannot be changed here.</target>
       </trans-unit>
       <trans-unit id="admin.shelterModels.form.widths" datatype="html">
         <source>Largeurs proposées (cm)</source>
