@@ -1,0 +1,738 @@
+// Vue planning (US-11.1) — calendrier en LECTURE SEULE.
+// Jetons sémantiques uniquement (aucune couleur en dur sauf les paires de badge théme-FIXES,
+// reprises de admin-shared : texte sombre sur fond clair, lisibles dans les deux thèmes —
+// L-023/L-033). Cibles ≥ 44 px. Bloc prefers-reduced-motion.
+
+.cal {
+  padding: var(--space-8) 0 var(--space-12);
+}
+
+.cal__head {
+  margin-bottom: var(--space-6);
+}
+
+.cal__eyebrow {
+  margin: 0 0 var(--space-1);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.cal__head h1 {
+  margin: 0 0 var(--space-2);
+  color: var(--color-text);
+}
+
+.cal__lead {
+  margin: 0;
+  max-width: 60ch;
+  color: var(--color-text-muted);
+}
+
+// ── Barre d'outils ──────────────────────────────────────────────
+.cal__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.cal__nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.cal__nav-btn,
+.cal__today {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.cal__period {
+  margin: 0 0 0 var(--space-2);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+  text-transform: capitalize;
+}
+
+.cal__views {
+  display: inline-flex;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  background: var(--color-surface);
+}
+
+.cal__view-option {
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: var(--color-bg-muted);
+  }
+
+  &--active {
+    // Jeton marque-FIXE (#b91c1c, identique aux 2 thèmes) — PAS --color-primary qui
+    // bascule en sombre (#f87171) où blanc/rouge clair = 2.76:1 < AA (L-023/L-033).
+    // Miroir de .btn--primary : --color-red-600 + --color-on-brand = 5.9:1 ✅.
+    background: var(--color-red-600);
+    color: var(--color-on-brand);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--color-focus-ring);
+    outline-offset: -3px;
+  }
+}
+
+// ── États ───────────────────────────────────────────────────────
+.cal__state {
+  padding: var(--space-6);
+  text-align: center;
+  color: var(--color-text-muted);
+
+  &--error {
+    color: var(--color-error);
+  }
+}
+
+// ── Grille ──────────────────────────────────────────────────────
+.cal__weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--space-1);
+  margin-bottom: var(--space-1);
+}
+
+.cal__weekday {
+  padding: var(--space-1) 0;
+  text-align: center;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-muted);
+  text-transform: capitalize;
+}
+
+.cal__cells {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.cal__grid--month .cal__cells,
+.cal__grid--week .cal__cells {
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.cal__grid--day .cal__cells {
+  grid-template-columns: 1fr;
+}
+
+.cal__cell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  width: 100%;
+  min-height: 88px;
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+
+  &:hover {
+    border-color: var(--color-primary);
+    background: var(--color-bg-muted);
+  }
+
+  &--outside {
+    background: var(--color-bg-subtle);
+    color: var(--color-text-muted);
+  }
+
+  &--has {
+    border-color: var(--color-border-strong);
+  }
+
+  &--focused,
+  &:focus-visible {
+    outline: 3px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.cal__grid--day .cal__cell {
+  min-height: 120px;
+}
+
+.cal__cell-num {
+  font-weight: var(--font-weight-bold);
+}
+
+.cal__cell-count {
+  position: absolute;
+}
+
+.cal__cell {
+  position: relative;
+}
+
+.cal__cell-count {
+  top: var(--space-2);
+  right: var(--space-2);
+  min-width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-1);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  // Pastille du compteur : même motif marque-FIXE que --active (L-023/L-033). Bien
+  // qu'aria-hidden (axe l'ignore), le chiffre reste lu par les voyants → on évite le
+  // blanc/rouge-clair illisible en sombre qu'aurait donné --color-primary.
+  color: var(--color-on-brand);
+  background: var(--color-red-600);
+  border-radius: var(--radius-full);
+}
+
+.cal__cell-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cal__chip {
+  padding: 2px var(--space-1);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  // Paires théme-FIXES (texte sombre / fond clair) — lisibles dans les deux thèmes.
+  &--pending {
+    color: #92400e;
+    background: #fef3c7;
+  }
+
+  &--confirmed {
+    color: #1e40af;
+    background: #dbeafe;
+  }
+
+  &--completed {
+    color: #166534;
+    background: #dcfce7;
+  }
+
+  &--cancelled {
+    color: #b91c1c;
+    background: #fef2f2;
+  }
+
+  &--more {
+    color: var(--color-text-muted);
+    background: var(--color-bg-muted);
+  }
+}
+
+// ── Panneau « RDV du jour » ──────────────────────────────────────
+.cal__panel {
+  margin-top: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-raised);
+
+  &:focus-visible {
+    outline: 3px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.cal__panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.cal__panel-title {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  color: var(--color-text);
+  text-transform: capitalize;
+}
+
+.cal__panel-empty {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.cal__panel-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.cal__panel-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.cal__panel-time {
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+}
+
+.cal__panel-type {
+  color: var(--color-text);
+}
+
+.cal__panel-customer {
+  color: var(--color-text);
+}
+
+.cal__panel-city {
+  color: var(--color-text-muted);
+}
+
+.cal__badge {
+  display: inline-block;
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+
+  &--pending {
+    color: #92400e;
+    background: #fef3c7;
+  }
+
+  &--confirmed {
+    color: #1e40af;
+    background: #dbeafe;
+  }
+
+  &--completed {
+    color: #166534;
+    background: #dcfce7;
+  }
+
+  &--cancelled {
+    color: #b91c1c;
+    background: #fef2f2;
+  }
+}
+
+// ── Sections du dialogue (RDV / heures) ─────────────────────────
+.cal__panel-section {
+  margin-top: var(--space-4);
+
+  &:first-of-type {
+    margin-top: 0;
+  }
+}
+
+.cal__panel-subtitle {
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-size-md);
+  color: var(--color-text);
+}
+
+// ── Liste des heures des employés ───────────────────────────────
+.cal__hours-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.cal__hours-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.cal__hours-name {
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+  min-width: 12ch;
+}
+
+.cal__hours-readonly {
+  color: var(--color-text);
+}
+
+.cal__hours-note {
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.cal__hours-form {
+  flex: 1 1 auto;
+}
+
+.cal__hours-fields {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-2) var(--space-3);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.cal__hours-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  &--note {
+    flex: 1 1 16ch;
+  }
+}
+
+.cal__hours-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+}
+
+.cal__hours-input {
+  min-height: 44px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+
+  &:focus-visible {
+    outline: 3px solid var(--color-focus-ring);
+    outline-offset: 2px;
+    border-color: var(--color-primary);
+  }
+}
+
+.cal__hours-save {
+  min-height: 44px;
+}
+
+// ── Ajout d'un RDV (US-11.2 p2) ─────────────────────────────────
+.cal__add-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.cal__add-toggle {
+  min-height: 44px;
+}
+
+// ── Optimisation de tournée (US-11.3) ──────────────────────────────────────
+.cal__optimize-btn {
+  min-height: 44px;
+}
+
+.cal__optimize-result {
+  margin: var(--space-3) 0;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-muted);
+}
+
+.cal__optimize-summary {
+  margin: 0 0 var(--space-2);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.cal__optimize-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.cal__optimize-stop {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+
+  &--kept {
+    // Surplus non recalé : fond légèrement distinct (jeton sémantique, bascule par thème).
+    background: var(--color-bg-subtle);
+  }
+}
+
+.cal__optimize-order {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  font-weight: 700;
+  // Jeton marque-FIXE (identique aux 2 thèmes) — cohérent avec .btn--primary (L-023).
+  background: var(--color-red-600);
+  color: var(--color-on-brand);
+}
+
+.cal__optimize-time {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.cal__optimize-customer {
+  color: var(--color-text);
+}
+
+.cal__optimize-city,
+.cal__optimize-km {
+  color: var(--color-text-muted);
+}
+
+.cal__optimize-flag {
+  font-size: 0.85em;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.cal__optimize-excluded {
+  margin: var(--space-2) 0 0;
+  // Info importante (RDV non optimisés) sur fond --color-bg-muted : --color-text-muted n'y passe
+  // PAS le ratio AA (axe wcag143), on utilise --color-text (contraste plein, L-016).
+  color: var(--color-text);
+}
+
+.cal__add-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+// Titre du sous-formulaire d'ajout — cible de focus stable (tabindex="-1", L-006).
+.cal__add-form-title {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+}
+
+.cal__add-fieldset {
+  margin: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.cal__add-legend {
+  padding: 0 var(--space-1);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+}
+
+.cal__add-slots,
+.cal__add-modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.cal__add-slot,
+.cal__add-mode {
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+
+  &:hover {
+    background: var(--color-bg-muted);
+  }
+
+  &--active {
+    // Jeton marque-FIXE (identique aux 2 thèmes) — miroir de .btn--primary (L-023/L-033).
+    background: var(--color-red-600);
+    color: var(--color-on-brand);
+    border-color: var(--color-red-600);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.cal__add-search {
+  margin-top: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.cal__add-help {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.cal__add-results {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.cal__add-result {
+  width: 100%;
+  min-height: 44px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-bg-muted);
+  }
+
+  &--active {
+    border-color: var(--color-red-600);
+    background: var(--color-bg-muted);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.cal__add-result-name {
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+}
+
+.cal__add-result-email {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.cal__add-selected {
+  margin: 0;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+}
+
+.cal__add-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-2) var(--space-3);
+}
+
+.cal__add-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  &--wide {
+    grid-column: 1 / -1;
+  }
+}
+
+.cal__add-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+
+  .btn {
+    min-height: 44px;
+  }
+}
+
+.cal__back {
+  display: inline-block;
+  margin-top: var(--space-6);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-medium);
+
+  &:focus-visible {
+    outline: 3px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+// ── Mouvement réduit ─────────────────────────────────────────────
+@media (prefers-reduced-motion: reduce) {
+  .cal__view-option,
+  .cal__cell,
+  .cal__add-slot,
+  .cal__add-mode {
+    transition: none;
+  }
+}

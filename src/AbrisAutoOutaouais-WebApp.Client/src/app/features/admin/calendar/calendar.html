@@ -1,0 +1,484 @@
+<section class="cal" aria-labelledby="cal-heading">
+  <div class="container">
+    <header class="cal__head">
+      <p class="cal__eyebrow" i18n="@@admin.calendar.eyebrow">Espace personnel</p>
+      <h1 id="cal-heading" tabindex="-1" i18n="@@admin.calendar.title">Calendrier des rendez-vous</h1>
+      <p class="cal__lead" i18n="@@admin.calendar.lead">
+        Vue en lecture seule des créneaux d'installation, de livraison et de démontage.
+        Sélectionnez un jour pour afficher le détail de ses rendez-vous.
+      </p>
+    </header>
+
+    <!-- ── Barre d'outils : période + bascule de vue ──────────────────────── -->
+    <div class="cal__toolbar">
+      <div class="cal__nav" role="group" aria-label="Navigation de la période"
+           i18n-aria-label="@@admin.calendar.navLabel">
+        <button type="button" class="btn btn--ghost cal__nav-btn" (click)="previousPeriod()"
+                aria-label="Période précédente" i18n-aria-label="@@admin.calendar.prev">
+          <span aria-hidden="true">←</span>
+        </button>
+        <button type="button" class="btn btn--ghost cal__today" (click)="goToday()"
+                i18n="@@admin.calendar.today">Aujourd'hui</button>
+        <button type="button" class="btn btn--ghost cal__nav-btn" (click)="nextPeriod()"
+                aria-label="Période suivante" i18n-aria-label="@@admin.calendar.next">
+          <span aria-hidden="true">→</span>
+        </button>
+        <p class="cal__period" aria-hidden="true">{{ periodLabel() }}</p>
+      </div>
+
+      <!-- Bascule mois / semaine / jour — radiogroup APG (roving tabindex + flèches). -->
+      <div class="cal__views" role="radiogroup" aria-label="Granularité d'affichage"
+           i18n-aria-label="@@admin.calendar.viewGroup">
+        @for (option of views; track option.view) {
+          <button
+            #viewRadio
+            type="button"
+            class="cal__view-option"
+            [class.cal__view-option--active]="view() === option.view"
+            role="radio"
+            [attr.aria-checked]="view() === option.view"
+            [attr.tabindex]="view() === option.view ? 0 : -1"
+            (click)="setView(option.view)"
+            (keydown)="onViewKeydown($event)">
+            {{ option.label }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Live-region SCOPÉE (changement de période/vue) — pas de landmark global (L-010). -->
+    <p class="sr-only" role="status" aria-live="polite">{{ announcement() }}</p>
+
+    @if (loading()) {
+      <p class="cal__state" i18n="@@admin.calendar.loading">Chargement du calendrier…</p>
+    } @else if (error()) {
+      <p class="cal__state cal__state--error" role="alert" i18n="@@admin.calendar.error">
+        Impossible de charger le calendrier. Réessayez plus tard.
+      </p>
+    } @else {
+      <!-- ── Grille du calendrier (role="grid" + roving tabindex) ──────────── -->
+      <div class="cal__grid" [class]="'cal__grid--' + view()" role="grid"
+           [attr.aria-label]="periodLabel()" (keydown)="onGridKeydown($event)">
+        @if (view() !== 'day') {
+          <div class="cal__weekdays" role="row">
+            @for (wd of weekdays; track wd) {
+              <span class="cal__weekday" role="columnheader">{{ wd }}</span>
+            }
+          </div>
+        }
+
+        <div class="cal__cells" role="row">
+          @for (cell of cells(); track cell.isoDate) {
+            <button
+              #gridCell
+              type="button"
+              role="gridcell"
+              class="cal__cell"
+              [class.cal__cell--outside]="!cell.inCurrentPeriod"
+              [class.cal__cell--has]="cell.bookings.length > 0"
+              [class.cal__cell--focused]="cell.isoDate === focusedKey()"
+              [attr.data-key]="cell.isoDate"
+              [attr.tabindex]="cell.isoDate === focusedKey() ? 0 : -1"
+              [attr.aria-label]="cellAria(cell)"
+              (click)="openDayPanel(cell, $event.currentTarget)">
+              <span class="cal__cell-num" aria-hidden="true">{{ cell.date.getDate() }}</span>
+              @if (cell.bookings.length > 0) {
+                <span class="cal__cell-count" aria-hidden="true">{{ cell.bookings.length }}</span>
+                <ul class="cal__cell-list" aria-hidden="true">
+                  @for (b of cell.bookings.slice(0, 3); track b.id) {
+                    <li class="cal__chip" [class]="'cal__chip--' + statusModifier(b.status)">
+                      {{ typeLabel(b.type) }}
+                    </li>
+                  }
+                  @if (cell.bookings.length > 3) {
+                    <li class="cal__chip cal__chip--more">+{{ cell.bookings.length - 3 }}</li>
+                  }
+                </ul>
+              }
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- ── Dialogue « détail du jour » (RDV + heures des employés) ──────────── -->
+      @if (openDay(); as day) {
+        <!-- role="dialog" ; nom accessible TOUJOURS non vide via #dialogTitle (date formatée,
+             présente dès l'ouverture même avant le détail async — L-040). -->
+        <aside #dayDialog class="cal__panel" tabindex="-1" role="dialog" aria-modal="true"
+               aria-labelledby="cal-dialog-title">
+          <header class="cal__panel-head">
+            <h2 id="cal-dialog-title" class="cal__panel-title">{{ dialogTitle() }}</h2>
+            <button type="button" class="btn btn--ghost btn--small" (click)="closeDay()"
+                    aria-label="Fermer le détail du jour" i18n-aria-label="@@admin.calendar.closeDay">
+              <span aria-hidden="true">✕</span>
+            </button>
+          </header>
+
+          @if (loadingDetail()) {
+            <p class="cal__panel-empty" i18n="@@admin.calendar.detailLoading">
+              Chargement du détail du jour…
+            </p>
+          } @else if (detailError()) {
+            <p class="cal__panel-empty cal__state--error" role="alert"
+               i18n="@@admin.calendar.detailError">
+              Impossible de charger le détail du jour. Réessayez plus tard.
+            </p>
+          } @else if (dayDetail(); as detail) {
+            <!-- Section RDV du jour (lecture seule) -->
+            <section class="cal__panel-section" aria-labelledby="cal-bookings-heading">
+              <div class="cal__add-head">
+                <h3 id="cal-bookings-heading" class="cal__panel-subtitle"
+                    i18n="@@admin.calendar.bookingsHeading">Rendez-vous du jour</h3>
+                <!-- Optimisation de tournée (US-11.3) — Admin uniquement. -->
+                @if (isAdmin() && detail.bookings.length > 0) {
+                  <button type="button" class="btn btn--primary btn--small cal__optimize-btn"
+                          (click)="optimizeRoute()" [disabled]="optimizing()"
+                          i18n="@@admin.calendar.optimize.button">Optimiser la tournée</button>
+                }
+              </div>
+
+              <!-- Live-region SCOPÉE de l'état d'optimisation (reset neutre avant ré-annonce, L-027). -->
+              <p class="sr-only" role="status" aria-live="polite">{{ optimizeAnnouncement() }}</p>
+
+              <!-- Résultat de l'optimisation : ordre de visite + RDV exclus. -->
+              @if (optimizeResult(); as opt) {
+                <div class="cal__optimize-result">
+                  <p class="cal__optimize-summary">{{ optimizeSummary(opt) }}</p>
+                  @if (opt.stops.length > 0) {
+                    <ol class="cal__optimize-list">
+                      @for (stop of opt.stops; track stop.bookingId) {
+                        <li class="cal__optimize-stop"
+                            [class.cal__optimize-stop--kept]="!stop.rescheduled">
+                          <span class="cal__optimize-order" aria-hidden="true">{{ stop.order + 1 }}</span>
+                          <span class="cal__optimize-time">{{ stopTimeLabel(stop.slotStart) }}</span>
+                          <span class="cal__optimize-customer">{{ stop.customerName }}</span>
+                          <span class="cal__optimize-city">{{ stop.city }}</span>
+                          <span class="cal__optimize-km">{{ legKmLabel(stop.legKm) }}</span>
+                          @if (!stop.rescheduled) {
+                            <span class="cal__optimize-flag"
+                                  i18n="@@admin.calendar.optimize.notRescheduled">non recalé</span>
+                          }
+                        </li>
+                      }
+                    </ol>
+                  }
+                  @if (opt.excludedBookingIds.length > 0) {
+                    <p class="cal__optimize-excluded">{{ excludedLabel(opt.excludedBookingIds.length) }}</p>
+                  }
+                </div>
+              }
+
+              @if (detail.bookings.length === 0) {
+                <p class="cal__panel-empty" i18n="@@admin.calendar.dayEmpty">
+                  Aucun rendez-vous ce jour-là.
+                </p>
+              } @else {
+                <ul class="cal__panel-list" role="list">
+                  @for (b of detail.bookings; track b.id) {
+                    <li class="cal__panel-item">
+                      <span class="cal__panel-time">
+                        <!-- Fuseau LOCAL (TZ vide) — cohérent avec bookings.html/installation.html ET
+                             avec le regroupement par jour (lui aussi local) : afficher en UTC ici
+                             décalerait l'heure vs /admin/reservations pour le même RDV (L-044). -->
+                        {{ b.slotStart | date: 'HH:mm' : '' : 'fr-CA' }}–{{ b.slotEnd | date: 'HH:mm' : '' : 'fr-CA' }}
+                      </span>
+                      <span class="cal__panel-type">{{ typeLabel(b.type) }}</span>
+                      <span class="cal__badge" [class]="'cal__badge--' + statusModifier(b.status)">
+                        {{ statusLabel(b.status) }}
+                      </span>
+                      <span class="cal__panel-customer">{{ b.customerName }}</span>
+                      <span class="cal__panel-city">{{ b.city }}</span>
+                    </li>
+                  }
+                </ul>
+              }
+            </section>
+
+            <!-- Section heures des employés -->
+            <section class="cal__panel-section" aria-labelledby="cal-staff-heading">
+              <h3 id="cal-staff-heading" class="cal__panel-subtitle"
+                  i18n="@@admin.calendar.staffHeading">Heures des employés</h3>
+
+              @if (detail.staff.length === 0) {
+                <p class="cal__panel-empty" i18n="@@admin.calendar.noStaff">
+                  Aucun employé enregistré.
+                </p>
+              } @else {
+                <ul class="cal__hours-list" role="list">
+                  @for (s of detail.staff; track s.employeeId; let i = $index) {
+                    <li class="cal__hours-item">
+                      <span class="cal__hours-name">{{ s.fullName }}</span>
+
+                      @if (isAdmin()) {
+                        <!-- Formulaire réactif par employé (édition Admin). Le fieldset porte un
+                             nom accessible interpolé via $localize (binding → pas i18n-, L-024). -->
+                        <form class="cal__hours-form" [formGroup]="hoursForms()[i]"
+                              (ngSubmit)="saveHours(s, i)">
+                          <fieldset class="cal__hours-fields"
+                                    [attr.aria-label]="hoursGroupLabel(s.fullName)">
+                            <label class="cal__hours-field">
+                              <span class="cal__hours-label" i18n="@@admin.calendar.hours.start">Début</span>
+                              <input type="time" class="cal__hours-input" formControlName="start" />
+                            </label>
+                            <label class="cal__hours-field">
+                              <span class="cal__hours-label" i18n="@@admin.calendar.hours.end">Fin</span>
+                              <input type="time" class="cal__hours-input" formControlName="end" />
+                            </label>
+                            <label class="cal__hours-field cal__hours-field--note">
+                              <span class="cal__hours-label" i18n="@@admin.calendar.hours.note">Note</span>
+                              <input type="text" class="cal__hours-input" formControlName="note"
+                                     maxlength="500" />
+                            </label>
+                            <button type="submit" class="btn btn--primary btn--small cal__hours-save"
+                                    [disabled]="savingEmployeeId() === s.employeeId"
+                                    [attr.aria-label]="saveLabel(s.fullName)"
+                                    i18n="@@admin.calendar.hours.save">Enregistrer</button>
+                          </fieldset>
+                        </form>
+                      } @else {
+                        <!-- Staff : lecture seule (aucun contrôle éditable, pas seulement désactivé). -->
+                        <span class="cal__hours-readonly">{{ hoursRange(s) }}</span>
+                        @if (s.note) {
+                          <span class="cal__hours-note">{{ s.note }}</span>
+                        }
+                      }
+                    </li>
+                  }
+                </ul>
+              }
+            </section>
+
+            <!-- ── Ajout d'un RDV (US-11.2 p2, Admin uniquement) ──────────────── -->
+            @if (isAdmin()) {
+              <section class="cal__panel-section cal__add" aria-labelledby="cal-add-heading">
+                <div class="cal__add-head">
+                  <h3 id="cal-add-heading" class="cal__panel-subtitle"
+                      i18n="@@admin.calendar.add.heading">Ajouter un rendez-vous</h3>
+                  @if (!showAddForm()) {
+                    <button type="button" class="btn btn--primary btn--small cal__add-toggle"
+                            (click)="openAddForm()" i18n="@@admin.calendar.add.open">
+                      + Ajouter un RDV
+                    </button>
+                  }
+                </div>
+
+                @if (showAddForm()) {
+                  <form class="cal__add-form" [formGroup]="addForm" (ngSubmit)="submitBooking()">
+                    <!-- Cible de focus post-ouverture (L-006) : TOUJOURS rendue quel que soit
+                         l'état des créneaux (chargement / aucun libre / liste), contrairement au
+                         bouton radio qui n'existe que dans la branche @else. -->
+                    <h4 #addFormHeading tabindex="-1" class="cal__add-form-title"
+                        i18n="@@admin.calendar.add.formTitle">Nouveau rendez-vous</h4>
+                    <!-- Créneau libre du jour — radiogroup APG (roving tabindex + flèches). -->
+                    <fieldset class="cal__add-fieldset">
+                      <legend class="cal__add-legend" i18n="@@admin.calendar.add.slotLegend">
+                        Créneau
+                      </legend>
+                      @if (loadingSlots()) {
+                        <p class="cal__panel-empty" i18n="@@admin.calendar.add.slotsLoading">
+                          Chargement des créneaux disponibles…
+                        </p>
+                      } @else if (availableSlots().length === 0) {
+                        <p class="cal__panel-empty" i18n="@@admin.calendar.add.noSlots">
+                          Aucun créneau disponible ce jour-là.
+                        </p>
+                      } @else {
+                        <div class="cal__add-slots" role="radiogroup"
+                             aria-label="Créneaux disponibles"
+                             i18n-aria-label="@@admin.calendar.add.slotGroup">
+                          @for (slot of availableSlots(); track slot.start; let i = $index) {
+                            <button
+                              #slotRadio
+                              type="button"
+                              class="cal__add-slot"
+                              [class.cal__add-slot--active]="selectedSlot() === slot.start"
+                              role="radio"
+                              [attr.aria-checked]="selectedSlot() === slot.start"
+                              [attr.tabindex]="
+                                selectedSlot() === slot.start || (selectedSlot() === null && i === 0)
+                                  ? 0
+                                  : -1
+                              "
+                              (click)="selectSlot(slot.start)"
+                              (keydown)="onSlotKeydown($event, i)">
+                              {{ slotLabel(slot) }}
+                            </button>
+                          }
+                        </div>
+                      }
+                    </fieldset>
+
+                    <!-- Mode client — radiogroup APG (Nouveau contact / Client existant). -->
+                    <fieldset class="cal__add-fieldset">
+                      <legend class="cal__add-legend" i18n="@@admin.calendar.add.clientLegend">
+                        Client
+                      </legend>
+                      <div class="cal__add-modes" role="radiogroup"
+                           aria-label="Type de client"
+                           i18n-aria-label="@@admin.calendar.add.modeGroup">
+                        <button
+                          #modeRadio
+                          type="button"
+                          class="cal__add-mode"
+                          [class.cal__add-mode--active]="addMode() === 'new'"
+                          role="radio"
+                          [attr.aria-checked]="addMode() === 'new'"
+                          [attr.tabindex]="addMode() === 'new' ? 0 : -1"
+                          (click)="setAddMode('new')"
+                          (keydown)="onModeKeydown($event)"
+                          i18n="@@admin.calendar.add.modeNew">Nouveau contact</button>
+                        <button
+                          #modeRadio
+                          type="button"
+                          class="cal__add-mode"
+                          [class.cal__add-mode--active]="addMode() === 'existing'"
+                          role="radio"
+                          [attr.aria-checked]="addMode() === 'existing'"
+                          [attr.tabindex]="addMode() === 'existing' ? 0 : -1"
+                          (click)="setAddMode('existing')"
+                          (keydown)="onModeKeydown($event)"
+                          i18n="@@admin.calendar.add.modeExisting">Client existant</button>
+                      </div>
+
+                      @if (addMode() === 'new') {
+                        <app-guest-contact [group]="guestForm" idPrefix="cal-add" />
+                      } @else {
+                        <div class="cal__add-search">
+                          <label class="cal__add-field">
+                            <span class="cal__hours-label"
+                                  i18n="@@admin.calendar.add.searchLabel">Rechercher un client</span>
+                            <input
+                              type="search"
+                              class="cal__hours-input"
+                              [formControl]="customerSearchTerm"
+                              (input)="onCustomerSearchInput($event)"
+                              autocomplete="off"
+                              aria-describedby="cal-add-search-help" />
+                          </label>
+                          <p id="cal-add-search-help" class="cal__add-help"
+                             i18n="@@admin.calendar.add.searchHelp">
+                            Tapez au moins 2 caractères (nom ou courriel).
+                          </p>
+
+                          <!-- Compteur de résultats annoncé (reset neutre — L-027). -->
+                          <p class="sr-only" role="status" aria-live="polite">
+                            {{ addAnnouncement() }}
+                          </p>
+
+                          @if (searchingCustomers()) {
+                            <p class="cal__panel-empty" i18n="@@admin.calendar.add.searching">
+                              Recherche en cours…
+                            </p>
+                          } @else if (customerResults().length > 0) {
+                            <ul class="cal__add-results" role="list">
+                              @for (c of customerResults(); track c.id) {
+                                <li>
+                                  <button
+                                    type="button"
+                                    class="cal__add-result"
+                                    [class.cal__add-result--active]="selectedCustomer()?.id === c.id"
+                                    [attr.aria-pressed]="selectedCustomer()?.id === c.id"
+                                    (click)="selectCustomer(c)">
+                                    <span class="cal__add-result-name">{{ c.fullName }}</span>
+                                    <span class="cal__add-result-email">{{ c.email }}</span>
+                                  </button>
+                                </li>
+                              }
+                            </ul>
+                          }
+
+                          @if (selectedCustomer(); as sc) {
+                            <p class="cal__add-selected" i18n="@@admin.calendar.add.selected">
+                              Client sélectionné : {{ sc.fullName }} ({{ sc.email }})
+                            </p>
+                          }
+                        </div>
+                      }
+                    </fieldset>
+
+                    <!-- Détails du RDV : type, adresse, marque/modèle, notes. -->
+                    <fieldset class="cal__add-fieldset">
+                      <legend class="cal__add-legend" i18n="@@admin.calendar.add.detailsLegend">
+                        Détails
+                      </legend>
+                      <div class="cal__add-grid">
+                        <label class="cal__add-field">
+                          <span class="cal__hours-label" i18n="@@admin.calendar.add.type">Type</span>
+                          <select class="cal__hours-input" formControlName="type">
+                            @for (t of types; track t) {
+                              <option [value]="t">{{ typeLabel(t) }}</option>
+                            }
+                          </select>
+                        </label>
+                        <label class="cal__add-field">
+                          <span class="cal__hours-label" i18n="@@admin.calendar.add.civic">N° civique</span>
+                          <input type="text" class="cal__hours-input" formControlName="civicNumber"
+                                 inputmode="numeric" autocomplete="off" />
+                        </label>
+                        <label class="cal__add-field cal__add-field--wide">
+                          <span class="cal__hours-label" i18n="@@admin.calendar.add.street">Rue</span>
+                          <input type="text" class="cal__hours-input" formControlName="street"
+                                 autocomplete="off" />
+                        </label>
+                        <label class="cal__add-field">
+                          <span class="cal__hours-label" i18n="@@admin.calendar.add.apartment">App.</span>
+                          <input type="text" class="cal__hours-input" formControlName="apartment"
+                                 autocomplete="off" />
+                        </label>
+                        <label class="cal__add-field">
+                          <span class="cal__hours-label" i18n="@@admin.calendar.add.city">Ville</span>
+                          <input type="text" class="cal__hours-input" formControlName="city"
+                                 autocomplete="off" />
+                        </label>
+                        <label class="cal__add-field">
+                          <span class="cal__hours-label" i18n="@@admin.calendar.add.province">Province</span>
+                          <input type="text" class="cal__hours-input" formControlName="province"
+                                 maxlength="2" autocomplete="off" />
+                        </label>
+                        <label class="cal__add-field">
+                          <span class="cal__hours-label" i18n="@@admin.calendar.add.postal">Code postal</span>
+                          <input type="text" class="cal__hours-input" formControlName="postalCode"
+                                 autocomplete="off" />
+                        </label>
+                        <label class="cal__add-field">
+                          <span class="cal__hours-label" i18n="@@admin.calendar.add.brand">Marque</span>
+                          <input type="text" class="cal__hours-input" formControlName="brand"
+                                 maxlength="100" autocomplete="off" />
+                        </label>
+                        <label class="cal__add-field">
+                          <span class="cal__hours-label" i18n="@@admin.calendar.add.model">Modèle</span>
+                          <input type="text" class="cal__hours-input" formControlName="model"
+                                 maxlength="100" autocomplete="off" />
+                        </label>
+                        <label class="cal__add-field cal__add-field--wide">
+                          <span class="cal__hours-label" i18n="@@admin.calendar.add.notes">Notes</span>
+                          <input type="text" class="cal__hours-input" formControlName="notes" />
+                        </label>
+                      </div>
+                    </fieldset>
+
+                    <div class="cal__add-actions">
+                      <button type="submit" class="btn btn--primary btn--small"
+                              [disabled]="submittingBooking()"
+                              i18n="@@admin.calendar.add.submit">Créer le rendez-vous</button>
+                      <button type="button" class="btn btn--ghost btn--small"
+                              (click)="cancelAddForm()"
+                              i18n="@@admin.calendar.add.cancel">Annuler</button>
+                    </div>
+                  </form>
+                }
+              </section>
+            }
+          }
+
+          <!-- Live-region SCOPÉE de l'état de sauvegarde des heures (reset neutre avant ré-annonce, L-027). -->
+          <p class="sr-only" role="status" aria-live="polite">{{ saveAnnouncement() }}</p>
+        </aside>
+      }
+    }
+
+    <a routerLink="/admin" class="cal__back" i18n="@@admin.calendar.back">
+      ← Retour au tableau de bord
+    </a>
+  </div>
+</section>

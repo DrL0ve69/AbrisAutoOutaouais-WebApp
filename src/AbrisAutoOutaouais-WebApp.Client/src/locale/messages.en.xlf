@@ -296,6 +296,399 @@
         <source>Confirmer, compléter ou annuler les créneaux d&apos;installation.</source>
         <target>Confirm, complete or cancel installation time slots.</target>
       </trans-unit>
+      <trans-unit id="admin.section.calendar" datatype="html">
+        <source>Calendrier</source>
+        <target>Calendar</target>
+      </trans-unit>
+      <trans-unit id="admin.section.calendarDesc" datatype="html">
+        <source>Voir les rendez-vous (installation, livraison, démontage) dans une vue calendrier en lecture seule.</source>
+        <target>View appointments (installation, delivery, removal) in a read-only calendar.</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.eyebrow" datatype="html">
+        <source>Espace personnel</source>
+        <target>Staff area</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.title" datatype="html">
+        <source>Calendrier des rendez-vous</source>
+        <target>Appointments calendar</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.lead" datatype="html">
+        <source> Vue en lecture seule des créneaux d&apos;installation, de livraison et de démontage. Sélectionnez un jour pour afficher le détail de ses rendez-vous. </source>
+        <target> Read-only view of installation, delivery and removal time slots. Select a day to see the detail of its appointments. </target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.navLabel" datatype="html">
+        <source>Navigation de la période</source>
+        <target>Period navigation</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.prev" datatype="html">
+        <source>Période précédente</source>
+        <target>Previous period</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.today" datatype="html">
+        <source>Aujourd&apos;hui</source>
+        <target>Today</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.next" datatype="html">
+        <source>Période suivante</source>
+        <target>Next period</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.viewGroup" datatype="html">
+        <source>Granularité d&apos;affichage</source>
+        <target>Display granularity</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.loading" datatype="html">
+        <source>Chargement du calendrier…</source>
+        <target>Loading calendar…</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.error" datatype="html">
+        <source> Impossible de charger le calendrier. Réessayez plus tard. </source>
+        <target> Unable to load the calendar. Try again later. </target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.closeDay" datatype="html">
+        <source>Fermer le détail du jour</source>
+        <target>Close day details</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.dayEmpty" datatype="html">
+        <source> Aucun rendez-vous ce jour-là. </source>
+        <target> No appointments on this day. </target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.detailLoading" datatype="html">
+        <source> Chargement du détail du jour… </source>
+        <target> Loading day details… </target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.detailError" datatype="html">
+        <source> Impossible de charger le détail du jour. Réessayez plus tard. </source>
+        <target> Unable to load day details. Please try again later. </target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.bookingsHeading" datatype="html">
+        <source>Rendez-vous du jour</source>
+        <target>Appointments for the day</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.staffHeading" datatype="html">
+        <source>Heures des employés</source>
+        <target>Employee hours</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.noStaff" datatype="html">
+        <source> Aucun employé enregistré. </source>
+        <target> No employees on file. </target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.hours.start" datatype="html">
+        <source>Début</source>
+        <target>Start</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.hours.end" datatype="html">
+        <source>Fin</source>
+        <target>End</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.hours.note" datatype="html">
+        <source>Note</source>
+        <target>Note</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.hours.save" datatype="html">
+        <source>Enregistrer</source>
+        <target>Save</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.hours.group" datatype="html">
+        <source>Heures de <x id="name" equiv-text="name"/></source>
+        <target>Hours for <x id="name" equiv-text="name"/></target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.hours.saveAria" datatype="html">
+        <source>Enregistrer les heures de <x id="name" equiv-text="name"/></source>
+        <target>Save hours for <x id="name" equiv-text="name"/></target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.hours.saving" datatype="html">
+        <source>Enregistrement des heures…</source>
+        <target>Saving hours…</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.hours.saved" datatype="html">
+        <source>Heures de <x id="name" equiv-text="staff.fullName"/> enregistrées.</source>
+        <target>Hours for <x id="name" equiv-text="staff.fullName"/> saved.</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.hours.saveError" datatype="html">
+        <source>Échec de l'enregistrement des heures.</source>
+        <target>Failed to save the hours.</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.optimize.button" datatype="html">
+        <source>Optimiser la tournée</source>
+        <target>Optimize route</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.optimize.notRescheduled" datatype="html">
+        <source>non recalé</source>
+        <target>not rescheduled</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.optimize.running" datatype="html">
+        <source>Optimisation de la tournée…</source>
+        <target>Optimizing the route…</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.optimize.error" datatype="html">
+        <source>L'optimisation a échoué. Réessayez.</source>
+        <target>Optimization failed. Please try again.</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.optimize.summary" datatype="html">
+        <source>Tournée optimisée : <x id="count" equiv-text="rescheduled"/> RDV recalés, <x id="km" equiv-text="km"/> km au total.</source>
+        <target>Route optimized: <x id="count" equiv-text="rescheduled"/> appointments rescheduled, <x id="km" equiv-text="km"/> km in total.</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.optimize.excludedCount" datatype="html">
+        <source><x id="count" equiv-text="count"/> RDV exclus (adresse non géolocalisée).</source>
+        <target><x id="count" equiv-text="count"/> appointments excluded (address not geolocated).</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.optimize.legKm" datatype="html">
+        <source><x id="km" equiv-text="Math.round(km)"/> km</source>
+        <target><x id="km" equiv-text="Math.round(km)"/> km</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.hours.invalid" datatype="html">
+        <source>L'heure de fin doit être postérieure à l'heure de début.</source>
+        <target>The end time must be later than the start time.</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.hours.unspecified" datatype="html">
+        <source>Horaire non précisé</source>
+        <target>Schedule not specified</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.toast.detailError" datatype="html">
+        <source>Échec du chargement du détail du jour.</source>
+        <target>Failed to load the day details.</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.back" datatype="html">
+        <source> ← Retour au tableau de bord </source>
+        <target> ← Back to dashboard </target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.view.month" datatype="html">
+        <source>Mois</source>
+        <target>Month</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.view.week" datatype="html">
+        <source>Semaine</source>
+        <target>Week</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.view.day" datatype="html">
+        <source>Jour</source>
+        <target>Day</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.weekday.sun" datatype="html">
+        <source>dim.</source>
+        <target>Sun</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.weekday.mon" datatype="html">
+        <source>lun.</source>
+        <target>Mon</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.weekday.tue" datatype="html">
+        <source>mar.</source>
+        <target>Tue</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.weekday.wed" datatype="html">
+        <source>mer.</source>
+        <target>Wed</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.weekday.thu" datatype="html">
+        <source>jeu.</source>
+        <target>Thu</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.weekday.fri" datatype="html">
+        <source>ven.</source>
+        <target>Fri</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.weekday.sat" datatype="html">
+        <source>sam.</source>
+        <target>Sat</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.toast.loadError" datatype="html">
+        <source>Échec du chargement du calendrier.</source>
+        <target>Failed to load the calendar.</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.announce" datatype="html">
+        <source>Période affichée : <x id="period" equiv-text="this.periodLabel()"/></source>
+        <target>Displayed period: <x id="period" equiv-text="this.periodLabel()"/></target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.weekOf" datatype="html">
+        <source>Semaine du <x id="date" equiv-text="from.toLocaleDateString(&apos;fr-CA&apos;)"/></source>
+        <target>Week of <x id="date" equiv-text="from.toLocaleDateString(&apos;fr-CA&apos;)"/></target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.status.pending" datatype="html">
+        <source>En attente</source>
+        <target>Pending</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.status.confirmed" datatype="html">
+        <source>Confirmée</source>
+        <target>Confirmed</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.status.completed" datatype="html">
+        <source>Complétée</source>
+        <target>Completed</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.status.cancelled" datatype="html">
+        <source>Annulée</source>
+        <target>Cancelled</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.type.installation" datatype="html">
+        <source>Installation</source>
+        <target>Installation</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.type.delivery" datatype="html">
+        <source>Livraison</source>
+        <target>Delivery</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.type.removal" datatype="html">
+        <source>Démontage</source>
+        <target>Removal</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.cellAriaEmpty" datatype="html">
+        <source><x id="date" equiv-text="date"/>, aucun rendez-vous</source>
+        <target><x id="date" equiv-text="date"/>, no appointments</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.cellAriaCount" datatype="html">
+        <source><x id="date" equiv-text="date"/>, <x id="count" equiv-text="count"/> rendez-vous</source>
+        <target><x id="date" equiv-text="date"/>, <x id="count" equiv-text="count"/> appointment(s)</target>
+      </trans-unit>
+      <!-- ===== AJOUT D'UN RDV (US-11.2 p2) ===== -->
+      <trans-unit id="admin.calendar.add.heading" datatype="html">
+        <source>Ajouter un rendez-vous</source>
+        <target>Add an appointment</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.open" datatype="html">
+        <source>+ Ajouter un RDV</source>
+        <target>+ Add an appointment</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.formTitle" datatype="html">
+        <source>Nouveau rendez-vous</source>
+        <target>New appointment</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.slotLegend" datatype="html">
+        <source>Créneau</source>
+        <target>Time slot</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.slotsLoading" datatype="html">
+        <source>Chargement des créneaux disponibles…</source>
+        <target>Loading available time slots…</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.noSlots" datatype="html">
+        <source>Aucun créneau disponible ce jour-là.</source>
+        <target>No time slots available on this day.</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.slotGroup" datatype="html">
+        <source>Créneaux disponibles</source>
+        <target>Available time slots</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.clientLegend" datatype="html">
+        <source>Client</source>
+        <target>Customer</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.modeGroup" datatype="html">
+        <source>Type de client</source>
+        <target>Customer type</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.modeNew" datatype="html">
+        <source>Nouveau contact</source>
+        <target>New contact</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.modeExisting" datatype="html">
+        <source>Client existant</source>
+        <target>Existing customer</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.searchLabel" datatype="html">
+        <source>Rechercher un client</source>
+        <target>Search for a customer</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.searchHelp" datatype="html">
+        <source>Tapez au moins 2 caractères (nom ou courriel).</source>
+        <target>Type at least 2 characters (name or email).</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.searching" datatype="html">
+        <source>Recherche en cours…</source>
+        <target>Searching…</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.selected" datatype="html">
+        <source> Client sélectionné : <x id="INTERPOLATION" equiv-text="{{ sc.fullName }}"/> (<x id="INTERPOLATION_1" equiv-text="{{ sc.email }}"/>) </source>
+        <target> Selected customer: <x id="INTERPOLATION" equiv-text="{{ sc.fullName }}"/> (<x id="INTERPOLATION_1" equiv-text="{{ sc.email }}"/>) </target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.detailsLegend" datatype="html">
+        <source>Détails</source>
+        <target>Details</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.type" datatype="html">
+        <source>Type</source>
+        <target>Type</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.civic" datatype="html">
+        <source>N° civique</source>
+        <target>Civic no.</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.street" datatype="html">
+        <source>Rue</source>
+        <target>Street</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.apartment" datatype="html">
+        <source>App.</source>
+        <target>Apt.</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.city" datatype="html">
+        <source>Ville</source>
+        <target>City</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.province" datatype="html">
+        <source>Province</source>
+        <target>Province</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.postal" datatype="html">
+        <source>Code postal</source>
+        <target>Postal code</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.brand" datatype="html">
+        <source>Marque</source>
+        <target>Brand</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.model" datatype="html">
+        <source>Modèle</source>
+        <target>Model</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.notes" datatype="html">
+        <source>Notes</source>
+        <target>Notes</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.submit" datatype="html">
+        <source>Créer le rendez-vous</source>
+        <target>Create the appointment</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.cancel" datatype="html">
+        <source>Annuler</source>
+        <target>Cancel</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.searchCount" datatype="html">
+        <source><x id="count" equiv-text="results.length"/> client(s) trouvé(s).</source>
+        <target><x id="count" equiv-text="results.length"/> customer(s) found.</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.slotsError" datatype="html">
+        <source>Échec du chargement des créneaux disponibles.</source>
+        <target>Failed to load available time slots.</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.customerSelected" datatype="html">
+        <source>Client sélectionné : <x id="name" equiv-text="customer.fullName"/>.</source>
+        <target>Selected customer: <x id="name" equiv-text="customer.fullName"/>.</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.noSlot" datatype="html">
+        <source>Veuillez choisir un créneau.</source>
+        <target>Please choose a time slot.</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.invalid" datatype="html">
+        <source>Veuillez corriger le formulaire.</source>
+        <target>Please correct the form.</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.noCustomer" datatype="html">
+        <source>Veuillez choisir un client.</source>
+        <target>Please choose a customer.</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.saving" datatype="html">
+        <source>Création du rendez-vous…</source>
+        <target>Creating the appointment…</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.success" datatype="html">
+        <source>Rendez-vous ajouté.</source>
+        <target>Appointment added.</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.add.error" datatype="html">
+        <source>L'ajout du rendez-vous a échoué. Réessayez.</source>
+        <target>Adding the appointment failed. Please try again.</target>
+      </trans-unit>
       <trans-unit id="admin.section.rentals" datatype="html">
         <source>Locations</source>
         <target>Rentals</target>
@@ -2199,6 +2592,10 @@
       <trans-unit id="navbar.admin" datatype="html">
         <source>Administration</source>
         <target>Administration</target>
+      </trans-unit>
+      <trans-unit id="navbar.planning" datatype="html">
+        <source>Planning</source>
+        <target>Schedule</target>
       </trans-unit>
       <trans-unit id="navbar.login" datatype="html">
         <source>Connexion</source>

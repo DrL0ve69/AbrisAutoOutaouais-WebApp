@@ -38,6 +38,7 @@ public sealed class ApplicationDbContext(
     public DbSet<OrderLine> OrderLines => Set<OrderLine>();
     public DbSet<RentalContract> RentalContracts => Set<RentalContract>();
     public DbSet<BookingSlot> BookingSlots => Set<BookingSlot>();
+    public DbSet<WorkHoursEntry> WorkHoursEntries => Set<WorkHoursEntry>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.AddInterceptors(softDelete, audit);

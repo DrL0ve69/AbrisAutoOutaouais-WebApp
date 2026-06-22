@@ -11,6 +11,103 @@
 
 ---
 
+## L-046 · An invariant enforced in one write path is NOT a domain guarantee — a new parallel write path on the same resource must re-apply the same guard
+
+- **Symptom.** EPIC 11, US-11.3 (`OptimizeRouteCommandHandler`): the handler rewrites the `SlotStart`
+  of all bookings for a given day onto a 2-hour grid. First implementation assigned `gridSlots[index]`
+  without checking whether a slot was already occupied by a booking that keeps its original time — an
+  **excluded** booking (no lat/lng coordinates, not optimised) or a **surplus** one (grid slot in the
+  past → not reschedulable). Result: two bookings landing on the same slot = **silent double-booking**.
+  The existing `RescheduleBookingCommand` prevents exactly this via `SlotRules.Overlaps` (same-day
+  overlap check). That invariant lived in the « reschedule » write path but was **absent from the new
+  « optimise » write path**. All tests were green; caught as a Minor by the independent reviewer. Fix:
+  freeze the times of non-reschedulable bookings first, then assign only genuinely free grid slots via
+  `SlotRules.Overlaps`; a reschedulable booking with no free slot becomes surplus.
+- **Rule.** When adding a new write path (command handler, batch job, seeder) that places or moves
+  a resource governed by an invariant (appointment slot, stock unit, capacity…), grep **all other
+  write paths that mutate the same entity/aggregate** and enumerate the guards they enforce. Then
+  re-apply the identical guard in the new path — an invariant coded in one handler is not a domain
+  guarantee as long as a parallel path can bypass it. Concrete gesture: before finishing any handler
+  that mutates a shared resource, grep the codebase for other `Command`/`Handler` files touching the
+  same entity and cross-check their guard list against yours. The durable fix is to lift the invariant
+  into a shared domain rule or a well-named static method (`SlotRules.Overlaps`, `SlotRules.IsGridSlotFree`)
+  so every path shares the same callable — if you have to duplicate the guard, you've already accepted
+  the risk of a future divergence. Cousin of [[L-007]] (a temporal assumption that makes a query
+  correct lives far from the query that depends on it) on the **parallel-write-path** axis: the
+  assumption here is not about window size but about which paths are responsible for enforcing a
+  booking invariant.
+- **Refs.**
+  `src/AbrisAutoOutaouais-WebApp.Application/Planning/Commands/OptimizeRoute/OptimizeRouteCommandHandler.cs`
+  (frozen times + `IsGridSlotFree` via `SlotRules.Overlaps` — the fix),
+  `src/AbrisAutoOutaouais-WebApp.Application/Bookings/Commands/RescheduleBooking/RescheduleBookingCommand.cs`
+  (the origin of the `Overlaps` invariant),
+  `src/AbrisAutoOutaouais-WebApp.Application/Bookings/Common/SlotRules.cs`,
+  `OptimizeRouteCommandHandlerTests.Handle_GridSlotOccupiedByExcludedBooking_ReschedulesOntoFreeSlot_NoCollision`,
+  branch `feat/epic-11-calendrier`.
+
+## L-045 · A new `ISoftDeletable` entity with a unique business-key index must use `HasFilter("[IsDeleted] = 0")` — unconditional `IsUnique()` creates a latent re-insert trap
+
+- **Symptom.** EPIC 11, US-11.2: `WorkHoursEntry` implements `ISoftDeletable` (global `!IsDeleted`
+  query filter) but its initial `(EmployeeId, WorkDate)` unique index was unconditional —
+  `.IsUnique()` with no `HasFilter`. If a delete path is ever added, soft-deleting an entry for
+  employee E on day D marks it `IsDeleted = 1` but the invisible row still occupies the unique index
+  slot. A subsequent re-insert of hours for the same E/D pair would fail with a **unique-constraint
+  violation at the DB level**, even though EF's query filter hides the deleted row from every query.
+  No error at write time, no warning at migration time — the trap is detectable only when the re-insert
+  actually executes in prod. Caught as a Minor by the independent reviewer. The fix was
+  `.IsUnique().HasFilter("[IsDeleted] = 0")` — the identical idiom already used by `Product` and
+  `ShelterModel` in this codebase; the new entity simply diverged from the established pattern.
+- **Rule.** Every entity that implements `ISoftDeletable` AND carries a unique business-key index
+  must have `.HasFilter("[IsDeleted] = 0")` on that index — **always, even when no delete path
+  exists yet**. The filter is a pre-emptive contract between the unique-index invariant and the
+  soft-delete mechanism: a soft-deleted row must release its index slot. The established idiom in
+  this repo is `Product`/`ShelterModel` — follow it exactly. Two guards: (1) After writing any
+  `.IsUnique()` in an entity-type configuration, grep the corresponding domain entity for
+  `ISoftDeletable` — if the interface is present, add `HasFilter("[IsDeleted] = 0")` before
+  committing; (2) After adding `ISoftDeletable` to an existing entity, grep its configuration for
+  every `.IsUnique()` call and retrofit the filter. Regenerate the migration and snapshot after the
+  fix — the migration will add `filter: "[IsDeleted] = 0"` to the existing index definition.
+- **Refs.**
+  `src/AbrisAutoOutaouais-WebApp.Infrastructure/Persistence/Configurations/WorkHoursEntryConfiguration.cs`
+  (`.IsUnique().HasFilter("[IsDeleted] = 0")` — the fix),
+  `Configurations/ProductConfiguration.cs` + `Configurations/ShelterModelConfiguration.cs`
+  (the established repo idiom to follow), branch `feat/epic-11-calendrier`.
+
+## L-044 · A datetime rendered with an explicit UTC timezone on one screen while sibling screens use local timezone creates a silent cross-screen mismatch — pick one canonical timezone and share it between display AND grouping
+
+- **Symptom.** EPIC 11, US-11.1 (`calendar.html`, read-only `/planning` view): the « RDV du jour »
+  panel rendered slot times with an explicit UTC timezone: `{{ b.slotStart | date: 'HH:mm' : 'UTC' : 'fr-CA' }}`.
+  Every sibling screen in the app renders the same `slotStart` values using the **local browser
+  timezone** (empty timezone parameter): `bookings.html` (`date: 'short' : '' : 'fr-CA'`),
+  `installation.html` (same). Two silent consequences: (1) **Cross-screen inconsistency** — the same
+  appointment displayed « 14:00 » on `/admin/reservations` (local) and « 10:00 » on `/planning`
+  (UTC), a 4–5 h drift in EDT. Staff could not reconcile the two screens. (2) **Internal
+  inconsistency** — the day-grouping in `calendar-grid.util.ts` used `isoDate(new Date(slotStart))`
+  (local date), but the hour displayed was UTC, so a slot grouped under local day J could visually
+  show an hour belonging to J±1. Both defects were invisible to tests: vitest specs asserted only
+  client names (not the rendered hour), and an axe scan sees nothing (no WCAG violation). The defect
+  was detectable only by reading the template or comparing two screens in prod. Caught by the
+  independent reviewer (US-11.1 code review).
+- **Rule.** Choose ONE canonical timezone per business value (for this app: **local browser timezone**,
+  i.e. empty timezone parameter in the Angular `date` pipe) and apply it consistently to **both**
+  display and grouping/sorting. Three guards: (1) When rendering a datetime on a new screen, **grep
+  sibling screens** that render the same business value and copy their timezone parameter exactly —
+  never introduce an explicit `'UTC'` (or any other literal) where siblings use `''`. (2) When
+  grouping/bucketing by day and displaying the hour in the same component, confirm both operations use
+  the **same** timezone reference — a local-day bucket with a UTC-hour label is internally
+  inconsistent. (3) **Pin the rendered hour in a test with a forced timezone** (`test.use({ timezoneId:
+  'America/Toronto' })` in Playwright e2e, or equivalent); assert that a slot stored as `12:00Z`
+  displays as `« 08:00 »` (EDT), NOT `« 12:00 »` — a test without a forced timezone is vacuous in
+  any CI environment running UTC (local == UTC → the bug is invisible). This is the **timezone** axis
+  of [[L-004]] (one agreed format shared across all consumers of a business value) and of [[L-009]]
+  (an assertion that cannot distinguish the correct from the incorrect case is vacuous).
+- **Refs.** `src/AbrisAutoOutaouais-WebApp.Client/src/app/features/admin/calendar/calendar.html`
+  (hour display corrected to local, empty timezone param),
+  `features/admin/calendar/util/calendar-grid.util.ts` (day grouping — local `isoDate`),
+  `features/admin/bookings/bookings.html` + `features/installation/installation.html` (app's local
+  timezone convention), `e2e/admin-calendar.spec.ts` (`timezoneId: 'America/Toronto'` + asserts
+  `08:00` ≠ `12:00`), branch `feat/epic-11-calendrier`.
+
 ## L-043 · An Angular `effect()` that reads `form.getRawValue()` does NOT re-run when async data fills the form — depend on the SIGNAL that actually changes
 
 - **Symptom.** EPIC 13, sub-task 13.2 (`MapVoieComponent`): an `effect()` was initially written to
@@ -852,13 +949,29 @@
   keystrokes to whatever node has focus, but until Angular re-wires the `(input)` listener *after
   hydration*, those native keystrokes fire **no Angular event** → no `places/suggest` call → nothing
   renders. Under suite load hydration lands later, so the race flipped run-to-run.
-- **Rule.** In an SSR+hydration app, type through the **locator** (`locator.pressSequentially(...)`,
-  which auto-focuses and waits for actionability), not `page.keyboard.type`. Wrap any
-  « type → debounced request → rendered result » sequence so the hydration race self-heals: clear the
-  field first (so `distinctUntilChanged` re-emits), then `await page.waitForResponse(/places\/suggest/)`
-  as a **network barrier** before asserting the rendered suggestions — never a fixed `waitForTimeout`.
-  Same vacuity/flake family as [[L-009]] (assertions made meaningless by environment timing), but the
-  trigger here is hydration latency, not a CSS breakpoint.
+  **Second hit — a full interaction sequence, not just a bare `fill` (EPIC 11, `mesurer.spec.ts`
+  Conseil dark, flake préexistant sur master).** `fill('berline','1')` → click « calculer le gabarit »
+  → `expect(heading 'Abri double pointu 16 pi')` failed in CI on the dark-theme variant only (later
+  suite position → slower hydration, amplified by `[WebServer] ECONNREFUSED` noise from the SSR shell).
+  Before hydration: either the `fill` doesn't reach the reactive model (no emission → no result), or
+  the click fires before the step's handler is wired (stage never mounts). **Diagnostic trap:** the
+  `[WebServer] ECONNREFUSED` log line looks like a missing backend, but the suggestion data came from
+  a `page.route` mock (client-side, post-hydration) — `page.route` does **not** intercept SSR fetches,
+  but the relevant flow is client-side and correctly mocked. The real cause was the interaction race,
+  not missing data.
+- **Rule.** In an SSR+hydration app: (1) type through the **locator** (`locator.pressSequentially(...)`,
+  which auto-focuses and waits for actionability), not `page.keyboard.type`; (2) gate any
+  « type → debounced request → rendered result » sequence on a **network barrier**
+  (`page.waitForResponse(/…/)`) — never a fixed `waitForTimeout`; (3) wrap the **entire interaction
+  sequence** (`fill → toHaveValue → click → assert visible`) in `expect(async () => {…}).toPass()`
+  when the sequence spans a step transition or a network/render boundary — a `toPass` around the `fill`
+  alone is not enough if the subsequent click also fires before the handler is hydrated. **Rule of
+  thumb: every keystroke, `fill`, or click that must land in a reactive form or trigger a step
+  transition on an SSR+hydrated page goes through a `toPass` (or a network/state barrier), never a
+  bare one-shot.** When triaging a CI-only e2e red, get the REAL error from the CI log first
+  ([[L-001]]) and check whether the data is mocked via `page.route` — a `[WebServer] ECONNREFUSED`
+  is a **lure** when the relevant data flow is client-side post-hydration; the `ng-pristine`/empty-value
+  tell points straight at the interaction race, not at missing backend data.
   **Corollary — a one-shot `fill()` on a reactive-form control has the SAME race (Épic G).** The D1
   civic-preservation test did `await page.locator('#civicNumber').fill('77')` once, **outside** any
   retry, right after a `goto` that only awaited `#street` visibility. Before the civic field's
@@ -868,13 +981,11 @@
   locally — faster hydration), reproducible there across runs (it reads like a regression, but isn't:
   the spec is byte-identical to master and none of the `/location` cascade changed). Fix: wrap the
   `fill` in `await expect(async () => { await ctrl.fill('77'); await expect(ctrl).toHaveValue('77'); }).toPass()`
-  so Playwright replays it until Angular actually registers the value — the same self-heal you already
-  apply to combobox typing. **Rule of thumb: every keystroke/`fill` that must land in a reactive form
-  on an SSR+hydrated page goes through a `toPass` (or a network/state barrier), never a bare one-shot.**
-  When triaging such a CI-only e2e red, get the REAL error from the CI log first ([[L-001]]) — the
-  `ng-pristine`/empty-value tell points straight at the hydration race, not at the diff under review.
+  so Playwright replays it until Angular actually registers the value.
 - **Refs.** `e2e/address-autocomplete.spec.ts` (`pressSequentially` + `waitForResponse` barrier;
-  civic `fill` wrapped in `expect(...).toPass()`), commits `6e23b48` (combobox), `feat/epic-g-catalog` (civic).
+  civic `fill` wrapped in `expect(...).toPass()`), commits `6e23b48` (combobox), `feat/epic-g-catalog`
+  (civic); `e2e/mesurer.spec.ts` (helper `calculerVehiculeBerline` = fill→toHaveValue→click→heading
+  dans `toPass`; `fillMapAddress` durci), branch `feat/epic-11-calendrier`.
 
 ## L-011 · Interchangeable port implementations must each emit the CANONICAL format — and the test mock must mimic the DEFAULT provider, not a conformant one
 
@@ -1002,7 +1113,7 @@
   grid constants), `IntegrationTest/Bookings/BookingsEndpointTests.cs`
   (`Reschedule_ToSlotTakenByAnotherBooking_Returns422`).
 
-## L-006 · Move focus AFTER render, not in the same tick that removes the element
+## L-006 · Move focus AFTER render, not in the same tick that removes the element; the focus target must be UNCONDITIONALLY rendered
 
 - **Symptom.** A « retour de focus » handler called `element.focus()` **synchronously** inside an
   RxJS `next`, right after a signal update that removes the triggering button from the DOM (the
@@ -1011,18 +1122,39 @@
   `<body>`. WCAG 2.4.3 (focus order) was violated even though the code "looked" right, and an
   `isConnected` heuristic hid it. The status-only e2e passed; the bug surfaced only when a **vitest**
   `expect(heading).toHaveFocus()` assertion was added and failed.
-- **Rule.** When the focus target only exists **after** the next render (a signal add/removes DOM),
-  focus it **after** the view updates — `setTimeout(() => target.focus())` (macrotask, post-CD),
-  `afterNextRender`, or an `effect()` reading the target's `viewChild()` signal so it re-runs once the
-  element is in the DOM. Never call `.focus()` in the same tick as the signal update that changes
-  which elements exist. Split the cases: focus the **trigger** (still present) when nothing changed
-  (dismiss / error), but focus a **stable fallback** (the heading) *after render* when the trigger is
-  being removed. And **assert focus at the unit level** (vitest `toHaveFocus()`) — a status-only e2e
-  never catches a focus bug. Same discipline as [[L-002]]: the a11y assertion must test the real
-  post-condition, not a proxy.
+  **Second hit (EPIC 11, US-11.2 — calendar add-appointment overlay):** an `effect()` targeted a
+  `viewChild` (`#addFormFirstField`) declared inside `@if (availableSlots().length > 0)`. On any day
+  with no free slots or while slots are loading — the normal case for a busy installation company — the
+  branch was inactive, the `viewChild` returned `undefined`, the effect silently no-oped, and focus
+  fell to `<body>`. Invisible to happy-path tests (which always provided slots) and to axe. Caught by
+  the independent reviewer as a Minor.
+- **Rule.** Two rules, both required:
+  (1) **Timing.** When the focus target only exists **after** the next render (a signal add/removes
+  DOM), focus it **after** the view updates — `setTimeout(() => target.focus())` (macrotask, post-CD),
+  `afterNextRender`, or an `effect()` reading the target's `viewChild()` signal. Never call `.focus()`
+  in the same tick as the signal update that changes which elements exist. Focus the **trigger** (still
+  present) when nothing changed (dismiss / error); focus a **stable fallback** (the heading) *after
+  render* when the trigger is being removed.
+  (2) **Stability of the target.** The element a `viewChild` targets for post-open focus must be
+  **unconditionally rendered** within the container — a heading or `<legend>` with `tabindex="-1"`
+  placed at the top of the sub-form, **outside** any `@if/@else` guard. A `viewChild` whose element
+  lives inside a conditional branch returns `undefined` on the empty/loading path and silently no-ops.
+  This is the most dangerous failure mode: no error, no warning, focus drops to `<body>`, and happy-
+  path tests never exercise the empty branch (see also [[L-040]]: the unresolved/empty path is both
+  the one that breaks and the one tests skip). Guard with a vitest test that passes `availableSlots =
+  []` (or equivalent empty/loading state) and asserts `toHaveFocus()` on the unconditional element.
+  **Corollary — static target → synchronous focus is safe (see [[L-015]]):** when the focus target is
+  a static template element (only `tabindex`/class toggled, never added/removed), `.focus()` right
+  after `signal.set(...)` is correct — `tabindex="-1"` does not block programmatic focus.
+  And **assert focus at the unit level** (vitest `toHaveFocus()`) in all cases — a status-only e2e
+  never catches a focus bug ([[L-002]]).
 - **Refs.** `features/account/rentals/rentals.ts` (`confirmCancel` / `focusTrigger` /
   `focusHeadingAfterRender`, the `effect()` reading `cancelDialog()`),
-  `features/account/rentals/rentals.spec.ts` (the `toHaveFocus()` assertions).
+  `features/account/rentals/rentals.spec.ts` (the `toHaveFocus()` assertions);
+  `features/admin/calendar/calendar.ts` (`addFormHeading` unconditional `viewChild` + focus effect),
+  `features/admin/calendar/calendar.html` (`#addFormHeading tabindex="-1"` outside `@if (availableSlots().length > 0)`),
+  `features/admin/calendar/calendar.spec.ts` (test « jour sans créneau libre » → focus on heading),
+  branch `feat/epic-11-calendrier`.
 
 ## L-005 · A regression guard only guards if CI actually runs it
 

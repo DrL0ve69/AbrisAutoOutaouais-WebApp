@@ -81,6 +81,35 @@ internal sealed class RadarPlacesService(
         }
     }
 
+    public async Task<(double Lat, double Lng)?> GeocodeAsync(
+        string civicNumber, string street, string city, string province, CancellationToken ct = default)
+    {
+        var terms = string.Join(' ', new[] { civicNumber, street, city, province }
+            .Where(t => !string.IsNullOrWhiteSpace(t)));
+
+        var requestUri =
+            $"v1/search/autocomplete?query={Uri.EscapeDataString(terms)}" +
+            $"&near={_options.BiasLat.ToString(System.Globalization.CultureInfo.InvariantCulture)}," +
+            $"{_options.BiasLng.ToString(System.Globalization.CultureInfo.InvariantCulture)}" +
+            "&limit=1";
+
+        try
+        {
+            using var request = BuildRequest(requestUri);
+            using var response = await httpClient.SendAsync(request, ct);
+            response.EnsureSuccessStatusCode();
+            var payload = await response.Content.ReadFromJsonAsync<RadarResponse>(ct);
+            var address = payload?.Addresses?
+                .FirstOrDefault(a => a.Latitude is not null && a.Longitude is not null);
+            return address?.Latitude is { } lat && address.Longitude is { } lng ? (lat, lng) : null;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            logger.LogWarning(ex, "Échec du géocodage Radar pour « {Street} ».", street);
+            return null;
+        }
+    }
+
     private HttpRequestMessage BuildRequest(string requestUri)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, requestUri);

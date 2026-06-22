@@ -30,6 +30,11 @@ export interface CreateBookingRequest {
   readonly model?: string | null;
   /** Contact invité (Épic F) — rempli pour un visiteur non connecté, omis si connecté. */
   readonly guestContact?: GuestContactRequest | null;
+  /**
+   * Client existant ciblé (calendrier admin, US-11.2). N'est HONORÉ par le serveur que si l'appelant
+   * est Staff/Admin ; sinon ignoré en silence (repli). Mutuellement exclusif avec `guestContact`.
+   */
+  readonly targetCustomerId?: string | null;
 }
 
 /** Charge utile pour POST /bookings/{id}/reschedule — correspond au RescheduleBookingRequest C#. */

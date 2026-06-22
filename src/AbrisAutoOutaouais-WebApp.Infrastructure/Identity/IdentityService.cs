@@ -1,6 +1,7 @@
 using AbrisAutoOutaouais_WebApp.Application.Auth.DTOs;
 using AbrisAutoOutaouais_WebApp.Application.Common.Interfaces;
 using AbrisAutoOutaouais_WebApp.Application.Common.Models;
+using AbrisAutoOutaouais_WebApp.Domain.Constants;
 using Domain.ValueObjects;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -152,6 +153,43 @@ public sealed class IdentityService : IIdentityService
         }
 
         return result;
+    }
+
+    public async Task<IReadOnlyList<StaffMemberDto>> GetStaffMembersAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var staff = await _userManager.GetUsersInRoleAsync(Roles.Staff);
+        return staff
+            .Select(u => new StaffMemberDto(u.Id, u.FullName))
+            .OrderBy(s => s.FullName, StringComparer.CurrentCultureIgnoreCase)
+            .ToList();
+    }
+
+    public async Task<IReadOnlyList<CustomerSearchResultDto>> SearchCustomersAsync(
+        string term, int take, CancellationToken cancellationToken = default)
+    {
+        // Hypothèse : un compte Staff/Admin ne porte PAS aussi le rôle Customer — sinon il
+        // apparaîtrait dans ce picker client (les rôles sont mutuellement exclusifs ici).
+        var customers = await _userManager.GetUsersInRoleAsync(Roles.Customer);
+        var trimmed = term.Trim();
+
+        // Filtre en mémoire (collection déjà matérialisée par GetUsersInRoleAsync, comme pour le
+        // staff) : nom complet OU courriel « contient » le terme, insensible à la casse. On exclut
+        // les comptes express anonymes (créés en silence pour un invité, sans nom — Épic F) pour ne
+        // pas polluer la liste de l'admin. `string.Contains` sur une VALEUR (pas une collection)
+        // n'est pas concerné par le piège de traduction EF (L-038) — ici tout est en mémoire.
+        return customers
+            .Where(u => !(u.IsExpress
+                && string.IsNullOrWhiteSpace(u.FirstName)
+                && string.IsNullOrWhiteSpace(u.LastName)))
+            .Where(u =>
+                u.FullName.Contains(trimmed, StringComparison.CurrentCultureIgnoreCase)
+                || (u.Email is not null
+                    && u.Email.Contains(trimmed, StringComparison.CurrentCultureIgnoreCase)))
+            .OrderBy(u => u.FullName, StringComparer.CurrentCultureIgnoreCase)
+            .Take(take)
+            .Select(u => new CustomerSearchResultDto(u.Id, u.FullName, u.Email ?? "—"))
+            .ToList();
     }
 
     public async Task<Result> UpdateProfileAsync(

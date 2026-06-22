@@ -25,4 +25,13 @@ public interface IPlacesService
     /// </summary>
     Task<string?> LookupPostalCodeAsync(
         string civicNumber, string street, string city, string province, CancellationToken ct = default);
+
+    /// <summary>
+    /// Géocode une adresse civique en coordonnées (latitude, longitude). Utilisé À LA CRÉATION d'un
+    /// RDV pour l'optimisation de tournée (US-11.3). Renvoie <c>null</c> si introuvable ou en cas
+    /// d'échec du fournisseur (jamais d'exception qui remonte — un géocodage manqué ne doit pas
+    /// empêcher la création du RDV).
+    /// </summary>
+    Task<(double Lat, double Lng)?> GeocodeAsync(
+        string civicNumber, string street, string city, string province, CancellationToken ct = default);
 }

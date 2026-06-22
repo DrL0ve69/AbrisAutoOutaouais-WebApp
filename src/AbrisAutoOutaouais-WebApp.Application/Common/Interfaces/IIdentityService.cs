@@ -41,6 +41,22 @@ public interface IIdentityService
     /// <summary>Tous les utilisateurs (réservé à l'administration), du plus récent au plus ancien.</summary>
     Task<IReadOnlyList<AdminUserDto>> GetAllUsersAsync(CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Tous les employés (utilisateurs de rôle <c>Staff</c>), triés par nom complet (US-11.2 planning).
+    /// Permet à la couche Application d'énumérer les employés sans référencer <c>AppUser</c> (frontière).
+    /// </summary>
+    Task<IReadOnlyList<StaffMemberDto>> GetStaffMembersAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Recherche les clients (rôle <c>Customer</c>) dont le nom complet OU le courriel contient
+    /// <paramref name="term"/> (insensible à la casse), triés par nom complet, limités à
+    /// <paramref name="take"/> résultats (US-11.2 : ajout d'un RDV depuis le calendrier admin).
+    /// Exclut les comptes express anonymes (sans nom). Permet à la couche Application de chercher un
+    /// client sans référencer <c>AppUser</c> (frontière Clean Architecture / DIP).
+    /// </summary>
+    Task<IReadOnlyList<CustomerSearchResultDto>> SearchCustomersAsync(
+        string term, int take, CancellationToken cancellationToken = default);
+
     /// <summary>Met à jour les informations de profil.</summary>
     Task<Result> UpdateProfileAsync(Guid userId, UpdateProfileRequest request, CancellationToken cancellationToken = default);
 

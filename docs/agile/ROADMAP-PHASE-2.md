@@ -37,7 +37,7 @@
 | **EPIC 8** | Gestion des employés & paie (informative) | 2 | EPIC 11 | 8–13 | Could | 🟠 Moyen (conformité fiscale si paie réelle) |
 | **EPIC 9** | Catalogue par dimensions configurables | 3 | — | 13 | Should | ✅ **TERMINÉ (2026-06-19)** — PR #45 |
 | **EPIC 10** | Suggestion d'abris intelligente (mesure & véhicule) | 4 | EPIC 9 | 8 | Should | ✅ **TERMINÉ (2026-06-21)** — PR #50 |
-| **EPIC 11** | Calendrier & planification terrain (horaires, RDV, routage) | 5 | — | 21 | Could | 🟠 Moyen (nouveau domaine + routage) |
+| **EPIC 11** | Calendrier & planification terrain (horaires, RDV, routage) | 5 | — | 21 | Could | ✅ **TERMINÉ (2026-06-22)** — PR à venir |
 | **EPIC 12** | Correctifs de contraste formulaires/focus | 6 / (1)·2 | — | 3 | **Should** | 🟢 Faible — **partie 1 LIVRÉE 2026-06-17** |
 | **EPIC 13** | Refonte du parcours `/mesurer` (ordre, adresse optionnelle, Mesure+Conseil) | (1)·6 | EPIC 9·10·15 | 8 | Should | 🟠 Moyen (UX + dépend du fit) |
 | **EPIC 14** | Carte satellite plus précise (zoom de mesure) | (1)·5.1 | — | 5 | Should | 🟠 Moyen (licence/coût tuiles HD) |
@@ -49,7 +49,7 @@
 **Ordre conseillé d'attaque** : **EPIC 12** (reste — autres formulaires, rapide) → **EPIC 15**
 (spike adresse — débloque la refonte mesurer) → **EPIC 9 → EPIC 10 → EPIC 13** (la chaîne
 catalogue/fit/parcours mesurer, valeur métier directe) → **EPIC 14** (précision carte) →
-**EPIC 11** (calendrier, gros mais autonome) → **EPIC 8** (paie informative, s'appuie sur 11) →
+~~**EPIC 11**~~ (calendrier — **TERMINÉ 2026-06-22**) → **EPIC 8** (paie informative, s'appuie sur 11) →
 **EPIC 7** (paiements, le plus risqué — *spike de recherche* d'abord, bac-à-sable pour un portfolio).
 **EPIC 16** est en partie déjà livré (diagramme) ; il reste à dérouler le backlog des briques.
 

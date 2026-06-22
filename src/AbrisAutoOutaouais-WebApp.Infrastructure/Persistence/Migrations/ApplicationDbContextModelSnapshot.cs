@@ -376,6 +376,55 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Migrations
                     b.ToTable("ShelterModelDimension");
                 });
 
+            modelBuilder.Entity("AbrisAutoOutaouais_WebApp.Domain.Entities.WorkHoursEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("EndMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int?>("StartMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateOnly>("WorkDate")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId", "WorkDate")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("WorkHoursEntries");
+                });
+
             modelBuilder.Entity("AbrisAutoOutaouais_WebApp.Infrastructure.Identity.AppRole", b =>
                 {
                     b.Property<Guid>("Id")
@@ -532,6 +581,12 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
+
+                    b.Property<double?>("Lat")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("Lng")
+                        .HasColumnType("float");
 
                     b.Property<string>("Model")
                         .HasMaxLength(100)
@@ -874,6 +929,15 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Migrations
                         .WithMany("Dimensions")
                         .HasForeignKey("ShelterModelId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("AbrisAutoOutaouais_WebApp.Domain.Entities.WorkHoursEntry", b =>
+                {
+                    b.HasOne("AbrisAutoOutaouais_WebApp.Infrastructure.Identity.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 

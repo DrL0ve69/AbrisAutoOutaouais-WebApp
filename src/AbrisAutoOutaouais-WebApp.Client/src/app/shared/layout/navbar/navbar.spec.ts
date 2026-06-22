@@ -20,6 +20,9 @@ function authStub(authenticated = true) {
   return {
     isAuthenticated: signal(authenticated),
     isAdmin: signal(false),
+    // Lien « Planning » (US-11.1) conditionné par isStaff() — sans ce signal dans le
+    // stub, le template lèverait à la détection de changement (auth.isStaff undefined).
+    isStaff: signal(false),
     fullName: signal('Jeanne Tremblay'),
     avatar: signal<string | null>(null),
     logout: vi.fn(),

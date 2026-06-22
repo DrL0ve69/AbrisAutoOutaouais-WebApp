@@ -62,6 +62,27 @@ internal sealed class GooglePlacesService(
         }
     }
 
+    public async Task<(double Lat, double Lng)?> GeocodeAsync(
+        string civicNumber, string street, string city, string province, CancellationToken ct = default)
+    {
+        var terms = string.Join(' ', new[] { civicNumber, street, city, province }
+            .Where(t => !string.IsNullOrWhiteSpace(t)));
+
+        try
+        {
+            var payload = await httpClient.GetFromJsonAsync<GoogleGeocodeResponse>(BuildUri(terms), ct);
+            var location = payload?.Results?
+                .Select(r => r.Geometry?.Location)
+                .FirstOrDefault(l => l?.Lat is not null && l.Lng is not null);
+            return location?.Lat is { } lat && location.Lng is { } lng ? (lat, lng) : null;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            logger.LogWarning(ex, "Échec du géocodage Google pour « {Street} ».", street);
+            return null;
+        }
+    }
+
     private string BuildUri(string terms) =>
         $"maps/api/geocode/json?address={Uri.EscapeDataString(terms)}" +
         $"&key={Uri.EscapeDataString(_options.Google.ApiKey)}";
