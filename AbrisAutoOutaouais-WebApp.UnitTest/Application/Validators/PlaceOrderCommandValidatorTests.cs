@@ -95,11 +95,11 @@ public sealed class PlaceOrderCommandValidatorTests
 
     // ── Lignes d'abri configuré (EPIC 9.4) ──────────────────────────────────────
 
-    private static PlaceOrderCommand ShelterPickup(string slug, int lengthCm, int qty) => new(
+    private static PlaceOrderCommand ShelterPickup(string slug, int lengthCm, int qty, int clearHeightCm = 198) => new(
         Lines: [],
         DeliveryType: DeliveryType.Pickup,
         ShippingAddress: null,
-        ShelterLines: [new ShelterLineRequest(slug, lengthCm, qty)]);
+        ShelterLines: [new ShelterLineRequest(slug, lengthCm, clearHeightCm, qty)]);
 
     [Fact]
     public void Validate_ShelterOnlyOrder_HasNoValidationErrors()
@@ -142,5 +142,14 @@ public sealed class PlaceOrderCommandValidatorTests
     {
         _validator.TestValidate(ShelterPickup("abri-simple", lengthCm, 1))
             .ShouldHaveValidationErrorFor("ShelterLines[0].LengthCm");
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-198)]
+    public void Validate_ShelterLineWithNonPositiveClearHeight_HasError(int clearHeightCm)
+    {
+        _validator.TestValidate(ShelterPickup("abri-simple", 488, 1, clearHeightCm))
+            .ShouldHaveValidationErrorFor("ShelterLines[0].ClearHeightCm");
     }
 }

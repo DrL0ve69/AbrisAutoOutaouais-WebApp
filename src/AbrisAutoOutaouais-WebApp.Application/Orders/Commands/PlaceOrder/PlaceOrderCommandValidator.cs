@@ -27,6 +27,7 @@ public sealed class PlaceOrderCommandValidator : AbstractValidator<PlaceOrderCom
         {
             line.RuleFor(l => l.Slug).NotEmpty().WithMessage("Le modèle d'abri est requis.");
             line.RuleFor(l => l.LengthCm).GreaterThan(0).WithMessage("La longueur doit être positive.");
+            line.RuleFor(l => l.ClearHeightCm).GreaterThan(0).WithMessage("La hauteur dégagée est requise.");
             line.RuleFor(l => l.Quantity).GreaterThan(0).WithMessage("Quantité doit être positive.");
         });
 

@@ -29,6 +29,9 @@ public sealed class OrderLine
     /// <summary>Longueur configurée en cm — nul pour une ligne produit classique.</summary>
     public int? ConfiguredLengthCm { get; private set; }
 
+    /// <summary>Hauteur dégagée configurée en cm — nul pour une ligne produit classique.</summary>
+    public int? ConfiguredClearHeightCm { get; private set; }
+
     public string ProductName { get; private set; } = string.Empty;  // snapshot
     public decimal UnitPrice { get; private set; }                  // snapshot
     public int Quantity { get; private set; }
@@ -57,10 +60,12 @@ public sealed class OrderLine
     /// fige le nom (libellé modèle + longueur) et le prix, comme une ligne produit.
     /// </summary>
     internal static OrderLine CreateShelter(
-        Guid orderId, string slug, string modelName, int lengthCm, decimal unitPrice, int qty)
+        Guid orderId, string slug, string modelName, int lengthCm, int clearHeightCm,
+        decimal unitPrice, int qty)
     {
         if (string.IsNullOrWhiteSpace(slug)) throw new ArgumentException("Le slug du modèle est requis.");
         if (lengthCm <= 0) throw new ArgumentException("La longueur configurée doit être positive.");
+        if (clearHeightCm <= 0) throw new ArgumentException("La hauteur dégagée configurée doit être positive.");
         if (qty <= 0) throw new ArgumentException("Quantité doit être positive.");
 
         return new OrderLine
@@ -70,7 +75,10 @@ public sealed class OrderLine
             ProductId = null,
             ShelterModelSlug = slug,
             ConfiguredLengthCm = lengthCm,
-            ProductName = $"{modelName} ({lengthCm} cm)",
+            ConfiguredClearHeightCm = clearHeightCm,
+            // Snapshot lisible pour le personnel : modèle + longueur + hauteur dégagée (la largeur est
+            // portée par le modèle/slug). Format aligné sur la ligne produit (cm canoniques).
+            ProductName = $"{modelName} ({lengthCm} cm · H {clearHeightCm} cm)",
             UnitPrice = unitPrice,
             Quantity = qty,
             LineTotal = unitPrice * qty,

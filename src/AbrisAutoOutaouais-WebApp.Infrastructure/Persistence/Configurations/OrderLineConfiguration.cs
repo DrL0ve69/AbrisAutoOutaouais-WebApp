@@ -39,6 +39,8 @@ public sealed class OrderLineConfiguration : IEntityTypeConfiguration<OrderLine>
 
         builder.Property(ol => ol.ConfiguredLengthCm);
 
+        builder.Property(ol => ol.ConfiguredClearHeightCm);
+
         // Indexation des clés étrangères pour optimiser les performances des requêtes (Joins)
         builder.HasIndex(ol => ol.OrderId);
 

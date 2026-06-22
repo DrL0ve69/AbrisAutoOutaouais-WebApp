@@ -12,10 +12,12 @@ public sealed record OrderLineRequest(Guid ProductId, int Quantity);
 
 /// <summary>
 /// Ligne d'ABRI CONFIGURÉ (paramétrique, EPIC 9.4) : le client envoie le slug du modèle, la longueur
-/// choisie et la quantité — JAMAIS de prix. Le serveur recalcule le prix autoritairement
-/// (<c>ShelterPriceCalculator</c>, source unique — L-004).
+/// ET la hauteur dégagée choisies, et la quantité — JAMAIS de prix. Le serveur recalcule le prix
+/// autoritairement (<c>ShelterPriceCalculator</c>, source unique — L-004) et VALIDE que
+/// <paramref name="ClearHeightCm"/> est bien une des hauteurs offertes par le modèle (sinon 422).
+/// La largeur n'est PAS transmise : elle est implicite au slug (« une largeur = un modèle », EPIC 9).
 /// </summary>
-public sealed record ShelterLineRequest(string Slug, int LengthCm, int Quantity);
+public sealed record ShelterLineRequest(string Slug, int LengthCm, int ClearHeightCm, int Quantity);
 
 /// <summary>
 /// <paramref name="GuestContact"/> est non nul UNIQUEMENT pour un visiteur non connecté : il déclenche
