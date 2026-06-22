@@ -6,6 +6,7 @@
 >
 > **🟢 Programme ACTIF — Phase 2 (`docs/agile/ROADMAP-PHASE-2.md`), curseur sur EPIC 11** (calendrier
 > & planification terrain).
+> **EPIC 14 MERGÉ (2026-06-21)** — PR #52, SHA merge `fd8083f`.
 > **EPIC 14 TERMINÉ (2026-06-21)** — branche `feat/epic-14-carte-precise` : carte `/mesurer` plus précise,
 > **100 % gratuit** (source HD payante **écartée** — règle budget). **US-14.1** over-zoom Esri :
 > `SATELLITE_MAX_NATIVE_ZOOM=19` + `SATELLITE_MAX_ZOOM=21` sur le tileLayer + zoom localisé 20→21
