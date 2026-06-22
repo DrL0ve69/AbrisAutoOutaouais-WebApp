@@ -3,6 +3,7 @@ using AbrisAutoOutaouais_WebApp.Application.Bookings.Commands.CreateBooking;
 using AbrisAutoOutaouais_WebApp.Application.Bookings.Commands.RescheduleBooking;
 using AbrisAutoOutaouais_WebApp.Application.Bookings.Commands.UpdateBookingStatus;
 using AbrisAutoOutaouais_WebApp.Application.Bookings.Queries.GetAllBookings;
+using AbrisAutoOutaouais_WebApp.Application.Bookings.Queries.GetCalendarBookings;
 using AbrisAutoOutaouais_WebApp.Application.Bookings.Queries.GetAvailableSlots;
 using AbrisAutoOutaouais_WebApp.Application.Bookings.Queries.GetMyBookings;
 using AbrisAutoOutaouais_WebApp.Application.Common.Mediator;
@@ -76,6 +77,18 @@ public sealed class BookingsController(IDispatcher dispatcher) : ControllerBase
     [ProducesResponseType<IReadOnlyList<AdminBookingDto>>(200)]
     public async Task<IActionResult> GetAll(CancellationToken ct)
         => Ok(await dispatcher.DispatchAsync(new GetAllBookingsQuery(), ct));
+
+    /// <summary>
+    /// Réservations de la fenêtre [from, to] pour la vue planning en lecture seule (US-11.1).
+    /// Admin ET Staff voient l'intégralité du calendrier (politique « StaffOrAbove »).
+    /// </summary>
+    [HttpGet("calendar")]
+    [Authorize(Policy = "StaffOrAbove")]
+    [ProducesResponseType<IReadOnlyList<CalendarBookingDto>>(200)]
+    [ProducesResponseType<ProblemDetails>(422)]
+    public async Task<IActionResult> GetCalendar(
+        [FromQuery] DateOnly from, [FromQuery] DateOnly to, CancellationToken ct)
+        => Ok(await dispatcher.DispatchAsync(new GetCalendarBookingsQuery(from, to), ct));
 
     /// <summary>Faire avancer le statut d'une réservation (Admin) : confirm / complete / cancel.</summary>
     [HttpPost("{id:guid}/status")]

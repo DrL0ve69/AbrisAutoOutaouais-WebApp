@@ -1,0 +1,149 @@
+<section class="cal" aria-labelledby="cal-heading">
+  <div class="container">
+    <header class="cal__head">
+      <p class="cal__eyebrow" i18n="@@admin.calendar.eyebrow">Espace personnel</p>
+      <h1 id="cal-heading" tabindex="-1" i18n="@@admin.calendar.title">Calendrier des rendez-vous</h1>
+      <p class="cal__lead" i18n="@@admin.calendar.lead">
+        Vue en lecture seule des créneaux d'installation, de livraison et de démontage.
+        Sélectionnez un jour pour afficher le détail de ses rendez-vous.
+      </p>
+    </header>
+
+    <!-- ── Barre d'outils : période + bascule de vue ──────────────────────── -->
+    <div class="cal__toolbar">
+      <div class="cal__nav" role="group" aria-label="Navigation de la période"
+           i18n-aria-label="@@admin.calendar.navLabel">
+        <button type="button" class="btn btn--ghost cal__nav-btn" (click)="previousPeriod()"
+                aria-label="Période précédente" i18n-aria-label="@@admin.calendar.prev">
+          <span aria-hidden="true">←</span>
+        </button>
+        <button type="button" class="btn btn--ghost cal__today" (click)="goToday()"
+                i18n="@@admin.calendar.today">Aujourd'hui</button>
+        <button type="button" class="btn btn--ghost cal__nav-btn" (click)="nextPeriod()"
+                aria-label="Période suivante" i18n-aria-label="@@admin.calendar.next">
+          <span aria-hidden="true">→</span>
+        </button>
+        <p class="cal__period" aria-hidden="true">{{ periodLabel() }}</p>
+      </div>
+
+      <!-- Bascule mois / semaine / jour — radiogroup APG (roving tabindex + flèches). -->
+      <div class="cal__views" role="radiogroup" aria-label="Granularité d'affichage"
+           i18n-aria-label="@@admin.calendar.viewGroup">
+        @for (option of views; track option.view) {
+          <button
+            #viewRadio
+            type="button"
+            class="cal__view-option"
+            [class.cal__view-option--active]="view() === option.view"
+            role="radio"
+            [attr.aria-checked]="view() === option.view"
+            [attr.tabindex]="view() === option.view ? 0 : -1"
+            (click)="setView(option.view)"
+            (keydown)="onViewKeydown($event)">
+            {{ option.label }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Live-region SCOPÉE (changement de période/vue) — pas de landmark global (L-010). -->
+    <p class="sr-only" role="status" aria-live="polite">{{ announcement() }}</p>
+
+    @if (loading()) {
+      <p class="cal__state" i18n="@@admin.calendar.loading">Chargement du calendrier…</p>
+    } @else if (error()) {
+      <p class="cal__state cal__state--error" role="alert" i18n="@@admin.calendar.error">
+        Impossible de charger le calendrier. Réessayez plus tard.
+      </p>
+    } @else {
+      <!-- ── Grille du calendrier (role="grid" + roving tabindex) ──────────── -->
+      <div class="cal__grid" [class]="'cal__grid--' + view()" role="grid"
+           [attr.aria-label]="periodLabel()" (keydown)="onGridKeydown($event)">
+        @if (view() !== 'day') {
+          <div class="cal__weekdays" role="row">
+            @for (wd of weekdays; track wd) {
+              <span class="cal__weekday" role="columnheader">{{ wd }}</span>
+            }
+          </div>
+        }
+
+        <div class="cal__cells" role="row">
+          @for (cell of cells(); track cell.isoDate) {
+            <button
+              #gridCell
+              type="button"
+              role="gridcell"
+              class="cal__cell"
+              [class.cal__cell--outside]="!cell.inCurrentPeriod"
+              [class.cal__cell--has]="cell.bookings.length > 0"
+              [class.cal__cell--focused]="cell.isoDate === focusedKey()"
+              [attr.data-key]="cell.isoDate"
+              [attr.tabindex]="cell.isoDate === focusedKey() ? 0 : -1"
+              [attr.aria-label]="cellAria(cell)"
+              (click)="openDayPanel(cell, $event.currentTarget)">
+              <span class="cal__cell-num" aria-hidden="true">{{ cell.date.getDate() }}</span>
+              @if (cell.bookings.length > 0) {
+                <span class="cal__cell-count" aria-hidden="true">{{ cell.bookings.length }}</span>
+                <ul class="cal__cell-list" aria-hidden="true">
+                  @for (b of cell.bookings.slice(0, 3); track b.id) {
+                    <li class="cal__chip" [class]="'cal__chip--' + statusModifier(b.status)">
+                      {{ typeLabel(b.type) }}
+                    </li>
+                  }
+                  @if (cell.bookings.length > 3) {
+                    <li class="cal__chip cal__chip--more">+{{ cell.bookings.length - 3 }}</li>
+                  }
+                </ul>
+              }
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- ── Panneau « RDV du jour » (lecture seule) ────────────────────────── -->
+      @if (openDay(); as day) {
+        <aside #dayPanel class="cal__panel" tabindex="-1" role="region"
+               [attr.aria-label]="cellAria(day)">
+          <header class="cal__panel-head">
+            <h2 class="cal__panel-title">
+              {{ day.date | date: 'fullDate' : '' : 'fr-CA' }}
+            </h2>
+            <button type="button" class="btn btn--ghost btn--small" (click)="closeDay()"
+                    aria-label="Fermer le détail du jour" i18n-aria-label="@@admin.calendar.closeDay">
+              <span aria-hidden="true">✕</span>
+            </button>
+          </header>
+
+          @if (day.bookings.length === 0) {
+            <p class="cal__panel-empty" i18n="@@admin.calendar.dayEmpty">
+              Aucun rendez-vous ce jour-là.
+            </p>
+          } @else {
+            <ul class="cal__panel-list" role="list">
+              @for (b of day.bookings; track b.id) {
+                <li class="cal__panel-item">
+                  <span class="cal__panel-time">
+                    <!-- Fuseau LOCAL (TZ vide) — cohérent avec bookings.html/installation.html ET
+                         avec le regroupement par jour (lui aussi local) : afficher en UTC ici
+                         décalerait l'heure vs /admin/reservations pour le même RDV (L-004, axe fuseau). -->
+                    {{ b.slotStart | date: 'HH:mm' : '' : 'fr-CA' }}–{{ b.slotEnd | date: 'HH:mm' : '' : 'fr-CA' }}
+                  </span>
+                  <span class="cal__panel-type">{{ typeLabel(b.type) }}</span>
+                  <span class="cal__badge" [class]="'cal__badge--' + statusModifier(b.status)">
+                    {{ statusLabel(b.status) }}
+                  </span>
+                  <span class="cal__panel-customer">{{ b.customerName }}</span>
+                  <span class="cal__panel-city">{{ b.city }}</span>
+                </li>
+              }
+            </ul>
+          }
+        </aside>
+      }
+    }
+
+    <a routerLink="/admin" class="cal__back" i18n="@@admin.calendar.back">
+      ← Retour au tableau de bord
+    </a>
+  </div>
+</section>

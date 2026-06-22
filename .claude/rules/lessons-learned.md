@@ -11,6 +11,41 @@
 
 ---
 
+## L-044 · A datetime rendered with an explicit UTC timezone on one screen while sibling screens use local timezone creates a silent cross-screen mismatch — pick one canonical timezone and share it between display AND grouping
+
+- **Symptom.** EPIC 11, US-11.1 (`calendar.html`, read-only `/planning` view): the « RDV du jour »
+  panel rendered slot times with an explicit UTC timezone: `{{ b.slotStart | date: 'HH:mm' : 'UTC' : 'fr-CA' }}`.
+  Every sibling screen in the app renders the same `slotStart` values using the **local browser
+  timezone** (empty timezone parameter): `bookings.html` (`date: 'short' : '' : 'fr-CA'`),
+  `installation.html` (same). Two silent consequences: (1) **Cross-screen inconsistency** — the same
+  appointment displayed « 14:00 » on `/admin/reservations` (local) and « 10:00 » on `/planning`
+  (UTC), a 4–5 h drift in EDT. Staff could not reconcile the two screens. (2) **Internal
+  inconsistency** — the day-grouping in `calendar-grid.util.ts` used `isoDate(new Date(slotStart))`
+  (local date), but the hour displayed was UTC, so a slot grouped under local day J could visually
+  show an hour belonging to J±1. Both defects were invisible to tests: vitest specs asserted only
+  client names (not the rendered hour), and an axe scan sees nothing (no WCAG violation). The defect
+  was detectable only by reading the template or comparing two screens in prod. Caught by the
+  independent reviewer (US-11.1 code review).
+- **Rule.** Choose ONE canonical timezone per business value (for this app: **local browser timezone**,
+  i.e. empty timezone parameter in the Angular `date` pipe) and apply it consistently to **both**
+  display and grouping/sorting. Three guards: (1) When rendering a datetime on a new screen, **grep
+  sibling screens** that render the same business value and copy their timezone parameter exactly —
+  never introduce an explicit `'UTC'` (or any other literal) where siblings use `''`. (2) When
+  grouping/bucketing by day and displaying the hour in the same component, confirm both operations use
+  the **same** timezone reference — a local-day bucket with a UTC-hour label is internally
+  inconsistent. (3) **Pin the rendered hour in a test with a forced timezone** (`test.use({ timezoneId:
+  'America/Toronto' })` in Playwright e2e, or equivalent); assert that a slot stored as `12:00Z`
+  displays as `« 08:00 »` (EDT), NOT `« 12:00 »` — a test without a forced timezone is vacuous in
+  any CI environment running UTC (local == UTC → the bug is invisible). This is the **timezone** axis
+  of [[L-004]] (one agreed format shared across all consumers of a business value) and of [[L-009]]
+  (an assertion that cannot distinguish the correct from the incorrect case is vacuous).
+- **Refs.** `src/AbrisAutoOutaouais-WebApp.Client/src/app/features/admin/calendar/calendar.html`
+  (hour display corrected to local, empty timezone param),
+  `features/admin/calendar/util/calendar-grid.util.ts` (day grouping — local `isoDate`),
+  `features/admin/bookings/bookings.html` + `features/installation/installation.html` (app's local
+  timezone convention), `e2e/admin-calendar.spec.ts` (`timezoneId: 'America/Toronto'` + asserts
+  `08:00` ≠ `12:00`), branch `feat/epic-11-calendrier`.
+
 ## L-043 · An Angular `effect()` that reads `form.getRawValue()` does NOT re-run when async data fills the form — depend on the SIGNAL that actually changes
 
 - **Symptom.** EPIC 13, sub-task 13.2 (`MapVoieComponent`): an `effect()` was initially written to

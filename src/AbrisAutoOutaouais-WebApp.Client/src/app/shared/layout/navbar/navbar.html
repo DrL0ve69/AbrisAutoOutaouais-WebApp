@@ -58,6 +58,16 @@
           i18n="@@navbar.measure"
         >Mesurer</a>
       </li>
+      @if (auth.isStaff()) {
+        <li>
+          <a
+            routerLink="/planning"
+            routerLinkActive="is-active"
+            class="navbar__admin-link"
+            i18n="@@navbar.planning"
+          >Planning</a>
+        </li>
+      }
       @if (auth.isAdmin()) {
         <li>
           <a
@@ -329,6 +339,11 @@
     <li>
       <a routerLink="/mesurer" (click)="closeMenu()" i18n="@@navbar.measure">Mesurer</a>
     </li>
+    @if (auth.isStaff()) {
+      <li>
+        <a routerLink="/planning" (click)="closeMenu()" i18n="@@navbar.planning">Planning</a>
+      </li>
+    }
   </ul>
 
   <div class="navbar__mobile-footer">

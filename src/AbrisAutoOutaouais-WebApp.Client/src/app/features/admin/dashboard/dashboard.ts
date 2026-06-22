@@ -93,6 +93,13 @@ export class AdminDashboardComponent {
       route: '/admin/reservations',
     },
     {
+      id: 'calendar',
+      label: $localize`:@@admin.section.calendar:Calendrier`,
+      description: $localize`:@@admin.section.calendarDesc:Voir les rendez-vous (installation, livraison, démontage) dans une vue calendrier en lecture seule.`,
+      icon: '🗓️',
+      route: '/planning',
+    },
+    {
       id: 'rentals',
       label: $localize`:@@admin.section.rentals:Locations`,
       description: $localize`:@@admin.section.rentalsDesc:Consulter et annuler les contrats de location saisonnière.`,

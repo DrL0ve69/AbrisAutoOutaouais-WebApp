@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { AUTH_ROUTES } from './features/auth/auth.routes';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
+import { staffGuard } from './core/guards/staff.guard';
 import { publicGuard } from './core/guards/public.guard';
 
 export const routes: Routes = [
@@ -84,6 +85,15 @@ export const routes: Routes = [
     path: 'admin',
     canActivate: [authGuard, adminGuard],
     loadChildren: () => import('./features/admin/admin.routes').then(m => m.ADMIN_ROUTES),
+  },
+  {
+    // Vue planning (US-11.1) — calendrier en lecture seule des créneaux. Accessible au
+    // PERSONNEL (Staff ET Admin) : route HORS /admin (qui fermerait au Staff via adminGuard).
+    path: 'planning',
+    canActivate: [authGuard, staffGuard],
+    loadComponent: () =>
+      import('./features/admin/calendar/calendar').then(m => m.AdminCalendarComponent),
+    title: 'Calendrier des rendez-vous — AbrisTempo Local',
   },
   // ── Auth (connexion + inscription, flip card) ─────────────────
   // publicGuard redirige vers '/' si l'utilisateur est déjà connecté

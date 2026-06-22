@@ -169,7 +169,7 @@ les critères a11y dans sa Definition of Done (voir `definition-of-done.md`).
 
 | ID | User Story | Estimation | MoSCoW | Statut |
 |----|-----------|:----------:|:------:|--------|
-| US-11.1 | En tant qu'**admin/employé**, je veux un **calendrier** (mois/semaine/jour) montrant horaires et rendez-vous, accessible au clavier, afin de visualiser la charge. | 8 | **Could** | ⛔ À planifier (Phase 2 ; agréger les `Booking` existants, pas un 2e mécanisme) |
+| US-11.1 | En tant qu'**admin/employé**, je veux un **calendrier** (mois/semaine/jour) montrant horaires et rendez-vous, accessible au clavier, afin de visualiser la charge. | 8 | **Could** | ✅ Livré 2026-06-22 (commit local, branche `feat/epic-11-calendrier`) — `/planning` lecture seule agrège les `BookingSlot` existants ; grille APG clavier (L-015) ; Admin+Staff voient tout (filtre installateur reporté) ; APPROVE WITH NITS, L-044 (fuseau) capturée. PR à la clôture de l'épic. |
 | US-11.2 | En tant qu'**admin**, je veux **cliquer un jour** pour voir le détail (employés à l'horaire, RDV), **saisir les heures** et **ajouter RDV/employé** via un overlay accessible. | 8 | **Could** | ⛔ À planifier (Phase 2 ; alimente EPIC 8) |
 | US-11.3 | En tant qu'**admin**, je veux que l'app **optimise le trajet du jour** (plus court) à partir des lat/lng des RDV puis **propose les heures** afin de planifier la tournée. | 5 | **Could** | ⛔ À planifier (Phase 2 ; MVP heuristique maison via `GeoDistance`, ou OpenRouteService proxy) |
 

@@ -5,7 +5,37 @@
 > fichier + le plan actif, vérifie l'état git, puis enchaîne.
 >
 > **🟢 Programme ACTIF — Phase 2 (`docs/agile/ROADMAP-PHASE-2.md`), curseur sur EPIC 11** (calendrier
-> & planification terrain).
+> & planification terrain) — **sous-épic 1 / US-11.1 livré (commit local), sous-épics suivants à venir**.
+> **EPIC 11 · US-11.1 — Vue calendrier LECTURE SEULE — LIVRÉ (commit local, 2026-06-22), branche `feat/epic-11-calendrier`.**
+> Calendrier `/planning` (mois/semaine/jour) accessible qui **agrège les `BookingSlot` existants** (zéro
+> nouveau mécanisme, **zéro migration**, zéro entité). **Décisions propriétaire figées** : (1) lecture seule
+> stricte ; (2) employé = `AppUser` rôle Staff ; (3) **Admin ET Staff voient TOUT** (pas de filtre par
+> utilisateur — le filtrage « par installateur assigné » est reporté à un sous-épic ultérieur qui ajoutera le
+> FK + migration). **Backend** : query CQRS `GetCalendarBookings` (fenêtre `from/to`, filtre L-007 commenté +
+> pinné, `internal sealed` auto-Scrutor) + endpoint `GET /bookings/calendar` `[Authorize(StaffOrAbove)]` (401
+> anon / 403 Customer / 200 Staff+Admin / 422 plage invalide). **Frontend** : route `/planning` **hors `/admin`**
+> + `staffGuard` (sinon adminGuard fermerait au Staff), composant grille **APG maison** (roving tabindex +
+> flèches/Home/End/PageUp/PageDown — L-015), bascule de vue `radiogroup`, panneau RDV-jour lecture seule (focus
+> + Échap + retour focus L-006), util **pur** `calendar-grid.util`, lien navbar `@if(isStaff())` + carte
+> dashboard, i18n fr/en **symétrique** (35 ids calendrier + `navbar.planning`). **Revue indépendante
+> `code-reviewer` + `solid-review` : APPROVE WITH NITS** — 1 **Major corrigé** (heure panneau rendue en **UTC**
+> au lieu du **fuseau local** comme le reste de l'app `bookings`/`installation` ET comme le regroupement local
+> du composant → décalage inter-écrans 4-5 h en EDT ; corrigé en TZ locale + **test e2e à `timezoneId` forcé**
+> qui prouve 12:00Z→« 08:00 » ; **leçon L-044** capturée, axe fuseau de L-004). **4 défauts attrapés aux gates**
+> (run dev coupé avant gates) : e2e manquant (écrit) ; **contraste** `.cal__view-option--active`/pastille =
+> blanc sur `--color-primary` qui bascule (2.76:1 sombre) → jeton marque-FIXE `--color-red-600` (L-023/L-033) ;
+> stub `navbar.spec` sans `isStaff` (crash template) ; **fuite de `Date` faké** dans `calendar.spec` (pas
+> d'`afterEach(useRealTimers)`) contaminant des specs sœurs. **Gates** : `dotnet test` **468** (365 unit + 103
+> IT) ✅ · `npm run build`/`build:prod` ✅ (budget initial **505.67 kB** > 500 kB **WARN** pré-existant EPIC 13/14,
+> < 1 MB error → CI OK ; +0.77 kB navbar/route) · `npm test` **370/370** ✅ · `npm run e2e` admin-calendar **8/8**
+> (APG clavier + accès Customer refusé + heure locale + axe **dual-thème**) ✅ · i18n symétrique ✅.
+> **Nits/Minor reportés (non bloquants, APPROVE)** : (a) Minor — grille mois = 42 `gridcell` dans **une seule**
+> `role="row"` (sémantique ARIA aplatie ; clavier + axe OK, lecteur d'écran annonce « 1/42 ») → restructurer en
+> rows hebdo dans un sous-épic ; (b) Nit fixtures hors heures d'affaires. **Pré-existant hors périmètre** :
+> orphelins EN `messages.en.xlf` (home.catalog.*, cart.orderError…) déjà sur master. **Prochain** : prochain
+> sous-épic EPIC 11 (saisie des heures par employé → alimente EPIC 8 ; puis ajout RDV/employé ; puis
+> optimisation de tournée). **Commit LOCAL uniquement** (sous-tâche intermédiaire — pas de PR/merge tant que
+> l'épic n'est pas complet, cf. [[program-git-flow]]).
 > **EPIC 14 MERGÉ (2026-06-21)** — PR #52, SHA merge `fd8083f`.
 > **EPIC 14 TERMINÉ (2026-06-21)** — branche `feat/epic-14-carte-precise` : carte `/mesurer` plus précise,
 > **100 % gratuit** (source HD payante **écartée** — règle budget). **US-14.1** over-zoom Esri :
