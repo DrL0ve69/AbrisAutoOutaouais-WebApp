@@ -126,29 +126,10 @@ internal sealed class PlaceOrderCommandHandler(
             if (!models.TryGetValue(r.Slug, out var model))
                 throw new BusinessRuleException($"Modèle d'abri « {r.Slug} » introuvable.");
 
-            // Bornes + alignement validés AVANT le calculateur (sinon ArgumentOutOfRangeException → 500).
-            if (r.LengthCm < model.MinLengthCm || r.LengthCm > model.MaxLengthCm)
-                throw new BusinessRuleException(
-                    $"La longueur doit être comprise entre {model.MinLengthCm} et {model.MaxLengthCm} cm.");
-
-            if ((r.LengthCm - model.MinLengthCm) % model.LengthStepCm != 0)
-                throw new BusinessRuleException(
-                    $"La longueur doit être alignée sur le pas de {model.LengthStepCm} cm depuis {model.MinLengthCm} cm.");
-
-            // La hauteur dégagée doit être une des options offertes par le modèle (sinon le choix client
-            // serait silencieusement accepté hors catalogue). Même rigueur que la longueur → 422.
-            if (!model.ClearHeightOptionsCm.Contains(r.ClearHeightCm))
-                throw new BusinessRuleException(
-                    $"La hauteur dégagée {r.ClearHeightCm} cm n'est pas offerte pour ce modèle " +
-                    $"(offertes : {string.Join(", ", model.ClearHeightOptionsCm)} cm).");
-
-            // La combinaison (longueur, hauteur) doit exister dans la grille EXACTE (grille éparse :
-            // une combinaison « dans les options » peut tout de même ne pas être tarifée). Lookup AVANT
-            // le calculateur (sinon ArgumentOutOfRangeException → 500) ; absence → 422.
-            if (model.PriceFor(r.LengthCm, r.ClearHeightCm) is null)
-                throw new BusinessRuleException(
-                    $"Aucun prix disponible pour la combinaison longueur {r.LengthCm} cm × " +
-                    $"hauteur dégagée {r.ClearHeightCm} cm pour ce modèle.");
+            // Validation de la taille (bornes, pas, hauteur offerte, combinaison tarifée) par la source
+            // UNIQUE et partagée avec la location (L-004) — AVANT le calculateur (sinon
+            // ArgumentOutOfRangeException → 500). Toute garde violée → BusinessRuleException (422).
+            ShelterSizeRules.ValidateSize(model, r.LengthCm, r.ClearHeightCm);
 
             var unitPrice = ShelterPriceCalculator.CalculatePrice(model, r.LengthCm, r.ClearHeightCm);
             lines.Add(new Order.ShelterLineInput(

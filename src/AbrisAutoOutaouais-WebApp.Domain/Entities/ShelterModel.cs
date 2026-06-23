@@ -45,6 +45,24 @@ public sealed class ShelterModel : ISoftDeletable, IAuditableEntity
     public ProductCategory Category { get; private set; } = null!;
 
     /// <summary>
+    /// Tarif mensuel de LOCATION en CENTS, ou <c>null</c> si le modèle n'est PAS louable. La location
+    /// saisonnière ne repose plus sur un <see cref="Product"/> fixe (champ <c>RentalPrice</c>) mais sur
+    /// ce tarif porté par le modèle paramétrique : un modèle est louable ⇔ <c>MonthlyRentalCents</c>
+    /// est non nul. La GRILLE de prix (<see cref="PriceEntries"/>) sert toujours à valider la taille
+    /// choisie (longueur × hauteur dégagée) ; ce tarif mensuel est INDÉPENDANT de la taille (forfait).
+    /// Posé au seed (<see cref="SetMonthlyRental"/>) ou à la création ; jamais édité par l'admin ici.
+    /// </summary>
+    public int? MonthlyRentalCents { get; private set; }
+
+    /// <summary>
+    /// Tarif mensuel de location EN DOLLARS = <see cref="MonthlyRentalCents"/> ÷ 100, ou <c>null</c>
+    /// si le modèle n'est pas louable. Source unique de la conversion cents → dollars du tarif de
+    /// location (L-004), réutilisée par le snapshot de <see cref="RentalContract"/> et les DTO.
+    /// </summary>
+    public decimal? MonthlyRentalPrice =>
+        MonthlyRentalCents is { } cents ? cents / 100m : null;
+
+    /// <summary>
     /// Expose la liste sous-jacente <c>_dimensions</c> (vue en lecture seule par le type
     /// <see cref="IReadOnlyList{T}"/>) SANS créer un nouveau wrapper à chaque accès : EF suit la
     /// navigation via ce champ, et un <c>AsReadOnly()</c> renvoyant une instance différente à chaque
@@ -92,7 +110,8 @@ public sealed class ShelterModel : ISoftDeletable, IAuditableEntity
         int maxLengthCm,
         IReadOnlyList<int> widthsCm,
         IReadOnlyList<int> clearHeightsCm,
-        IReadOnlyList<PriceEntryInput>? priceEntries = null)
+        IReadOnlyList<PriceEntryInput>? priceEntries = null,
+        int? monthlyRentalCents = null)
     {
         ValidateInvariants(
             slug, name, categoryId, lengthStepCm, minLengthCm, maxLengthCm,
@@ -108,6 +127,8 @@ public sealed class ShelterModel : ISoftDeletable, IAuditableEntity
             MinLengthCm = minLengthCm,
             MaxLengthCm = maxLengthCm,
         };
+
+        model.SetMonthlyRental(monthlyRentalCents);
 
         foreach (var w in widthsCm)
             model._dimensions.Add(ShelterModelDimension.Create(ShelterDimensionKind.Width, w));
@@ -199,6 +220,20 @@ public sealed class ShelterModel : ISoftDeletable, IAuditableEntity
         _priceEntries.Clear();
         foreach (var e in priceEntries)
             _priceEntries.Add(ShelterPriceEntry.Create(e.LengthCm, e.ClearHeightCm, e.PriceCents));
+    }
+
+    /// <summary>
+    /// Pose (ou retire) le tarif mensuel de LOCATION, en CENTS — réservé au seed du référentiel
+    /// (même intention que <see cref="SetPriceGrid"/> : l'admin ne fixe pas les tarifs). <c>null</c>
+    /// rend le modèle NON louable ; une valeur non nulle doit être strictement positive (un tarif
+    /// nul ou négatif n'a pas de sens métier).
+    /// </summary>
+    public void SetMonthlyRental(int? cents)
+    {
+        if (cents is { } c && c <= 0)
+            throw new ArgumentException(
+                "Le tarif mensuel de location doit être strictement positif.", nameof(cents));
+        MonthlyRentalCents = cents;
     }
 
     /// <summary>

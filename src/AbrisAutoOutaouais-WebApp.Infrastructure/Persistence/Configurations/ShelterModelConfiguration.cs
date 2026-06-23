@@ -19,6 +19,11 @@ internal sealed class ShelterModelConfiguration : IEntityTypeConfiguration<Shelt
 
         builder.Property(m => m.Slug).HasMaxLength(200).IsRequired();
         builder.Property(m => m.Name).HasMaxLength(200).IsRequired();
+
+        // Tarif mensuel de LOCATION en cents — colonne NULLABLE (null = modèle non louable). La
+        // location saisonnière repose désormais sur ce tarif porté par le modèle (et non sur un
+        // Product.RentalPrice fixe).
+        builder.Property(m => m.MonthlyRentalCents);
         // Plus de colonnes BasePrice/PricePerArchCents : le prix provient désormais de la grille
         // exacte (PriceEntries), pas d'une formule linéaire. Le « à partir de » est calculé
         // (StartingPriceCents = min de la grille) et n'est donc PAS persisté.

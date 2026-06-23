@@ -158,4 +158,53 @@ public sealed class ShelterModelTests
             slug!, "Abri", Guid.NewGuid(), 122, 122, 1342, [335], [198]);
         act.Should().Throw<ArgumentException>();
     }
+
+    // ── Tarif de location (rework « location sur modèle paramétrique ») ────────────
+
+    [Fact]
+    public void Create_WithoutMonthlyRental_IsNotRentable()
+    {
+        var model = CreateValid(); // monthlyRentalCents par défaut = null
+
+        model.MonthlyRentalCents.Should().BeNull();
+        model.MonthlyRentalPrice.Should().BeNull();
+    }
+
+    [Fact]
+    public void Create_WithMonthlyRental_ExposesRateInDollars()
+    {
+        var model = ShelterModel.Create(
+            "simple", "Abri simple", Guid.NewGuid(),
+            122, 122, 1830, [335], [198],
+            priceEntries: Grid(122, 198, 34900),
+            monthlyRentalCents: 4900);
+
+        model.MonthlyRentalCents.Should().Be(4900);
+        model.MonthlyRentalPrice.Should().Be(49.00m);  // 4900 ¢ → 49 $
+    }
+
+    [Fact]
+    public void SetMonthlyRental_Null_MakesNotRentable()
+    {
+        var model = ShelterModel.Create(
+            "simple", "Abri simple", Guid.NewGuid(),
+            122, 122, 1830, [335], [198], monthlyRentalCents: 4900);
+
+        model.SetMonthlyRental(null);
+
+        model.MonthlyRentalCents.Should().BeNull();
+        model.MonthlyRentalPrice.Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public void SetMonthlyRental_NonPositive_Throws(int cents)
+    {
+        var model = CreateValid();
+
+        var act = () => model.SetMonthlyRental(cents);
+
+        act.Should().Throw<ArgumentException>().WithMessage("*tarif*");
+    }
 }

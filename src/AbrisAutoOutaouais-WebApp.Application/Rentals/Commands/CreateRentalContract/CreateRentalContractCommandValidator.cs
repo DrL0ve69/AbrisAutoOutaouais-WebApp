@@ -6,15 +6,22 @@ namespace AbrisAutoOutaouais_WebApp.Application.Rentals.Commands.CreateRentalCon
 /// <summary>
 /// Valide une demande de contrat de location. L'adresse passe par la source canonique unique
 /// (<see cref="AddressDtoValidator"/>) — même format que le profil/l'autofill (leçon L-004).
-/// La cohérence des dates et le caractère louable du produit restent du ressort de l'agrégat
-/// <c>RentalContract.Create()</c>.
+/// La cohérence des dates, le caractère louable du modèle et l'admissibilité de la taille (longueur ×
+/// hauteur dégagée, contre la grille) restent du ressort de l'agrégat <c>RentalContract.CreateForModel()</c>
+/// — on ne fait ici que des gardes de forme (présence/positivité).
 /// </summary>
 public sealed class CreateRentalContractCommandValidator : AbstractValidator<CreateRentalContractCommand>
 {
     public CreateRentalContractCommandValidator()
     {
-        RuleFor(x => x.ProductId)
-            .NotEmpty().WithMessage("Le produit est requis.");
+        RuleFor(x => x.Slug)
+            .NotEmpty().WithMessage("Le modèle d'abri est requis.");
+
+        RuleFor(x => x.LengthCm)
+            .GreaterThan(0).WithMessage("La longueur doit être strictement positive.");
+
+        RuleFor(x => x.ClearHeightCm)
+            .GreaterThan(0).WithMessage("La hauteur dégagée doit être strictement positive.");
 
         RuleFor(x => x.StartDate)
             .NotEmpty().WithMessage("La date de début est requise.");

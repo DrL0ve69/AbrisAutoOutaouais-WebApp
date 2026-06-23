@@ -8,8 +8,9 @@ using NSubstitute;
 namespace AbrisAutoOutaouais_WebApp.UnitTest.Application.Handlers.Rentals;
 
 /// <summary>
-/// Résolution du CustomerId dans CreateRentalContract : connecté → son Id (express jamais appelé) ;
-/// visiteur avec contact → Id du compte express ; sinon règle métier (Épic F).
+/// Création d'un contrat de location sur un MODÈLE paramétrique louable (rework). Couvre la
+/// résolution du CustomerId (connecté → son Id ; visiteur avec contact → compte express ; sinon
+/// règle métier), le 404 sur slug inconnu et le 422 sur modèle non louable.
 /// </summary>
 public sealed class CreateRentalContractCommandHandlerTests : IDisposable
 {
@@ -20,19 +21,26 @@ public sealed class CreateRentalContractCommandHandlerTests : IDisposable
     private CreateRentalContractCommandHandler CreateHandler()
         => new(_db, _currentUser, _express);
 
-    private async Task<Guid> SeedRentableProductAsync()
+    /// <summary>Sème un modèle LOUABLE (slug « abri-loc ») + une catégorie, et retourne son slug.</summary>
+    private async Task<string> SeedRentableModelAsync(int? monthlyRentalCents = 4900)
     {
         var cat = ProductCategory.Create("Abris", "abris");
-        // rentalPrice non null → produit louable.
-        var product = Product.Create("Abri Loc", "abri-loc", 599m, 5, cat.Id, "desc.", rentalPrice: 49m);
+        var model = ShelterModelTestData.CreateWithGrid(
+            "abri-loc", "Abri simple — Abris Tempo", cat.Id,
+            lengthStepCm: 122, minLengthCm: 122, maxLengthCm: 366,
+            basePrice: 349.00m, pricePerArchCents: 15000,
+            widthsCm: [335], clearHeightsCm: [198],
+            monthlyRentalCents: monthlyRentalCents);
         _db.ProductCategories.Add(cat);
-        _db.Products.Add(product);
+        _db.ShelterModels.Add(model);
         await _db.SaveChangesAsync(TestContext.Current.CancellationToken);
-        return product.Id;
+        return model.Slug;
     }
 
-    private static CreateRentalContractCommand Command(Guid productId, GuestContact? guest = null) => new(
-        ProductId: productId,
+    private static CreateRentalContractCommand Command(string slug, GuestContact? guest = null) => new(
+        Slug: slug,
+        LengthCm: 122,
+        ClearHeightCm: 198,
         StartDate: new DateOnly(2026, 7, 1),
         EndDate: new DateOnly(2026, 10, 1),
         Address: new AddressDto("123", "rue des Érables", null, "Gatineau", "QC", "J8X 1A1", "Canada"),
@@ -41,15 +49,17 @@ public sealed class CreateRentalContractCommandHandlerTests : IDisposable
     [Fact]
     public async Task Handle_AuthenticatedUser_UsesUserIdAndSkipsExpress()
     {
-        var productId = await SeedRentableProductAsync();
+        var slug = await SeedRentableModelAsync();
         var userId = Guid.NewGuid();
         _currentUser.UserId.Returns(userId);
 
         var id = await CreateHandler().HandleAsync(
-            Command(productId), TestContext.Current.CancellationToken);
+            Command(slug), TestContext.Current.CancellationToken);
 
         var contract = await _db.RentalContracts.FindAsync([id], TestContext.Current.CancellationToken);
         contract!.CustomerId.Should().Be(userId);
+        contract.ShelterModelSlug.Should().Be(slug);
+        contract.MonthlyRate.Should().Be(49.00m);
         await _express.DidNotReceiveWithAnyArgs()
             .FindOrCreateByEmailAsync(Arg.Any<GuestContact>(), Arg.Any<CancellationToken>());
     }
@@ -57,14 +67,14 @@ public sealed class CreateRentalContractCommandHandlerTests : IDisposable
     [Fact]
     public async Task Handle_GuestWithContact_ResolvesCustomerViaExpressService()
     {
-        var productId = await SeedRentableProductAsync();
+        var slug = await SeedRentableModelAsync();
         var expressId = Guid.NewGuid();
         _currentUser.UserId.Returns((Guid?)null);
         var contact = new GuestContact("Jean", "Tremblay", "jean@test.com", null);
         _express.FindOrCreateByEmailAsync(contact, Arg.Any<CancellationToken>()).Returns(expressId);
 
         var id = await CreateHandler().HandleAsync(
-            Command(productId, contact), TestContext.Current.CancellationToken);
+            Command(slug, contact), TestContext.Current.CancellationToken);
 
         var contract = await _db.RentalContracts.FindAsync([id], TestContext.Current.CancellationToken);
         contract!.CustomerId.Should().Be(expressId);
@@ -73,11 +83,35 @@ public sealed class CreateRentalContractCommandHandlerTests : IDisposable
     [Fact]
     public async Task Handle_NeitherAuthenticatedNorContact_ThrowsBusinessRule()
     {
-        var productId = await SeedRentableProductAsync();
+        var slug = await SeedRentableModelAsync();
         _currentUser.UserId.Returns((Guid?)null);
 
         var act = async () => await CreateHandler().HandleAsync(
-            Command(productId), TestContext.Current.CancellationToken);
+            Command(slug), TestContext.Current.CancellationToken);
+
+        await act.Should().ThrowAsync<BusinessRuleException>();
+    }
+
+    [Fact]
+    public async Task Handle_UnknownSlug_ThrowsNotFound()
+    {
+        await SeedRentableModelAsync();
+        _currentUser.UserId.Returns(Guid.NewGuid());
+
+        var act = async () => await CreateHandler().HandleAsync(
+            Command("slug-inexistant"), TestContext.Current.CancellationToken);
+
+        await act.Should().ThrowAsync<NotFoundException>();
+    }
+
+    [Fact]
+    public async Task Handle_NonRentableModel_ThrowsBusinessRule()
+    {
+        var slug = await SeedRentableModelAsync(monthlyRentalCents: null); // modèle non louable
+        _currentUser.UserId.Returns(Guid.NewGuid());
+
+        var act = async () => await CreateHandler().HandleAsync(
+            Command(slug), TestContext.Current.CancellationToken);
 
         await act.Should().ThrowAsync<BusinessRuleException>();
     }

@@ -30,7 +30,8 @@ public static class ShelterModelTestData
         decimal basePrice = 349.00m,
         int pricePerArchCents = 15000,
         IReadOnlyList<int>? widthsCm = null,
-        IReadOnlyList<int>? clearHeightsCm = null)
+        IReadOnlyList<int>? clearHeightsCm = null,
+        int? monthlyRentalCents = null)
     {
         var widths = widthsCm ?? [335, 366];
         var heights = clearHeightsCm ?? [198];
@@ -41,7 +42,7 @@ public static class ShelterModelTestData
         return ShelterModel.Create(
             slug, name, categoryId,
             lengthStepCm, minLengthCm, maxLengthCm,
-            widths, heights, grid);
+            widths, heights, grid, monthlyRentalCents);
     }
 
     /// <summary>

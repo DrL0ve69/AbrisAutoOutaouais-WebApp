@@ -359,6 +359,85 @@ public sealed class ShelterModelSeederBackfillTests : IDisposable
         spec.MinPriceCents.Should().BeGreaterThan(0);
     }
 
+    /// <summary>
+    /// Tarif de LOCATION (rework « location sur modèle paramétrique ») : les 10 modèles louables
+    /// portent leur tarif mensuel ; les 4 non louables (rangement ×2, entrée, passage-clôture) restent
+    /// null. Vérifié au niveau de la spec (référentiel JSON) ET après le seed (entités persistées).
+    /// </summary>
+    [Fact]
+    public void Specs_RentableModels_CarryMonthlyRate_NonRentableStayNull()
+    {
+        var bySlug = ShelterModelSeeder.SpecInvariants.ToDictionary(s => s.Slug, s => s.MonthlyRentalCents);
+
+        bySlug["simple-11pi"].Should().Be(3900);
+        bySlug["simple-hd-11pi"].Should().Be(4900);
+        bySlug["simple-12pi"].Should().Be(4900);
+        bySlug["monopente"].Should().Be(7900);
+        bySlug["double-pointu-16pi"].Should().Be(6900);
+        bySlug["double-pointu-18pi"].Should().Be(7900);
+        bySlug["double-pointu-20pi"].Should().Be(8900);
+        bySlug["double-rond-18pi"].Should().Be(9900);
+        bySlug["double-rond-20pi"].Should().Be(10900);
+        bySlug["industriel-20pi"].Should().Be(24900);
+
+        // Non louables → tarif null.
+        bySlug["rangement-5pi"].Should().BeNull();
+        bySlug["rangement-monopente-5pi"].Should().BeNull();
+        bySlug["entree"].Should().BeNull();
+        bySlug["passage-cloture"].Should().BeNull();
+    }
+
+    [Fact]
+    public async Task Seed_OnEmptyDb_SetsMonthlyRateForRentableModels_AndNullForOthers()
+    {
+        await ShelterModelSeeder.SeedAsync(_db, NullLogger.Instance);
+
+        var models = await _db.ShelterModels.ToListAsync();
+
+        // 10 louables portent leur tarif ; 4 non louables restent null.
+        models.Count(m => m.MonthlyRentalCents is not null).Should().Be(10);
+        models.Single(m => m.Slug == "simple-11pi").MonthlyRentalCents.Should().Be(3900);
+        models.Single(m => m.Slug == "simple-11pi").MonthlyRentalPrice.Should().Be(39.00m);
+        models.Single(m => m.Slug == "industriel-20pi").MonthlyRentalCents.Should().Be(24900);
+        models.Single(m => m.Slug == "passage-cloture").MonthlyRentalCents.Should().BeNull();
+        models.Single(m => m.Slug == "entree").MonthlyRentalCents.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task Seed_BackfillsNullMonthlyRate_OfExistingModel_WithoutOverwritingSetValue()
+    {
+        // Une base semée AVANT l'introduction du tarif : « simple-11pi » présent SANS tarif (null) ;
+        // « monopente » présent AVEC un tarif admin différent du référentiel (ne doit PAS être écrasé).
+        var categoryId = _db.ProductCategories.Single(c => c.Slug == "abris-simples").Id;
+        var monopenteCat = _db.ProductCategories.Single(c => c.Slug == "abris-monopente").Id;
+
+        var sansTarif = ShelterModelTestData.CreateWithGrid(
+            "simple-11pi", "Abri simple maison", categoryId,
+            lengthStepCm: 122, minLengthCm: 122, maxLengthCm: 1342,
+            widthsCm: [400], clearHeightsCm: [198], monthlyRentalCents: null);
+        var avecTarifAdmin = ShelterModelTestData.CreateWithGrid(
+            "monopente", "Abri monopente maison", monopenteCat,
+            lengthStepCm: 122, minLengthCm: 122, maxLengthCm: 1830,
+            widthsCm: [320], clearHeightsCm: [213], monthlyRentalCents: 12345);
+        _db.ShelterModels.Add(sansTarif);
+        _db.ShelterModels.Add(avecTarifAdmin);
+        await _db.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        await ShelterModelSeeder.SeedAsync(_db, NullLogger.Instance);
+
+        // simple-11pi avait un tarif null → BACKFILLÉ depuis le référentiel (3900).
+        var simple = await _db.ShelterModels.SingleAsync(m => m.Slug == "simple-11pi");
+        simple.MonthlyRentalCents.Should().Be(3900);
+        // monopente avait déjà un tarif → PRÉSERVÉ (jamais écrasé, L-031).
+        var monopente = await _db.ShelterModels.SingleAsync(m => m.Slug == "monopente");
+        monopente.MonthlyRentalCents.Should().Be(12345);
+
+        // Idempotence : 2e passage ne change rien.
+        await ShelterModelSeeder.SeedAsync(_db, NullLogger.Instance);
+        (await _db.ShelterModels.SingleAsync(m => m.Slug == "simple-11pi")).MonthlyRentalCents.Should().Be(3900);
+        (await _db.ShelterModels.SingleAsync(m => m.Slug == "monopente")).MonthlyRentalCents.Should().Be(12345);
+    }
+
     [Fact]
     public void Specs_DoNotReuseAnyLegacyMultiWidthSlug()
     {

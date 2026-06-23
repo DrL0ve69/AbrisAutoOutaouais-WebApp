@@ -61,11 +61,9 @@ public sealed class AdminRentalsEndpointTests : IClassFixture<WebAppFactory>
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-        var product = Product.Create(
-            $"Abri location {Guid.NewGuid():N}", $"abri-loc-{Guid.NewGuid():N}",
-            599m, 10, Guid.NewGuid(), "Abri saisonnier.", 49m);
-        var contract = RentalContract.Create(
-            customerId, product,
+        var model = RentalTestData.AddRentableModel(db);
+        var contract = RentalContract.CreateForModel(
+            customerId, model, 122, 198,
             new DateOnly(2026, 7, 1), new DateOnly(2026, 10, 1),
             Address.Create("123", "rue des Érables", null, "Gatineau", "QC", "J8X1A1"));
         if (status == RentalStatus.Cancelled)
