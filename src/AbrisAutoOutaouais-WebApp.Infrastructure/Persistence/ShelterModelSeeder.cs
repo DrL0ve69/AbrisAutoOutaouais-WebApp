@@ -87,18 +87,42 @@ public static class ShelterModelSeeder
     private static readonly string[] LegacyMultiWidthSlugs = ["simple", "double-pointu", "double-rond"];
 
     /// <summary>
+    /// MIGRATIONS RÉFÉRENTIELLES UNIQUES de catégorie (par slug de modèle) : <c>oldCategorySlug</c> →
+    /// <c>newCategorySlug</c>. Un modèle hérité encore rattaché à son ANCIENNE catégorie est rerattaché
+    /// une seule fois à la nouvelle. La garde « catégorie courante == ancienne » est ESSENTIELLE :
+    /// elle évite d'écraser un déplacement VOLONTAIRE fait par un admin (via
+    /// <c>UpdateShelterModelCommand</c> → <c>Reconfigure(categoryId)</c>) — sinon le seed annulerait
+    /// l'édition admin à chaque démarrage (L-031/L-046 : ne jamais écraser une édition admin). Idempotent :
+    /// après migration <c>CategoryId</c> == nouvelle, la garde ne re-déclenche plus.
+    ///
+    /// Parité abristempo : <c>monopente</c> (pente unique) quitte « abris-simples » pour sa propre
+    /// catégorie « abris-monopente ».
+    /// </summary>
+    private static readonly IReadOnlyDictionary<string, (string OldCategorySlug, string NewCategorySlug)>
+        CategoryMigrations = new Dictionary<string, (string, string)>
+        {
+            ["monopente"] = ("abris-simples", "abris-monopente"),
+        };
+
+    /// <summary>
     /// Vue de test (L-005) sur les invariants dimensionnels de chaque spec : permet d'asserter
     /// <c>(Max - Min) % Step == 0</c>, « une largeur par modèle » et « grille non vide » SANS exposer
     /// le record privé. <c>internal</c> car le projet UnitTest a <c>InternalsVisibleTo</c>.
     /// </summary>
     internal sealed record SpecInvariant(
-        string Slug, int LengthStepCm, int MinLengthCm, int MaxLengthCm, int WidthCount, int PriceEntryCount);
+        string Slug, int LengthStepCm, int MinLengthCm, int MaxLengthCm,
+        int WidthCount, int ClearHeightCount, int LengthCount, int PriceEntryCount, int MinPriceCents);
 
     /// <summary>Invariants dimensionnels des specs semées (pour le test-garde).</summary>
     internal static IReadOnlyList<SpecInvariant> SpecInvariants =>
         Specs
             .Select(s => new SpecInvariant(
-                s.Slug, s.LengthStepCm, s.MinLengthCm, s.MaxLengthCm, WidthCount: 1, s.Prices.Count))
+                s.Slug, s.LengthStepCm, s.MinLengthCm, s.MaxLengthCm,
+                WidthCount: 1,
+                ClearHeightCount: s.ClearHeightsCm.Count,
+                LengthCount: (s.MaxLengthCm - s.MinLengthCm) / s.LengthStepCm + 1,
+                PriceEntryCount: s.Prices.Count,
+                MinPriceCents: s.Prices.Count == 0 ? 0 : s.Prices.Min(p => p[2])))
             .ToList();
 
     /// <summary>Slugs des modèles par-largeur semés (pour les tests).</summary>
@@ -179,6 +203,7 @@ public static class ShelterModelSeeder
 
         var added = 0;
         var backfilled = 0;
+        var recategorized = 0;
 
         foreach (var spec in Specs)
         {
@@ -196,6 +221,23 @@ public static class ShelterModelSeeder
                     backfilled++;
                     changed = true;
                 }
+
+                // MIGRATION RÉFÉRENTIELLE UNIQUE (gardée) : un modèle hérité ENCORE rattaché à son
+                // ANCIENNE catégorie est rerattaché à la nouvelle (ex. « monopente » : abris-simples
+                // → abris-monopente). La garde « catégorie courante == ancienne » est essentielle :
+                // un modèle déjà migré, OU déplacé volontairement ailleurs par un admin (via
+                // UpdateShelterModelCommand → Reconfigure), n'est JAMAIS touché (L-031/L-046). Idempotent :
+                // après migration CategoryId == nouvelle, la garde ne re-déclenche plus.
+                if (CategoryMigrations.TryGetValue(spec.Slug, out var migration)
+                    && categoriesBySlug.TryGetValue(migration.OldCategorySlug, out var oldCategoryId)
+                    && categoriesBySlug.TryGetValue(migration.NewCategorySlug, out var newCategoryId)
+                    && existing.CategoryId == oldCategoryId)
+                {
+                    existing.Recategorize(newCategoryId);
+                    recategorized++;
+                    changed = true;
+                }
+
                 continue;
             }
 
@@ -229,6 +271,10 @@ public static class ShelterModelSeeder
             logger.LogInformation(
                 "Référentiel des modèles d'abris : grille de prix backfillée pour {Count} modèle(s) existant(s).",
                 backfilled);
+
+        if (recategorized > 0)
+            logger.LogInformation(
+                "Référentiel des modèles d'abris : {Count} modèle(s) recatégorisé(s).", recategorized);
 
         // Un seul SaveChanges pour le retrait des anciens slugs, l'ajout des nouveaux ET le backfill.
         if (changed)

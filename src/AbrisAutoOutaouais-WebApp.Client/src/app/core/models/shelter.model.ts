@@ -16,11 +16,20 @@
 
 /**
  * Slugs des catégories PRODUIT qui possèdent un référentiel de modèles paramétriques
- * (cf. `ShelterModelSeeder.cs` : modèles rattachés à `abris-simples` / `abris-doubles`).
- * Sert au catalogue et à la fiche produit pour décider d'afficher le configurateur. Les slugs
- * de MODÈLE (`simple`…) sont disjoints des slugs PRODUIT — on raisonne ici sur la CATÉGORIE.
+ * (cf. `ShelterModelSeeder.cs`). Depuis la parité abristempo, TOUTES les catégories d'abris sont
+ * désormais paramétriques (configurables) : abris simples, monopente, doubles, rangement,
+ * entrée/passage et industriels. Sert au catalogue et à la fiche produit pour décider d'afficher
+ * le configurateur. Les slugs de MODÈLE (`monopente`…) sont disjoints des slugs PRODUIT — on
+ * raisonne ici sur la CATÉGORIE.
  */
-export const PARAMETRIC_CATEGORY_SLUGS: readonly string[] = ['abris-simples', 'abris-doubles'];
+export const PARAMETRIC_CATEGORY_SLUGS: readonly string[] = [
+  'abris-simples',
+  'abris-monopente',
+  'abris-doubles',
+  'abris-rangement',
+  'abris-entree-passage',
+  'abris-industriels',
+];
 
 /** Vue résumée d'un modèle paramétrique (listes du catalogue). */
 export interface ShelterModelSummary {

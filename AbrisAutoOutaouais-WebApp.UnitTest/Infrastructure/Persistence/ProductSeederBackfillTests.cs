@@ -126,5 +126,36 @@ public sealed class ProductSeederBackfillTests : IDisposable
         p.UpdatedAt.Should().Be(firstUpdatedAt); // pas de SaveChanges → audit inchangé
     }
 
+    // ── EnsureCategoriesAsync (upsert idempotent des catégories par slug) ────────
+
+    [Fact]
+    public async Task EnsureCategories_OnDbMissingMonopente_AddsItWithoutDuplicatingExisting()
+    {
+        // Le ctor a déjà semé « abris-simples ». La catégorie « abris-monopente » (ajoutée plus tard)
+        // doit être créée sur un DB existant — c'est précisément le trou que comblent l'upsert (L-031).
+        (await _db.ProductCategories.AnyAsync(c => c.Slug == "abris-monopente")).Should().BeFalse();
+
+        await ProductSeeder.EnsureCategoriesAsync(_db, NullLogger.Instance);
+
+        (await _db.ProductCategories.CountAsync(c => c.Slug == "abris-monopente")).Should().Be(1);
+        // « abris-simples » préexistant : jamais dupliqué.
+        (await _db.ProductCategories.CountAsync(c => c.Slug == "abris-simples")).Should().Be(1);
+        // Le référentiel complet est présent (8 catégories).
+        (await _db.ProductCategories.CountAsync()).Should().Be(8);
+    }
+
+    [Fact]
+    public async Task EnsureCategories_IsIdempotent_SecondPassAddsNothing()
+    {
+        await ProductSeeder.EnsureCategoriesAsync(_db, NullLogger.Instance);
+        var afterFirst = await _db.ProductCategories.CountAsync();
+
+        await ProductSeeder.EnsureCategoriesAsync(_db, NullLogger.Instance);
+        var afterSecond = await _db.ProductCategories.CountAsync();
+
+        afterFirst.Should().Be(8);
+        afterSecond.Should().Be(afterFirst);  // aucun doublon au 2e passage.
+    }
+
     public void Dispose() => _db.Dispose();
 }

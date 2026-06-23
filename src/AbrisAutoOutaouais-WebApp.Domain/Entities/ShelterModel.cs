@@ -160,6 +160,24 @@ public sealed class ShelterModel : ISoftDeletable, IAuditableEntity
     }
 
     /// <summary>
+    /// Rattache le modèle à une AUTRE catégorie (FK), SANS toucher aucun autre champ (ni dimensions,
+    /// ni grille de prix). Effectue une MIGRATION RÉFÉRENTIELLE UNIQUE et GARDÉE : le seed ne
+    /// l'appelle que pour un modèle hérité ENCORE rattaché à son ancienne catégorie (cf.
+    /// <c>ShelterModelSeeder.CategoryMigrations</c> — ex. <c>monopente</c> : « abris-simples » →
+    /// « abris-monopente »). Ce n'est PAS un reset inconditionnel : un modèle déjà migré, ou déplacé
+    /// volontairement par un admin via <see cref="Reconfigure"/>, n'est jamais touché (la garde
+    /// « catégorie courante == ancienne » vit dans le seeder — L-031/L-046). Volontairement DISTINCT
+    /// de <see cref="Reconfigure"/>, qui porte l'édition admin complète (et où la catégorie peut
+    /// changer librement). Comme <see cref="SetPriceGrid"/>, public mais réservé au seed.
+    /// </summary>
+    public void Recategorize(Guid categoryId)
+    {
+        if (categoryId == Guid.Empty)
+            throw new ArgumentException("La catégorie est requise.", nameof(categoryId));
+        CategoryId = categoryId;
+    }
+
+    /// <summary>
     /// (Re)pose la grille de prix EN BLOC (clear + ré-ajout) — même patron que la collection des
     /// dimensions, réservé au seed du référentiel (l'admin ne fixe pas les prix). Rejette une grille
     /// contenant des doublons (longueur, hauteur) : la clé (longueur × hauteur) doit être unique pour

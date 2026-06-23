@@ -71,9 +71,10 @@ export class CatalogComponent implements OnInit {
   protected readonly sortBy = signal<SortKey>('default');
 
   /**
-   * Catégorie active paramétrique ? (`abris-simples` / `abris-doubles`). En mode paramétrique on
-   * affiche des CARTES DE MODÈLES (référentiel `/shelters`) et l'achat passe par l'overlay ; on ne
-   * charge PAS les produits fixes pour éviter les doublons.
+   * Catégorie active paramétrique ? (toutes les catégories d'abris le sont désormais — voir
+   * `PARAMETRIC_CATEGORY_SLUGS`). En mode paramétrique on affiche des CARTES DE MODÈLES (référentiel
+   * `/shelters`) et l'achat passe par l'overlay ; on ne charge PAS les produits fixes pour éviter
+   * les doublons.
    */
   protected readonly isParametricMode = computed(() => {
     const slug = this.selectedSlug();

@@ -22,13 +22,18 @@ public sealed class ShelterModelSeederBackfillTests : IDisposable
     public ShelterModelSeederBackfillTests()
     {
         // Catégories requises par le rattachement des modèles (par slug), comme ProductSeeder.
+        // Parité abristempo : toutes les catégories d'abris sont paramétriques (incl. abris-monopente).
         _db.ProductCategories.Add(ProductCategory.Create("Abris simples", "abris-simples"));
+        _db.ProductCategories.Add(ProductCategory.Create("Abris monopente", "abris-monopente"));
         _db.ProductCategories.Add(ProductCategory.Create("Abris doubles", "abris-doubles"));
+        _db.ProductCategories.Add(ProductCategory.Create("Abris de rangement", "abris-rangement"));
+        _db.ProductCategories.Add(ProductCategory.Create("Abris d'entrée et de passage", "abris-entree-passage"));
+        _db.ProductCategories.Add(ProductCategory.Create("Abris industriels et commerciaux", "abris-industriels"));
         _db.SaveChanges();
     }
 
     [Fact]
-    public async Task Seed_OnEmptyDb_CreatesTheNinePerWidthReferenceModelsWithGrids()
+    public async Task Seed_OnEmptyDb_CreatesAllPerWidthReferenceModelsWithGrids()
     {
         await ShelterModelSeeder.SeedAsync(_db, NullLogger.Instance);
 
@@ -36,11 +41,22 @@ public sealed class ShelterModelSeederBackfillTests : IDisposable
             .Include(m => m.Dimensions)
             .Include(m => m.PriceEntries)
             .ToListAsync();
-        models.Should().HaveCount(9);
+        models.Should().HaveCount(14);
         models.Select(m => m.Slug).Should().BeEquivalentTo(
             "simple-11pi", "simple-hd-11pi", "simple-12pi", "monopente",
             "double-pointu-16pi", "double-pointu-18pi", "double-pointu-20pi",
-            "double-rond-18pi", "double-rond-20pi");
+            "double-rond-18pi", "double-rond-20pi",
+            "rangement-5pi", "rangement-monopente-5pi",
+            "entree", "passage-cloture", "industriel-20pi");
+
+        // monopente est sa PROPRE catégorie (parité abristempo), pas « abris-simples ».
+        var monopenteCatId = (await _db.ProductCategories
+            .SingleAsync(c => c.Slug == "abris-monopente")).Id;
+        models.Single(m => m.Slug == "monopente").CategoryId.Should().Be(monopenteCatId);
+
+        // Les nouveaux modèles couvrent toutes les catégories d'abris.
+        models.Single(m => m.Slug == "industriel-20pi").StartingPriceCents.Should().Be(249900);
+        models.Single(m => m.Slug == "entree").PriceFor(122, 213).Should().Be(39900);
 
         // Rework EPIC 9 : un modèle = UNE largeur. Les enfants round-trip (.Include).
         var simple11 = models.Single(m => m.Slug == "simple-11pi");
@@ -102,13 +118,17 @@ public sealed class ShelterModelSeederBackfillTests : IDisposable
         legacy.Should().HaveCount(3);
         legacy.Should().OnlyContain(m => m.IsDeleted);
 
-        // monopente CONSERVÉ et NON écrasé (édition admin préservée — L-031).
+        // monopente CONSERVÉ et NON écrasé dans ses champs admin (édition admin préservée — L-031),
+        // MAIS recatégorisé vers « abris-monopente » (parité abristempo : pente unique = sa catégorie).
         var monopente = await _db.ShelterModels
             .Include(m => m.PriceEntries)
             .SingleAsync(m => m.Slug == "monopente");
         monopente.IsDeleted.Should().BeFalse();
         monopente.StartingPriceCents.Should().Be(87400);  // grille d'origine préservée (jamais réécrite)
         monopente.MinLengthCm.Should().Be(122);           // bornes d'origine préservées
+        var monopenteCatId = _db.ProductCategories.Single(c => c.Slug == "abris-monopente").Id;
+        monopente.CategoryId.Should().Be(monopenteCatId);  // déplacé d'abris-simples → abris-monopente
+        monopente.CategoryId.Should().NotBe(simplesCat);
     }
 
     [Fact]
@@ -132,7 +152,7 @@ public sealed class ShelterModelSeederBackfillTests : IDisposable
             .SingleAsync(m => m.Slug == "simple-11pi");
         simple.Name.Should().Be("Abri simple maison");  // valeur admin préservée
         simple.StartingPriceCents.Should().Be(99900);   // grille admin préservée (999 $), pas backfillée
-        (await _db.ShelterModels.CountAsync()).Should().Be(9);
+        (await _db.ShelterModels.CountAsync()).Should().Be(14);
     }
 
     [Fact]
@@ -181,29 +201,77 @@ public sealed class ShelterModelSeederBackfillTests : IDisposable
             .SingleAsync(m => m.Slug == "modele-sur-mesure");
         unchanged.StartingPriceCents.Should().Be(55500);
         unchanged.Name.Should().Be("Modèle sur mesure");
-        // 1 sur-mesure + 9 du référentiel.
-        (await _db.ShelterModels.CountAsync()).Should().Be(10);
+        // 1 sur-mesure + 14 du référentiel.
+        (await _db.ShelterModels.CountAsync()).Should().Be(15);
     }
 
     [Fact]
     public async Task Seed_IsIdempotent_SecondPassChangesNothing()
     {
-        // 1er passage : sème les 9 nouveaux (rien d'ancien à retirer).
+        // 1er passage : sème les 14 nouveaux (rien d'ancien à retirer).
         await ShelterModelSeeder.SeedAsync(_db, NullLogger.Instance);
         var firstSlugs = await _db.ShelterModels
             .IgnoreQueryFilters()
-            .Select(m => new { m.Slug, m.IsDeleted })
+            .Select(m => new { m.Slug, m.IsDeleted, m.CategoryId })
             .ToListAsync();
 
-        // 2e passage : aucun ajout, aucun nouveau soft-delete, aucun backfill.
+        // 2e passage : aucun ajout, aucun nouveau soft-delete, aucun backfill, aucune recatégorisation.
         await ShelterModelSeeder.SeedAsync(_db, NullLogger.Instance);
         var secondSlugs = await _db.ShelterModels
             .IgnoreQueryFilters()
-            .Select(m => new { m.Slug, m.IsDeleted })
+            .Select(m => new { m.Slug, m.IsDeleted, m.CategoryId })
             .ToListAsync();
 
-        firstSlugs.Should().HaveCount(9);
-        secondSlugs.Should().BeEquivalentTo(firstSlugs);  // état strictement identique.
+        firstSlugs.Should().HaveCount(14);
+        secondSlugs.Should().BeEquivalentTo(firstSlugs);  // état strictement identique (CategoryId inclus).
+    }
+
+    [Fact]
+    public async Task Seed_RecategorizesExistingMonopente_FromSimplesToMonopente_Idempotently()
+    {
+        // Base héritée : « monopente » rangé (à tort) sous « abris-simples ».
+        var simplesCat = _db.ProductCategories.Single(c => c.Slug == "abris-simples").Id;
+        var monopenteCat = _db.ProductCategories.Single(c => c.Slug == "abris-monopente").Id;
+        _db.ShelterModels.Add(ShelterModelTestData.CreateWithGrid(
+            "monopente", "Abri monopente — Abris Tempo", simplesCat,
+            122, 122, 1830, 874.00m, 15000, [320], [213]));
+        await _db.SaveChangesAsync();
+
+        // 1er passage : recatégorise vers abris-monopente.
+        await ShelterModelSeeder.SeedAsync(_db, NullLogger.Instance);
+        var afterFirst = await _db.ShelterModels.SingleAsync(m => m.Slug == "monopente");
+        afterFirst.CategoryId.Should().Be(monopenteCat);
+        afterFirst.CategoryId.Should().NotBe(simplesCat);
+
+        // 2e passage : CategoryId déjà = cible → aucun changement (idempotent).
+        await ShelterModelSeeder.SeedAsync(_db, NullLogger.Instance);
+        var afterSecond = await _db.ShelterModels.SingleAsync(m => m.Slug == "monopente");
+        afterSecond.CategoryId.Should().Be(monopenteCat);
+    }
+
+    [Fact]
+    public async Task Seed_DoesNotRevertAdminMovedReferentialModel_GuardedMigrationOnly()
+    {
+        // Un ADMIN a déplacé « monopente » vers une catégorie qui n'est NI l'ancienne (abris-simples)
+        // NI la nouvelle (abris-monopente) — ici « abris-doubles ». La migration référentielle est
+        // GARDÉE (catégorie courante == ancienne) : elle ne doit PAS annuler ce déplacement volontaire
+        // (L-031/L-046 : ne jamais écraser une édition admin), même après plusieurs reseeds.
+        var doublesCat = _db.ProductCategories.Single(c => c.Slug == "abris-doubles").Id;
+        var simplesCat = _db.ProductCategories.Single(c => c.Slug == "abris-simples").Id;
+        var monopenteCat = _db.ProductCategories.Single(c => c.Slug == "abris-monopente").Id;
+        _db.ShelterModels.Add(ShelterModelTestData.CreateWithGrid(
+            "monopente", "Abri monopente — Abris Tempo", doublesCat,
+            122, 122, 1830, 874.00m, 15000, [320], [213]));
+        await _db.SaveChangesAsync();
+
+        await ShelterModelSeeder.SeedAsync(_db, NullLogger.Instance);
+        await ShelterModelSeeder.SeedAsync(_db, NullLogger.Instance);  // 2e passage : toujours rien.
+
+        var monopente = await _db.ShelterModels.SingleAsync(m => m.Slug == "monopente");
+        // Reste dans la catégorie choisie par l'admin — jamais ramené à l'ancienne ni à la nouvelle.
+        monopente.CategoryId.Should().Be(doublesCat);
+        monopente.CategoryId.Should().NotBe(simplesCat);
+        monopente.CategoryId.Should().NotBe(monopenteCat);
     }
 
     [Fact]
@@ -235,7 +303,8 @@ public sealed class ShelterModelSeederBackfillTests : IDisposable
     [Fact]
     public async Task Seed_WithMissingCategory_SkipsThoseModelsWithoutThrowing()
     {
-        // DB sans la catégorie « abris-doubles » : les modèles doubles sont ignorés proprement.
+        // DB avec UNIQUEMENT « abris-simples » : tous les modèles des autres catégories (monopente,
+        // doubles, rangement, entrée/passage, industriels) sont ignorés proprement (catégorie absente).
         using var db = TestDbContextFactory.Create();
         db.ProductCategories.Add(ProductCategory.Create("Abris simples", "abris-simples"));
         await db.SaveChangesAsync();
@@ -243,8 +312,8 @@ public sealed class ShelterModelSeederBackfillTests : IDisposable
         await ShelterModelSeeder.SeedAsync(db, NullLogger.Instance);
 
         var slugs = await db.ShelterModels.Select(m => m.Slug).ToListAsync();
-        // Seuls les modèles « abris-simples » sont semés (doubles ignorés, catégorie absente).
-        slugs.Should().BeEquivalentTo("simple-11pi", "simple-hd-11pi", "simple-12pi", "monopente");
+        // monopente appartient désormais à « abris-monopente » (absente) → ignoré, comme les autres.
+        slugs.Should().BeEquivalentTo("simple-11pi", "simple-hd-11pi", "simple-12pi");
     }
 
     /// <summary>
@@ -264,6 +333,30 @@ public sealed class ShelterModelSeederBackfillTests : IDisposable
             spec.WidthCount.Should().Be(1, "le modèle « {0} » ne doit exposer QU'UNE largeur (rework EPIC 9)", spec.Slug);
             spec.PriceEntryCount.Should().BeGreaterThan(0, "le modèle « {0} » doit avoir une grille de prix", spec.Slug);
         }
+    }
+
+    /// <summary>
+    /// Les 5 nouveaux modèles (parité abristempo) portent une grille DENSE : une entrée par couple
+    /// (longueur × hauteur). Garde aussi « à partir de » strictement positif. Les modèles hérités
+    /// (ex. double-rond) restent ÉPARSE — non couverts ici, seulement par « grille non vide » globale.
+    /// </summary>
+    [Theory]
+    [InlineData("rangement-5pi", 19900)]
+    [InlineData("rangement-monopente-5pi", 24900)]
+    [InlineData("entree", 39900)]
+    [InlineData("passage-cloture", 32400)]
+    [InlineData("industriel-20pi", 249900)]
+    public void NewParametricSpecs_HaveDenseGrid_AndPositiveStartingPrice(string slug, int expectedMinPriceCents)
+    {
+        var spec = ShelterModelSeeder.SpecInvariants.Single(s => s.Slug == slug);
+
+        // Grille DENSE : nombre d'entrées == longueurs × hauteurs.
+        spec.PriceEntryCount.Should().Be(
+            spec.LengthCount * spec.ClearHeightCount,
+            "la grille de « {0} » doit couvrir toutes les combinaisons longueur × hauteur", slug);
+        // « À partir de » strictement positif (min de la grille).
+        spec.MinPriceCents.Should().Be(expectedMinPriceCents);
+        spec.MinPriceCents.Should().BeGreaterThan(0);
     }
 
     [Fact]

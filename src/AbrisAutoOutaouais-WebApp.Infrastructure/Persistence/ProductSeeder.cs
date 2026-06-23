@@ -48,6 +48,25 @@ public static class ProductSeeder
             ["abri-passage-cloture"] = ("Abris Tempo", "Tempo Passage"),
         };
 
+    /// <summary>
+    /// RÉFÉRENTIEL CANONIQUE des catégories produit (nom + slug), source unique de vérité. Le premier
+    /// seed (table vide) ET l'<see cref="EnsureCategoriesAsync"/> idempotent s'appuient TOUS DEUX
+    /// dessus — garder les deux chemins en phase. Le slug est la clé d'upsert (jamais dupliqué).
+    /// « abris-monopente » est sa PROPRE catégorie (parité abristempo : la pente unique n'est plus
+    /// rangée sous « abris-simples »).
+    /// </summary>
+    private static readonly IReadOnlyList<(string Name, string Slug)> CategorySpecs =
+    [
+        ("Abris simples", "abris-simples"),
+        ("Abris monopente", "abris-monopente"),
+        ("Abris doubles", "abris-doubles"),
+        ("Abris de rangement", "abris-rangement"),
+        ("Abris d'entrée et de passage", "abris-entree-passage"),
+        ("Abris industriels et commerciaux", "abris-industriels"),
+        ("Toiles de remplacement", "toiles-remplacement"),
+        ("Pièces et accessoires", "pieces-accessoires"),
+    ];
+
     public static async Task SeedAsync(IServiceProvider services)
     {
         using var scope = services.CreateScope();
@@ -58,6 +77,14 @@ public static class ProductSeeder
 
         try
         {
+            // ── Catégories : upsert idempotent AVANT tout le reste ────────────────
+            // Les catégories ne se créaient qu'au tout premier seed (table Products vide) : un dev DB
+            // déjà semé ne recevait JAMAIS une catégorie ajoutée plus tard (ex. « abris-monopente »).
+            // On garantit donc la présence de TOUTES les catégories du référentiel à CHAQUE démarrage,
+            // avant le test « table peuplée ? » (sinon ShelterModelSeeder, qui tourne ensuite, ignore
+            // les modèles d'une catégorie absente).
+            await EnsureCategoriesAsync(db, logger);
+
             if (await db.Products.AnyAsync())
             {
                 // Table déjà peuplée : on ne recrée rien, mais on REMPLIT les dimensions/marque/modèle
@@ -66,19 +93,11 @@ public static class ProductSeeder
                 return;
             }
 
-            // ── Catégories (basées sur la navigation « Shop » d'Abris Tempo) ──────
-            var categories = new[]
-            {
-                ProductCategory.Create("Abris simples", "abris-simples"),
-                ProductCategory.Create("Abris doubles", "abris-doubles"),
-                ProductCategory.Create("Abris de rangement", "abris-rangement"),
-                ProductCategory.Create("Abris d'entrée et de passage", "abris-entree-passage"),
-                ProductCategory.Create("Abris industriels et commerciaux", "abris-industriels"),
-                ProductCategory.Create("Toiles de remplacement", "toiles-remplacement"),
-                ProductCategory.Create("Pièces et accessoires", "pieces-accessoires"),
-            };
-            var bySlug = categories.ToDictionary(c => c.Slug);
-            await db.ProductCategories.AddRangeAsync(categories);
+            // ── Catégories (déjà upsertées ci-dessus) : on les recharge par slug ───
+            // EnsureCategoriesAsync vient de garantir leur présence ; on lit l'existant pour rattacher
+            // les produits (jamais de double-création — la table peut déjà les contenir).
+            var bySlug = await db.ProductCategories
+                .ToDictionaryAsync(c => c.Slug);
 
             // ── Produits ──────────────────────────────────────────────────────────
             var products = new List<Product>();
@@ -162,12 +181,45 @@ public static class ProductSeeder
 
             logger.LogInformation(
                 "Catalogue initialisé : {Categories} catégories et {Products} produits.",
-                categories.Length, products.Count);
+                bySlug.Count, products.Count);
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Échec de l'initialisation du catalogue (ProductSeeder).");
             throw;
+        }
+    }
+
+    /// <summary>
+    /// UPSERT IDEMPOTENT des catégories du référentiel (<see cref="CategorySpecs"/>) par SLUG, à
+    /// CHAQUE démarrage : ajoute toute catégorie manquante, ne duplique jamais, ne supprime rien.
+    /// Indispensable car la création de catégories du chemin « table vide » ne s'exécute qu'au tout
+    /// premier seed — un dev DB déjà semé ne recevrait sinon jamais une catégorie ajoutée plus tard
+    /// (ex. « abris-monopente »), et <c>ShelterModelSeeder</c> (qui tourne après) ignorerait les
+    /// modèles d'une catégorie absente. <c>SaveChanges</c> unique, seulement si quelque chose manque.
+    /// </summary>
+    // internal (et non private) pour un test de non-régression direct (L-005/L-031) : l'ajout de
+    // « abris-monopente » sur un DB existant DOIT être couvert par CI. InternalsVisibleTo est posé.
+    internal static async Task EnsureCategoriesAsync(ApplicationDbContext db, ILogger logger)
+    {
+        var existingSlugs = await db.ProductCategories
+            .Select(c => c.Slug)
+            .ToListAsync();
+        var existingSet = existingSlugs.ToHashSet();
+
+        var added = 0;
+        foreach (var (name, slug) in CategorySpecs)
+        {
+            if (existingSet.Contains(slug)) continue;
+            await db.ProductCategories.AddAsync(ProductCategory.Create(name, slug));
+            added++;
+        }
+
+        if (added > 0)
+        {
+            await db.SaveChangesAsync();
+            logger.LogInformation(
+                "Catégories produit : {Count} catégorie(s) manquante(s) ajoutée(s).", added);
         }
     }
 
