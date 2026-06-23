@@ -28,6 +28,37 @@ export interface AdminOrderDto {
   readonly status: OrderStatus;
   readonly total: number;
   readonly itemCount: number;
+  /**
+   * Référence du virement Interac à réconcilier (EPIC 7). `null` pour les commandes
+   * antérieures à e-Transfer. Miroir EXACT du C# `string? PaymentReference` (L-052).
+   */
+  readonly paymentReference: string | null;
+  /**
+   * Horodatage de confirmation du paiement (ISO). `null` tant que l'administration
+   * n'a pas réconcilié le virement. Miroir du C# `DateTime? PaymentConfirmedAt` (L-052).
+   */
+  readonly paymentConfirmedAt: string | null;
+}
+
+/**
+ * Instructions de paiement (virement Interac) renvoyées par POST /orders à la création.
+ * Miroir EXACT du C# `PaymentInstructionsResult` (camelCase, sérialisation .NET) — L-052/L-004.
+ */
+export interface PaymentInstructions {
+  /** Référence à inscrire dans le MESSAGE du virement Interac. */
+  readonly reference: string;
+  /** Courriel marchand vers lequel envoyer le virement. */
+  readonly recipientEmail: string;
+  /** Montant exact à virer. */
+  readonly amount: number;
+  /** Texte d'instructions (français) affiché au client. */
+  readonly instructions: string;
+}
+
+/** Réponse de POST /orders : identifiant de la commande + instructions de paiement (EPIC 7). */
+export interface PlaceOrderResponse {
+  readonly id: string;
+  readonly payment: PaymentInstructions;
 }
 
 export interface OrderLineRequest {

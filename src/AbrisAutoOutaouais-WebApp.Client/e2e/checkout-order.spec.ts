@@ -115,21 +115,27 @@ test('Caisse (/panier/caisse) — commande Livraison avec adresse Ontario pré-r
     page.getByText(`${SAVED_ADDRESS.civicNumber} ${SAVED_ADDRESS.street}`, { exact: false }),
   ).toBeVisible();
 
-  // Carte de paiement (démo) valide.
-  await page.locator('#co-card-name').fill('Camille Client');
-  await page.locator('#co-card-number').fill('4242424242424242');
-  await page.locator('#co-expiry').fill('12/29');
-  await page.locator('#co-cvc').fill('123');
-
-  // Capter le POST /orders et le confirmer (201).
+  // EPIC 7 : le paiement est un virement Interac — aucune saisie de carte. On capte le POST /orders
+  // et on le confirme (201) AVEC les instructions de virement renvoyées par le serveur.
   const orderRequest = page.waitForRequest(
     (req: Request) => req.url().endsWith('/api/v1/orders') && req.method() === 'POST',
   );
   await page.route('**/api/v1/orders', (route) =>
-    route.fulfill({ status: 201, json: { id: 'order-e2e-1' } }),
+    route.fulfill({
+      status: 201,
+      json: {
+        id: 'order-e2e-1',
+        payment: {
+          reference: 'CMD-E2E-0001',
+          recipientEmail: 'paiements@abristempo.ca',
+          amount: 599.99,
+          instructions: 'Envoyez un virement Interac avec la référence indiquée.',
+        },
+      },
+    }),
   );
 
-  await page.getByRole('button', { name: /payer/i }).click();
+  await page.getByRole('button', { name: /passer la commande/i }).click();
 
   const body = (await orderRequest).postDataJSON();
   expect(body.deliveryType).toBe('Delivery');
@@ -141,6 +147,10 @@ test('Caisse (/panier/caisse) — commande Livraison avec adresse Ontario pré-r
   expect(body.shippingAddress.city).toBe('Ottawa');
   expect(body.lines?.length).toBeGreaterThan(0);
 
-  // La commande réussie redirige vers « mes commandes ».
-  await expect(page).toHaveURL(/\/mon-compte\/commandes$/);
+  // La commande aboutit sur l'étape « virement Interac » (pas de redirection automatique — EPIC 7).
+  await expect(
+    page.getByRole('heading', { name: /réglez votre commande par virement interac/i }),
+  ).toBeVisible();
+  await expect(page.getByText('CMD-E2E-0001')).toBeVisible();
+  await expect(page).toHaveURL(/\/panier\/caisse$/);
 });

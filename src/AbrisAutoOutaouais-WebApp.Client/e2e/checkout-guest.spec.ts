@@ -124,21 +124,27 @@ async function runGuestCheckout(page: Page, addr: AddressCase): Promise<void> {
   await page.locator('#co-province').fill(addr.province);
   await page.locator('#co-postal').fill(addr.postalCode);
 
-  // Carte de paiement (démo) valide.
-  await page.locator('#co-card-name').fill(`${GUEST.firstName} ${GUEST.lastName}`);
-  await page.locator('#co-card-number').fill('4242424242424242');
-  await page.locator('#co-expiry').fill('12/29');
-  await page.locator('#co-cvc').fill('123');
-
-  // Capter le POST /orders (barrière) et le confirmer (201).
+  // EPIC 7 : paiement par virement Interac — aucune carte. Capter le POST /orders (barrière) et le
+  // confirmer (201) AVEC les instructions de virement.
   const orderRequest = page.waitForRequest(
     (req: Request) => req.url().endsWith('/api/v1/orders') && req.method() === 'POST',
   );
   await page.route('**/api/v1/orders', (route) =>
-    route.fulfill({ status: 201, json: { id: 'order-guest-e2e' } }),
+    route.fulfill({
+      status: 201,
+      json: {
+        id: 'order-guest-e2e',
+        payment: {
+          reference: 'CMD-GUEST-0001',
+          recipientEmail: 'paiements@abristempo.ca',
+          amount: 599.99,
+          instructions: 'Envoyez un virement Interac avec la référence indiquée.',
+        },
+      },
+    }),
   );
 
-  await page.getByRole('button', { name: /payer/i }).click();
+  await page.getByRole('button', { name: /passer la commande/i }).click();
 
   const body = (await orderRequest).postDataJSON();
 
@@ -158,11 +164,13 @@ async function runGuestCheckout(page: Page, addr: AddressCase): Promise<void> {
   expect(body.shippingAddress.postalCode).toBe(addr.expectedPostal);
   expect(body.lines?.length).toBeGreaterThan(0);
 
-  // Commande réussie. « Mes commandes » étant protégé par le garde d'auth, l'invité est renvoyé
-  // à l'accueil (pas vers /auth) — il N'EST PAS redirigé vers la connexion et atterrit sur l'accueil.
-  await expect(page).toHaveURL(/\/$/);
+  // Commande réussie : l'invité aboutit sur l'étape « virement Interac » (EPIC 7) — pas de
+  // redirection automatique, et surtout PAS vers /auth. La référence du virement est affichée.
+  await expect(
+    page.getByRole('heading', { name: /réglez votre commande par virement interac/i }),
+  ).toBeVisible();
+  await expect(page.getByText('CMD-GUEST-0001')).toBeVisible();
   await expect(page).not.toHaveURL(/\/auth/);
-  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
 }
 
 test.describe('Caisse invité (/panier/caisse) — Épic F', () => {

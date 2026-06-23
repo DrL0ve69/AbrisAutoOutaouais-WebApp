@@ -1914,7 +1914,7 @@
         <target>Unable to place the order. Please try again.</target>
       </trans-unit>
 
-      <!-- ===== CAISSE (paiement démo) ===== -->
+      <!-- ===== CAISSE (virement Interac) ===== -->
       <trans-unit id="guestContact.legend" datatype="html">
         <source>Vos coordonnées</source>
         <target>Your contact details</target>
@@ -1971,10 +1971,6 @@
         <source>Aller à la boutique</source>
         <target>Go to the store</target>
       </trans-unit>
-      <trans-unit id="checkout.demoBanner" datatype="html">
-        <source>🔒 Mode démonstration — aucune vraie transaction n'est effectuée. Saisissez une carte fictive (p. ex. 4242 4242 4242 4242, expiration future, CVC 123).</source>
-        <target>🔒 Demonstration mode — no real transaction is performed. Enter a fake card (e.g. 4242 4242 4242 4242, future expiry, CVC 123).</target>
-      </trans-unit>
       <trans-unit id="checkout.delivery.legend" datatype="html">
         <source>Mode de réception</source>
         <target>Delivery method</target>
@@ -2023,37 +2019,41 @@
         <source>Veuillez remplir la rue, la ville et le code postal pour la livraison.</source>
         <target>Please fill in the street, city and postal code for delivery.</target>
       </trans-unit>
-      <trans-unit id="checkout.payment.legend" datatype="html">
-        <source>Carte de paiement (démo)</source>
-        <target>Payment card (demo)</target>
-      </trans-unit>
-      <trans-unit id="checkout.card.name" datatype="html">
-        <source>Nom sur la carte</source>
-        <target>Name on card</target>
-      </trans-unit>
-      <trans-unit id="checkout.card.number" datatype="html">
-        <source>Numéro de carte</source>
-        <target>Card number</target>
-      </trans-unit>
-      <trans-unit id="checkout.card.expiry" datatype="html">
-        <source>Expiration (MM/AA)</source>
-        <target>Expiry (MM/YY)</target>
-      </trans-unit>
-      <trans-unit id="checkout.card.cvc" datatype="html">
-        <source>CVC</source>
-        <target>CVC</target>
-      </trans-unit>
-      <trans-unit id="checkout.card.invalid" datatype="html">
-        <source>Vérifiez les informations de carte (numéro, expiration MM/AA, CVC).</source>
-        <target>Check the card details (number, expiry MM/YY, CVC).</target>
+      <trans-unit id="checkout.payNote" datatype="html">
+        <source>Le paiement se fait par virement Interac. Après avoir passé la commande, vous recevrez les instructions de virement (courriel destinataire, montant et référence).</source>
+        <target>Payment is made by Interac e-Transfer. After placing your order, you will receive the transfer instructions (recipient email, amount and reference).</target>
       </trans-unit>
       <trans-unit id="checkout.processing" datatype="html">
-        <source>Traitement du paiement…</source>
-        <target>Processing payment…</target>
+        <source>Enregistrement de la commande…</source>
+        <target>Saving order…</target>
       </trans-unit>
       <trans-unit id="checkout.pay" datatype="html">
-        <source>Payer</source>
-        <target>Pay</target>
+        <source>Passer la commande</source>
+        <target>Place order</target>
+      </trans-unit>
+      <trans-unit id="checkout.etransfer.heading" datatype="html">
+        <source>Réglez votre commande par virement Interac</source>
+        <target>Pay for your order by Interac e-Transfer</target>
+      </trans-unit>
+      <trans-unit id="checkout.etransfer.intro" datatype="html">
+        <source>Votre commande est enregistrée. Envoyez un virement Interac avec les informations ci-dessous pour la régler. Conservez la référence : elle permet de rapprocher votre paiement.</source>
+        <target>Your order has been saved. Send an Interac e-Transfer with the details below to pay for it. Keep the reference: it lets us match your payment.</target>
+      </trans-unit>
+      <trans-unit id="checkout.etransfer.recipient" datatype="html">
+        <source>Courriel destinataire</source>
+        <target>Recipient email</target>
+      </trans-unit>
+      <trans-unit id="checkout.etransfer.amount" datatype="html">
+        <source>Montant à virer</source>
+        <target>Amount to transfer</target>
+      </trans-unit>
+      <trans-unit id="checkout.etransfer.reference" datatype="html">
+        <source>Référence à inscrire dans le message</source>
+        <target>Reference to enter in the message</target>
+      </trans-unit>
+      <trans-unit id="checkout.etransfer.done" datatype="html">
+        <source>Terminé — retour à l'accueil</source>
+        <target>Done — back to home</target>
       </trans-unit>
       <trans-unit id="checkout.back" datatype="html">
         <source>← Retour au panier</source>
@@ -2068,12 +2068,12 @@
         <target>Total</target>
       </trans-unit>
       <trans-unit id="checkout.success" datatype="html">
-        <source>Paiement (démo) accepté — commande confirmée !</source>
-        <target>Payment (demo) accepted — order confirmed!</target>
+        <source>Commande enregistrée — suivez les instructions de virement Interac pour la régler.</source>
+        <target>Order saved — follow the Interac e-Transfer instructions to pay for it.</target>
       </trans-unit>
       <trans-unit id="checkout.error" datatype="html">
-        <source>Le paiement a échoué. Veuillez réessayer.</source>
-        <target>Payment failed. Please try again.</target>
+        <source>L'enregistrement de la commande a échoué. Veuillez réessayer.</source>
+        <target>Saving the order failed. Please try again.</target>
       </trans-unit>
 
       <!-- ===== ADMIN — PRODUITS ===== -->
@@ -2310,8 +2310,8 @@
         <target> No orders yet. </target>
       </trans-unit>
       <trans-unit id="admin.orders.table.caption" datatype="html">
-        <source> Liste des commandes avec référence, courriel du client, date, statut, total et nombre d'articles. </source>
-        <target> List of orders with reference, customer email, date, status, total and item count. </target>
+        <source> Liste des commandes avec référence, courriel du client, date, statut, total, nombre d'articles et état du paiement. </source>
+        <target> List of orders with reference, customer email, date, status, total, item count and payment status. </target>
       </trans-unit>
       <trans-unit id="admin.orders.table.reference" datatype="html">
         <source>Référence</source>
@@ -2337,9 +2337,37 @@
         <source>Articles</source>
         <target>Items</target>
       </trans-unit>
+      <trans-unit id="admin.orders.table.payment" datatype="html">
+        <source>Paiement</source>
+        <target>Payment</target>
+      </trans-unit>
       <trans-unit id="admin.orders.table.actions" datatype="html">
         <source>Actions</source>
         <target>Actions</target>
+      </trans-unit>
+      <trans-unit id="admin.orders.payment.confirmed" datatype="html">
+        <source>Payé</source>
+        <target>Paid</target>
+      </trans-unit>
+      <trans-unit id="admin.orders.payment.awaiting" datatype="html">
+        <source>En attente</source>
+        <target>Awaiting</target>
+      </trans-unit>
+      <trans-unit id="admin.orders.action.markPaid" datatype="html">
+        <source>Marquer payé</source>
+        <target>Mark as paid</target>
+      </trans-unit>
+      <trans-unit id="admin.orders.action.markPaidLabel" datatype="html">
+        <source>Marquer payé — <x id="ref" equiv-text="reference"/></source>
+        <target>Mark as paid — <x id="ref" equiv-text="reference"/></target>
+      </trans-unit>
+      <trans-unit id="admin.orders.toast.paid" datatype="html">
+        <source>Paiement réconcilié — commande marquée payée.</source>
+        <target>Payment reconciled — order marked as paid.</target>
+      </trans-unit>
+      <trans-unit id="admin.orders.toast.paidError" datatype="html">
+        <source>La réconciliation du paiement a échoué.</source>
+        <target>Payment reconciliation failed.</target>
       </trans-unit>
       <trans-unit id="admin.orders.status.pending" datatype="html">
         <source>En attente</source>

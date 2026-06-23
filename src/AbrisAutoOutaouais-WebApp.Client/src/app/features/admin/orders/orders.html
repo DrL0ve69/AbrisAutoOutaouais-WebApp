@@ -2,7 +2,7 @@
   <div class="container">
     <header class="admino__head">
       <p class="admino__eyebrow" i18n="@@admin.orders.eyebrow">Commandes</p>
-      <h1 id="admino-heading" i18n="@@admin.orders.title">Gestion des commandes</h1>
+      <h1 id="admino-heading" tabindex="-1" #pageHeading i18n="@@admin.orders.title">Gestion des commandes</h1>
       <p class="admino__lead" i18n="@@admin.orders.lead">
         Suivez et faites évoluer le statut des commandes des clients.
       </p>
@@ -28,7 +28,7 @@
         <div class="admino__tablewrap">
           <table class="admino__table">
             <caption class="sr-only" i18n="@@admin.orders.table.caption">
-              Liste des commandes avec référence, courriel du client, date, statut, total et nombre d'articles.
+              Liste des commandes avec référence, courriel du client, date, statut, total, nombre d'articles et état du paiement.
             </caption>
             <thead>
               <tr>
@@ -38,6 +38,7 @@
                 <th scope="col" i18n="@@admin.orders.table.status">Statut</th>
                 <th scope="col" i18n="@@admin.orders.table.total">Total</th>
                 <th scope="col" i18n="@@admin.orders.table.items">Articles</th>
+                <th scope="col" i18n="@@admin.orders.table.payment">Paiement</th>
                 <th scope="col" i18n="@@admin.orders.table.actions">Actions</th>
               </tr>
             </thead>
@@ -54,7 +55,32 @@
                   </td>
                   <td>{{ o.total | currency: 'CAD' : 'symbol' : '1.2-2' : 'fr-CA' }}</td>
                   <td>{{ o.itemCount }}</td>
+                  <td class="admino__payment">
+                    @if (o.paymentReference) {
+                      <span class="admino__payref">{{ o.paymentReference }}</span>
+                      @if (o.paymentConfirmedAt) {
+                        <span class="admino__badge admino__badge--paid" i18n="@@admin.orders.payment.confirmed">Payé</span>
+                        <span class="admino__paydate">{{ o.paymentConfirmedAt | date: 'short' : '' : 'fr-CA' }}</span>
+                      } @else {
+                        <span class="admino__badge admino__badge--pending" i18n="@@admin.orders.payment.awaiting">En attente</span>
+                      }
+                    } @else {
+                      <span class="admino__noaction" aria-hidden="true">—</span>
+                    }
+                  </td>
                   <td class="admino__rowactions">
+                    @if (canMarkPaid(o)) {
+                      <button
+                        type="button"
+                        class="btn btn--small"
+                        [disabled]="pendingId() === o.id"
+                        [attr.aria-label]="markPaidLabel(o.reference)"
+                        (click)="confirmPayment(o)"
+                        i18n="@@admin.orders.action.markPaid"
+                      >
+                        Marquer payé
+                      </button>
+                    }
                     @for (act of actionsFor(o.status); track act.action) {
                       <button
                         type="button"
@@ -66,7 +92,8 @@
                       >
                         {{ act.label }}
                       </button>
-                    } @empty {
+                    }
+                    @if (!canMarkPaid(o) && actionsFor(o.status).length === 0) {
                       <span class="admino__noaction" aria-hidden="true">—</span>
                     }
                   </td>

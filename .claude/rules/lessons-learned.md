@@ -11,6 +11,38 @@
 
 ---
 
+## L-053 · Un état terminal post-soumission doit être testé AVANT toute branche dérivée des données que la soumission mute — sinon il ne s'affiche jamais
+
+- **Symptom.** Dans `features/checkout/checkout.html`, l'ordre des branches était
+  `@if (isEmpty()) { … } @else if (step() === 'instructions') { … }`. Le handler `pay()` appelle
+  `cart.clear()` dès la réception du 201 — ce qui re-rend `isEmpty()` vrai **immédiatement**. La
+  branche « panier vide » gagnait donc l'évaluation et le panneau d'instructions e-Transfer (état
+  terminal post-soumission) **ne s'affichait jamais** : l'utilisateur retombait sur « votre panier
+  est vide » juste après avoir cliqué « Payer ». **Invisible en vitest** : le stub `cart.clear()`
+  ne mute pas le vrai signal réactif `isEmpty()` — tous les specs passaient. Attrapé **uniquement
+  par l'e2e contre la vraie pile** (cousin de [[L-001]]). Correctif : évaluer l'état terminal en
+  premier — `@if (step() === 'instructions') { … } @else if (isEmpty()) { … }`.
+- **Rule.** Dans tout flux à étapes (checkout, wizard, formulaire multi-phases), placer les branches
+  de **résultat/état terminal** (`step() === 'done'`, `submitted`, `instructions`…) **AVANT** toute
+  branche conditionnée par des données que la soumission va muter (`isEmpty()`, `items().length === 0`,
+  `stock === 0`…). La soumission réussie modifie souvent l'état sur lequel les branches aval se
+  fondent — si elles sont évaluées en premier, l'état terminal est masqué avant même d'être rendu.
+  Règle de priorité dans un `@if` / `@else if` en chaîne : **état terminal > état d'erreur > état
+  de chargement > état dérivé des données**. Deux gardes : (1) Après chaque action de soumission
+  qui mute les données du composant (vide le panier, remet à zéro le formulaire, réduit le stock),
+  parcourir le template et vérifier si cette mutation peut activer une branche `@if` plus haute qui
+  masquerait l'état terminal — si oui, inverser l'ordre. (2) Écrire un e2e qui exerce le **flux
+  complet** (remplir → soumettre → confirmer que l'état terminal est bien affiché) contre la vraie
+  pile : les stubs vitest ne mutent généralement pas les signaux réels et rendent ce bug invisible
+  ([[L-001]] : reproduire contre la vraie pile avant de déclarer vert ; [[L-009]] : un spec vitest
+  qui passe parce que le stub ne mute pas le signal est vacueux pour ce chemin).
+- **Refs.**
+  `src/AbrisAutoOutaouais-WebApp.Client/src/app/features/checkout/checkout.html`
+  (branches réordonnées : `step() === 'instructions'` en premier),
+  `features/checkout/checkout.ts` (`pay()` appelle `cart.clear()` au 201),
+  `e2e/checkout-order.spec.ts` (flux complet jusqu'à l'affichage du panneau e-Transfer),
+  branche `feat/epic-7-paiement-etransfer`.
+
 ## L-052 · An additive server-side DTO field not mirrored in the TS interface is a silent data drop — update both in the same commit
 
 - **Symptom.** `AdminOrderDto` gained `PaymentReference` and `PaymentConfirmedAt` server-side (EPIC 7
@@ -1329,13 +1361,15 @@
   after `signal.set(...)` is correct — `tabindex="-1"` does not block programmatic focus.
   And **assert focus at the unit level** (vitest `toHaveFocus()`) in all cases — a status-only e2e
   never catches a focus bug ([[L-002]]).
+  **Corollary — un commentaire « rendu inconditionnellement » ne suffit pas si le template contient un `@if` imbriqué (EPIC 7, US-7.1).** `#instructionsHeading` était documenté comme « rendu inconditionnellement » mais vivait en réalité sous un double `@if` imbriqué (`step() === 'instructions'` → `paymentInstructions(); as pay`). Sans bug observable en pratique (le 201 garantit `paymentInstructions` non-null), l'**invariant L-006 « cible inconditionnellement rendue » n'était garanti que par l'ordre des `signal.set()` dans le handler, pas par le template** — si `paymentInstructions` devenait nullable (refactor, erreur partielle), le `viewChild` retournerait `undefined` et le focus tomberait silencieusement sur `<body>`. Corrigé en sortant le `<h2 tabindex="-1">` du `@if` interne. Garde : après avoir écrit un commentaire « cible inconditionnelle », ouvrir le template et compter les `@if` parents — un seul `@if` sur l'état de l'étape est acceptable; tout `@if` imbriqué sur les **données** de cette étape est un piège potentiel. Relié à [[L-053]] (même handler `pay()`, même flux post-soumission) : un état terminal mal ordonné dans le template peut aussi cacher la cible de focus avant même qu'elle soit rendue.
 - **Refs.** `features/account/rentals/rentals.ts` (`confirmCancel` / `focusTrigger` /
   `focusHeadingAfterRender`, the `effect()` reading `cancelDialog()`),
   `features/account/rentals/rentals.spec.ts` (the `toHaveFocus()` assertions);
   `features/admin/calendar/calendar.ts` (`addFormHeading` unconditional `viewChild` + focus effect),
   `features/admin/calendar/calendar.html` (`#addFormHeading tabindex="-1"` outside `@if (availableSlots().length > 0)`),
   `features/admin/calendar/calendar.spec.ts` (test « jour sans créneau libre » → focus on heading),
-  branch `feat/epic-11-calendrier`.
+  `features/checkout/checkout.html` (`#instructionsHeading` sorti du `@if paymentInstructions` interne),
+  branches `feat/epic-11-calendrier`, `feat/epic-7-paiement-etransfer`.
 
 ## L-005 · A regression guard only guards if CI actually runs it
 

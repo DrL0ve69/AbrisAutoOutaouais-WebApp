@@ -24,4 +24,12 @@ export class AdminOrderService {
   updateStatus(id: string, action: OrderStatusAction): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/orders/${id}/status`, { action });
   }
+
+  /**
+   * Réconcilie le paiement d'une commande (virement Interac reçu) → marque PAYÉE (204 No Content).
+   * Réservé à l'administration (politique « AdminOnly » côté API) — EPIC 7.
+   */
+  confirmPayment(id: string): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/orders/${id}/confirm-payment`, {});
+  }
 }

@@ -6,7 +6,49 @@
       <h1 id="checkout-heading" i18n="@@checkout.title">Finaliser ma commande</h1>
     </header>
 
-    @if (isEmpty()) {
+    <!-- L'étape « instructions » prime : une fois la commande passée, le panier est VIDÉ
+         (cart.clear()), donc `isEmpty()` redevient vrai — on ne doit pas retomber sur « panier
+         vide » mais rester sur les instructions de virement (EPIC 7). -->
+    @if (step() === 'instructions') {
+
+    <!-- Étape virement Interac (e-Transfer) — moyen de paiement RÉEL (EPIC 7). -->
+    <section class="etransfer" aria-labelledby="etransfer-heading">
+      <!-- Cible de focus INCONDITIONNELLE dès `step==='instructions'` (hors du @if interne) : l'effet
+           de focus (L-006) trouve toujours le titre, même si `paymentInstructions` devenait nullable. -->
+      <h2 id="etransfer-heading" tabindex="-1" #instructionsHeading i18n="@@checkout.etransfer.heading">
+        Réglez votre commande par virement Interac
+      </h2>
+      <p class="etransfer__intro" i18n="@@checkout.etransfer.intro">
+        Votre commande est enregistrée. Envoyez un virement Interac avec les informations
+        ci-dessous pour la régler. Conservez la référence : elle permet de rapprocher votre paiement.
+      </p>
+
+      <!-- Les valeurs lisent `pay.*` → sous le @if (présentes en pratique dès qu'on arrive ici). -->
+      @if (paymentInstructions(); as pay) {
+      <dl class="etransfer__details">
+        <div class="etransfer__row">
+          <dt i18n="@@checkout.etransfer.recipient">Courriel destinataire</dt>
+          <dd class="etransfer__value etransfer__value--select">{{ pay.recipientEmail }}</dd>
+        </div>
+        <div class="etransfer__row">
+          <dt i18n="@@checkout.etransfer.amount">Montant à virer</dt>
+          <dd class="etransfer__value">{{ pay.amount | currency:'CAD':'symbol-narrow':'1.2-2':'fr-CA' }}</dd>
+        </div>
+        <div class="etransfer__row">
+          <dt i18n="@@checkout.etransfer.reference">Référence à inscrire dans le message</dt>
+          <dd class="etransfer__value etransfer__value--select etransfer__value--ref">{{ pay.reference }}</dd>
+        </div>
+      </dl>
+
+      <p class="etransfer__instructions">{{ pay.instructions }}</p>
+      }
+
+      <a routerLink="/" class="btn btn--primary btn--lg" i18n="@@checkout.etransfer.done">
+        Terminé — retour à l'accueil
+      </a>
+    </section>
+
+    } @else if (isEmpty()) {
     <div class="cart-empty">
       <p class="cart-empty__text" i18n="@@checkout.empty">Votre panier est vide.</p>
       <a routerLink="/boutique" class="btn btn--primary" i18n="@@checkout.empty.shop">
@@ -14,11 +56,6 @@
       </a>
     </div>
     } @else {
-
-    <p class="checkout__demo" role="note" i18n="@@checkout.demoBanner">
-      🔒 Mode démonstration — aucune vraie transaction n'est effectuée. Saisissez une carte fictive
-      (p. ex. 4242 4242 4242 4242, expiration future, CVC 123).
-    </p>
 
     <div class="checkout__layout">
       <form class="checkout__form" [formGroup]="form" (ngSubmit)="pay()" novalidate>
@@ -116,52 +153,19 @@
         <app-guest-contact [group]="guestForm" idPrefix="co" />
         }
 
-        <!-- Paiement (démo) -->
-        <fieldset class="checkout__group">
-          <legend i18n="@@checkout.payment.legend">Carte de paiement (démo)</legend>
-
-          <div class="field">
-            <label class="field__label" for="co-card-name" i18n="@@checkout.card.name">Nom sur la carte</label>
-            <input id="co-card-name" class="field__input" type="text" formControlName="cardName"
-                   autocomplete="cc-name"
-                   [attr.aria-invalid]="f.cardName.invalid && f.cardName.touched" />
-          </div>
-
-          <div class="field">
-            <label class="field__label" for="co-card-number" i18n="@@checkout.card.number">Numéro de carte</label>
-            <input id="co-card-number" class="field__input" type="text" inputmode="numeric"
-                   formControlName="cardNumber" autocomplete="cc-number" placeholder="4242424242424242"
-                   [attr.aria-invalid]="f.cardNumber.invalid && f.cardNumber.touched" />
-          </div>
-
-          <div class="field-row">
-            <div class="field">
-              <label class="field__label" for="co-expiry" i18n="@@checkout.card.expiry">Expiration (MM/AA)</label>
-              <input id="co-expiry" class="field__input" type="text" formControlName="expiry"
-                     autocomplete="cc-exp" placeholder="12/29"
-                     [attr.aria-invalid]="f.expiry.invalid && f.expiry.touched" />
-            </div>
-            <div class="field">
-              <label class="field__label" for="co-cvc" i18n="@@checkout.card.cvc">CVC</label>
-              <input id="co-cvc" class="field__input" type="text" inputmode="numeric"
-                     formControlName="cvc" autocomplete="cc-csc" placeholder="123"
-                     [attr.aria-invalid]="f.cvc.invalid && f.cvc.touched" />
-            </div>
-          </div>
-
-          @if (form.invalid && form.touched && !form.hasError('addressRequired')) {
-          <p class="field__error" role="alert" i18n="@@checkout.card.invalid">
-            Vérifiez les informations de carte (numéro, expiration MM/AA, CVC).
-          </p>
-          }
-        </fieldset>
+        <!-- Paiement par virement Interac (e-Transfer) — moyen RÉEL (EPIC 7). Les instructions
+             (référence, courriel, montant) sont affichées APRÈS l'enregistrement de la commande. -->
+        <p class="checkout__paynote" role="note" i18n="@@checkout.payNote">
+          Le paiement se fait par virement Interac. Après avoir passé la commande, vous recevrez les
+          instructions de virement (courriel destinataire, montant et référence).
+        </p>
 
         <button type="submit" class="btn btn--primary btn--full btn--lg"
                 [disabled]="processing()" [attr.aria-busy]="processing()">
           @if (processing()) {
-          <span i18n="@@checkout.processing">Traitement du paiement…</span>
+          <span i18n="@@checkout.processing">Enregistrement de la commande…</span>
           } @else {
-          <span i18n="@@checkout.pay">Payer</span>
+          <span i18n="@@checkout.pay">Passer la commande</span>
           {{ subtotal() | currency:'CAD':'symbol-narrow':'1.2-2':'fr-CA' }}
           }
         </button>
