@@ -18,6 +18,15 @@ public sealed class RentalContractConfiguration : IEntityTypeConfiguration<Renta
         builder.Property(r => r.MonthlyRate).HasColumnType("decimal(18,2)").IsRequired();
         builder.Property(r => r.Status).HasConversion<string>().HasMaxLength(20);
 
+        // ProductId NULLABLE : renseigné uniquement pour les contrats historiques (chemin produit).
+        // Pas de FK mappée vers Product (snapshot — le contrat survit à la suppression du produit).
+        builder.Property(r => r.ProductId);
+
+        // Snapshot du modèle paramétrique loué + taille configurée (null pour les contrats historiques).
+        builder.Property(r => r.ShelterModelSlug).HasMaxLength(80);
+        builder.Property(r => r.ConfiguredLengthCm);
+        builder.Property(r => r.ConfiguredClearHeightCm);
+
         // ── VOICI LA CORRECTION DE TON ERREUR ──
         // On explique à EF Core comment stocker le Value Object "Address" dans la table RentalContracts
         builder.OwnsOne(r => r.Address, addr =>

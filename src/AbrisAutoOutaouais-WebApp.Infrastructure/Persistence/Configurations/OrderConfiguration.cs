@@ -49,6 +49,18 @@ internal sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
                 .HasColumnName("ShippingAddress_Country").HasMaxLength(50);
         });
 
+        // Owned VO — information de paiement (virement Interac) portée par l'agrégat (PAS d'entité
+        // Payment). OwnsOne (et non OwnsMany) → round-trip sûr sur InMemory comme sur SQL Server (L-035).
+        // Colonnes : Payment_Reference, Payment_ConfirmedAt. PAS d'index unique sur la référence pour
+        // le MVP ; si on en ajoute un un jour sur cet agrégat ISoftDeletable → HasFilter (L-045).
+        builder.OwnsOne(o => o.Payment, pay =>
+        {
+            pay.Property(p => p.Reference)
+                .HasColumnName("Payment_Reference").HasMaxLength(40);
+            pay.Property(p => p.ConfirmedAt)
+                .HasColumnName("Payment_ConfirmedAt");
+        });
+
         // FK réelle vers AspNetUsers — possible grâce au DbContext unique
         builder.HasOne<AppUser>()
             .WithMany()

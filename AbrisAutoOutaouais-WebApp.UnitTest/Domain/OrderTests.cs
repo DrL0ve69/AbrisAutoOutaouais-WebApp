@@ -187,4 +187,73 @@ public sealed class OrderTests
 
         order.Status.Should().Be(OrderStatus.Cancelled);
     }
+
+    // ── Paiement (virement Interac) — EPIC 7, 7.0 ──────────────────────────────
+
+    private static Order MakePendingOrder()
+        => Order.Create(Guid.NewGuid(), DeliveryType.Pickup,
+            new[] { (MakeProduct(), 1) }.ToList<(Product, int)>());
+
+    [Fact]
+    public void AttachPaymentReference_FromPending_SetsPendingPaymentInfo()
+    {
+        var order = MakePendingOrder();
+
+        order.AttachPaymentReference("ABR-ABCDEF123456");
+
+        order.Payment.Should().NotBeNull();
+        order.Payment!.Reference.Should().Be("ABR-ABCDEF123456");
+        order.Payment.ConfirmedAt.Should().BeNull();
+        order.Status.Should().Be(OrderStatus.Pending);   // l'attachement ne confirme rien
+    }
+
+    [Fact]
+    public void AttachPaymentReference_WhenNotPending_Throws()
+    {
+        var order = MakePendingOrder();
+        order.Confirm();   // n'est plus en attente
+
+        var act = () => order.AttachPaymentReference("ABR-XYZ");
+
+        act.Should().Throw<BusinessRuleException>().WithMessage("*en attente*");
+    }
+
+    [Fact]
+    public void MarkPaid_FromPendingWithReference_ConfirmsPaymentAndOrder()
+    {
+        var order = MakePendingOrder();
+        order.AttachPaymentReference("ABR-REF000000001");
+        var now = new DateTime(2026, 6, 23, 14, 0, 0, DateTimeKind.Utc);
+
+        order.MarkPaid(now);
+
+        order.Status.Should().Be(OrderStatus.Confirmed);
+        order.Payment!.ConfirmedAt.Should().Be(now);
+        order.Payment.Reference.Should().Be("ABR-REF000000001");   // la référence est conservée
+    }
+
+    [Fact]
+    public void MarkPaid_CalledTwice_ThrowsOnSecondCall_Idempotence()
+    {
+        var order = MakePendingOrder();
+        order.AttachPaymentReference("ABR-REF000000002");
+        var now = new DateTime(2026, 6, 23, 14, 0, 0, DateTimeKind.Utc);
+        order.MarkPaid(now);
+
+        // 2ᵉ appel : la commande n'est plus en attente → garde de Confirm() (L-046).
+        var act = () => order.MarkPaid(now.AddMinutes(5));
+
+        act.Should().Throw<BusinessRuleException>();
+        order.Payment!.ConfirmedAt.Should().Be(now);   // inchangé par l'appel rejeté
+    }
+
+    [Fact]
+    public void MarkPaid_WithoutAttachedReference_Throws()
+    {
+        var order = MakePendingOrder();   // aucune référence attachée
+
+        var act = () => order.MarkPaid(DateTime.UtcNow);
+
+        act.Should().Throw<BusinessRuleException>().WithMessage("*référence de paiement*");
+    }
 }

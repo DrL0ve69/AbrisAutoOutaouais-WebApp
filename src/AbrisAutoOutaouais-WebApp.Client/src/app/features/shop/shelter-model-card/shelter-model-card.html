@@ -3,7 +3,18 @@
      WCAG AA : titre h2, prix « à partir de », CTA ≥ 44px qui ouvre l'overlay.
 ============================================================ -->
 <article class="model-card">
-  <h2 class="model-card__name">{{ model().name }}</h2>
+  <!-- Image illustrative de la catégorie (décorative : alt vide, le titre porte le nom — WCAG 1.1.1). -->
+  <img class="model-card__image" [src]="imageUrl()" alt="" loading="lazy" decoding="async" />
+
+  <!-- Niveau de titre adapté à la page hôte (h2 catalogue / h3 accueil) — WCAG 1.3.1. -->
+  @switch (headingLevel()) {
+    @case ('h3') {
+      <h3 class="model-card__name">{{ model().name }}</h3>
+    }
+    @default {
+      <h2 class="model-card__name">{{ model().name }}</h2>
+    }
+  }
   <p class="model-card__category">{{ model().categoryName }}</p>
 
   <p class="model-card__price">

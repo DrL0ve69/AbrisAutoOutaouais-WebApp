@@ -89,20 +89,20 @@
   </div>
 </section>
 
-<!-- ── PRODUITS VEDETTES ─────────────────────────────────────── -->
+<!-- ── MODÈLES EN VEDETTE (configure-only — rework EPIC 9) ────── -->
 <section class="featured" aria-labelledby="featured-heading">
   <div class="container">
     <header class="section-header">
-      <p class="section-eyebrow" i18n="@@home.featured.eyebrow">Nos produits populaires</p>
+      <p class="section-eyebrow" i18n="@@home.featured.eyebrow">Nos modèles populaires</p>
       <h2 id="featured-heading" i18n="@@home.featured.title">Abris les plus populaires</h2>
     </header>
 
-    @if (loadingProducts()) {
+    @if (loadingModels()) {
       <!-- État de chargement accessible -->
       <div
         class="featured__skeleton"
         aria-busy="true"
-        aria-label="Chargement des produits…"
+        aria-label="Chargement des modèles…"
         i18n-aria-label="@@home.featured.loading"
       >
         @for (_ of [1, 2, 3]; track $index) {
@@ -116,68 +116,36 @@
           </div>
         }
       </div>
-    } @else if (featuredProducts().length > 0) {
+    } @else if (featuredModels().length > 0) {
       <ul class="featured__grid" role="list">
-        @for (product of featuredProducts(); track product.id) {
-          <li class="product-card">
-            <div class="product-card__img-wrap" aria-hidden="true">
-              @if (!product.isAvailable) {
-                <div class="product-card__sold-out" i18n="@@home.featured.soldOut">Épuisé</div>
-              }
-              <div class="product-card__img-placeholder"></div>
-              <img
-                [src]="imageFor(product)"
-                alt=""
-                loading="lazy"
-                decoding="async"
-                class="product-card__img"
-                (error)="onImageError($event)"
-              />
-            </div>
-            <div class="product-card__body">
-              <span class="product-card__cat">{{ product.categoryName }}</span>
-              <h3 class="product-card__name">
-                <a [routerLink]="['/boutique', product.slug]">{{ product.name }}</a>
-              </h3>
-              <div class="product-card__pricing">
-                <span
-                  class="product-card__price"
-                  [attr.aria-label]="
-                    'Prix : ' + (product.price | currency: 'CAD' : 'symbol' : '1.2-2' : 'fr-CA')
-                  "
-                >
-                  {{ product.price | currency: 'CAD' : 'symbol' : '1.2-2' : 'fr-CA' }}
-                </span>
-                @if (product.rentalPrice) {
-                  <span class="product-card__rent">
-                    <span i18n="@@home.featured.rentLabel">Location</span> :
-                    {{ product.rentalPrice | currency: 'CAD' : 'symbol' : '1.2-2' : 'fr-CA' }}/<span
-                      i18n="@@home.featured.month"
-                      >mois</span
-                    >
-                  </span>
-                }
-              </div>
-              <a
-                [routerLink]="['/boutique', product.slug]"
-                class="btn btn--outline btn--sm btn--full"
-                [attr.aria-label]="'Voir ' + product.name"
-                i18n="@@home.featured.viewProduct"
-              >
-                Voir le produit
-              </a>
-            </div>
+        @for (model of featuredModels(); track model.id) {
+          <li>
+            <app-shelter-model-card
+              [model]="model"
+              headingLevel="h3"
+              (configure)="openConfigurator($event)"
+            />
           </li>
         }
       </ul>
 
       <div class="featured__cta">
         <a routerLink="/boutique" class="btn btn--primary btn--lg" i18n="@@home.featured.viewAll">
-          Voir tous nos produits
+          Voir tous nos abris
         </a>
       </div>
     }
   </div>
+
+  <!-- Overlay de configuration (monté inline, hors flux) — l'ajout au panier exige les dimensions. -->
+  @if (overlay(); as o) {
+    <app-shelter-configurator-overlay
+      [slug]="o.slug"
+      [modelName]="o.modelName"
+      (added)="onShelterAdded($event)"
+      (close)="closeConfigurator()"
+    />
+  }
 </section>
 
 <!-- ── BANDEAU CTA ───────────────────────────────────────────── -->

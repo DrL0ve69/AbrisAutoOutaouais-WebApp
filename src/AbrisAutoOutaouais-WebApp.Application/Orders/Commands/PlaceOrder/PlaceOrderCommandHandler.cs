@@ -17,9 +17,11 @@ internal sealed class PlaceOrderCommandHandler(
     IApplicationDbContext db,
     ICurrentUserService currentUser,
     IExpressAccountService express,
-    IEmailService email) : ICommandHandler<PlaceOrderCommand, Guid>
+    IEmailService email,
+    IPaymentService payment,
+    IPaymentReferenceGenerator paymentReferences) : ICommandHandler<PlaceOrderCommand, PlaceOrderResult>
 {
-    public async Task<Guid> HandleAsync(PlaceOrderCommand cmd, CancellationToken ct)
+    public async Task<PlaceOrderResult> HandleAsync(PlaceOrderCommand cmd, CancellationToken ct)
     {
         var productLines = cmd.Lines ?? [];
         var shelterRequests = cmd.ShelterLines ?? [];
@@ -66,16 +68,27 @@ internal sealed class PlaceOrderCommandHandler(
         foreach (var (product, qty) in items)
             product.AdjustStock(-qty);
 
+        // ── Paiement (virement Interac) ────────────────────────────────────────
+        // Réf NON DEVINABLE attachée à l'agrégat (statut porté par Order.Payment, pas d'entité Payment).
+        // La commande reste Pending : la confirmation passe par la réconciliation admin (confirm-payment).
+        // Courriel du CLIENT : celui du connecté, sinon celui du contact invité. Sert au courriel de
+        // confirmation ET sera transmis aux fournisseurs automatisés (VoPay/Paysafe, 7.4) ; l'adaptateur
+        // manuel l'ignore (il n'utilise que le courriel MARCHAND issu de la config).
+        var customerEmail = currentUser.Email ?? cmd.GuestContact!.Email;
+        var reference = paymentReferences.Generate();
+        order.AttachPaymentReference(reference);
+
+        // Port résilient (jamais d'exception réseau, comme IPlacesService) : pas de try/catch ici.
+        var instructions = await payment.InitiateAsync(reference, order.TotalAmount, customerEmail, ct);
+
         db.Orders.Add(order);
         await db.SaveChangesAsync(ct);
 
         // L'échec d'envoi du courriel ne doit pas annuler une commande déjà persistée.
-        // Destinataire : courriel du connecté, sinon celui du contact invité.
-        var recipient = currentUser.Email ?? cmd.GuestContact!.Email;
-        try { await email.SendOrderConfirmationAsync(order.Id, recipient, ct); }
+        try { await email.SendOrderConfirmationAsync(order.Id, customerEmail, ct); }
         catch { /* journalisé ailleurs ; commande conservée */ }
 
-        return order.Id;
+        return new PlaceOrderResult(order.Id, instructions);
     }
 
     /// <summary>
@@ -113,29 +126,10 @@ internal sealed class PlaceOrderCommandHandler(
             if (!models.TryGetValue(r.Slug, out var model))
                 throw new BusinessRuleException($"Modèle d'abri « {r.Slug} » introuvable.");
 
-            // Bornes + alignement validés AVANT le calculateur (sinon ArgumentOutOfRangeException → 500).
-            if (r.LengthCm < model.MinLengthCm || r.LengthCm > model.MaxLengthCm)
-                throw new BusinessRuleException(
-                    $"La longueur doit être comprise entre {model.MinLengthCm} et {model.MaxLengthCm} cm.");
-
-            if ((r.LengthCm - model.MinLengthCm) % model.LengthStepCm != 0)
-                throw new BusinessRuleException(
-                    $"La longueur doit être alignée sur le pas de {model.LengthStepCm} cm depuis {model.MinLengthCm} cm.");
-
-            // La hauteur dégagée doit être une des options offertes par le modèle (sinon le choix client
-            // serait silencieusement accepté hors catalogue). Même rigueur que la longueur → 422.
-            if (!model.ClearHeightOptionsCm.Contains(r.ClearHeightCm))
-                throw new BusinessRuleException(
-                    $"La hauteur dégagée {r.ClearHeightCm} cm n'est pas offerte pour ce modèle " +
-                    $"(offertes : {string.Join(", ", model.ClearHeightOptionsCm)} cm).");
-
-            // La combinaison (longueur, hauteur) doit exister dans la grille EXACTE (grille éparse :
-            // une combinaison « dans les options » peut tout de même ne pas être tarifée). Lookup AVANT
-            // le calculateur (sinon ArgumentOutOfRangeException → 500) ; absence → 422.
-            if (model.PriceFor(r.LengthCm, r.ClearHeightCm) is null)
-                throw new BusinessRuleException(
-                    $"Aucun prix disponible pour la combinaison longueur {r.LengthCm} cm × " +
-                    $"hauteur dégagée {r.ClearHeightCm} cm pour ce modèle.");
+            // Validation de la taille (bornes, pas, hauteur offerte, combinaison tarifée) par la source
+            // UNIQUE et partagée avec la location (L-004) — AVANT le calculateur (sinon
+            // ArgumentOutOfRangeException → 500). Toute garde violée → BusinessRuleException (422).
+            ShelterSizeRules.ValidateSize(model, r.LengthCm, r.ClearHeightCm);
 
             var unitPrice = ShelterPriceCalculator.CalculatePrice(model, r.LengthCm, r.ClearHeightCm);
             lines.Add(new Order.ShelterLineInput(
@@ -145,6 +139,6 @@ internal sealed class PlaceOrderCommandHandler(
         return lines;
     }
 
-    public ValueTask<Guid> Handle(PlaceOrderCommand cmd, CancellationToken ct)
+    public ValueTask<PlaceOrderResult> Handle(PlaceOrderCommand cmd, CancellationToken ct)
         => new(HandleAsync(cmd, ct));
 }

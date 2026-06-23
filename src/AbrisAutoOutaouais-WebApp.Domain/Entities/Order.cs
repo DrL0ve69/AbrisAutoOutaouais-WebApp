@@ -26,6 +26,13 @@ public sealed class Order : ISoftDeletable, IAuditableEntity
     public decimal TotalAmount { get; private set; }
     public string? Notes { get; private set; }
 
+    /// <summary>
+    /// Information de paiement (Owned VO <see cref="PaymentInfo"/>). NULLABLE : les commandes
+    /// antérieures à la migration EPIC 7 n'en portent pas, et l'agrégat est créé sans paiement
+    /// (la référence est attachée juste après par <see cref="AttachPaymentReference"/>).
+    /// </summary>
+    public PaymentInfo? Payment { get; private set; }
+
     public IReadOnlyList<OrderLine> Lines => _lines.AsReadOnly();
 
     public bool IsDeleted { get; set; }
@@ -84,6 +91,43 @@ public sealed class Order : ISoftDeletable, IAuditableEntity
 
         order.TotalAmount = order._lines.Sum(l => l.LineTotal);
         return order;
+    }
+
+    /// <summary>
+    /// Attache une référence de paiement (virement Interac) à la commande, en posant un
+    /// <see cref="PaymentInfo"/> EN ATTENTE. Garde : seulement tant que la commande est en attente
+    /// (<see cref="OrderStatus.Pending"/>) — on n'altère pas le paiement d'une commande déjà avancée.
+    /// </summary>
+    public void AttachPaymentReference(string reference)
+    {
+        if (Status != OrderStatus.Pending)
+            throw new BusinessRuleException(
+                "Une référence de paiement ne peut être attachée qu'à une commande en attente.");
+        Payment = PaymentInfo.Pending(reference);
+    }
+
+    /// <summary>
+    /// Marque la commande comme PAYÉE : confirme le paiement (<see cref="PaymentInfo.Confirm"/>) PUIS
+    /// confirme la commande (<see cref="Confirm"/>). La garde de <see cref="Confirm"/> assure
+    /// l'idempotence (L-046) : un 2ᵉ appel sur une commande déjà confirmée lève proprement une
+    /// <see cref="BusinessRuleException"/>.
+    /// </summary>
+    public void MarkPaid(DateTime nowUtc)
+    {
+        if (Payment is null)
+            throw new BusinessRuleException(
+                "Aucune référence de paiement n'est attachée à cette commande.");
+
+        // Invariant porté par le paiement lui-même (et pas seulement par le statut de la commande) :
+        // un paiement déjà confirmé ne se re-confirme pas — défense en profondeur (L-046).
+        if (Payment.ConfirmedAt is not null)
+            throw new BusinessRuleException("Le paiement de cette commande est déjà confirmé.");
+
+        // Confirme le paiement AVANT la commande : si Confirm() lève (statut non-Pending),
+        // l'horodatage de paiement n'aura pas été posé sur une commande non confirmable.
+        var confirmedPayment = Payment.Confirm(nowUtc);
+        Confirm();   // garde existante : Status != Pending → BusinessRuleException (idempotence)
+        Payment = confirmedPayment;
     }
 
     public void Confirm()

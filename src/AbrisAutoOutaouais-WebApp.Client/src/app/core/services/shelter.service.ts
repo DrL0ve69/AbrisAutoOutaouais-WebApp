@@ -3,6 +3,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
+  CatalogSlugType,
+  RentableShelterModel,
   ShelterModelDetail,
   ShelterModelSummary,
   ShelterPrice,
@@ -34,6 +36,25 @@ export class ShelterService {
   getModel(slug: string): Observable<ShelterModelDetail> {
     return this.http.get<ShelterModelDetail>(
       `${this.baseUrl}/shelters/${encodeURIComponent(slug)}`,
+    );
+  }
+
+  /**
+   * Liste les modèles LOUABLES (tarif mensuel forfaitaire) avec les champs dimensionnels nécessaires
+   * au sélecteur de taille du formulaire de location (rework EPIC 9). Source : `GET /shelters/rentable`.
+   */
+  getRentableModels(): Observable<RentableShelterModel[]> {
+    return this.http.get<RentableShelterModel[]>(`${this.baseUrl}/shelters/rentable`);
+  }
+
+  /**
+   * Résout le TYPE d'un slug de catalogue (`GET /catalog/{slug}/type`) — `shelter` (modèle
+   * paramétrique) ou `product` (produit fixe). 404 si le slug n'existe nulle part. Évite le double
+   * appel spéculatif « tente shelter puis produit » de la fiche détail (bruit 404 en console).
+   */
+  resolveType(slug: string): Observable<CatalogSlugType> {
+    return this.http.get<CatalogSlugType>(
+      `${this.baseUrl}/catalog/${encodeURIComponent(slug)}/type`,
     );
   }
 

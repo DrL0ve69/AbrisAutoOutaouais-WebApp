@@ -25,9 +25,14 @@ internal sealed class CreateRentalContractCommandHandler(
                 ? await express.FindOrCreateByEmailAsync(cmd.GuestContact, ct)
                 : throw new BusinessRuleException("Coordonnées requises pour créer un contrat de location."));
 
-        var product = await db.Products
-            .FirstOrDefaultAsync(p => p.Id == cmd.ProductId, ct)
-            ?? throw new NotFoundException(nameof(Product), cmd.ProductId);
+        // Modèle paramétrique louable + ses collections chargées (entités RÉGULIÈRES → Include
+        // explicite, L-035) : la grille (PriceEntries) et les dimensions sont nécessaires pour valider
+        // la taille demandée (longueur × hauteur dégagée) dans RentalContract.CreateForModel().
+        var model = await db.ShelterModels
+            .Include(m => m.Dimensions)
+            .Include(m => m.PriceEntries)
+            .FirstOrDefaultAsync(m => m.Slug == cmd.Slug, ct)
+            ?? throw new NotFoundException(nameof(ShelterModel), cmd.Slug);
 
         var address = Address.Create(
             cmd.Address.CivicNumber,
@@ -38,8 +43,9 @@ internal sealed class CreateRentalContractCommandHandler(
             cmd.Address.PostalCode,
             string.IsNullOrWhiteSpace(cmd.Address.Country) ? "Canada" : cmd.Address.Country);
 
-        // Règles métier (produit louable, dates cohérentes) dans RentalContract.Create()
-        var contract = RentalContract.Create(userId, product, cmd.StartDate, cmd.EndDate, address);
+        // Règles métier (modèle louable, taille admissible, dates cohérentes) dans CreateForModel().
+        var contract = RentalContract.CreateForModel(
+            userId, model, cmd.LengthCm, cmd.ClearHeightCm, cmd.StartDate, cmd.EndDate, address);
 
         db.RentalContracts.Add(contract);
         await db.SaveChangesAsync(ct);

@@ -517,13 +517,28 @@ for (const theme of ['light', 'dark'] as const) {
     await expect(warning).toBeVisible();
     await expect(warning).toHaveAttribute('role', 'status');
 
+    // ⚠️ BARRIÈRE « bouton stabilisé » avant le scan axe (L-016/L-019) : tant que le géocodage est
+    // en cours, le bouton « Centrer la carte… » est `[disabled]` et le `.btn` lui applique
+    // `opacity: 0.5` → axe lirait un contraste composé DÉGRADÉ (#c54444 sur #f3d7d7 = 3.62:1), un
+    // état TRANSITOIRE de rendu, pas une vraie violation statique. On attend donc que le bouton soit
+    // revenu à son état stable (géocodage terminé → ré-activé → opacité 1) avant d'analyser. Le `.btn`
+    // ne met PAS `opacity` dans sa liste de transitions CSS → dès que `disabled` tombe l'opacité est
+    // instantanément 1, donc `toBeEnabled()` est une barrière suffisante (doublée de `aria-busy`).
+    const center = page.getByRole('button', { name: /centrer la carte sur cette adresse/i });
+    await expect(center).toBeEnabled();
+    await expect(center).not.toHaveAttribute('aria-busy', 'true');
+
     // CONTRASTE inclus (app réelle, WCAG_TAGS) sur la voie carte, où vivent le bandeau « hors zone »
     // et le bouton `.btn--outline` — color-contrast inclus, dans les deux thèmes (motion-a11y §2).
     // On exclut le widget tiers `.leaflet-container` (internes Leaflet/geoman, mode pointer-only).
-    const onMap = await new AxeBuilder({ page })
-      .withTags(WCAG_TAGS)
-      .exclude('.leaflet-container')
-      .analyze();
-    expect(onMap.violations).toEqual([]);
+    // Ceinture+bretelles : le scan+assertion sont enveloppés dans `toPass` au cas où un dernier
+    // repaint suivrait la ré-activation (la barrière `toBeEnabled` ci-dessus reste la garde principale).
+    await expect(async () => {
+      const onMap = await new AxeBuilder({ page })
+        .withTags(WCAG_TAGS)
+        .exclude('.leaflet-container')
+        .analyze();
+      expect(onMap.violations).toEqual([]);
+    }).toPass({ timeout: 15000 });
   });
 }

@@ -22,6 +22,8 @@ internal sealed class GetAllOrdersQueryHandler(
                 o.Status,
                 o.TotalAmount,
                 ItemCount = o.Lines.Count,
+                PaymentReference = o.Payment != null ? o.Payment.Reference : null,
+                PaymentConfirmedAt = o.Payment != null ? o.Payment.ConfirmedAt : null,
             })
             .ToListAsync(ct);
 
@@ -41,7 +43,9 @@ internal sealed class GetAllOrdersQueryHandler(
                 o.CreatedAt,
                 o.Status.ToString(),
                 o.TotalAmount,
-                o.ItemCount))
+                o.ItemCount,
+                o.PaymentReference,
+                o.PaymentConfirmedAt))
             .ToList();
     }
 

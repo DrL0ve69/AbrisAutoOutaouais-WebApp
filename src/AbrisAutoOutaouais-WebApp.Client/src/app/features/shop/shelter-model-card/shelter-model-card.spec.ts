@@ -30,6 +30,26 @@ describe('ShelterModelCardComponent', () => {
     expect(screen.getByText(/à partir de/i)).toBeInTheDocument();
   });
 
+  it('illustre la carte par une image de CATÉGORIE (décorative : alt vide) — jamais vide', async () => {
+    const { container } = await render(ShelterModelCardComponent, { inputs: { model } });
+
+    const img = container.querySelector<HTMLImageElement>('img.model-card__image');
+    expect(img).not.toBeNull();
+    // Image résolue par la catégorie (« Abris simples » → slug abris-simples) — pas de carte vide.
+    expect(img!.getAttribute('src')).toBe('/images/categories/abris-simples.svg');
+    // Décorative : le nom est déjà annoncé par le titre, donc alt vide (pas de doublon — WCAG 1.1.1).
+    expect(img!.getAttribute('alt')).toBe('');
+  });
+
+  it('retombe sur un visuel par défaut quand la catégorie est inconnue (carte jamais vide — L-040)', async () => {
+    const { container } = await render(ShelterModelCardComponent, {
+      inputs: { model: { ...model, categoryName: 'Catégorie inexistante' } },
+    });
+
+    const img = container.querySelector<HTMLImageElement>('img.model-card__image');
+    expect(img!.getAttribute('src')).toBe('/images/categories/abris-simples.svg');
+  });
+
   it('émet configure (slug + nom + déclencheur) au clic sur « Ajouter au panier »', async () => {
     const user = userEvent.setup();
     const configure = vi.fn<(r: ShelterConfigureRequest) => void>();

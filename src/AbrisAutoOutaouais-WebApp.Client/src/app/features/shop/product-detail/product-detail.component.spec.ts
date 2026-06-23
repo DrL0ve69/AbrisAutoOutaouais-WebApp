@@ -62,17 +62,15 @@ async function setup(slug: string) {
   return { ...result, http };
 }
 
-/** Réponse 404 du modèle paramétrique → la fiche se rabat sur le produit fixe. */
-function failShelter(http: HttpTestingController, slug: string): void {
-  http
-    .expectOne(`${environment.apiUrl}/shelters/${slug}`)
-    .flush('Not found', { status: 404, statusText: 'Not Found' });
+/** Résout le slug via le résolveur de type (`/catalog/{slug}/type`) puis flush le type donné. */
+function resolveType(http: HttpTestingController, slug: string, type: 'shelter' | 'product'): void {
+  http.expectOne(`${environment.apiUrl}/catalog/${slug}/type`).flush({ type });
 }
 
-describe('ProductDetailComponent — produit fixe (repli)', () => {
+describe('ProductDetailComponent — produit fixe', () => {
   it('affiche le produit une fois chargé (h1 = nom)', async () => {
     const { http } = await setup('abri-simple');
-    failShelter(http, 'abri-simple');
+    resolveType(http, 'abri-simple', 'product');
     http.expectOne(`${environment.apiUrl}/products/abri-simple`).flush(product);
 
     expect(
@@ -81,11 +79,10 @@ describe('ProductDetailComponent — produit fixe (repli)', () => {
     http.verify();
   });
 
-  it('affiche « Produit introuvable » sur une erreur 404 produit', async () => {
+  it('affiche « Produit introuvable » quand le résolveur répond 404', async () => {
     const { http } = await setup('abri-simple');
-    failShelter(http, 'abri-simple');
     http
-      .expectOne(`${environment.apiUrl}/products/abri-simple`)
+      .expectOne(`${environment.apiUrl}/catalog/abri-simple/type`)
       .flush('Not found', { status: 404, statusText: 'Not Found' });
 
     expect(await screen.findByText(/produit introuvable/i)).toBeInTheDocument();
@@ -94,7 +91,7 @@ describe('ProductDetailComponent — produit fixe (repli)', () => {
 
   it('ne présente aucune violation WCAG A/AA (axe)', async () => {
     const { http, container } = await setup('abri-simple');
-    failShelter(http, 'abri-simple');
+    resolveType(http, 'abri-simple', 'product');
     http.expectOne(`${environment.apiUrl}/products/abri-simple`).flush(product);
     await screen.findByRole('heading', { level: 1, name: /abri simple/i });
 
@@ -104,7 +101,7 @@ describe('ProductDetailComponent — produit fixe (repli)', () => {
 
   it('propose « Voir en 3D » quand les 3 dimensions sont présentes', async () => {
     const { http } = await setup('abri-simple');
-    failShelter(http, 'abri-simple');
+    resolveType(http, 'abri-simple', 'product');
     http.expectOne(`${environment.apiUrl}/products/abri-simple`).flush(product);
     await screen.findByRole('heading', { level: 1, name: /abri simple/i });
 
@@ -116,7 +113,7 @@ describe('ProductDetailComponent — produit fixe (repli)', () => {
 
   it('masque « Voir en 3D » si une dimension est nulle', async () => {
     const { http } = await setup('abri-simple');
-    failShelter(http, 'abri-simple');
+    resolveType(http, 'abri-simple', 'product');
     http
       .expectOne(`${environment.apiUrl}/products/abri-simple`)
       .flush({ ...product, heightCm: null });
@@ -129,11 +126,13 @@ describe('ProductDetailComponent — produit fixe (repli)', () => {
 
 describe('ProductDetailComponent — modèle paramétrique (configurateur inline)', () => {
   /**
-   * Flush le 1er `/shelters/:slug` (résolution de la fiche), puis — une fois le configurateur monté
-   * (`@case('shelter')`) — flush sa propre requête `/shelters/:slug` (chargement du détail). La 2ᵉ
-   * requête n'est émise qu'APRÈS le rendu du configurateur, d'où le `findByRole` intermédiaire.
+   * Flush le résolveur de type (`/catalog/simple/type` → `shelter`), puis le détail du modèle
+   * (`/shelters/simple`, fiche). Une fois le configurateur monté (`@case('shelter')`), il émet sa
+   * PROPRE requête `/shelters/simple` (chargement du détail) — émise APRÈS le rendu, d'où le
+   * `findByRole` intermédiaire.
    */
   async function resolveShelter(http: HttpTestingController): Promise<void> {
+    http.expectOne(`${environment.apiUrl}/catalog/simple/type`).flush({ type: 'shelter' });
     http.expectOne(`${environment.apiUrl}/shelters/simple`).flush(shelterModel);
     await screen.findByRole('heading', { level: 1, name: /abri simple paramétrique/i });
     // Le configurateur inline charge à son tour le détail du modèle.

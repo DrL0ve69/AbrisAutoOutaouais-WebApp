@@ -109,15 +109,64 @@ async function setup(
 }
 
 describe('CatalogComponent', () => {
-  it('affiche les catégories et les produits', async () => {
-    await setup();
+  it('vue « Tous » : MIXTE — cartes de modèles d\'abris ET produits non-abris', async () => {
+    // « Tous » charge TOUS les modèles (getModels sans arg) + les produits restants (loadAll).
+    const getModels = vi.fn().mockReturnValue(of(shelterModels));
+    await setup(defaultProductStub(), {
+      getModels,
+      getModel: () => of(shelterModelDetail),
+      getPrice: () => NEVER,
+    });
 
     expect(
       await screen.findByRole('button', { name: /abris simples/i }),
     ).toBeInTheDocument();
+    // getModels appelé SANS catégorie (vue mixte « Tous »).
+    expect(getModels).toHaveBeenCalledWith();
+    // La carte de MODÈLE ET le produit fixe (tous deux des h2) coexistent ; on les distingue par
+    // le nom exact (le modèle est « Abri simple paramétrique », le produit « Abri simple »).
     expect(
-      screen.getByRole('heading', { name: /abri simple/i }),
+      await screen.findByRole('heading', { level: 2, name: /abri simple paramétrique/i }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { level: 2, name: /^abri simple$/i }),
+    ).toBeInTheDocument();
+  });
+
+  it('vue « Tous » : produits en échec + modèles VIDES → message d\'erreur (pas un faux état vide)', async () => {
+    // Modèles OK mais vides + produits en échec : sans garde, la page afficherait « Aucun produit »
+    // (faux état vide masquant une panne backend). On exige le message d'erreur du catalogue.
+    await setup(
+      { getCategories: () => of(categories), getProducts: () => throwError(() => new Error('boom')) },
+      { getModels: () => of([]) },
+    );
+
+    expect(await screen.findByText(/catalogue est momentanément indisponible/i)).toBeInTheDocument();
+    // Et SURTOUT pas le faux état vide.
+    expect(screen.queryByText(/aucun produit dans cette catégorie/i)).not.toBeInTheDocument();
+  });
+
+  it('vue « Tous » : les DEUX listes en échec → message d\'erreur', async () => {
+    await setup(
+      { getCategories: () => of(categories), getProducts: () => throwError(() => new Error('boom')) },
+      { getModels: () => throwError(() => new Error('boom')) },
+    );
+
+    expect(await screen.findByText(/catalogue est momentanément indisponible/i)).toBeInTheDocument();
+  });
+
+  it('vue « Tous » : panne PARTIELLE (modèles OK, produits en échec) → la liste OK reste affichée, pas d\'erreur', async () => {
+    // Modèles NON vides + produits en échec : la liste des modèles doit rester visible et AUCUN
+    // message d'erreur ne s'affiche (une panne partielle ne masque ni ne sur-signale).
+    await setup(
+      { getCategories: () => of(categories), getProducts: () => throwError(() => new Error('boom')) },
+      { getModels: () => of(shelterModels), getModel: () => of(shelterModelDetail), getPrice: () => NEVER },
+    );
+
+    expect(
+      await screen.findByRole('heading', { level: 2, name: /abri simple paramétrique/i }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/catalogue est momentanément indisponible/i)).not.toBeInTheDocument();
   });
 
   it('recharge les produits filtrés au clic sur une catégorie NON paramétrique', async () => {
@@ -227,7 +276,9 @@ describe('CatalogComponent', () => {
 
   it('ne présente aucune violation WCAG A/AA (axe)', async () => {
     const { container } = await setup();
-    await screen.findByRole('heading', { name: /abri simple/i });
+    // Vue « Tous » mixte : on attend le produit fixe (h2 « Abri simple ») — la carte de modèle
+    // (h2 « Abri simple paramétrique ») coexiste, distinguée par le nom exact.
+    await screen.findByRole('heading', { level: 2, name: /^abri simple$/i });
     await expectNoA11yViolations(container);
   });
 });

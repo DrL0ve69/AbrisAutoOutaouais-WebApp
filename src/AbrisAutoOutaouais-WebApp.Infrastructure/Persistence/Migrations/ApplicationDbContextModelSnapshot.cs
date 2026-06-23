@@ -244,6 +244,12 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int?>("ConfiguredClearHeightCm")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ConfiguredLengthCm")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -265,13 +271,17 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Migrations
                     b.Property<decimal>("MonthlyRate")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<Guid>("ProductId")
+                    b.Property<Guid?>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ProductName")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("ShelterModelSlug")
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
 
                     b.Property<DateOnly>("StartDate")
                         .HasColumnType("date");
@@ -322,6 +332,9 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("MinLengthCm")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MonthlyRentalCents")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -824,6 +837,31 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Migrations
                             b1.WithOwner()
                                 .HasForeignKey("OrderId");
                         });
+
+                    b.OwnsOne("Domain.ValueObjects.PaymentInfo", "Payment", b1 =>
+                        {
+                            b1.Property<Guid>("OrderId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<DateTime?>("ConfirmedAt")
+                                .HasColumnType("datetime2")
+                                .HasColumnName("Payment_ConfirmedAt");
+
+                            b1.Property<string>("Reference")
+                                .IsRequired()
+                                .HasMaxLength(40)
+                                .HasColumnType("nvarchar(40)")
+                                .HasColumnName("Payment_Reference");
+
+                            b1.HasKey("OrderId");
+
+                            b1.ToTable("Orders");
+
+                            b1.WithOwner()
+                                .HasForeignKey("OrderId");
+                        });
+
+                    b.Navigation("Payment");
 
                     b.Navigation("ShippingAddress");
                 });

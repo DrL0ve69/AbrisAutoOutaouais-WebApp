@@ -2,6 +2,7 @@ using AbrisAutoOutaouais_WebApp.Application.Common.Mediator;
 using AbrisAutoOutaouais_WebApp.Application.Shelters.Commands.CreateShelterModel;
 using AbrisAutoOutaouais_WebApp.Application.Shelters.Commands.DeleteShelterModel;
 using AbrisAutoOutaouais_WebApp.Application.Shelters.Commands.UpdateShelterModel;
+using AbrisAutoOutaouais_WebApp.Application.Shelters.Queries.GetRentableShelterModels;
 using AbrisAutoOutaouais_WebApp.Application.Shelters.Queries.GetShelterModelBySlug;
 using AbrisAutoOutaouais_WebApp.Application.Shelters.Queries.GetShelterModels;
 using AbrisAutoOutaouais_WebApp.Application.Shelters.Queries.GetShelterPrice;
@@ -62,6 +63,18 @@ public sealed class SheltersController(IDispatcher dispatcher) : ControllerBase
         [FromQuery] int requiredWidthCm, [FromQuery] int requiredLengthCm, CancellationToken ct)
         => Ok(await dispatcher.DispatchAsync(
             new SuggestShelterModelsQuery(requiredWidthCm, requiredLengthCm), ct));
+
+    /// <summary>
+    /// Liste les modèles d'abris LOUABLES (tarif mensuel non nul) avec le tarif + les champs
+    /// dimensionnels nécessaires au formulaire de location (réutilise le configurateur de dimensions).
+    /// Le segment littéral « rentable » l'emporte sur le paramètre <c>{slug}</c> par précédence de
+    /// gabarit de route ; déclaré AVANT par lisibilité (comme « suggest »/« price »).
+    /// </summary>
+    [HttpGet("rentable")]
+    [AllowAnonymous]
+    [ProducesResponseType<IReadOnlyList<RentableShelterModelDto>>(200)]
+    public async Task<IActionResult> GetRentable(CancellationToken ct)
+        => Ok(await dispatcher.DispatchAsync(new GetRentableShelterModelsQuery(), ct));
 
     /// <summary>Détail d'un modèle par slug (incl. options de largeur et de hauteur dégagée).</summary>
     [HttpGet("{slug}")]

@@ -48,6 +48,12 @@ async function mockApi(page: Page): Promise<void> {
   await page.route('**/api/v1/shelters/suggest*', (route) =>
     route.fulfill({ json: [] }),
   );
+  // Résolveur de TYPE (rework EPIC 9) : la fiche détail appelle `/catalog/{slug}/type` AVANT de
+  // charger l'endpoint. `abri-simple` est ici un PRODUIT fixe À DIMENSIONS (le bloc « Voir en 3D »
+  // n'apparaît que pour un produit dimensionné) → on renvoie `product`, puis `/products/abri-simple`.
+  await page.route('**/api/v1/catalog/*/type', (route) =>
+    route.fulfill({ json: { type: 'product' } }),
+  );
   await page.route('**/api/v1/products/*', (route) => route.fulfill({ json: product }));
 }
 

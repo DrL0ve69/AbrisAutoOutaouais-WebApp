@@ -271,6 +271,60 @@ public sealed class SheltersEndpointTests : IClassFixture<WebAppFactory>
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
+    // ── Référentiel complet (parité abristempo) via les VRAIS seeders ────────────
+
+    /// <summary>
+    /// Exécute les VRAIS <c>ProductSeeder</c> + <c>ShelterModelSeeder</c> (le <c>WebAppFactory</c> ne
+    /// lance que l'IdentitySeeder) pour matérialiser le référentiel réel. Idempotents : sûr à
+    /// rappeler. Les slugs de catégorie réels (abris-monopente, abris-rangement…) sont DISJOINTS des
+    /// catégories synthétiques des autres tests (cat-*), donc aucune interférence dans le store partagé.
+    /// </summary>
+    private async Task SeedRealReferentialAsync()
+    {
+        await ProductSeeder.SeedAsync(_factory.Services);
+        await ShelterModelSeeder.SeedAsync(_factory.Services);
+    }
+
+    [Fact]
+    public async Task GetAll_AbrisMonopenteCategory_ReturnsMonopente_NotUnderSimples()
+    {
+        await SeedRealReferentialAsync();
+
+        var monopente = await _client.GetFromJsonAsync<List<ShelterModelSummaryDto>>(
+            "/api/v1/shelters?category=abris-monopente");
+        monopente.Should().NotBeNull();
+        monopente!.Select(m => m.Slug).Should().Contain("monopente");
+
+        // monopente n'apparaît PLUS sous abris-simples (recatégorisé / semé dans sa propre catégorie).
+        var simples = await _client.GetFromJsonAsync<List<ShelterModelSummaryDto>>(
+            "/api/v1/shelters?category=abris-simples");
+        simples!.Select(m => m.Slug).Should().NotContain("monopente");
+        // abris-simples = EXACTEMENT les 3 modèles simples (les autres tests n'utilisent pas ce slug).
+        simples!.Select(m => m.Slug).Should().BeEquivalentTo(
+            "simple-11pi", "simple-hd-11pi", "simple-12pi");
+    }
+
+    [Fact]
+    public async Task GetAll_NewParametricCategories_EachReturnsExpectedModels()
+    {
+        await SeedRealReferentialAsync();
+
+        var rangement = await _client.GetFromJsonAsync<List<ShelterModelSummaryDto>>(
+            "/api/v1/shelters?category=abris-rangement");
+        rangement!.Select(m => m.Slug).Should().BeEquivalentTo(
+            "rangement-5pi", "rangement-monopente-5pi");
+
+        var entreePassage = await _client.GetFromJsonAsync<List<ShelterModelSummaryDto>>(
+            "/api/v1/shelters?category=abris-entree-passage");
+        entreePassage!.Select(m => m.Slug).Should().BeEquivalentTo("entree", "passage-cloture");
+
+        var industriels = await _client.GetFromJsonAsync<List<ShelterModelSummaryDto>>(
+            "/api/v1/shelters?category=abris-industriels");
+        industriels!.Select(m => m.Slug).Should().BeEquivalentTo("industriel-20pi");
+        // « À partir de » strictement positif (min de la grille = 2499 $).
+        industriels!.Single(m => m.Slug == "industriel-20pi").BasePrice.Should().Be(2499.00m);
+    }
+
     /// <summary>Ajoute un modèle dans une catégorie DÉJÀ semée (slug unique, une seule largeur).</summary>
     private async Task SeedShelterModelInCategoryAsync(string slug, Guid categoryId, int width)
     {

@@ -71,6 +71,32 @@ const availableSlots = [
   { start: '2026-07-01T15:00:00', end: '2026-07-01T17:00:00' },
 ];
 
+// Modèles paramétriques (rework EPIC 9) : l'accueil charge les 3 premiers en VEDETTE via
+// `GET /shelters` (sans param). Forme `ShelterModelSummary` (camelCase .NET). Empêche le bruit
+// ECONNREFUSED + garantit le rendu de la section vedette (cartes catégorie dans le scan axe).
+const shelterSummaries = [
+  {
+    id: 'm1',
+    slug: 'simple-11pi',
+    name: 'Abri simple 11 pi — Abris Tempo',
+    categoryName: 'Abris simples',
+    basePrice: 1099,
+    minLengthCm: 488,
+    maxLengthCm: 1830,
+    lengthStepCm: 122,
+  },
+  {
+    id: 'm2',
+    slug: 'double-16pi',
+    name: 'Abri double 16 pi — Abris Tempo',
+    categoryName: 'Abris doubles',
+    basePrice: 1899,
+    minLengthCm: 488,
+    maxLengthCm: 1830,
+    lengthStepCm: 122,
+  },
+];
+
 async function mockApi(page: Page): Promise<void> {
   // Catégories
   await page.route('**/api/v1/categories', (route) => route.fulfill({ json: categories }));
@@ -78,11 +104,21 @@ async function mockApi(page: Page): Promise<void> {
   await page.route('**/api/v1/bookings/available-slots*', (route) =>
     route.fulfill({ json: availableSlots }),
   );
+  // Résolveur de TYPE (rework EPIC 9) : la fiche détail appelle `/catalog/{slug}/type` AVANT de
+  // charger l'endpoint adéquat. Ici `abri-simple` est un PRODUIT fixe (fixture covers/accessoires),
+  // donc on renvoie `product` → la fiche charge ensuite `/products/abri-simple` (mock ci-dessous).
+  await page.route('**/api/v1/catalog/*/type', (route) =>
+    route.fulfill({ json: { type: 'product' } }),
+  );
   // Produit unique par slug (ex. /products/abri-simple).
   // Enregistré AVANT le pattern de liste pour matcher en priorité.
   await page.route('**/api/v1/products/*', (route) => route.fulfill({ json: product }));
   // Liste paginée (ex. /products?page=1&pageSize=50)
   await page.route('**/api/v1/products*', (route) => route.fulfill({ json: productList }));
+  // Liste des modèles paramétriques (accueil vedette + boutique). `?*` AVANT le pattern nu pour
+  // matcher en priorité quand une query (`?category=`) est présente.
+  await page.route('**/api/v1/shelters?*', (route) => route.fulfill({ json: shelterSummaries }));
+  await page.route('**/api/v1/shelters', (route) => route.fulfill({ json: shelterSummaries }));
   // Suggestion d'abris (/mesurer étape résultats) — enregistrée APRÈS les patterns produits
   // pour gagner en priorité (Playwright privilégie la dernière route). L'étape 1 (Adresse)
   // ne l'appelle pas, mais on la mocke par sûreté pour éviter toute requête réelle.

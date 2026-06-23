@@ -1,16 +1,19 @@
 using AbrisAutoOutaouais_WebApp.Domain.Entities;
 using AbrisAutoOutaouais_WebApp.Infrastructure.Persistence;
 using AbrisAutoOutaouais_WebApp.UnitTest.Application.Helpers;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using System;
 
 namespace AbrisAutoOutaouais_WebApp.UnitTest.Infrastructure.Persistence;
 
 /// <summary>
-/// Non-régression du BACKFILL du catalogue (G3) : un DB déjà semé AVANT D1/G1 porte des abris
-/// connus aux WidthCm/Brand NULL → « suggest-shelters » revenait vide. <c>BackfillShelterDataAsync</c>
-/// renseigne ces champs par slug. Ce test est le garde-fou CI que la revue exigeait (L-005) ; il
-/// verrouille aussi l'invariant « n'écrase JAMAIS une donnée saisie par un admin » (par champ).
+/// Non-régression du <c>ProductSeeder</c> après le retrait des abris fixes (les abris sont devenus
+/// des <c>ShelterModel</c> paramétriques, EPIC 9) :
+///  - <c>RemoveLegacyShelterProductsAsync</c> SOFT-DELETE les 8 anciens abris fixes, est idempotent,
+///    et ne touche JAMAIS les toiles/accessoires conservés ni un produit hors-liste ;
+///  - <c>EnsureCategoriesAsync</c> upsert idempotent des catégories (conservé de la Phase 1).
+/// Ces tests sont le garde-fou CI (L-005/L-031) du nettoyage d'un DB déjà semé.
 /// </summary>
 public sealed class ProductSeederBackfillTests : IDisposable
 {
@@ -23,107 +26,132 @@ public sealed class ProductSeederBackfillTests : IDisposable
         _db.SaveChanges();
     }
 
-    private Product Seed(string slug, int? widthCm = null, int? lengthCm = null, int? heightCm = null,
-        string? brand = null, string? model = null)
+    private Product Seed(string slug)
     {
-        var product = Product.Create(
-            "Abri " + slug, slug, 199m, 5, _category.Id,
-            widthCm: widthCm, lengthCm: lengthCm, heightCm: heightCm, brand: brand, model: model);
+        var product = Product.Create("Abri " + slug, slug, 199m, 5, _category.Id, "desc.");
         _db.Products.Add(product);
         _db.SaveChanges();
         return product;
     }
 
+    // ── RemoveLegacyShelterProductsAsync (retrait idempotent des abris fixes) ─────
+
     [Fact]
-    public async Task Backfill_KnownShelterWithNullDims_FillsDimensionsAndBrandModel()
+    public async Task RemoveLegacy_SoftDeletesSeededShelterSlug()
     {
-        // Abri connu (slug du seeder) semé « périmé » : dims + marque/modèle NULL.
+        // Un ancien abri fixe (slug du référentiel) est encore présent au catalogue.
         var p = Seed("abri-simple-une-voiture");
 
-        await ProductSeeder.BackfillShelterDataAsync(_db, NullLogger.Instance);
+        await ProductSeeder.RemoveLegacyShelterProductsAsync(_db, NullLogger.Instance);
 
-        await _db.Entry(p).ReloadAsync();
-        p.WidthCm.Should().Be(335);
-        p.LengthCm.Should().Be(488);
-        p.HeightCm.Should().Be(244);
-        p.Brand.Should().Be("Abris Tempo");
-        p.Model.Should().Be("Tempo Auto 11x16");
+        // Soft-delete : la ligne existe toujours mais IsDeleted=true → exclue du filtre par défaut.
+        var stillVisible = await _db.Products.AnyAsync(x => x.Slug == "abri-simple-une-voiture");
+        stillVisible.Should().BeFalse();
+
+        var deleted = await _db.Products
+            .IgnoreQueryFilters()
+            .SingleAsync(x => x.Id == p.Id);
+        deleted.IsDeleted.Should().BeTrue();
+        deleted.DeletedAt.Should().NotBeNull();
     }
 
     [Fact]
-    public async Task Backfill_SmallShelterWithNullDims_FillsBrandModelOnly()
+    public async Task RemoveLegacy_RemovesAllEightShelterSlugs()
     {
-        // Petit abri (sans dimensions publiées) : seuls marque/modèle sont renseignés.
+        string[] shelterSlugs =
+        [
+            "abri-simple-une-voiture", "abri-pente-unique", "abri-double-pic", "abri-double-rond",
+            "abri-rangement-atelier", "abri-industriel-commercial", "abri-entree", "abri-passage-cloture",
+        ];
+        foreach (var slug in shelterSlugs) Seed(slug);
+
+        await ProductSeeder.RemoveLegacyShelterProductsAsync(_db, NullLogger.Instance);
+
+        // Aucun des 8 n'est plus visible ; les 8 lignes sont soft-deletées.
+        (await _db.Products.CountAsync()).Should().Be(0);
+        (await _db.Products.IgnoreQueryFilters().CountAsync(p => p.IsDeleted)).Should().Be(8);
+    }
+
+    [Fact]
+    public async Task RemoveLegacy_LeavesCoversAndAccessoriesUntouched()
+    {
+        // Les produits CONSERVÉS (toiles + pièces/accessoires) ne doivent jamais être retirés.
+        Seed("toile-remplacement-simple");
+        Seed("toile-remplacement-double");
+        Seed("kit-ancrage-sol");
+        Seed("attaches-fixations");
+        // Un abri fixe pour prouver que le retrait agit bien sur les bons slugs.
+        Seed("abri-double-pic");
+
+        await ProductSeeder.RemoveLegacyShelterProductsAsync(_db, NullLogger.Instance);
+
+        var visibleSlugs = await _db.Products.Select(p => p.Slug).ToListAsync();
+        visibleSlugs.Should().BeEquivalentTo(
+            "toile-remplacement-simple", "toile-remplacement-double", "kit-ancrage-sol", "attaches-fixations");
+        visibleSlugs.Should().NotContain("abri-double-pic");
+    }
+
+    [Fact]
+    public async Task RemoveLegacy_NonExistentSlug_IsNoOp()
+    {
+        // Aucun abri fixe présent (seulement un produit conservé) → aucun changement, aucune erreur.
+        var kept = Seed("kit-ancrage-sol");
+
+        await ProductSeeder.RemoveLegacyShelterProductsAsync(_db, NullLogger.Instance);
+
+        await _db.Entry(kept).ReloadAsync();
+        kept.IsDeleted.Should().BeFalse();
+        (await _db.Products.CountAsync()).Should().Be(1);
+    }
+
+    [Fact]
+    public async Task RemoveLegacy_IsIdempotent_SecondPassChangesNothing()
+    {
         var p = Seed("abri-entree");
 
-        await ProductSeeder.BackfillShelterDataAsync(_db, NullLogger.Instance);
-
+        await ProductSeeder.RemoveLegacyShelterProductsAsync(_db, NullLogger.Instance);
         await _db.Entry(p).ReloadAsync();
-        p.WidthCm.Should().BeNull();
-        p.LengthCm.Should().BeNull();
-        p.Brand.Should().Be("Abris Tempo");
-        p.Model.Should().Be("Tempo Entrée");
+        var firstDeletedAt = p.DeletedAt;
+        firstDeletedAt.Should().NotBeNull();
+
+        // 2e passage : la ligne est déjà soft-deletée (exclue du filtre) → aucune réécriture.
+        await ProductSeeder.RemoveLegacyShelterProductsAsync(_db, NullLogger.Instance);
+        await _db.Entry(p).ReloadAsync();
+
+        p.IsDeleted.Should().BeTrue();
+        p.DeletedAt.Should().Be(firstDeletedAt);  // pas de SaveChanges → horodatage inchangé
+        (await _db.Products.IgnoreQueryFilters().CountAsync(x => x.Slug == "abri-entree")).Should().Be(1);
+    }
+
+    // ── EnsureCategoriesAsync (upsert idempotent des catégories par slug, Phase 1) ──
+
+    [Fact]
+    public async Task EnsureCategories_OnDbMissingMonopente_AddsItWithoutDuplicatingExisting()
+    {
+        // Le ctor a déjà semé « abris-simples ». La catégorie « abris-monopente » (ajoutée plus tard)
+        // doit être créée sur un DB existant — c'est précisément le trou que comblent l'upsert (L-031).
+        (await _db.ProductCategories.AnyAsync(c => c.Slug == "abris-monopente")).Should().BeFalse();
+
+        await ProductSeeder.EnsureCategoriesAsync(_db, NullLogger.Instance);
+
+        (await _db.ProductCategories.CountAsync(c => c.Slug == "abris-monopente")).Should().Be(1);
+        // « abris-simples » préexistant : jamais dupliqué.
+        (await _db.ProductCategories.CountAsync(c => c.Slug == "abris-simples")).Should().Be(1);
+        // Le référentiel complet est présent (8 catégories).
+        (await _db.ProductCategories.CountAsync()).Should().Be(8);
     }
 
     [Fact]
-    public async Task Backfill_PreservesAdminEditedFields_NeverOverwrites()
+    public async Task EnsureCategories_IsIdempotent_SecondPassAddsNothing()
     {
-        // Un admin a saisi une LARGEUR et une MARQUE personnalisées, laissé la longueur/le modèle NULL.
-        // Le backfill ne doit compléter QUE les champs vides — jamais écraser la saisie admin.
-        var p = Seed("abri-simple-une-voiture", widthCm: 999, brand: "Marque Maison");
+        await ProductSeeder.EnsureCategoriesAsync(_db, NullLogger.Instance);
+        var afterFirst = await _db.ProductCategories.CountAsync();
 
-        await ProductSeeder.BackfillShelterDataAsync(_db, NullLogger.Instance);
+        await ProductSeeder.EnsureCategoriesAsync(_db, NullLogger.Instance);
+        var afterSecond = await _db.ProductCategories.CountAsync();
 
-        await _db.Entry(p).ReloadAsync();
-        p.WidthCm.Should().Be(999);            // valeur admin préservée
-        p.Brand.Should().Be("Marque Maison");  // valeur admin préservée
-        p.LengthCm.Should().Be(488);           // champ vide complété
-        p.HeightCm.Should().Be(244);           // champ vide complété
-        p.Model.Should().Be("Tempo Auto 11x16"); // champ vide complété
-    }
-
-    [Fact]
-    public async Task Backfill_PreservesAdminModel_FillsOnlyMissingBrand()
-    {
-        // Branche miroir : un admin a saisi le MODÈLE, laissé la marque NULL. Seule la marque
-        // doit être complétée — le modèle admin est préservé (FillBrandModel, par champ).
-        var p = Seed("abri-simple-une-voiture", model: "Modèle Maison");
-
-        await ProductSeeder.BackfillShelterDataAsync(_db, NullLogger.Instance);
-
-        await _db.Entry(p).ReloadAsync();
-        p.Model.Should().Be("Modèle Maison");  // valeur admin préservée
-        p.Brand.Should().Be("Abris Tempo");    // champ vide complété
-    }
-
-    [Fact]
-    public async Task Backfill_UnknownSlug_IsLeftUntouched()
-    {
-        // Produit hors catalogue connu (créé par un admin) : jamais touché.
-        var p = Seed("produit-admin-inconnu");
-
-        await ProductSeeder.BackfillShelterDataAsync(_db, NullLogger.Instance);
-
-        await _db.Entry(p).ReloadAsync();
-        p.WidthCm.Should().BeNull();
-        p.Brand.Should().BeNull();
-        p.Model.Should().BeNull();
-    }
-
-    [Fact]
-    public async Task Backfill_IsIdempotent_SecondPassChangesNothing()
-    {
-        var p = Seed("abri-simple-une-voiture");
-        await ProductSeeder.BackfillShelterDataAsync(_db, NullLogger.Instance);
-        await _db.Entry(p).ReloadAsync();
-        var firstUpdatedAt = p.UpdatedAt;
-
-        // 2e passage : tout est déjà rempli → aucune écriture.
-        await ProductSeeder.BackfillShelterDataAsync(_db, NullLogger.Instance);
-        await _db.Entry(p).ReloadAsync();
-
-        p.WidthCm.Should().Be(335);
-        p.UpdatedAt.Should().Be(firstUpdatedAt); // pas de SaveChanges → audit inchangé
+        afterFirst.Should().Be(8);
+        afterSecond.Should().Be(afterFirst);  // aucun doublon au 2e passage.
     }
 
     public void Dispose() => _db.Dispose();

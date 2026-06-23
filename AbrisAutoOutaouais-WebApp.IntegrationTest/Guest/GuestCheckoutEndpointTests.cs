@@ -143,15 +143,27 @@ public sealed class GuestCheckoutEndpointTests : IClassFixture<WebAppFactory>
         (await ReadOrderCustomerAsync(orderId)).Should().Be(expressId);
     }
 
+    /// <summary>Sème un modèle d'abri LOUABLE et renvoie son slug.</summary>
+    private async Task<string> SeedRentableModelAsync()
+    {
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var model = RentalTestData.AddRentableModel(db);
+        await db.SaveChangesAsync();
+        return model.Slug;
+    }
+
     [Fact]
     public async Task CreateRental_Anonymous_Returns201AndPersistsRealExpressCustomer()
     {
-        var productId = await SeedProductAsync();
+        var slug = await SeedRentableModelAsync();
         var email = $"guest-rental-{Guid.NewGuid():N}@test.com";
 
         var response = await _client.PostAsJsonAsync("/api/v1/rentals", new
         {
-            productId,
+            slug,
+            lengthCm = 122,
+            clearHeightCm = 198,
             startDate = "2026-07-01",
             endDate = "2026-10-01",
             address = Address(),

@@ -59,17 +59,14 @@ public sealed class RentalsEndpointTests : IClassFixture<WebAppFactory>
     /// <summary>Seed d'une location « Active » appartenant à <paramref name="customerId"/>.</summary>
     private async Task<Guid> SeedRentalAsync(Guid customerId)
     {
-        var suffix = Guid.NewGuid().ToString("N");
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-        var product = Product.Create($"Abri Loc {suffix}", $"abri-loc-{suffix}",
-            599m, 10, Guid.NewGuid(), "Abri saisonnier.", 49m);
-        var rental = RentalContract.Create(customerId, product,
+        var model = RentalTestData.AddRentableModel(db);
+        var rental = RentalContract.CreateForModel(customerId, model, 122, 198,
             new DateOnly(2026, 7, 1), new DateOnly(2026, 10, 1),
             Address.Create("123", "rue des Érables", null, "Gatineau", "QC", "J8X1A1"));
 
-        db.Products.Add(product);
         db.RentalContracts.Add(rental);
         await db.SaveChangesAsync();
         return rental.Id;
@@ -139,5 +136,142 @@ public sealed class RentalsEndpointTests : IClassFixture<WebAppFactory>
         var response = await _client.PostAsync($"/api/v1/rentals/{Guid.NewGuid()}/cancel", null);
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    // ── POST /rentals (création sur modèle paramétrique) ───────────────────────
+
+    /// <summary>Sème un modèle LOUABLE (ou non) et retourne son slug.</summary>
+    private async Task<string> SeedRentableModelAsync(int? monthlyRentalCents = 4900)
+    {
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        // Le helper crée toujours un modèle louable (tarif > 0) ; on retire le tarif ensuite si on
+        // veut un modèle NON louable (SetMonthlyRental(null)) — Create rejette un tarif <= 0.
+        var model = RentalTestData.AddRentableModel(db);
+        if (monthlyRentalCents is null)
+            model.SetMonthlyRental(null);     // modèle NON louable
+        else
+            model.SetMonthlyRental(monthlyRentalCents);
+        await db.SaveChangesAsync();
+        return model.Slug;
+    }
+
+    private static object CreateBody(string slug, int lengthCm = 122, int clearHeightCm = 198) => new
+    {
+        slug,
+        lengthCm,
+        clearHeightCm,
+        startDate = "2026-07-01",
+        endDate = "2026-10-01",
+        address = new
+        {
+            civicNumber = "123",
+            street = "rue des Érables",
+            apartment = (string?)null,
+            city = "Gatineau",
+            province = "QC",
+            postalCode = "J8X 1A1",
+            country = "Canada",
+        },
+    };
+
+    [Fact]
+    public async Task Create_RentableModelValidSize_Returns201AndPersistsSnapshot()
+    {
+        var (_, token) = await RegisterAndLoginAsync();
+        var slug = await SeedRentableModelAsync();
+        _client.SetBearerToken(token);
+
+        var response = await _client.PostAsJsonAsync("/api/v1/rentals", CreateBody(slug));
+
+        response.StatusCode.Should().Be(HttpStatusCode.Created);
+        var body = await response.Content.ReadFromJsonAsync<JsonElement>();
+        var id = body.GetProperty("id").GetGuid();
+
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var rental = await db.RentalContracts.AsNoTracking().FirstAsync(r => r.Id == id);
+        rental.ShelterModelSlug.Should().Be(slug);
+        rental.ConfiguredLengthCm.Should().Be(122);
+        rental.ConfiguredClearHeightCm.Should().Be(198);
+        rental.MonthlyRate.Should().Be(49.00m);
+        rental.ProductId.Should().BeNull();
+        rental.Status.Should().Be(RentalStatus.Active);
+
+        _client.DefaultRequestHeaders.Authorization = null;
+    }
+
+    [Fact]
+    public async Task Create_NonRentableModel_Returns422()
+    {
+        var (_, token) = await RegisterAndLoginAsync();
+        var slug = await SeedRentableModelAsync(monthlyRentalCents: null);
+        _client.SetBearerToken(token);
+
+        var response = await _client.PostAsJsonAsync("/api/v1/rentals", CreateBody(slug));
+
+        response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+
+        _client.DefaultRequestHeaders.Authorization = null;
+    }
+
+    [Fact]
+    public async Task Create_OffGridSize_Returns422()
+    {
+        var (_, token) = await RegisterAndLoginAsync();
+        var slug = await SeedRentableModelAsync();
+        _client.SetBearerToken(token);
+
+        // 200 cm n'est pas aligné sur le pas (122, 244, 366 seulement).
+        var response = await _client.PostAsJsonAsync("/api/v1/rentals", CreateBody(slug, lengthCm: 200));
+
+        response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+
+        _client.DefaultRequestHeaders.Authorization = null;
+    }
+
+    [Fact]
+    public async Task Create_UnknownSlug_Returns404()
+    {
+        var (_, token) = await RegisterAndLoginAsync();
+        _client.SetBearerToken(token);
+
+        var response = await _client.PostAsJsonAsync("/api/v1/rentals", CreateBody("slug-inexistant"));
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+
+        _client.DefaultRequestHeaders.Authorization = null;
+    }
+
+    // ── GET /shelters/rentable ─────────────────────────────────────────────────
+
+    [Fact]
+    public async Task GetRentable_ReturnsOnlyModelsWithMonthlyRate()
+    {
+        // Un modèle LOUABLE + un modèle NON louable (tarif retiré) coexistent.
+        string rentableSlug, nonRentableSlug;
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var rentable = RentalTestData.AddRentableModel(db, 4900);
+            var nonRentable = RentalTestData.AddRentableModel(db, 4900);
+            nonRentable.SetMonthlyRental(null);
+            rentableSlug = rentable.Slug;
+            nonRentableSlug = nonRentable.Slug;
+            await db.SaveChangesAsync();
+        }
+
+        var response = await _client.GetAsync("/api/v1/shelters/rentable");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var json = await response.Content.ReadAsStringAsync();
+        json.Should().Contain(rentableSlug);
+        json.Should().NotContain(nonRentableSlug);
+
+        var models = await response.Content.ReadFromJsonAsync<List<JsonElement>>();
+        var mine = models!.Single(m => m.GetProperty("slug").GetString() == rentableSlug);
+        mine.GetProperty("monthlyRentalPrice").GetDecimal().Should().Be(49.00m);
+        mine.GetProperty("clearHeightOptionsCm").GetArrayLength().Should().BeGreaterThan(0);
+        mine.GetProperty("priceGrid").GetArrayLength().Should().BeGreaterThan(0);
     }
 }

@@ -6,47 +6,61 @@ using Microsoft.Extensions.Logging;
 namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence;
 
 /// <summary>
-/// Seeder du catalogue — crée les catégories et les produits inspirés de la gamme
-/// Abris Tempo (https://www.abristempo.com/en) au premier démarrage si la table est vide.
+/// Seeder du catalogue — crée les catégories et les produits FIXES restants (toiles de remplacement
+/// et pièces/accessoires) au premier démarrage si la table est vide, et garantit à CHAQUE démarrage
+/// le référentiel des catégories ainsi que le RETRAIT des anciens abris fixes.
 ///
-/// Idempotent à DEUX niveaux :
-///  1. Premier démarrage (table vide) → crée catégories + produits.
-///  2. Table déjà peuplée → BACKFILL (G3) : les dimensions hors-tout et la marque/modèle ont
-///     été ajoutées APRÈS le premier seed (D1 puis G1) ; un dev DB déjà semé portait donc des
-///     produits aux <c>WidthCm</c>/<c>Brand</c> NULL, ce qui faisait retourner le catalogue marque
-///     (« shelter-catalog », alimentant le formulaire d'installation) systématiquement vide. Le
-///     backfill renseigne ces champs, par SLUG (donc seulement le catalogue connu — jamais un
-///     produit créé/édité par un admin), et UNIQUEMENT quand ils sont absents (n'écrase pas une
-///     valeur déjà saisie).
+/// Les ABRIS ne sont plus des <see cref="Product"/> fixes : ils sont devenus des
+/// <see cref="ShelterModel"/> PARAMÉTRIQUES (EPIC 9, semés par <c>ShelterModelSeeder</c>). Les 8 abris
+/// fixes historiques sont donc soft-deletés idempotemment à chaque démarrage par
+/// <see cref="RemoveLegacyShelterProductsAsync"/> (un DB dev/prod déjà semé se nettoie tout seul). Les
+/// <c>RentalContract</c> historiques conservent leur <c>ProductName</c> en snapshot et leur
+/// <c>ProductId</c> est nullable — le soft-delete ne casse donc aucune FK.
+///
+/// Idempotent à plusieurs niveaux :
+///  1. Catégories (<see cref="EnsureCategoriesAsync"/>) : upsert par slug à chaque démarrage.
+///  2. Retrait des abris fixes (<see cref="RemoveLegacyShelterProductsAsync"/>) : à chaque démarrage.
+///  3. Produits restants : créés seulement au tout premier seed (table vide).
 /// </summary>
 public static class ProductSeeder
 {
-    /// <summary>Gabarit canonique d'un abri du catalogue (dimensions + marque/modèle), clé du backfill.</summary>
-    private sealed record ShelterSpec(
-        string Slug, int WidthCm, int LengthCm, int HeightCm, string Brand, string Model);
-
     /// <summary>
-    /// Dimensions/marque/modèle canoniques des abris réels (les toiles/accessoires/petits formats
-    /// n'en ont pas). Référence du BACKFILL d'un DB déjà peuplé. Le premier seed (table vide) pose
-    /// les mêmes valeurs via les appels <c>Add(...)</c> ci-dessous — garder les deux en phase.
+    /// RÉFÉRENTIEL CANONIQUE des catégories produit (nom + slug), source unique de vérité. Le premier
+    /// seed (table vide) ET l'<see cref="EnsureCategoriesAsync"/> idempotent s'appuient TOUS DEUX
+    /// dessus — garder les deux chemins en phase. Le slug est la clé d'upsert (jamais dupliqué).
+    /// « abris-monopente » est sa PROPRE catégorie (parité abristempo : la pente unique n'est plus
+    /// rangée sous « abris-simples »).
     /// </summary>
-    private static readonly IReadOnlyList<ShelterSpec> ShelterSpecs =
+    private static readonly IReadOnlyList<(string Name, string Slug)> CategorySpecs =
     [
-        new("abri-simple-une-voiture", 335, 488, 244, "Abris Tempo", "Tempo Auto 11x16"),
-        new("abri-pente-unique", 335, 610, 274, "Abris Tempo", "Tempo Mono-Pente 11x20"),
-        new("abri-double-pic", 549, 610, 305, "Abris Tempo", "Tempo Duo 18x20"),
-        new("abri-double-rond", 610, 610, 305, "Abris Tempo", "Tempo Duo Rond 20x20"),
-        new("abri-rangement-atelier", 335, 488, 244, "Abris Tempo", "Tempo Storage 11x16"),
-        new("abri-industriel-commercial", 610, 610, 305, "Abris Tempo", "Tempo Industriel 20x20"),
+        ("Abris simples", "abris-simples"),
+        ("Abris monopente", "abris-monopente"),
+        ("Abris doubles", "abris-doubles"),
+        ("Abris de rangement", "abris-rangement"),
+        ("Abris d'entrée et de passage", "abris-entree-passage"),
+        ("Abris industriels et commerciaux", "abris-industriels"),
+        ("Toiles de remplacement", "toiles-remplacement"),
+        ("Pièces et accessoires", "pieces-accessoires"),
     ];
 
-    /// <summary>Marque/modèle des petits abris (dimensions hors-tout non publiées).</summary>
-    private static readonly IReadOnlyDictionary<string, (string Brand, string Model)> SmallShelterBrands =
-        new Dictionary<string, (string, string)>
-        {
-            ["abri-entree"] = ("Abris Tempo", "Tempo Entrée"),
-            ["abri-passage-cloture"] = ("Abris Tempo", "Tempo Passage"),
-        };
+    /// <summary>
+    /// Slugs des 8 anciens ABRIS FIXES, désormais remplacés par des <see cref="ShelterModel"/>
+    /// paramétriques. Soft-deletés idempotemment à chaque démarrage (cf.
+    /// <see cref="RemoveLegacyShelterProductsAsync"/>). TYPE = <c>string[]</c> (PAS
+    /// <c>HashSet</c>/<c>IReadOnlySet</c>) : EF traduit <c>tableau.Contains(colonne)</c> en
+    /// <c>IN (...)</c> SQL, mais NE traduit PAS <c>IReadOnlySet&lt;T&gt;.Contains</c> (L-038/L-035/L-001).
+    /// </summary>
+    private static readonly string[] LegacyShelterProductSlugs =
+    [
+        "abri-simple-une-voiture",
+        "abri-pente-unique",
+        "abri-double-pic",
+        "abri-double-rond",
+        "abri-rangement-atelier",
+        "abri-industriel-commercial",
+        "abri-entree",
+        "abri-passage-cloture",
+    ];
 
     public static async Task SeedAsync(IServiceProvider services)
     {
@@ -58,88 +72,46 @@ public static class ProductSeeder
 
         try
         {
+            // ── Catégories : upsert idempotent AVANT tout le reste ────────────────
+            // Les catégories ne se créaient qu'au tout premier seed (table Products vide) : un dev DB
+            // déjà semé ne recevait JAMAIS une catégorie ajoutée plus tard (ex. « abris-monopente »).
+            // On garantit donc la présence de TOUTES les catégories du référentiel à CHAQUE démarrage,
+            // avant le test « table peuplée ? » (sinon ShelterModelSeeder, qui tourne ensuite, ignore
+            // les modèles d'une catégorie absente).
+            await EnsureCategoriesAsync(db, logger);
+
+            // ── Retrait des anciens abris fixes : à CHAQUE démarrage, hors du garde « table vide » ──
+            // Les abris sont devenus des ShelterModel paramétriques ; les 8 Product abris historiques
+            // doivent disparaître du catalogue. On le fait sur TOUT démarrage (pas seulement au premier
+            // seed) pour qu'un DB dev/prod déjà peuplé soit nettoyé. Idempotent (L-031).
+            await RemoveLegacyShelterProductsAsync(db, logger);
+
             if (await db.Products.AnyAsync())
             {
-                // Table déjà peuplée : on ne recrée rien, mais on REMPLIT les dimensions/marque/modèle
-                // manquantes des abris connus (G3 — répare un DB semé avant D1/G1). Idempotent.
-                await BackfillShelterDataAsync(db, logger);
+                // Table déjà peuplée : rien d'autre à créer (catégories upsertées + abris retirés
+                // ci-dessus). On s'arrête là.
                 return;
             }
 
-            // ── Catégories (basées sur la navigation « Shop » d'Abris Tempo) ──────
-            var categories = new[]
-            {
-                ProductCategory.Create("Abris simples", "abris-simples"),
-                ProductCategory.Create("Abris doubles", "abris-doubles"),
-                ProductCategory.Create("Abris de rangement", "abris-rangement"),
-                ProductCategory.Create("Abris d'entrée et de passage", "abris-entree-passage"),
-                ProductCategory.Create("Abris industriels et commerciaux", "abris-industriels"),
-                ProductCategory.Create("Toiles de remplacement", "toiles-remplacement"),
-                ProductCategory.Create("Pièces et accessoires", "pieces-accessoires"),
-            };
-            var bySlug = categories.ToDictionary(c => c.Slug);
-            await db.ProductCategories.AddRangeAsync(categories);
+            // ── Catégories (déjà upsertées ci-dessus) : on les recharge par slug ───
+            // EnsureCategoriesAsync vient de garantir leur présence ; on lit l'existant pour rattacher
+            // les produits (jamais de double-création — la table peut déjà les contenir).
+            var bySlug = await db.ProductCategories
+                .ToDictionaryAsync(c => c.Slug);
 
-            // ── Produits ──────────────────────────────────────────────────────────
+            // ── Produits FIXES restants (toiles + pièces/accessoires) ──────────────
+            // Les ABRIS ne sont plus ici : ce sont des ShelterModel paramétriques (EPIC 9). Seuls
+            // restent les articles fixes au catalogue (toiles de remplacement, kits, attaches).
             var products = new List<Product>();
 
-            // Dimensions hors-tout (largeur × longueur × hauteur, cm) renseignées pour les
-            // abris ; null pour toiles / accessoires / petits formats (cf. plan D1).
-            // Marque/modèle (brand/model) renseignés pour les abris réels (marque « Abris Tempo »
-            // + modèle de gamme) ; null pour toiles / accessoires / pièces souples.
             void Add(string name, string slug, decimal price, int stock, string categorySlug,
-                     string description, decimal? rentalPrice, string image,
-                     int? widthCm = null, int? lengthCm = null, int? heightCm = null,
-                     string? brand = null, string? model = null)
+                     string description, decimal? rentalPrice, string image)
             {
                 var product = Product.Create(
-                    name, slug, price, stock, bySlug[categorySlug].Id, description, rentalPrice,
-                    widthCm, lengthCm, heightCm, brand, model);
+                    name, slug, price, stock, bySlug[categorySlug].Id, description, rentalPrice);
                 product.AddImage(image, name);
                 products.Add(product);
             }
-
-            // Abris simples
-            Add("Abri simple une voiture", "abri-simple-une-voiture", 349.00m, 25, "abris-simples",
-                "Abri d'auto temporaire pour un véhicule. Structure d'acier galvanisé et toile Tempo résistante à l'hiver québécois.",
-                39.00m, "/images/products/abri-simple-une-voiture.jpg", 335, 488, 244,
-                "Abris Tempo", "Tempo Auto 11x16");
-            Add("Abri à pente unique", "abri-pente-unique", 874.00m, 12, "abris-simples",
-                "Abri à toit à pente unique, idéal contre les murs et les contraintes de dégagement.",
-                79.00m, "/images/products/abri-pente-unique.jpg", 335, 610, 274,
-                "Abris Tempo", "Tempo Mono-Pente 11x20");
-
-            // Abris doubles
-            Add("Abri double à pic", "abri-double-pic", 724.00m, 15, "abris-doubles",
-                "Abri double à toit en pic pour deux véhicules. Excellente évacuation de la neige.",
-                69.00m, "/images/products/abri-double-pic.jpg", 549, 610, 305,
-                "Abris Tempo", "Tempo Duo 18x20");
-            Add("Abri double rond", "abri-double-rond", 1099.00m, 10, "abris-doubles",
-                "Abri double à toit arrondi, grande surface couverte et robustesse accrue.",
-                99.00m, "/images/products/abri-double-rond.jpg", 610, 610, 305,
-                "Abris Tempo", "Tempo Duo Rond 20x20");
-
-            // Abris de rangement
-            Add("Abri de rangement / atelier", "abri-rangement-atelier", 899.00m, 8, "abris-rangement",
-                "Abri polyvalent pour le rangement saisonnier, l'atelier ou la remise.",
-                null, "/images/products/abri-rangement-atelier.jpg", 335, 488, 244,
-                "Abris Tempo", "Tempo Storage 11x16");
-
-            // Abris d'entrée et de passage (petits formats → dimensions non publiées)
-            Add("Abri d'entrée", "abri-entree", 399.00m, 14, "abris-entree-passage",
-                "Petit abri protégeant l'entrée principale contre la neige et la pluie.",
-                null, "/images/products/abri-entree.jpg",
-                brand: "Abris Tempo", model: "Tempo Entrée");
-            Add("Abri de passage et clôture", "abri-passage-cloture", 324.00m, 18, "abris-entree-passage",
-                "Abri tunnel pour passages, allées et sections de clôture.",
-                null, "/images/products/abri-passage-cloture.jpg",
-                brand: "Abris Tempo", model: "Tempo Passage");
-
-            // Abris industriels et commerciaux
-            Add("Abri industriel et commercial", "abri-industriel-commercial", 2499.00m, 4, "abris-industriels",
-                "Grand abri grand format pour usages commerciaux et industriels. Sur mesure disponible.",
-                249.00m, "/images/products/abri-industriel-commercial.jpg", 610, 610, 305,
-                "Abris Tempo", "Tempo Industriel 20x20");
 
             // Toiles de remplacement (pièce souple → pas de dimensions hors-tout)
             Add("Toile de remplacement — abri simple", "toile-remplacement-simple", 149.00m, 40, "toiles-remplacement",
@@ -162,7 +134,7 @@ public static class ProductSeeder
 
             logger.LogInformation(
                 "Catalogue initialisé : {Categories} catégories et {Products} produits.",
-                categories.Length, products.Count);
+                bySlug.Count, products.Count);
         }
         catch (Exception ex)
         {
@@ -172,80 +144,67 @@ public static class ProductSeeder
     }
 
     /// <summary>
-    /// Renseigne dimensions/marque/modèle des abris connus (par slug) restés NULL sur un DB déjà
-    /// semé avant que ces champs n'existent (D1/G1). Ne touche QUE les valeurs absentes — n'écrase
-    /// jamais une donnée saisie par un admin. Idempotent : un 2e passage ne change rien.
+    /// UPSERT IDEMPOTENT des catégories du référentiel (<see cref="CategorySpecs"/>) par SLUG, à
+    /// CHAQUE démarrage : ajoute toute catégorie manquante, ne duplique jamais, ne supprime rien.
+    /// Indispensable car la création de catégories du chemin « table vide » ne s'exécute qu'au tout
+    /// premier seed — un dev DB déjà semé ne recevrait sinon jamais une catégorie ajoutée plus tard
+    /// (ex. « abris-monopente »), et <c>ShelterModelSeeder</c> (qui tourne après) ignorerait les
+    /// modèles d'une catégorie absente. <c>SaveChanges</c> unique, seulement si quelque chose manque.
     /// </summary>
-    // internal (et non private) pour permettre un test de non-régression direct (L-005) : le
-    // backfill répare « catalogue marque (shelter-catalog) vide » et doit donc être gardé par CI.
-    // Cf. ProductSeederBackfillTests. InternalsVisibleTo est déjà posé sur le projet UnitTest.
-    internal static async Task BackfillShelterDataAsync(ApplicationDbContext db, ILogger logger)
+    // internal (et non private) pour un test de non-régression direct (L-005/L-031) : l'ajout de
+    // « abris-monopente » sur un DB existant DOIT être couvert par CI. InternalsVisibleTo est posé.
+    internal static async Task EnsureCategoriesAsync(ApplicationDbContext db, ILogger logger)
     {
-        var slugs = ShelterSpecs.Select(s => s.Slug)
-            .Concat(SmallShelterBrands.Keys)
-            .ToHashSet();
-
-        // Tracking (pas d'AsNoTracking) : on modifie puis on persiste.
-        var products = await db.Products
-            .Where(p => slugs.Contains(p.Slug))
+        var existingSlugs = await db.ProductCategories
+            .Select(c => c.Slug)
             .ToListAsync();
+        var existingSet = existingSlugs.ToHashSet();
 
-        var specsBySlug = ShelterSpecs.ToDictionary(s => s.Slug);
-        var updated = 0;
-
-        foreach (var product in products)
+        var added = 0;
+        foreach (var (name, slug) in CategorySpecs)
         {
-            var changed = false;
-
-            // Abris à dimensions publiées : compléter dims + marque/modèle CHAMP PAR CHAMP. On ne
-            // renseigne QUE les champs individuellement absents — un admin ayant saisi une largeur
-            // sans longueur (ou seulement la marque) garde sa valeur (n'écrase jamais une donnée
-            // saisie). `SetDimensions`/`SetBrandModel` écrivant les membres en bloc, on reconstruit
-            // l'appel avec la valeur existante pour les champs déjà renseignés.
-            if (specsBySlug.TryGetValue(product.Slug, out var spec))
-            {
-                if (product.WidthCm is null || product.LengthCm is null || product.HeightCm is null)
-                {
-                    product.SetDimensions(
-                        product.WidthCm ?? spec.WidthCm,
-                        product.LengthCm ?? spec.LengthCm,
-                        product.HeightCm ?? spec.HeightCm);
-                    changed = true;
-                }
-                if (FillBrandModel(product, spec.Brand, spec.Model)) changed = true;
-            }
-            // Petits abris (sans dimensions) : compléter seulement marque/modèle (par champ).
-            else if (SmallShelterBrands.TryGetValue(product.Slug, out var smallBrand)
-                     && FillBrandModel(product, smallBrand.Brand, smallBrand.Model))
-            {
-                changed = true;
-            }
-
-            if (changed) updated++;
+            if (existingSet.Contains(slug)) continue;
+            await db.ProductCategories.AddAsync(ProductCategory.Create(name, slug));
+            added++;
         }
 
-        if (updated > 0)
+        if (added > 0)
         {
             await db.SaveChangesAsync();
             logger.LogInformation(
-                "Backfill catalogue (G3) : dimensions/marque/modèle complétés sur {Count} abri(s).",
-                updated);
+                "Catégories produit : {Count} catégorie(s) manquante(s) ajoutée(s).", added);
         }
     }
 
     /// <summary>
-    /// Renseigne marque/modèle CHAMP PAR CHAMP : ne remplit que celui qui est vide, en préservant
-    /// l'autre s'il a été saisi. Retourne vrai si au moins un champ a été modifié.
+    /// Retire (SOFT-DELETE) les 8 anciens ABRIS FIXES (<see cref="LegacyShelterProductSlugs"/>) restés
+    /// au catalogue après leur remplacement par des <see cref="ShelterModel"/> paramétriques (EPIC 9).
+    /// Idempotent (L-031) : ne touche QUE les lignes encore ACTIVES (le filtre de requête soft-delete
+    /// exclut déjà les déjà-supprimés) ; un 2e passage ne trouve plus rien et ne réécrit rien.
+    /// <c>SaveChanges</c> unique, seulement si au moins un abri a été retiré.
+    ///
+    /// Le <c>.Remove()</c> est converti en <c>IsDeleted = true</c> par le
+    /// <c>SoftDeleteInterceptor</c> (état Modified, aucune opération relationnelle de suppression →
+    /// sûr sur InMemory comme sur SQL Server). Les <c>RentalContract</c> historiques gardent leur
+    /// <c>ProductName</c> en snapshot et leur <c>ProductId</c> nullable, donc aucune FK n'est cassée.
     /// </summary>
-    private static bool FillBrandModel(Product product, string brand, string model)
+    // internal (et non private) pour un test de non-régression direct (L-005/L-031) : ce nettoyage
+    // d'un DB déjà semé DOIT être couvert par CI. InternalsVisibleTo est posé sur le projet UnitTest.
+    internal static async Task RemoveLegacyShelterProductsAsync(ApplicationDbContext db, ILogger logger)
     {
-        var brandMissing = string.IsNullOrWhiteSpace(product.Brand);
-        var modelMissing = string.IsNullOrWhiteSpace(product.Model);
-        if (!brandMissing && !modelMissing) return false;
+        // Le filtre de requête global (!IsDeleted) ne ramène que les abris encore ACTIFS → idempotent
+        // sans garde supplémentaire. `.Contains` sur un `string[]` se traduit en `IN (...)` SQL (L-038).
+        var legacy = await db.Products
+            .Where(p => LegacyShelterProductSlugs.Contains(p.Slug))
+            .ToListAsync();
 
-        product.SetBrandModel(
-            brandMissing ? brand : product.Brand,
-            modelMissing ? model : product.Model);
-        return true;
+        if (legacy.Count == 0) return;
+
+        db.Products.RemoveRange(legacy);  // SoftDeleteInterceptor → IsDeleted = true
+        await db.SaveChangesAsync();
+
+        logger.LogInformation(
+            "Catalogue : {Count} ancien(s) abri(s) fixe(s) retiré(s) (remplacés par des modèles paramétriques).",
+            legacy.Count);
     }
 }

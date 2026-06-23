@@ -11,6 +11,122 @@
 
 ---
 
+## L-052 · An additive server-side DTO field not mirrored in the TS interface is a silent data drop — update both in the same commit
+
+- **Symptom.** `AdminOrderDto` gained `PaymentReference` and `PaymentConfirmedAt` server-side (EPIC 7
+  e-Transfer work). The TypeScript interface in the client was not updated in the same change. The
+  build stayed green, `dotnet test` stayed green, `npm test` stayed green — TypeScript has no way to
+  flag a missing property it doesn't know about. The fields were simply absent from the client-side
+  object. Any future UI that reads `order.paymentReference` to display payment status gets `undefined`
+  with no compile-time warning. The gap only materialised as a silent data drop when the consuming UI
+  was later built.
+- **Rule.** Every new field added to a C# DTO that is serialised over the wire to the Angular client
+  **must** be mirrored in the corresponding TypeScript interface in the same commit. The checklist: (1)
+  after adding a property to a C# DTO (query result, response record…), grep the client for the
+  interface that maps it (typically `features/*/` or `core/models/`); (2) add the matching property
+  with the correct TypeScript type (nullable fields → `T | null`, not `T | undefined`); (3) if no
+  interface exists yet, create it — do not rely on `any`. The coupling is silent in both directions:
+  the server does not know the client dropped a field, and the client's TypeScript checks cannot flag
+  a field that doesn't exist in its own interface. Cousin of [[L-036]] (DTO must expose FK ids for
+  edit forms) on the **additive-field** axis; also [[L-004]] (one canonical contract shared between
+  client and server).
+- **Refs.**
+  `src/AbrisAutoOutaouais-WebApp.Application/Orders/Queries/GetAdminOrders/AdminOrderDto.cs`
+  (`PaymentReference`, `PaymentConfirmedAt`),
+  `src/AbrisAutoOutaouais-WebApp.Client/src/app/features/admin/orders/` (TS interface — update
+  target), branch `feat/epic-7-paiement-etransfer`.
+
+## L-051 · Adding a NEW upstream endpoint to an existing read path silently breaks e2e specs that mock only the OLD endpoints
+
+- **Symptom.** The `product-detail` route gained a `GET /catalog/{slug}/type` pre-flight call and the
+  home page gained a `GET /shelters` call as part of the shelter-configure-only rework. Every existing
+  e2e spec that navigated those routes (`a11y.spec.ts`, `motion-a11y.spec.ts`, `shelter-3d.spec.ts`)
+  mocked only the old endpoints. With the new call unmocked, the fetch returned a network error
+  (unintercepted `page.route`) and the route either failed to load or timed out. The failure looked
+  like a generic backend/network timeout, not obviously program-related — the diff was in the
+  component code, not in the spec, so the connection was non-obvious. Fix: add the new endpoint's
+  `page.route` mock in every existing spec that navigates the affected route, in the same PR that
+  introduces the new call.
+- **Rule.** When a new HTTP call is added to an existing read path (a new pre-flight, a new parallel
+  load, a new dependency endpoint), treat it as a **breaking change to the e2e mock contract**: grep
+  `e2e/` for every spec that navigates the affected routes or mocks any of that route's endpoints, and
+  add the new `page.route(…)` mock in the same PR. The failure mode is a silent timeout or empty
+  render — not a compile error, not a 404 — because Playwright does not error on an unrouted fetch by
+  default. Two guards: (1) before merging any change that adds a new `http.get(…)` or `inject(…Service).load(…)`
+  to a component, grep `e2e/` for the component name and every URL segment it uses; (2) add the new
+  mock to every hit. Cousin of [[L-037]] (route deletion breaks e2e URL-based navigation) on the
+  **new-upstream-endpoint** axis: both are invisible to a grep of the changed component file, and both
+  surface as a generic "route didn't load" failure.
+- **Refs.**
+  `src/AbrisAutoOutaouais-WebApp.Client/src/app/features/shop/product-detail/product-detail.ts`
+  (`GET /catalog/{slug}/type` pre-flight),
+  `src/AbrisAutoOutaouais-WebApp.Client/src/app/features/home/home.ts` (`GET /shelters`),
+  `e2e/a11y.spec.ts` + `e2e/motion-a11y.spec.ts` + `e2e/shelter-3d.spec.ts` (new mocks added),
+  `e2e/shelter-configure-required.spec.ts` (new guard spec), branch `feat/shelters-configure-only`.
+
+## L-050 · A `forkJoin`/parallel-load error handler that swallows failures into an empty list turns a backend outage into a silent empty-catalog state
+
+- **Symptom.** `catalog.ts` loaded products and shelter-models in parallel via `forkJoin`. The initial
+  error handling mapped any failure to `[]` (empty list) with no error flag. A backend outage on either
+  endpoint produced an empty catalog that was visually indistinguishable from « no items »: no error
+  banner, no retry option, the surviving list not rendered. Two failure modes: (a) **full outage** —
+  both calls fail, the whole page looks empty; (b) **partial outage** — one call fails, the surviving
+  list is also blanked because both results are merged before rendering. Neither produced a console
+  error or a test failure.
+- **Rule.** A parallel data load (`forkJoin`, `combineLatest`, `Promise.all`) must track errors
+  **per consumed list** with a dedicated error signal, not swallow them into an empty array. Template
+  branches for the error state must be distinct from the empty-data state: an error renders a user-
+  visible message (« impossible de charger… ») + a retry action; empty data renders « aucun résultat ».
+  Partial failure must be **non-blanking**: the surviving list renders even when a sibling call fails.
+  Concrete guard: after writing any parallel load, add a spec case that makes ONE of the two calls
+  fail (error response) and asserts (a) the surviving list renders, (b) an error signal is truthy, and
+  (c) the error branch in the template is visible — these three assertions cannot be satisfied by an
+  empty-array handler ([[L-009]]: an assertion that passes on the error path and on the empty path is
+  vacuous; the test must distinguish them).
+- **Refs.**
+  `src/AbrisAutoOutaouais-WebApp.Client/src/app/features/shop/catalog/catalog.ts`
+  (`productsError` / `shelterModelsError` signals, partial-failure non-blanking load),
+  `catalog.html` (error branch distinct from empty branch),
+  `catalog.spec.ts` (partial-failure spec), branch `feat/shelters-configure-only`.
+
+## L-049 · An idempotent seeder's "table already populated?" gate must run AFTER unconditional category upserts — or a new category is never delivered to existing DBs and every dependent model is silently skipped
+
+- **Symptom.** `ProductSeeder` opens with `if (await db.Products.AnyAsync()) return;`. A new product
+  category (e.g. « Abris de chantier ») was added to the spec and seeded inside that gate. On any
+  already-seeded dev or prod DB, the early-return fired before the category was created → the category
+  row was absent → `ShelterModelSeeder`, which looks up models by category, silently skipped every
+  model whose category FK could not be resolved → the new models were never delivered. Fresh-DB test
+  runs were green (the gate never fires; categories and models seed in full). The gap only appeared on
+  an existing DB, which no test exercises. Cousin of [[L-031]] (idempotent seeder + late-added column
+  = stale data) on the **category/FK-parent axis**: here it is not a NULL column but a missing FK
+  parent row that prevents child rows from being inserted at all.
+- **Rule.** Category (and any other FK-parent) seed data must live in an **unconditional
+  `EnsureCategoriesAsync`** method (or equivalent) that runs **before** the `AnyAsync()` early-return
+  gate — it must be safe to call on every startup. The gate protects row data (products, models…),
+  not the reference/lookup tables they depend on. Two guards: (1) Any seeder that has a FK to a
+  lookup/reference table must call the reference-table's ensure method first, outside the gate; (2)
+  when a downstream seeder (e.g. `ShelterModelSeeder`) looks up an FK parent by name/slug, add a
+  test that proves it handles a missing parent gracefully (skip with a warning, not a silent no-op
+  and not a crash) — silent skips are the hardest failure mode to notice in prod ([[L-031]]). Run the
+  full seeder against a real LocalDB (not just InMemory) after any category addition ([[L-001]]).
+  **Corollary — a seed-time recategorization must be a guarded one-time migration, not a blind
+  overwrite.** `ShelterModelSeeder` needed to move certain models from an old category to a new one.
+  The first implementation reset `CategoryId` to the spec category on **every startup** whenever they
+  differed — silently reverting any admin who had intentionally moved a model via
+  `UpdateShelterModelCommand → Reconfigure`. The correct pattern is a **static migration map**
+  `{slug: (expectedOldCat, newCat)}` that only moves the model when it is still in the known old
+  category — if the admin has already moved it to a third category, the migration leaves it alone.
+  This is [[L-031]]'s « never overwrite a value an admin may have set » principle applied to a
+  categorical move, and it parallels [[L-046]] (a seeder is a write path — it must respect the same
+  invariant as `UpdateShelterModelCommand`). Test: `Seed_DoesNotRevertAdminMovedReferentialModel_GuardedMigrationOnly`.
+- **Refs.**
+  `src/AbrisAutoOutaouais-WebApp.Infrastructure/Persistence/ProductSeeder.cs`
+  (`EnsureCategoriesAsync` called before `Products.AnyAsync()` gate),
+  `src/AbrisAutoOutaouais-WebApp.Infrastructure/Persistence/ShelterModelSeeder.cs`
+  (`CategoryMigrations` map + `ShelterModel.Recategorize`; skip-with-warning when category missing),
+  branch `feat/shelters-configure-only`. Related: [[L-031]] (column backfill axis), [[L-038]]
+  (seeder crash axis), [[L-001]] (real-DB verification).
+
 ## L-048 · Text rendered BOTH in a visible surface AND an `aria-live` region causes `findByText`/`getByText` to match multiple nodes — scope the query or use a role locator
 
 - **Symptom.** While testing the « combinaison non offerte » message in `DimensionConfiguratorComponent`:

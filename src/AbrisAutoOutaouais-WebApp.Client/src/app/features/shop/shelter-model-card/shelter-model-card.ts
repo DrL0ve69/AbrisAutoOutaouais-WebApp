@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
-import { ShelterModelSummary } from '../../../core/models/shelter.model';
+import { ShelterModelSummary, resolveShelterCategoryImage } from '../../../core/models/shelter.model';
 import { formatFeetInches } from '../../mesurer/util/feet-inches.util';
 
 /**
@@ -32,10 +32,25 @@ export interface ShelterConfigureRequest {
 export class ShelterModelCardComponent {
   readonly model = input.required<ShelterModelSummary>();
 
+  /**
+   * Niveau de titre du nom du modèle, pour respecter la hiérarchie de la PAGE hôte (WCAG 1.3.1) :
+   * `h2` sous le `<h1>` du catalogue (défaut), `h3` sous le `<h2>` de section de l'accueil. Le nom
+   * n'est PAS un attribut DOM global (≠ `id`/`class`) → pas de collision (L-013).
+   */
+  readonly headingLevel = input<'h2' | 'h3'>('h2');
+
   /** Demande l'ouverture de l'overlay pour ce modèle (avec le déclencheur pour le retour de focus). */
   readonly configure = output<ShelterConfigureRequest>();
 
   protected formatFeetInches = formatFeetInches;
+
+  /**
+   * Image illustrative de la CATÉGORIE du modèle (le référentiel serveur n'expose pas d'image par
+   * modèle). Visuel local déterministe, gratuit et sans clé — voir `resolveShelterCategoryImage`.
+   * Décorative (`alt=""`) : le nom du modèle est déjà annoncé par le titre h2/h3 (pas de doublon
+   * pour les lecteurs d'écran). La carte n'est donc jamais vide.
+   */
+  protected readonly imageUrl = computed(() => resolveShelterCategoryImage(this.model().categoryName));
 
   /**
    * Libellé accessible du bouton. Le binding est DYNAMIQUE (`[attr.aria-label]`) : `i18n-aria-label`

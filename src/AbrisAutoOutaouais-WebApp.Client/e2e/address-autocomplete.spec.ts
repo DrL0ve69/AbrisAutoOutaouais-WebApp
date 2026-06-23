@@ -244,12 +244,22 @@ test('suggestion sans civicNumber + civique pré-saisi → la valeur saisie est 
   // EFFACE le « 77 » → l'assertion finale recevait '' (flake CI-only, vert en local car
   // l'hydratation y est plus rapide). On enveloppe donc la saisie dans `expect(...).toPass()` :
   // si l'hydratation avale la première frappe, Playwright la REJOUE jusqu'à ce qu'Angular ait
-  // réellement enregistré la valeur (contrôle devenu `dirty` + `toHaveValue('77')`), sans
-  // `waitForTimeout`. Même discipline anti-race que la frappe du combobox plus bas.
+  // réellement enregistré la valeur, sans `waitForTimeout`. Même discipline anti-race que la
+  // frappe du combobox plus bas.
+  //
+  // ⚠️ DISCRIMINANT (L-012) : `toHaveValue('77')` lit la valeur NATIVE du DOM posée par `fill()`,
+  // PAS le modèle réactif Angular — donc il passe à tort si le CVA n'est pas encore hydraté
+  // (DOM=77, modèle=''). On AJOUTE `toHaveClass(/ng-dirty/)` : Angular ne pose `ng-dirty` (et ne
+  // retire `ng-pristine`) sur le contrôle réactif QUE lorsque son modèle a réellement capté un
+  // changement utilisateur. Tant que le modèle reste '' (contrôle `ng-pristine`), le `toPass`
+  // rejoue la frappe → on ne sort de la boucle que quand le MODÈLE a enregistré la valeur, pas
+  // seulement le DOM. `#civicNumber` est un `formControlName="civicNumber"` (`/location`) → la
+  // classe `ng-dirty` y est bien appliquée par Angular Forms.
   const civic = page.locator('#civicNumber');
   await expect(async () => {
     await civic.fill('77');
     await expect(civic).toHaveValue('77', { timeout: 2000 });
+    await expect(civic).toHaveClass(/ng-dirty/, { timeout: 2000 });
   }).toPass({ timeout: 15000 });
 
   const combo = page.locator('#street');

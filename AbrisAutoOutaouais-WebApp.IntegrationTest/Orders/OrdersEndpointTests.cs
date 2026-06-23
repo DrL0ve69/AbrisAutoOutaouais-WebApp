@@ -1,4 +1,5 @@
 using AbrisAutoOutaouais_WebApp.Domain.Entities;
+using AbrisAutoOutaouais_WebApp.Domain.Enums;
 using AbrisAutoOutaouais_WebApp.Domain.Services;
 using AbrisAutoOutaouais_WebApp.IntegrationTest.helpers;
 using AbrisAutoOutaouais_WebApp.Infrastructure.Persistence;
@@ -84,6 +85,29 @@ public sealed class OrdersEndpointTests : IClassFixture<WebAppFactory>
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         // PAS de .Include(Dimensions) — collection owned ; on lit la ligne, pas le modèle.
         return await db.OrderLines.AsNoTracking().SingleAsync(l => l.OrderId == orderId);
+    }
+
+    private async Task<Order> ReadOrderAsync(Guid orderId)
+    {
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        // Owned VO Payment → chargé d'office avec l'agrégat (pas de .Include requis).
+        return await db.Orders.AsNoTracking().SingleAsync(o => o.Id == orderId);
+    }
+
+    /// <summary>Sème un produit achetable et renvoie son Id (commande produit classique).</summary>
+    private async Task<Guid> SeedProductAsync()
+    {
+        var suffix = Guid.NewGuid().ToString("N");
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        var category = ProductCategory.Create($"Cat {suffix}", $"cat-{suffix}");
+        var product = Product.Create($"Abri {suffix}", $"abri-{suffix}", 599m, 50, category.Id, "desc.");
+        db.ProductCategories.Add(category);
+        db.Products.Add(product);
+        await db.SaveChangesAsync();
+        return product.Id;
     }
 
     private static object GuestContact(string email) => new
@@ -197,6 +221,94 @@ public sealed class OrdersEndpointTests : IClassFixture<WebAppFactory>
             var line = await ReadSingleLineAsync(orderId);
             line.UnitPrice.Should().Be(expected);
             line.UnitPrice.Should().Be(499.00m);
+        }
+        finally
+        {
+            _client.DefaultRequestHeaders.Authorization = null;
+        }
+    }
+
+    // ── Paiement (virement Interac) — EPIC 7, 7.0 ──────────────────────────────
+
+    [Fact]
+    public async Task PlaceOrder_Anonymous_Returns201WithPaymentInstructions_OrderPending()
+    {
+        var productId = await SeedProductAsync();
+        var email = $"guest-pay-{Guid.NewGuid():N}@test.com";
+
+        var response = await _client.PostAsJsonAsync("/api/v1/orders", new
+        {
+            lines = new[] { new { productId, quantity = 1 } },
+            deliveryType = "Pickup",
+            shippingAddress = (object?)null,
+            guestContact = GuestContact(email),
+        });
+
+        response.StatusCode.Should().Be(HttpStatusCode.Created);
+        var body = await response.Content.ReadFromJsonAsync<JsonElement>();
+        var orderId = body.GetProperty("id").GetGuid();
+
+        // La réponse porte les instructions de paiement (référence non vide + courriel marchand).
+        var payment = body.GetProperty("payment");
+        var reference = payment.GetProperty("reference").GetString();
+        reference.Should().NotBeNullOrWhiteSpace();
+        payment.GetProperty("recipientEmail").GetString().Should().NotBeNullOrWhiteSpace();
+        payment.GetProperty("amount").GetDecimal().Should().Be(599m);
+
+        // La commande reste en attente et porte la référence attachée (non confirmée).
+        var order = await ReadOrderAsync(orderId);
+        order.Status.Should().Be(OrderStatus.Pending);
+        order.Payment.Should().NotBeNull();
+        order.Payment!.Reference.Should().Be(reference);
+        order.Payment.ConfirmedAt.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task ConfirmPayment_Anonymous_Returns401()
+    {
+        var productId = await SeedProductAsync();
+        var email = $"guest-pay401-{Guid.NewGuid():N}@test.com";
+
+        var placed = await _client.PostAsJsonAsync("/api/v1/orders", new
+        {
+            lines = new[] { new { productId, quantity = 1 } },
+            deliveryType = "Pickup",
+            shippingAddress = (object?)null,
+            guestContact = GuestContact(email),
+        });
+        var orderId = (await placed.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("id").GetGuid();
+
+        // Aucun bearer → l'action Admin confirm-payment est protégée (L-028).
+        var response = await _client.PostAsync($"/api/v1/orders/{orderId}/confirm-payment", null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task ConfirmPayment_AsAdmin_Returns204_OrderBecomesConfirmed()
+    {
+        var productId = await SeedProductAsync();
+        var email = $"guest-pay204-{Guid.NewGuid():N}@test.com";
+
+        var placed = await _client.PostAsJsonAsync("/api/v1/orders", new
+        {
+            lines = new[] { new { productId, quantity = 1 } },
+            deliveryType = "Pickup",
+            shippingAddress = (object?)null,
+            guestContact = GuestContact(email),
+        });
+        var orderId = (await placed.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("id").GetGuid();
+
+        var token = await AuthHelper.LoginAsAdminAsync(_client);
+        _client.SetBearerToken(token);
+        try
+        {
+            var response = await _client.PostAsync($"/api/v1/orders/{orderId}/confirm-payment", null);
+            response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+            var order = await ReadOrderAsync(orderId);
+            order.Status.Should().Be(OrderStatus.Confirmed);
+            order.Payment!.ConfirmedAt.Should().NotBeNull();
         }
         finally
         {

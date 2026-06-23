@@ -6,6 +6,8 @@ using AbrisAutoOutaouais_WebApp.Infrastructure.Identity;
 using AbrisAutoOutaouais_WebApp.Infrastructure.Persistence;
 using AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Interceptors;
 using AbrisAutoOutaouais_WebApp.Infrastructure.Services;
+using AbrisAutoOutaouais_WebApp.Application.Common.Services;
+using AbrisAutoOutaouais_WebApp.Infrastructure.Services.Payments;
 using AbrisAutoOutaouais_WebApp.Infrastructure.Services.Places;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -150,6 +152,21 @@ public static class DependencyInjection
             default: // « photon » par défaut (sans clé)
                 services.AddHttpClient<IPlacesService, PhotonPlacesService>(
                     c => c.BaseAddress = new Uri(placesOptions.Photon.BaseUrl));
+                break;
+        }
+
+        // ── Paiement (virement Interac manuel par défaut) ─────────────────────
+        // Même idiome que Places : le fournisseur est choisi par config (« Payments:Provider ») ;
+        // permuter manual → VoPay → Paysafe (7.4) se fera sans toucher au code. Le défaut « manual »
+        // est SANS clé et SANS appel réseau (voie gratuite — règle budget) : pas de HttpClient.
+        services.AddOptions<PaymentsOptions>().Bind(config.GetSection("Payments"));
+        services.AddSingleton<IPaymentReferenceGenerator, Base32PaymentReferenceGenerator>();
+        var paymentsOptions = config.GetSection("Payments").Get<PaymentsOptions>() ?? new PaymentsOptions();
+        switch (paymentsOptions.Provider?.Trim().ToLowerInvariant())
+        {
+            // VoPay / Paysafe : adaptateurs livrés en sous-tâche 7.4 — défaut manuel d'ici là.
+            default: // « manual » par défaut (virement Interac sans clé, sans réseau)
+                services.AddScoped<IPaymentService, ManualInteracPaymentService>();
                 break;
         }
 
