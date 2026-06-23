@@ -115,6 +115,25 @@
   white-space: nowrap;
 }
 
+// ── Colonne paiement (référence Interac + état) ───────────────
+.admino__payment {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.admino__payref {
+  font-family: var(--font-mono, monospace);
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.03em;
+  color: var(--color-text);
+}
+
+.admino__paydate {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
 .admino__noaction {
   color: var(--color-text-muted);
 }
@@ -151,5 +170,11 @@
   &--cancelled {
     color: var(--color-danger, #b91c1c);
     background: var(--color-danger-subtle, #fef2f2);
+  }
+
+  // État du paiement réconcilié (virement Interac reçu) — vert, contraste AA.
+  &--paid {
+    color: var(--color-success-strong, #166534);
+    background: var(--color-success-subtle, #dcfce7);
   }
 }

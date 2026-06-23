@@ -55,7 +55,12 @@ public sealed class AdminRentalsEndpointTests : IClassFixture<WebAppFactory>
         return (body.GetProperty("userId").GetGuid(), body.GetProperty("token").GetString()!, email);
     }
 
-    /// <summary>Sème un contrat de location (le produit n'est qu'un instantané — pas persisté).</summary>
+    /// <summary>
+    /// Sème un contrat de location (le produit n'est qu'un instantané — pas persisté). Un nouveau
+    /// contrat naît PendingPayment (EPIC 7.2) ; on attache une référence puis on l'amène au statut
+    /// demandé : Active (réf attachée + Activate), Cancelled, ou PendingPayment (réf attachée, non
+    /// confirmée — pour tester la confirmation de paiement).
+    /// </summary>
     private async Task<Guid> SeedRentalAsync(Guid customerId, RentalStatus status = RentalStatus.Active)
     {
         using var scope = _factory.Services.CreateScope();
@@ -66,13 +71,21 @@ public sealed class AdminRentalsEndpointTests : IClassFixture<WebAppFactory>
             customerId, model, 122, 198,
             new DateOnly(2026, 7, 1), new DateOnly(2026, 10, 1),
             Address.Create("123", "rue des Érables", null, "Gatineau", "QC", "J8X1A1"));
-        if (status == RentalStatus.Cancelled)
+        contract.AttachPaymentReference("REF-SEED-LOC");
+
+        if (status == RentalStatus.Active)
+            contract.Activate(DateTime.UtcNow);
+        else if (status == RentalStatus.Cancelled)
             contract.Cancel();
+        // RentalStatus.PendingPayment : on laisse le contrat en attente (réf attachée, non confirmée).
 
         db.RentalContracts.Add(contract);
         await db.SaveChangesAsync();
         return contract.Id;
     }
+
+    private Task<HttpResponseMessage> ConfirmPaymentAsync(Guid id)
+        => _client.PostAsync($"/api/v1/rentals/{id}/confirm-payment", null);
 
     private async Task<RentalStatus> GetStatusAsync(Guid contractId)
     {
@@ -192,6 +205,75 @@ public sealed class AdminRentalsEndpointTests : IClassFixture<WebAppFactory>
         await LoginAsAdminAsync();
 
         var response = await AdminCancelAsync(Guid.NewGuid());
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+
+        _client.DefaultRequestHeaders.Authorization = null;
+    }
+
+    // ── POST /rentals/{id}/confirm-payment (EPIC 7.2) ──────────────────────────
+
+    [Fact]
+    public async Task ConfirmPayment_Anonymous_Returns401()
+    {
+        var response = await ConfirmPaymentAsync(Guid.NewGuid());
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task ConfirmPayment_AsCustomer_Returns403()
+    {
+        var (userId, token, _) = await RegisterAndLoginAsync();
+        var contractId = await SeedRentalAsync(userId, RentalStatus.PendingPayment);
+        _client.SetBearerToken(token);
+
+        var response = await ConfirmPaymentAsync(contractId);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        (await GetStatusAsync(contractId)).Should().Be(RentalStatus.PendingPayment);
+
+        _client.DefaultRequestHeaders.Authorization = null;
+    }
+
+    [Fact]
+    public async Task ConfirmPayment_AsAdmin_OnPendingContract_Returns204AndActivates()
+    {
+        var (userId, _, _) = await RegisterAndLoginAsync();
+        var contractId = await SeedRentalAsync(userId, RentalStatus.PendingPayment);
+        await LoginAsAdminAsync();
+
+        var response = await ConfirmPaymentAsync(contractId);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        (await GetStatusAsync(contractId)).Should().Be(RentalStatus.Active);
+
+        _client.DefaultRequestHeaders.Authorization = null;
+    }
+
+    [Fact]
+    public async Task ConfirmPayment_AsAdmin_AlreadyConfirmed_Returns422()
+    {
+        var (userId, _, _) = await RegisterAndLoginAsync();
+        var contractId = await SeedRentalAsync(userId, RentalStatus.PendingPayment);
+        await LoginAsAdminAsync();
+
+        await ConfirmPaymentAsync(contractId);                 // 1er → 204 (Active)
+        var second = await ConfirmPaymentAsync(contractId);    // 2ᵉ → 422 (déjà confirmé, L-046)
+
+        second.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        var problem = await second.Content.ReadFromJsonAsync<ProblemDetails>();
+        problem!.Status.Should().Be(422);
+
+        _client.DefaultRequestHeaders.Authorization = null;
+    }
+
+    [Fact]
+    public async Task ConfirmPayment_AsAdmin_UnknownContract_Returns404()
+    {
+        await LoginAsAdminAsync();
+
+        var response = await ConfirmPaymentAsync(Guid.NewGuid());
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 

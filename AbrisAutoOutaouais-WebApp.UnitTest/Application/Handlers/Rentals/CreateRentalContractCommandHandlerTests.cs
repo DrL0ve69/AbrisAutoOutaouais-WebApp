@@ -1,5 +1,6 @@
 using AbrisAutoOutaouais_WebApp.Application.Auth.DTOs;
 using AbrisAutoOutaouais_WebApp.Application.Common.Models;
+using AbrisAutoOutaouais_WebApp.Application.Payments.Common;
 using AbrisAutoOutaouais_WebApp.Application.Rentals.Commands.CreateRentalContract;
 using AbrisAutoOutaouais_WebApp.Infrastructure.Persistence;
 using AbrisAutoOutaouais_WebApp.UnitTest.Application.Helpers;
@@ -10,16 +11,32 @@ namespace AbrisAutoOutaouais_WebApp.UnitTest.Application.Handlers.Rentals;
 /// <summary>
 /// Création d'un contrat de location sur un MODÈLE paramétrique louable (rework). Couvre la
 /// résolution du CustomerId (connecté → son Id ; visiteur avec contact → compte express ; sinon
-/// règle métier), le 404 sur slug inconnu et le 422 sur modèle non louable.
+/// règle métier), le 404 sur slug inconnu, le 422 sur modèle non louable, et le paiement (virement
+/// Interac, EPIC 7.2 : réf attachée + instructions retournées + contrat PendingPayment).
 /// </summary>
 public sealed class CreateRentalContractCommandHandlerTests : IDisposable
 {
     private readonly ApplicationDbContext _db = TestDbContextFactory.Create();
     private readonly ICurrentUserService _currentUser = Substitute.For<ICurrentUserService>();
     private readonly IExpressAccountService _express = Substitute.For<IExpressAccountService>();
+    private readonly IPaymentService _payment = Substitute.For<IPaymentService>();
+    private readonly IPaymentReferenceGenerator _paymentRefs = Substitute.For<IPaymentReferenceGenerator>();
+
+    public CreateRentalContractCommandHandlerTests()
+    {
+        // Le double imite le fournisseur PAR DÉFAUT (virement Interac manuel) : une référence
+        // non vide + des instructions e-Transfer au format canonique (L-011).
+        _paymentRefs.Generate().Returns(_ => $"ABR-{Guid.NewGuid():N}"[..16]);
+        _payment.InitiateAsync(Arg.Any<string>(), Arg.Any<decimal>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(call => new PaymentInstructionsResult(
+                Reference: call.ArgAt<string>(0),
+                RecipientEmail: "paiements@abristempo-local.example",
+                Amount: call.ArgAt<decimal>(1),
+                Instructions: "Faites un virement Interac."));
+    }
 
     private CreateRentalContractCommandHandler CreateHandler()
-        => new(_db, _currentUser, _express);
+        => new(_db, _currentUser, _express, _payment, _paymentRefs);
 
     /// <summary>Sème un modèle LOUABLE (slug « abri-loc ») + une catégorie, et retourne son slug.</summary>
     private async Task<string> SeedRentableModelAsync(int? monthlyRentalCents = 4900)
@@ -52,9 +69,10 @@ public sealed class CreateRentalContractCommandHandlerTests : IDisposable
         var slug = await SeedRentableModelAsync();
         var userId = Guid.NewGuid();
         _currentUser.UserId.Returns(userId);
+        _currentUser.Email.Returns("client@test.com");
 
-        var id = await CreateHandler().HandleAsync(
-            Command(slug), TestContext.Current.CancellationToken);
+        var id = (await CreateHandler().HandleAsync(
+            Command(slug), TestContext.Current.CancellationToken)).RentalId;
 
         var contract = await _db.RentalContracts.FindAsync([id], TestContext.Current.CancellationToken);
         contract!.CustomerId.Should().Be(userId);
@@ -70,11 +88,12 @@ public sealed class CreateRentalContractCommandHandlerTests : IDisposable
         var slug = await SeedRentableModelAsync();
         var expressId = Guid.NewGuid();
         _currentUser.UserId.Returns((Guid?)null);
+        _currentUser.Email.Returns((string?)null);
         var contact = new GuestContact("Jean", "Tremblay", "jean@test.com", null);
         _express.FindOrCreateByEmailAsync(contact, Arg.Any<CancellationToken>()).Returns(expressId);
 
-        var id = await CreateHandler().HandleAsync(
-            Command(slug, contact), TestContext.Current.CancellationToken);
+        var id = (await CreateHandler().HandleAsync(
+            Command(slug, contact), TestContext.Current.CancellationToken)).RentalId;
 
         var contract = await _db.RentalContracts.FindAsync([id], TestContext.Current.CancellationToken);
         contract!.CustomerId.Should().Be(expressId);
@@ -114,6 +133,38 @@ public sealed class CreateRentalContractCommandHandlerTests : IDisposable
             Command(slug), TestContext.Current.CancellationToken);
 
         await act.Should().ThrowAsync<BusinessRuleException>();
+    }
+
+    // ── Paiement (virement Interac) — EPIC 7.2 ──────────────────────────────────
+
+    [Fact]
+    public async Task Handle_AttachesPaymentReference_InitiatesPayment_AndKeepsContractPendingPayment()
+    {
+        var slug = await SeedRentableModelAsync();   // tarif mensuel 49 $
+        _currentUser.UserId.Returns(Guid.NewGuid());
+        _currentUser.Email.Returns("client@test.com");
+
+        var result = await CreateHandler().HandleAsync(
+            Command(slug), TestContext.Current.CancellationToken);
+
+        // La réponse porte les instructions de paiement au format canonique (référence non vide).
+        result.Payment.Reference.Should().NotBeNullOrWhiteSpace();
+        result.Payment.RecipientEmail.Should().Be("paiements@abristempo-local.example");
+        // Montant viré = TOTAL du contrat (49 $/mois × 3 mois, 2026-07-01 → 2026-10-01), pas un seul
+        // mois — décision propriétaire EPIC 7.2.
+        result.Payment.Amount.Should().Be(147.00m);
+
+        // La référence est attachée à l'agrégat ET le contrat reste en attente de paiement.
+        var contract = await _db.RentalContracts.FindAsync(
+            [result.RentalId], TestContext.Current.CancellationToken);
+        contract!.Status.Should().Be(RentalStatus.PendingPayment);
+        contract.Payment.Should().NotBeNull();
+        contract.Payment!.Reference.Should().Be(result.Payment.Reference);
+        contract.Payment.ConfirmedAt.Should().BeNull();
+
+        // Le port de paiement a bien été initié avec la référence générée et le TOTAL du contrat.
+        await _payment.Received(1).InitiateAsync(
+            contract.Payment.Reference, 147.00m, "client@test.com", Arg.Any<CancellationToken>());
     }
 
     public void Dispose() => _db.Dispose();

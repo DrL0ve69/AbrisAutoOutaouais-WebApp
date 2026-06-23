@@ -2,8 +2,11 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
+  ElementRef,
   inject,
   signal,
+  viewChild,
 } from '@angular/core';
 import {
   AbstractControl,
@@ -13,13 +16,13 @@ import {
   Validators,
 } from '@angular/forms';
 import { CurrencyPipe } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { CartService } from '../../core/services/cart.service';
 import { OrderService } from '../../core/services/order.service';
 import { ToastService } from '../../core/services/toast.service';
 import { AuthService } from '../../core/services/auth.service';
 import { createAddressFormController } from '../../core/services/address-form.controller';
-import { DeliveryType } from '../../core/models/order.model';
+import { DeliveryType, PaymentInstructions } from '../../core/models/order.model';
 import { formatFeetInches } from '../mesurer/util/feet-inches.util';
 import { AddressAutocompleteComponent } from '../../shared/components/a11y-components/autocomplete/address-autocomplete.component';
 import { AddressChoiceComponent } from '../../shared/components/a11y-components/address-choice/address-choice.component';
@@ -42,10 +45,11 @@ function addressRequiredIfDelivery(g: AbstractControl): ValidationErrors | null 
 /**
  * Caisse — AbrisTempo Local.
  *
- * PAIEMENT SIMULÉ (mode démo) : aucune transaction réelle n'est effectuée.
- * ▶ Point d'extension Stripe : remplacer `simulatePayment()` par la création d'un
- *   PaymentIntent côté serveur + confirmation via Stripe Elements, puis passer la
- *   commande à la confirmation du paiement (webhook `payment_intent.succeeded`).
+ * PAIEMENT PAR VIREMENT INTERAC (e-Transfer) — moyen de paiement RÉEL de production (EPIC 7).
+ * Le client passe sa commande (POST /orders → 201), puis la caisse bascule sur l'étape
+ * « instructions » : référence, courriel destinataire, montant et marche à suivre du virement.
+ * Aucune redirection automatique : le client doit lire et exécuter le virement. La réconciliation
+ * (confirmation du paiement reçu) est faite plus tard par l'administration.
  */
 @Component({
   selector: 'app-checkout',
@@ -67,7 +71,6 @@ export class CheckoutComponent {
   private readonly orders = inject(OrderService);
   private readonly toast = inject(ToastService);
   private readonly auth = inject(AuthService);
-  private readonly router = inject(Router);
 
   protected readonly items = this.cart.items;
   protected readonly shelterItems = this.cart.shelterItems;
@@ -78,6 +81,32 @@ export class CheckoutComponent {
     () => this.items().length === 0 && this.shelterItems().length === 0,
   );
   protected readonly processing = signal(false);
+
+  /** Étape du tunnel : saisie du formulaire, puis instructions de virement (EPIC 7). */
+  protected readonly step = signal<'form' | 'instructions'>('form');
+  /** Instructions de virement Interac renvoyées par le serveur à la création de la commande. */
+  protected readonly paymentInstructions = signal<PaymentInstructions | null>(null);
+
+  /**
+   * Titre du panneau d'instructions — cible de focus à l'arrivée sur l'étape (WCAG 2.4.3).
+   * Rendu INCONDITIONNELLEMENT dès que `step === 'instructions'` : le `<h2 #instructionsHeading>`
+   * est placé hors du `@if (paymentInstructions())` interne (seul le `<dl>` des valeurs y reste),
+   * pour que l'effet de focus trouve toujours sa cible. Focusé APRÈS rendu via l'effet ci-dessous,
+   * jamais dans le tick du `set()` (L-006).
+   */
+  private readonly instructionsHeading =
+    viewChild<ElementRef<HTMLElement>>('instructionsHeading');
+
+  constructor() {
+    // Focus du titre du panneau d'instructions une fois qu'il est rendu (L-006) : le `viewChild`
+    // ne se résout qu'au rendu suivant le passage `step='instructions'`.
+    effect(() => {
+      const heading = this.instructionsHeading();
+      if (this.step() === 'instructions' && heading) {
+        heading.nativeElement.focus();
+      }
+    });
+  }
 
   protected formatFeetInches = formatFeetInches;
 
@@ -96,10 +125,6 @@ export class CheckoutComponent {
       city: [''],
       province: ['QC'],
       postalCode: ['', Validators.pattern(POSTAL_PATTERN)],
-      cardName: ['', Validators.required],
-      cardNumber: ['', [Validators.required, Validators.pattern(/^\d{13,19}$/)]],
-      expiry: ['', [Validators.required, Validators.pattern(/^(0[1-9]|1[0-2])\/\d{2}$/)]],
-      cvc: ['', [Validators.required, Validators.pattern(/^\d{3,4}$/)]],
     },
     { validators: addressRequiredIfDelivery },
   );
@@ -158,42 +183,35 @@ export class CheckoutComponent {
           }
         : null;
 
-    // Paiement simulé (aucun appel réseau de paiement) — voir le commentaire de classe.
-    this.simulatePayment().then(() =>
-      this.orders
-        .placeOrder({
-          lines,
-          deliveryType: v.deliveryType,
-          shippingAddress,
-          guestContact,
-          // Omis (undefined) si aucun abri configuré — n'altère pas la charge produit existante.
-          shelterLines: shelterLines.length > 0 ? shelterLines : undefined,
-        })
-        .subscribe({
-          next: () => {
-            this.cart.clear();
-            this.processing.set(false);
-            this.toast.show(
-              $localize`:@@checkout.success:Paiement (démo) accepté — commande confirmée !`,
-              'success',
-            );
-            // Invité : « mes commandes » est protégé par le garde d'auth (il y serait redirigé
-            // vers /auth). On le renvoie à l'accueil ; le connecté va voir sa commande (Épic F).
-            this.router.navigateByUrl(this.isGuest() ? '/' : '/mon-compte/commandes');
-          },
-          error: () => {
-            this.processing.set(false);
-            this.toast.show(
-              $localize`:@@checkout.error:Le paiement a échoué. Veuillez réessayer.`,
-              'error',
-            );
-          },
-        }),
-    );
-  }
-
-  /** Simule la latence d'un fournisseur de paiement (700 ms). */
-  private simulatePayment(): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, 700));
+    this.orders
+      .placeOrder({
+        lines,
+        deliveryType: v.deliveryType,
+        shippingAddress,
+        guestContact,
+        // Omis (undefined) si aucun abri configuré — n'altère pas la charge produit existante.
+        shelterLines: shelterLines.length > 0 ? shelterLines : undefined,
+      })
+      .subscribe({
+        next: response => {
+          this.cart.clear();
+          this.processing.set(false);
+          // Commande enregistrée : on présente les instructions de virement Interac. AUCUNE
+          // redirection automatique — le client doit lire et exécuter le virement (EPIC 7).
+          this.paymentInstructions.set(response.payment);
+          this.step.set('instructions');
+          this.toast.show(
+            $localize`:@@checkout.success:Commande enregistrée — suivez les instructions de virement Interac pour la régler.`,
+            'success',
+          );
+        },
+        error: () => {
+          this.processing.set(false);
+          this.toast.show(
+            $localize`:@@checkout.error:L'enregistrement de la commande a échoué. Veuillez réessayer.`,
+            'error',
+          );
+        },
+      });
   }
 }

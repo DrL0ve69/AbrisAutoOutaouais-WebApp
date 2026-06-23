@@ -1,7 +1,9 @@
 using AbrisAutoOutaouais_WebApp.Application.Auth.DTOs;
 using AbrisAutoOutaouais_WebApp.Application.Bookings.Commands.CreateBooking;
 using AbrisAutoOutaouais_WebApp.Application.Common.Models;
+using AbrisAutoOutaouais_WebApp.Application.Payments.Common;
 using AbrisAutoOutaouais_WebApp.Domain.Constants;
+using AbrisAutoOutaouais_WebApp.Domain.Enums;
 using AbrisAutoOutaouais_WebApp.Infrastructure.Persistence;
 using AbrisAutoOutaouais_WebApp.UnitTest.Application.Helpers;
 using NSubstitute;
@@ -10,7 +12,8 @@ namespace AbrisAutoOutaouais_WebApp.UnitTest.Application.Handlers.Bookings;
 
 /// <summary>
 /// Résolution du CustomerId dans CreateBooking : connecté → son Id (express jamais appelé) ;
-/// visiteur avec contact → Id du compte express ; sinon règle métier (Épic F).
+/// visiteur avec contact → Id du compte express ; sinon règle métier (Épic F). Couvre aussi le
+/// paiement (virement Interac, EPIC 7.3 : réf attachée + instructions retournées + PendingPayment).
 /// </summary>
 public sealed class CreateBookingCommandHandlerTests : IDisposable
 {
@@ -18,9 +21,28 @@ public sealed class CreateBookingCommandHandlerTests : IDisposable
     private readonly ICurrentUserService _currentUser = Substitute.For<ICurrentUserService>();
     private readonly IExpressAccountService _express = Substitute.For<IExpressAccountService>();
     private readonly IPlacesService _places = Substitute.For<IPlacesService>();
+    private readonly IPaymentService _payment = Substitute.For<IPaymentService>();
+    private readonly IPaymentReferenceGenerator _paymentRefs = Substitute.For<IPaymentReferenceGenerator>();
+
+    public CreateBookingCommandHandlerTests()
+    {
+        // Courriel par défaut du connecté (utilisé pour les instructions de virement) ; surchargé à
+        // null dans le test « invité » pour exercer le repli sur le courriel du contact.
+        _currentUser.Email.Returns("client@test.com");
+
+        // Le double imite le fournisseur PAR DÉFAUT (virement Interac manuel) : une référence non vide
+        // + des instructions e-Transfer au format canonique (L-011).
+        _paymentRefs.Generate().Returns(_ => $"ABR-{Guid.NewGuid():N}"[..16]);
+        _payment.InitiateAsync(Arg.Any<string>(), Arg.Any<decimal>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(call => new PaymentInstructionsResult(
+                Reference: call.ArgAt<string>(0),
+                RecipientEmail: "paiements@abristempo-local.example",
+                Amount: call.ArgAt<decimal>(1),
+                Instructions: "Faites un virement Interac."));
+    }
 
     private CreateBookingCommandHandler CreateHandler()
-        => new(_db, _currentUser, _express, _places);
+        => new(_db, _currentUser, _express, _places, _payment, _paymentRefs);
 
     // Créneau futur aligné (10 h UTC un jour ouvré dans ~40 jours), pour passer les invariants de l'agrégat.
     private static DateTime FutureSlot()
@@ -48,8 +70,8 @@ public sealed class CreateBookingCommandHandlerTests : IDisposable
         var userId = Guid.NewGuid();
         _currentUser.UserId.Returns(userId);
 
-        var id = await CreateHandler().HandleAsync(
-            Command(), TestContext.Current.CancellationToken);
+        var id = (await CreateHandler().HandleAsync(
+            Command(), TestContext.Current.CancellationToken)).BookingId;
 
         var booking = await _db.BookingSlots.FindAsync([id], TestContext.Current.CancellationToken);
         booking!.CustomerId.Should().Be(userId);
@@ -62,11 +84,12 @@ public sealed class CreateBookingCommandHandlerTests : IDisposable
     {
         var expressId = Guid.NewGuid();
         _currentUser.UserId.Returns((Guid?)null);
+        _currentUser.Email.Returns((string?)null);   // visiteur → repli sur le courriel du contact invité
         var contact = new GuestContact("Jean", "Tremblay", "jean@test.com", null);
         _express.FindOrCreateByEmailAsync(contact, Arg.Any<CancellationToken>()).Returns(expressId);
 
-        var id = await CreateHandler().HandleAsync(
-            Command(contact), TestContext.Current.CancellationToken);
+        var id = (await CreateHandler().HandleAsync(
+            Command(contact), TestContext.Current.CancellationToken)).BookingId;
 
         var booking = await _db.BookingSlots.FindAsync([id], TestContext.Current.CancellationToken);
         booking!.CustomerId.Should().Be(expressId);
@@ -80,8 +103,8 @@ public sealed class CreateBookingCommandHandlerTests : IDisposable
         _currentUser.UserId.Returns(adminId);
         _currentUser.IsInRole(Roles.Admin).Returns(true);
 
-        var id = await CreateHandler().HandleAsync(
-            Command(targetCustomerId: targetId), TestContext.Current.CancellationToken);
+        var id = (await CreateHandler().HandleAsync(
+            Command(targetCustomerId: targetId), TestContext.Current.CancellationToken)).BookingId;
 
         var booking = await _db.BookingSlots.FindAsync([id], TestContext.Current.CancellationToken);
         booking!.CustomerId.Should().Be(targetId);
@@ -100,8 +123,8 @@ public sealed class CreateBookingCommandHandlerTests : IDisposable
         _currentUser.IsInRole(Roles.Staff).Returns(false);
         _currentUser.IsInRole(Roles.Admin).Returns(false);
 
-        var id = await CreateHandler().HandleAsync(
-            Command(targetCustomerId: otherCustomerId), TestContext.Current.CancellationToken);
+        var id = (await CreateHandler().HandleAsync(
+            Command(targetCustomerId: otherCustomerId), TestContext.Current.CancellationToken)).BookingId;
 
         var booking = await _db.BookingSlots.FindAsync([id], TestContext.Current.CancellationToken);
         booking!.CustomerId.Should().Be(ownId);
@@ -120,8 +143,8 @@ public sealed class CreateBookingCommandHandlerTests : IDisposable
                 Arg.Any<CancellationToken>())
             .Returns<(double Lat, double Lng)?>((45.4765, -75.7013));
 
-        var id = await CreateHandler().HandleAsync(
-            Command(), TestContext.Current.CancellationToken);
+        var id = (await CreateHandler().HandleAsync(
+            Command(), TestContext.Current.CancellationToken)).BookingId;
 
         var booking = await _db.BookingSlots.FindAsync([id], TestContext.Current.CancellationToken);
         booking!.Lat.Should().Be(45.4765);
@@ -140,8 +163,8 @@ public sealed class CreateBookingCommandHandlerTests : IDisposable
                 Arg.Any<CancellationToken>())
             .Returns((((double, double)?)null));
 
-        var id = await CreateHandler().HandleAsync(
-            Command(), TestContext.Current.CancellationToken);
+        var id = (await CreateHandler().HandleAsync(
+            Command(), TestContext.Current.CancellationToken)).BookingId;
 
         var booking = await _db.BookingSlots.FindAsync([id], TestContext.Current.CancellationToken);
         booking!.CustomerId.Should().Be(userId);
@@ -158,6 +181,54 @@ public sealed class CreateBookingCommandHandlerTests : IDisposable
             Command(), TestContext.Current.CancellationToken);
 
         await act.Should().ThrowAsync<BusinessRuleException>();
+    }
+
+    // ── Paiement (virement Interac) — EPIC 7.3 ──────────────────────────────────
+
+    [Fact]
+    public async Task Handle_AttachesPaymentReference_InitiatesPayment_AndKeepsBookingPendingPayment()
+    {
+        var userId = Guid.NewGuid();
+        _currentUser.UserId.Returns(userId);
+
+        var result = await CreateHandler().HandleAsync(
+            Command(), TestContext.Current.CancellationToken);
+
+        // La réponse porte les instructions de paiement au format canonique (référence non vide).
+        result.Payment.Reference.Should().NotBeNullOrWhiteSpace();
+        result.Payment.RecipientEmail.Should().Be("paiements@abristempo-local.example");
+        // Montant FORFAITAIRE du type Installation (barème de domaine).
+        result.Payment.Amount.Should().Be(150.00m);
+
+        // La référence est attachée à l'agrégat ET la réservation reste en attente de paiement.
+        var booking = await _db.BookingSlots.FindAsync(
+            [result.BookingId], TestContext.Current.CancellationToken);
+        booking!.Status.Should().Be(BookingStatus.PendingPayment);
+        booking.Amount.Should().Be(150.00m);
+        booking.Payment.Should().NotBeNull();
+        booking.Payment!.Reference.Should().Be(result.Payment.Reference);
+        booking.Payment.ConfirmedAt.Should().BeNull();
+
+        // Le port de paiement a bien été initié avec la référence générée et le montant forfaitaire.
+        await _payment.Received(1).InitiateAsync(
+            booking.Payment.Reference, 150.00m, "client@test.com", Arg.Any<CancellationToken>());
+    }
+
+    [Theory] // Barème forfaitaire par type (EPIC 7.3) : le montant snapshoté suit BookingPricing.ForType.
+    [InlineData(BookingType.Installation, 150)]
+    [InlineData(BookingType.Delivery, 75)]
+    [InlineData(BookingType.Removal, 100)]
+    public async Task Handle_SnapshotsAmountFromTypeTariff(BookingType type, int expected)
+    {
+        _currentUser.UserId.Returns(Guid.NewGuid());
+
+        var command = Command() with { Type = type };
+        var result = await CreateHandler().HandleAsync(command, TestContext.Current.CancellationToken);
+
+        result.Payment.Amount.Should().Be(expected);
+        var booking = await _db.BookingSlots.FindAsync(
+            [result.BookingId], TestContext.Current.CancellationToken);
+        booking!.Amount.Should().Be(expected);
     }
 
     public void Dispose() => _db.Dispose();

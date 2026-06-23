@@ -26,6 +26,10 @@ internal sealed class GetAllBookingsQueryHandler(
                 b.Address.Street,
                 b.Address.City,
                 b.CreatedAt,
+                b.Amount,
+                // VO owned NULLABLE : projeter via null-guard (calque GetAllRentalsQueryHandler).
+                PaymentReference = b.Payment != null ? b.Payment.Reference : null,
+                PaymentConfirmedAt = b.Payment != null ? b.Payment.ConfirmedAt : null,
             })
             .ToListAsync(ct);
 
@@ -49,7 +53,10 @@ internal sealed class GetAllBookingsQueryHandler(
                 b.Type.ToString(),
                 b.Status.ToString(),
                 $"{b.CivicNumber} {b.Street}, {b.City}",
-                b.CreatedAt))
+                b.CreatedAt,
+                b.PaymentReference,
+                b.PaymentConfirmedAt,
+                b.Amount))
             .ToList();
     }
 

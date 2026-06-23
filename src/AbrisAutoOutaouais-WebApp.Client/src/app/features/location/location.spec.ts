@@ -40,9 +40,20 @@ function shelterStub(models = rentable): Partial<ShelterService> {
   return { getRentableModels: () => of(models) };
 }
 
+/** Réponse de création canonique (EPIC 7.2) : id + instructions de virement Interac. */
+const createOk = {
+  id: 'r1',
+  payment: {
+    reference: 'ABR-LOC-0001',
+    recipientEmail: 'paiements@abristempo-local.example',
+    amount: 89,
+    instructions: 'Faites un virement Interac.',
+  },
+};
+
 async function setup(
   shelter: Partial<ShelterService> = shelterStub(),
-  rentals: Partial<RentalService> = { createRental: vi.fn().mockReturnValue(of({ id: 'r1' })) },
+  rentals: Partial<RentalService> = { createRental: vi.fn().mockReturnValue(of(createOk)) },
   authenticated = true,
 ) {
   // Connecté par défaut : le bloc « coordonnées invité » (Épic F) n'est alors pas exigé, on cible
@@ -113,7 +124,7 @@ describe('LocationComponent — location sur modèles', () => {
 
   it('soumet { slug, lengthCm, clearHeightCm, … } après un choix de taille offert', async () => {
     const user = userEvent.setup();
-    const createRental = vi.fn().mockReturnValue(of({ id: 'r1' }));
+    const createRental = vi.fn().mockReturnValue(of(createOk));
     const { fixture } = await setup(shelterStub(), { createRental });
 
     await user.click(await screen.findByText(/abri simple 11 pi/i));
@@ -146,9 +157,43 @@ describe('LocationComponent — location sur modèles', () => {
     );
   });
 
+  it('après soumission, affiche le panneau de virement Interac avec la référence (état terminal — L-053)', async () => {
+    const user = userEvent.setup();
+    const createRental = vi.fn().mockReturnValue(of(createOk));
+    const { fixture } = await setup(shelterStub(), { createRental });
+
+    await user.click(await screen.findByText(/abri simple 11 pi/i));
+    const lengthSelect = screen.getByRole('combobox', { name: /longueur/i });
+    await user.selectOptions(lengthSelect, within(lengthSelect).getByRole('option', { name: '11 pi' }));
+
+    const cmp = fixture.componentInstance as unknown as {
+      form: { patchValue(v: Record<string, string>): void };
+    };
+    cmp.form.patchValue({
+      startDate: '2026-07-01',
+      endDate: '2026-09-01',
+      civicNumber: '123',
+      street: 'Rue Principale',
+      city: 'Gatineau',
+      province: 'QC',
+      postalCode: 'J8X 1A1',
+    });
+
+    await user.click(screen.getByRole('button', { name: /confirmer la location/i }));
+
+    // L'étape « instructions » prime (L-053) : le panneau e-Transfer est rendu avec ses valeurs.
+    expect(
+      await screen.findByRole('heading', { name: /réglez votre location par virement interac/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('ABR-LOC-0001')).toBeInTheDocument();
+    expect(screen.getByText(/paiements@abristempo-local\.example/i)).toBeInTheDocument();
+    // Le formulaire de location a disparu (état terminal).
+    expect(screen.queryByRole('button', { name: /confirmer la location/i })).not.toBeInTheDocument();
+  });
+
   it('bloque la soumission + affiche « non offerte » quand le couple (longueur, hauteur) est hors grille (L-047)', async () => {
     const user = userEvent.setup();
-    const createRental = vi.fn().mockReturnValue(of({ id: 'r1' }));
+    const createRental = vi.fn().mockReturnValue(of(createOk));
     const { fixture } = await setup(shelterStub(), { createRental });
 
     await user.click(await screen.findByText(/abri simple 11 pi/i));
@@ -181,7 +226,7 @@ describe('LocationComponent — location sur modèles', () => {
 
   it('empêche la soumission tant qu\'aucune taille n\'est choisie', async () => {
     const user = userEvent.setup();
-    const createRental = vi.fn().mockReturnValue(of({ id: 'r1' }));
+    const createRental = vi.fn().mockReturnValue(of(createOk));
     await setup(shelterStub(), { createRental });
 
     await user.click(await screen.findByText(/abri simple 11 pi/i));

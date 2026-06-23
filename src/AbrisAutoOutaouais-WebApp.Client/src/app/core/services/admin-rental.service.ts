@@ -25,4 +25,12 @@ export class AdminRentalService {
   cancel(id: string): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/rentals/${id}/admin-cancel`, null);
   }
+
+  /**
+   * Réconcilie le paiement d'un contrat de location (virement Interac reçu) → ACTIVE le contrat
+   * (204 No Content). Réservé à l'administration (politique « AdminOnly » côté API) — EPIC 7.2.
+   */
+  confirmPayment(id: string): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/rentals/${id}/confirm-payment`, {});
+  }
 }

@@ -152,3 +152,77 @@
 .booking__submit {
   align-self: flex-start;
 }
+
+// ── Étape « virement Interac » (e-Transfer) — EPIC 7.3 ─────────────────
+// Jetons sémantiques qui basculent par thème (motion-a11y.md §2) — pas de couleur en dur.
+.etransfer {
+  max-width: 640px;
+  margin-inline: auto;
+  padding: var(--space-8);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+
+  h2 {
+    font-family: var(--font-display);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+
+    &:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 4px;
+    }
+  }
+}
+
+.etransfer__intro,
+.etransfer__instructions {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-relaxed);
+}
+
+.etransfer__details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.etransfer__row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+
+  dt {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+  }
+}
+
+.etransfer__value {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  margin: 0;
+}
+
+// Valeur sélectionnable (courriel, référence) : facilite le copier-coller.
+.etransfer__value--select {
+  user-select: all;
+}
+
+.etransfer__value--ref {
+  font-family: var(--font-mono, monospace);
+  letter-spacing: 0.04em;
+}

@@ -40,6 +40,8 @@ export class AdminRentalsComponent {
   /** Contrat en attente de confirmation d'annulation (null = aucune). */
   protected readonly pendingCancel = signal<AdminRentalDto | null>(null);
   protected readonly busy = signal(false);
+  /** Id du contrat dont la réconciliation de paiement est en cours (désactive son bouton). */
+  protected readonly pendingPaymentId = signal<string | null>(null);
 
   private readonly dialog = viewChild<ElementRef<HTMLElement>>('confirmDialog');
   private readonly heading = viewChild<ElementRef<HTMLElement>>('heading');
@@ -81,6 +83,8 @@ export class AdminRentalsComponent {
   /** Libellé français du statut, affiché dans le badge. */
   protected statusLabel(status: RentalStatus): string {
     switch (status) {
+      case 'PendingPayment':
+        return $localize`:@@admin.rentals.status.pendingPayment:En attente de paiement`;
       case 'Active':
         return $localize`:@@admin.rentals.status.active:Active`;
       case 'Expired':
@@ -103,6 +107,52 @@ export class AdminRentalsComponent {
   /** Étiquette accessible du bouton d'annulation (désambiguïse les lignes). */
   protected cancelAria(rental: AdminRentalDto): string {
     return `${$localize`:@@admin.rentals.cancel.aria:Annuler la location`} ${rental.productName} — ${rental.customerName}`;
+  }
+
+  /**
+   * Un contrat est réconciliable (« Marquer payé ») si un virement est attaché
+   * (`paymentReference` non nul), qu'il n'est pas déjà confirmé (`paymentConfirmedAt` nul) et que le
+   * contrat est encore « En attente de paiement » : seul un contrat PendingPayment peut être activé
+   * côté serveur (`RentalContract.Activate` exige PendingPayment, sinon 422). On n'affiche le bouton
+   * que dans ce cas, pour ne jamais proposer une action qui échouerait (miroir de l'admin commandes).
+   */
+  protected canMarkPaid(rental: AdminRentalDto): boolean {
+    return (
+      rental.paymentReference !== null &&
+      rental.paymentConfirmedAt === null &&
+      rental.status === 'PendingPayment'
+    );
+  }
+
+  /** Libellé accessible du bouton « Marquer payé » — liaison dynamique → `$localize` (L-024). */
+  protected markPaidLabel(reference: string): string {
+    return $localize`:@@admin.rentals.action.markPaidLabel:Marquer payé — ${reference}:ref:`;
+  }
+
+  /** Réconcilie le paiement (virement Interac reçu) → ACTIVE le contrat, puis recharge (EPIC 7.2). */
+  protected confirmPayment(rental: AdminRentalDto): void {
+    if (this.pendingPaymentId()) return;
+    this.pendingPaymentId.set(rental.id);
+    this.admin.confirmPayment(rental.id).subscribe({
+      next: () => {
+        this.pendingPaymentId.set(null);
+        this.toast.show(
+          $localize`:@@admin.rentals.toast.paid:Paiement réconcilié — location activée.`,
+          'success',
+        );
+        // Le bouton « Marquer payé » disparaît après rechargement : on rend le focus au titre de la
+        // page (cible stable), pas au bouton supprimé (L-006).
+        this.loadRentals();
+        this.focusHeadingAfterRender();
+      },
+      error: () => {
+        this.pendingPaymentId.set(null);
+        this.toast.show(
+          $localize`:@@admin.rentals.toast.paidError:La réconciliation du paiement a échoué.`,
+          'error',
+        );
+      },
+    });
   }
 
   protected askCancel(rental: AdminRentalDto, event: MouseEvent): void {

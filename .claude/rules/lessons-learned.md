@@ -11,6 +11,54 @@
 
 ---
 
+## L-054 · Changer le statut initial qu'une factory de domaine produit invalide silencieusement tous les filtres `Status ==` qui supposaient l'ancien statut — grep-les et remplace les listes blanches figées par l'invariant négatif partagé
+
+- **Symptom.** En portant le flux e-Transfer sur `BookingSlot` (EPIC 7 · US-7.3), `BookingSlot.Create(...)` a été modifiée pour produire `BookingStatus.PendingPayment` au lieu de `BookingStatus.Pending`. `OptimizeRouteCommandHandler` (EPIC 11) filtrait les RDV recalables avec `Status == Pending || Status == Confirmed` — une liste blanche figée qui supposait implicitement que les nouveaux RDV étaient `Pending`. Avec le nouveau statut initial, les RDV fraîchement créés ne satisfaisaient plus le filtre : ils disparaissaient **silencieusement** de l'optimisation de tournée. Aucune erreur, aucun avertissement — juste une omission. Détecté uniquement par `dotnet test` (5 tests Planning rouges) ; la revue de code n'avait pas repéré la dépendance implicite entre la factory d'un agrégat et les filtres d'un handler distant.
+- **Rule.** Après toute modification du **statut initial** qu'une factory/méthode de domaine produit (ou après l'ajout d'un nouveau statut « tôt » dans le cycle de vie d'un agrégat), grep **tous** les filtres `Status ==` / `Status !=` sur cet agrégat dans les handlers, requêtes et gardes, et vérifie que chacun reflète toujours l'invariant métier voulu — et non une énumération figée qui supposait l'ancien statut initial. Deux gardes concrets : (1) Utiliser l'**invariant négatif centralisé** (« tout sauf les états terminaux ») plutôt qu'une liste blanche dupliquée — ici, `!= Completed && != Cancelled` exprime exactement « recalable » sans jamais devoir être mis à jour quand un nouveau statut intermédiaire est ajouté. Si cet invariant est déjà formalisé quelque part (ex. `BookingSlot.Reschedule` énumère les pré-conditions), extraire la règle dans une méthode statique partagée (`SlotRules.IsReschedulable`) plutôt que de la dupliquer — cousin de [[L-046]] (un invariant dans un chemin d'écriture doit se retrouver dans tous les chemins qui en dépendent). (2) Lors de toute PR qui introduit un nouveau statut ou modifie le statut initial d'un agrégat, traiter ce changement comme une **rupture de contrat implicite** : ajouter systématiquement à la checklist PR « grep `Status ==` sur cet enum, vérifier chaque filtre, préférer la forme négative ». Ce bug est un cousin de [[L-007]] (une hypothèse qui rend une requête correcte vit loin de la requête qui en dépend) sur l'axe **statut initial déplacé** : l'hypothèse ici n'est pas une fenêtre temporelle mais un statut de départ encodé dans une liste blanche distante.
+- **Refs.**
+  `src/AbrisAutoOutaouais-WebApp.Domain/Entities/BookingSlot.cs` (`Create` → `PendingPayment` ;
+  `Reschedule` définit l'invariant « tout sauf Completed/Cancelled »),
+  `src/AbrisAutoOutaouais-WebApp.Application/Planning/Commands/OptimizeRoute/OptimizeRouteCommandHandler.cs`
+  (filtre corrigé `!= Completed && != Cancelled`),
+  `src/AbrisAutoOutaouais-WebApp.Domain/Enums/BookingStatus.cs`,
+  branche `feat/epic-7-paiement-etransfer`. Cousins : [[L-046]] (invariant partagé entre chemins d'écriture),
+  [[L-007]] (hypothèse distante qui rend une requête correcte).
+  **Corollaire — grepper aussi les MÉTHODES DE TRANSITION dont la garde suppose l'ancien statut initial (revue fin EPIC 7).** La revue de fin d'EPIC 7 a relevé un axe que la formulation ci-dessus ne couvre pas : après tout déplacement du statut initial, il faut grepper non seulement les **filtres de requête** (`Status ==`/`!=`) mais aussi les **méthodes de transition** de l'agrégat (`Confirm()`, `Complete()`, `Activate()`…) dont la pré-condition suppose implicitement l'ancien statut initial et qui restent câblées dans un handler de statut générique (typiquement un `switch` sur une chaîne d'action). Concrètement : `BookingSlot.Confirm()` garde `Status != Pending` — après le déplacement de `Create()` vers `PendingPayment`, une réservation neuve à laquelle un handler générique appliquerait l'action legacy `"confirm"` lèverait 422 (chemin **latent** ici : l'UI n'offre cette action qu'aux `Pending` historiques, donc non exploité). La résolution n'est pas toujours de supprimer la transition : si elle reste valide pour les enregistrements legacy, **documenter explicitement** dans le `<summary>` de la méthode qu'elle cible le statut legacy, et pourquoi la garde n'a pas été élargie. Si la transition est réellement morte (aucun producteur ne peut plus produire l'ancien statut initial), la retirer. Checklist PR à ajouter à celle de [[L-054]] : (3) Grep les méthodes de transition (`Confirm`/`Complete`/`Activate`…) et les `switch`/`if` qui les appellent par nom d'action — pour chaque garde de pré-condition qui cite un statut, vérifier si ce statut peut encore être le statut initial d'un agrégat nouvellement créé ; si non, documenter ou retirer.
+  `src/AbrisAutoOutaouais-WebApp.Domain/Entities/BookingSlot.cs` (`Confirm()` — `<summary>` clarifié : transition legacy `Pending` uniquement, les nouvelles réservations naissent `PendingPayment` et sont activées par la réconciliation de paiement),
+  `src/AbrisAutoOutaouais-WebApp.Application/Bookings/Commands/UpdateBookingStatus/UpdateBookingStatusCommand.cs` (cas `"confirm"` — handler générique câblant la transition legacy).
+
+## L-053 · Un état terminal post-soumission doit être testé AVANT toute branche dérivée des données que la soumission mute — sinon il ne s'affiche jamais
+
+- **Symptom.** Dans `features/checkout/checkout.html`, l'ordre des branches était
+  `@if (isEmpty()) { … } @else if (step() === 'instructions') { … }`. Le handler `pay()` appelle
+  `cart.clear()` dès la réception du 201 — ce qui re-rend `isEmpty()` vrai **immédiatement**. La
+  branche « panier vide » gagnait donc l'évaluation et le panneau d'instructions e-Transfer (état
+  terminal post-soumission) **ne s'affichait jamais** : l'utilisateur retombait sur « votre panier
+  est vide » juste après avoir cliqué « Payer ». **Invisible en vitest** : le stub `cart.clear()`
+  ne mute pas le vrai signal réactif `isEmpty()` — tous les specs passaient. Attrapé **uniquement
+  par l'e2e contre la vraie pile** (cousin de [[L-001]]). Correctif : évaluer l'état terminal en
+  premier — `@if (step() === 'instructions') { … } @else if (isEmpty()) { … }`.
+- **Rule.** Dans tout flux à étapes (checkout, wizard, formulaire multi-phases), placer les branches
+  de **résultat/état terminal** (`step() === 'done'`, `submitted`, `instructions`…) **AVANT** toute
+  branche conditionnée par des données que la soumission va muter (`isEmpty()`, `items().length === 0`,
+  `stock === 0`…). La soumission réussie modifie souvent l'état sur lequel les branches aval se
+  fondent — si elles sont évaluées en premier, l'état terminal est masqué avant même d'être rendu.
+  Règle de priorité dans un `@if` / `@else if` en chaîne : **état terminal > état d'erreur > état
+  de chargement > état dérivé des données**. Deux gardes : (1) Après chaque action de soumission
+  qui mute les données du composant (vide le panier, remet à zéro le formulaire, réduit le stock),
+  parcourir le template et vérifier si cette mutation peut activer une branche `@if` plus haute qui
+  masquerait l'état terminal — si oui, inverser l'ordre. (2) Écrire un e2e qui exerce le **flux
+  complet** (remplir → soumettre → confirmer que l'état terminal est bien affiché) contre la vraie
+  pile : les stubs vitest ne mutent généralement pas les signaux réels et rendent ce bug invisible
+  ([[L-001]] : reproduire contre la vraie pile avant de déclarer vert ; [[L-009]] : un spec vitest
+  qui passe parce que le stub ne mute pas le signal est vacueux pour ce chemin).
+- **Refs.**
+  `src/AbrisAutoOutaouais-WebApp.Client/src/app/features/checkout/checkout.html`
+  (branches réordonnées : `step() === 'instructions'` en premier),
+  `features/checkout/checkout.ts` (`pay()` appelle `cart.clear()` au 201),
+  `e2e/checkout-order.spec.ts` (flux complet jusqu'à l'affichage du panneau e-Transfer),
+  branche `feat/epic-7-paiement-etransfer`.
+
 ## L-052 · An additive server-side DTO field not mirrored in the TS interface is a silent data drop — update both in the same commit
 
 - **Symptom.** `AdminOrderDto` gained `PaymentReference` and `PaymentConfirmedAt` server-side (EPIC 7
@@ -1057,10 +1105,12 @@
   qualify it — « (vitest — color-contrast NON couvert; contraste validé en e2e/live) » — so the gate
   isn't over-credited (same honesty as [[L-005]]: a guard that can't fire guards nothing). Best: every
   new tinted-background component ships its own dual-theme axe e2e (the E5 « axe both themes » gate).
+  **Corollary — an axe scan must run on a STABILISED DOM; a transient `:disabled`/opacity state can produce a false contrast violation (PR #58, `feat/shelters-configure-only`).** `mesurer.spec.ts:500` (D5) ran an axe `color-contrast` scan immediately after a `role="status"` appeared, without waiting for a `.btn--outline` trigger button to exit its transitional `:disabled` state. While disabled, the button's CSS applied `opacity: 0.5` — axe reads the composited color at that opacity and computed #c54444 on #f3d7d7 = 3.62:1 (< 4.5 AA), flagging a violation that does not exist in the stable post-action state. Fix: add `await expect(button).toBeEnabled()` (and `not.toHaveAttribute('aria-busy', 'true')` if relevant) **before** the axe scan. This is the same vacuity axis as L-016 itself (axe sees the DOM as it is at scan time, not as it will be) — except here the DOM is not permanently wrong, only transiently so. A scan fired before a transition has settled is a false positive that causes flake, not a missed real violation. Guard: after any action that triggers a loading/disabled state on an interactive element, gate the axe scan on `toBeEnabled()` + absence of `aria-busy`.
 - **Refs.** `src/testing/axe-helper.ts:14` (`color-contrast` disabled),
   `src/app/shared/layout/navbar/navbar.scss` (`.navbar--scrolled`), Épic-E commits `cdd82a4` / `1e38a4d`;
   `e2e/address-choice.spec.ts` (per-theme `for (const theme of ['light','dark'])` axe scan of the
-  pastille on `--color-bg-muted`, Épic D).
+  pastille on `--color-bg-muted`, Épic D);
+  `e2e/mesurer.spec.ts:500` (`toBeEnabled()` barrier before axe scan, PR #58 `feat/shelters-configure-only`).
 
 ## L-015 · `role="radio"`/`radiogroup` without roving `tabindex` + arrow keys is keyboard-broken — and AXE passes anyway
 
@@ -1159,9 +1209,11 @@
   the spec is byte-identical to master and none of the `/location` cascade changed). Fix: wrap the
   `fill` in `await expect(async () => { await ctrl.fill('77'); await expect(ctrl).toHaveValue('77'); }).toPass()`
   so Playwright replays it until Angular actually registers the value.
+  **Corollary — `toHaveValue` inside a `toPass` proves the DOM value, NOT the reactive model (PR #58, `feat/shelters-configure-only`).** The D1 civic `toPass` was already in place (`fill('77')` → `toHaveValue('77')`), yet the spec still flaked in CI. Root cause: `toHaveValue` reads the **native DOM input value** set by `fill()` — it returns `'77'` even when the `ControlValueAccessor` is not yet hydrated and the Angular `FormControl` still holds `''`. The `toPass` therefore exits as soon as the DOM shows `77` (immediately after `fill`), before Angular's reactive model has registered the change. The next change-detection cycle (a suggestion patch, an autofill effect) then writes the model's `''` back into the DOM, erasing the typed value. Fix: add `await expect(civic).toHaveClass(/ng-dirty/)` **inside the same `toPass`**, after `toHaveValue`. Angular only sets `ng-dirty` (and removes `ng-pristine`) when its reactive model has actually recorded a user-driven change — so the `toPass` loop does not exit until both the DOM **and** the model hold the value. Rule of thumb: in an SSR+hydration test, **`toHaveValue` is a DOM assertion, not a reactive-model assertion** — it is vacuous as a hydration gate ([[L-009]]: an assertion that passes on the broken path proves nothing). Pair it with `toHaveClass(/ng-dirty/)` (or an equivalent model-state signal) whenever a subsequent CD cycle could overwrite the DOM from a stale model value.
 - **Refs.** `e2e/address-autocomplete.spec.ts` (`pressSequentially` + `waitForResponse` barrier;
-  civic `fill` wrapped in `expect(...).toPass()`), commits `6e23b48` (combobox), `feat/epic-g-catalog`
-  (civic); `e2e/mesurer.spec.ts` (helper `calculerVehiculeBerline` = fill→toHaveValue→click→heading
+  civic `fill` wrapped in `expect(...).toPass()` with `toHaveClass(/ng-dirty/)`), commits `6e23b48`
+  (combobox), `feat/epic-g-catalog` (civic), PR #58 `feat/shelters-configure-only` (ng-dirty corollary);
+  `e2e/mesurer.spec.ts` (helper `calculerVehiculeBerline` = fill→toHaveValue→click→heading
   dans `toPass`; `fillMapAddress` durci), branch `feat/epic-11-calendrier`.
 
 ## L-011 · Interchangeable port implementations must each emit the CANONICAL format — and the test mock must mimic the DEFAULT provider, not a conformant one
@@ -1325,13 +1377,15 @@
   after `signal.set(...)` is correct — `tabindex="-1"` does not block programmatic focus.
   And **assert focus at the unit level** (vitest `toHaveFocus()`) in all cases — a status-only e2e
   never catches a focus bug ([[L-002]]).
+  **Corollary — un commentaire « rendu inconditionnellement » ne suffit pas si le template contient un `@if` imbriqué (EPIC 7, US-7.1).** `#instructionsHeading` était documenté comme « rendu inconditionnellement » mais vivait en réalité sous un double `@if` imbriqué (`step() === 'instructions'` → `paymentInstructions(); as pay`). Sans bug observable en pratique (le 201 garantit `paymentInstructions` non-null), l'**invariant L-006 « cible inconditionnellement rendue » n'était garanti que par l'ordre des `signal.set()` dans le handler, pas par le template** — si `paymentInstructions` devenait nullable (refactor, erreur partielle), le `viewChild` retournerait `undefined` et le focus tomberait silencieusement sur `<body>`. Corrigé en sortant le `<h2 tabindex="-1">` du `@if` interne. Garde : après avoir écrit un commentaire « cible inconditionnelle », ouvrir le template et compter les `@if` parents — un seul `@if` sur l'état de l'étape est acceptable; tout `@if` imbriqué sur les **données** de cette étape est un piège potentiel. Relié à [[L-053]] (même handler `pay()`, même flux post-soumission) : un état terminal mal ordonné dans le template peut aussi cacher la cible de focus avant même qu'elle soit rendue.
 - **Refs.** `features/account/rentals/rentals.ts` (`confirmCancel` / `focusTrigger` /
   `focusHeadingAfterRender`, the `effect()` reading `cancelDialog()`),
   `features/account/rentals/rentals.spec.ts` (the `toHaveFocus()` assertions);
   `features/admin/calendar/calendar.ts` (`addFormHeading` unconditional `viewChild` + focus effect),
   `features/admin/calendar/calendar.html` (`#addFormHeading tabindex="-1"` outside `@if (availableSlots().length > 0)`),
   `features/admin/calendar/calendar.spec.ts` (test « jour sans créneau libre » → focus on heading),
-  branch `feat/epic-11-calendrier`.
+  `features/checkout/checkout.html` (`#instructionsHeading` sorti du `@if paymentInstructions` interne),
+  branches `feat/epic-11-calendrier`, `feat/epic-7-paiement-etransfer`.
 
 ## L-005 · A regression guard only guards if CI actually runs it
 

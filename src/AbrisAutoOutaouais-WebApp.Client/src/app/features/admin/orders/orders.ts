@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AdminOrderService } from '../../../core/services/admin-order.service';
@@ -39,6 +46,13 @@ export class AdminOrdersComponent {
   protected readonly error = signal(false);
   /** Id de la commande dont une transition est en cours (désactive ses boutons). */
   protected readonly pendingId = signal<string | null>(null);
+
+  /**
+   * Titre de page — cible de focus stable après une action qui retire le bouton déclencheur
+   * (« Marquer payé » disparaît une fois la commande payée) : on rend le focus ici, pas au
+   * bouton supprimé (L-006). Le `<h1>` porte `tabindex="-1"`.
+   */
+  private readonly heading = viewChild<ElementRef<HTMLElement>>('pageHeading');
 
   constructor() {
     this.loadOrders();
@@ -146,5 +160,55 @@ export class AdminOrdersComponent {
         );
       },
     });
+  }
+
+  /**
+   * Une commande est réconciliable (« Marquer payé ») si un virement est attaché
+   * (`paymentReference` non nul), qu'il n'est pas déjà confirmé (`paymentConfirmedAt` nul) et que
+   * la commande est encore « En attente » : seule une commande Pending peut être confirmée côté
+   * serveur (`Order.MarkPaid` → `Confirm()` exige Pending, sinon 422). On n'affiche donc le bouton
+   * que dans ce cas, pour ne jamais proposer une action qui échouerait.
+   */
+  protected canMarkPaid(order: AdminOrderDto): boolean {
+    return (
+      order.paymentReference !== null &&
+      order.paymentConfirmedAt === null &&
+      order.status === 'Pending'
+    );
+  }
+
+  /** Libellé accessible du bouton « Marquer payé » — liaison dynamique → `$localize` (L-024). */
+  protected markPaidLabel(reference: string): string {
+    return $localize`:@@admin.orders.action.markPaidLabel:Marquer payé — ${reference}:ref:`;
+  }
+
+  /** Réconcilie le paiement (virement Interac reçu) puis recharge la liste (EPIC 7). */
+  protected confirmPayment(order: AdminOrderDto): void {
+    this.pendingId.set(order.id);
+    this.admin.confirmPayment(order.id).subscribe({
+      next: () => {
+        this.pendingId.set(null);
+        this.toast.show(
+          $localize`:@@admin.orders.toast.paid:Paiement réconcilié — commande marquée payée.`,
+          'success',
+        );
+        // Le bouton « Marquer payé » disparaît après rechargement : on rend le focus au titre
+        // de la page (cible stable), pas au bouton supprimé (L-006).
+        this.loadOrders();
+        this.focusHeadingAfterRender();
+      },
+      error: () => {
+        this.pendingId.set(null);
+        this.toast.show(
+          $localize`:@@admin.orders.toast.paidError:La réconciliation du paiement a échoué.`,
+          'error',
+        );
+      },
+    });
+  }
+
+  /** Focus du titre de page APRÈS le rendu suivant (le bouton déclencheur a disparu — L-006). */
+  private focusHeadingAfterRender(): void {
+    setTimeout(() => this.heading()?.nativeElement.focus());
   }
 }

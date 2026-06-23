@@ -1,14 +1,17 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   OnInit,
   computed,
+  effect,
   inject,
   signal,
+  viewChild,
 } from '@angular/core';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { BookingService } from '../../core/services/booking.service';
 import { ShelterCatalogService } from '../../core/services/shelter-catalog.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -19,6 +22,7 @@ import {
   BookingType,
   CreateBookingRequest,
 } from '../../core/models/booking.model';
+import { PaymentInstructions } from '../../core/models/order.model';
 import { FaqComponent } from '../../shared/components/faq/faq.component';
 import { AddressAutocompleteComponent } from '../../shared/components/a11y-components/autocomplete/address-autocomplete.component';
 import { AddressChoiceComponent } from '../../shared/components/a11y-components/address-choice/address-choice.component';
@@ -50,6 +54,8 @@ interface SlotGroup {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ReactiveFormsModule,
+    RouterLink,
+    CurrencyPipe,
     DatePipe,
     DecimalPipe,
     FaqComponent,
@@ -69,13 +75,40 @@ export class InstallationComponent implements OnInit {
   private readonly catalog = inject(ShelterCatalogService);
   private readonly auth = inject(AuthService);
   private readonly toast = inject(ToastService);
-  private readonly router = inject(Router);
 
   protected readonly loading = signal(true);
   protected readonly submitting = signal(false);
   protected readonly groups = signal<readonly SlotGroup[]>([]);
   protected readonly selectedSlot = signal<string | null>(null);
   protected readonly hasSlots = computed(() => this.groups().length > 0);
+
+  /**
+   * Étape du tunnel : saisie du formulaire, puis instructions de virement Interac (EPIC 7.3), comme
+   * la caisse et la location. Aucune redirection automatique : le client lit et exécute le virement ;
+   * la réconciliation (confirmation de la réservation) est faite plus tard par l'administration.
+   */
+  protected readonly step = signal<'form' | 'instructions'>('form');
+  /** Instructions de virement Interac renvoyées par le serveur à la création de la réservation. */
+  protected readonly paymentInstructions = signal<PaymentInstructions | null>(null);
+
+  /**
+   * Titre du panneau d'instructions — cible de focus à l'arrivée sur l'étape (WCAG 2.4.3). Rendu
+   * INCONDITIONNELLEMENT dès `step === 'instructions'`, hors du `@if (paymentInstructions())` interne
+   * (L-006). Focusé APRÈS rendu via l'effet ci-dessous, jamais dans le tick du `set()`.
+   */
+  private readonly instructionsHeading =
+    viewChild<ElementRef<HTMLElement>>('instructionsHeading');
+
+  constructor() {
+    // Focus du titre du panneau d'instructions une fois rendu (L-006) : le `viewChild` ne se résout
+    // qu'au rendu suivant le passage `step='instructions'`.
+    effect(() => {
+      const heading = this.instructionsHeading();
+      if (this.step() === 'instructions' && heading) {
+        heading.nativeElement.focus();
+      }
+    });
+  }
 
   // ── Catalogue marque → modèle → dimensions (G2) ───────────────────────────
   /** Catalogue chargé depuis le serveur (marques avec leurs modèles). */
@@ -239,14 +272,16 @@ export class InstallationComponent implements OnInit {
     };
 
     this.bookings.createBooking(request).subscribe({
-      next: () => {
+      next: response => {
         this.submitting.set(false);
+        // Réservation enregistrée (PendingPayment) : on présente les instructions de virement Interac.
+        // AUCUNE redirection automatique — le client doit lire et exécuter le virement (EPIC 7.3).
+        this.paymentInstructions.set(response.payment);
+        this.step.set('instructions');
         this.toast.show(
-          $localize`:@@installation.success:Réservation confirmée !`,
+          $localize`:@@installation.success:Réservation enregistrée — suivez les instructions de virement Interac pour la régler.`,
           'success',
         );
-        // Invité : « mes réservations » est protégé par le garde d'auth → on le renvoie à l'accueil.
-        this.router.navigateByUrl(this.isGuest() ? '/' : '/mon-compte/reservations');
       },
       error: () => {
         this.submitting.set(false);

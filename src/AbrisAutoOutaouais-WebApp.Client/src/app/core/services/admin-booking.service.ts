@@ -24,4 +24,12 @@ export class AdminBookingService {
   updateStatus(id: string, action: BookingStatusAction): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/bookings/${id}/status`, { action });
   }
+
+  /**
+   * Réconcilie le paiement d'une réservation (virement Interac reçu) → CONFIRME la réservation
+   * (204 No Content). Réservé à l'administration (politique « AdminOnly » côté API) — EPIC 7.3.
+   */
+  confirmPayment(id: string): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/bookings/${id}/confirm-payment`, {});
+  }
 }

@@ -56,7 +56,11 @@ public sealed class RentalsEndpointTests : IClassFixture<WebAppFactory>
         return (body.GetProperty("userId").GetGuid(), body.GetProperty("token").GetString()!);
     }
 
-    /// <summary>Seed d'une location « Active » appartenant à <paramref name="customerId"/>.</summary>
+    /// <summary>
+    /// Seed d'une location « Active » appartenant à <paramref name="customerId"/>. Un nouveau contrat
+    /// naît PendingPayment (EPIC 7.2) : on attache une référence et on l'ACTIVE pour obtenir un contrat
+    /// genuinely actif (les tests d'annulation portent sur des contrats actifs).
+    /// </summary>
     private async Task<Guid> SeedRentalAsync(Guid customerId)
     {
         using var scope = _factory.Services.CreateScope();
@@ -66,6 +70,8 @@ public sealed class RentalsEndpointTests : IClassFixture<WebAppFactory>
         var rental = RentalContract.CreateForModel(customerId, model, 122, 198,
             new DateOnly(2026, 7, 1), new DateOnly(2026, 10, 1),
             Address.Create("123", "rue des Érables", null, "Gatineau", "QC", "J8X1A1"));
+        rental.AttachPaymentReference("REF-SEED-LOC");
+        rental.Activate(DateTime.UtcNow);
 
         db.RentalContracts.Add(rental);
         await db.SaveChangesAsync();
@@ -188,6 +194,14 @@ public sealed class RentalsEndpointTests : IClassFixture<WebAppFactory>
         var body = await response.Content.ReadFromJsonAsync<JsonElement>();
         var id = body.GetProperty("id").GetGuid();
 
+        // La réponse porte aussi les instructions de paiement (virement Interac, EPIC 7.2).
+        var payment = body.GetProperty("payment");
+        payment.GetProperty("reference").GetString().Should().NotBeNullOrWhiteSpace();
+        payment.GetProperty("recipientEmail").GetString().Should().NotBeNullOrWhiteSpace();
+        // Montant viré = TOTAL du contrat (49 $/mois × 3 mois, 2026-07-01 → 2026-10-01) — décision
+        // propriétaire EPIC 7.2 ; le tarif mensuel snapshoté (MonthlyRate) reste 49 $ ci-dessous.
+        payment.GetProperty("amount").GetDecimal().Should().Be(147.00m);
+
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         var rental = await db.RentalContracts.AsNoTracking().FirstAsync(r => r.Id == id);
@@ -196,7 +210,11 @@ public sealed class RentalsEndpointTests : IClassFixture<WebAppFactory>
         rental.ConfiguredClearHeightCm.Should().Be(198);
         rental.MonthlyRate.Should().Be(49.00m);
         rental.ProductId.Should().BeNull();
-        rental.Status.Should().Be(RentalStatus.Active);
+        // Le contrat naît EN ATTENTE DE PAIEMENT, avec la référence attachée mais non confirmée.
+        rental.Status.Should().Be(RentalStatus.PendingPayment);
+        rental.Payment.Should().NotBeNull();
+        rental.Payment!.Reference.Should().Be(payment.GetProperty("reference").GetString());
+        rental.Payment.ConfirmedAt.Should().BeNull();
 
         _client.DefaultRequestHeaders.Authorization = null;
     }

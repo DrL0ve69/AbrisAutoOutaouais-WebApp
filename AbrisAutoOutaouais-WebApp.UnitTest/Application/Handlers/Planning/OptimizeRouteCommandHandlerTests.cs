@@ -63,7 +63,25 @@ public sealed class OptimizeRouteCommandHandlerTests : IDisposable
         var slotStart = Day.ToDateTime(new TimeOnly(hourUtc, 0), DateTimeKind.Utc);
         typeof(BookingSlot).GetProperty(nameof(BookingSlot.SlotStart))!.SetValue(booking, slotStart);
 
-        if (status == BookingStatus.Confirmed) booking.Confirm();
+        // Post-EPIC 7.3 : un RDV naît PendingPayment (recalable, comme l'était Pending). On atteint les
+        // statuts demandés via le flux réel : Confirmed = paiement réconcilié (Activate) ; Completed
+        // enchaîne Complete ; Cancelled annule. PendingPayment/Pending = l'état initial laissé tel quel.
+        switch (status)
+        {
+            case BookingStatus.Confirmed:
+                booking.AttachPaymentReference("REF-OPT-001");
+                booking.Activate(DateTime.UtcNow);
+                break;
+            case BookingStatus.Completed:
+                booking.AttachPaymentReference("REF-OPT-001");
+                booking.Activate(DateTime.UtcNow);
+                booking.Complete();
+                break;
+            case BookingStatus.Cancelled:
+                booking.Cancel();
+                break;
+            // Pending / PendingPayment : état initial recalable, laissé tel quel.
+        }
 
         _db.BookingSlots.Add(booking);
         await _db.SaveChangesAsync();

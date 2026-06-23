@@ -1,6 +1,7 @@
 using AbrisAutoOutaouais_WebApp.Application.Auth.DTOs;
 using AbrisAutoOutaouais_WebApp.Application.Common.Mediator;
 using AbrisAutoOutaouais_WebApp.Application.Common.Models;
+using AbrisAutoOutaouais_WebApp.Application.Payments.Common;
 using AbrisAutoOutaouais_WebApp.Domain.Enums;
 
 namespace AbrisAutoOutaouais_WebApp.Application.Bookings.Commands.CreateBooking;
@@ -21,4 +22,11 @@ public sealed record CreateBookingCommand(
     string? Brand = null,
     string? Model = null,
     GuestContact? GuestContact = null,
-    Guid? TargetCustomerId = null) : ICommand<Guid>;
+    Guid? TargetCustomerId = null) : ICommand<CreateBookingResult>;
+
+/// <summary>
+/// Résultat de la création d'une réservation : l'identifiant du créneau créé et les instructions de
+/// paiement (virement Interac) à présenter au client. La réservation reste <c>PendingPayment</c>
+/// jusqu'à la réconciliation du paiement par l'administration. Calque <c>CreateRentalContractResult</c>.
+/// </summary>
+public sealed record CreateBookingResult(Guid BookingId, PaymentInstructionsResult Payment);

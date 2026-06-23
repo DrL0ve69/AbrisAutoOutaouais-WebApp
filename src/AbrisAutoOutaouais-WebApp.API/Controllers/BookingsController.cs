@@ -1,4 +1,5 @@
 using AbrisAutoOutaouais_WebApp.Application.Bookings.Commands.CancelBooking;
+using AbrisAutoOutaouais_WebApp.Application.Bookings.Commands.ConfirmBookingPayment;
 using AbrisAutoOutaouais_WebApp.Application.Bookings.Commands.CreateBooking;
 using AbrisAutoOutaouais_WebApp.Application.Bookings.Commands.RescheduleBooking;
 using AbrisAutoOutaouais_WebApp.Application.Bookings.Commands.UpdateBookingStatus;
@@ -29,7 +30,8 @@ public sealed class BookingsController(IDispatcher dispatcher) : ControllerBase
 
     /// <summary>
     /// Réserver un créneau. Accessible aux visiteurs non connectés : ils fournissent un
-    /// <c>GuestContact</c> qui crée/réutilise un compte express (parcours invité, Épic F).
+    /// <c>GuestContact</c> qui crée/réutilise un compte express (parcours invité, Épic F). La réponse
+    /// porte l'identifiant de la réservation ET les instructions de paiement (virement Interac).
     /// </summary>
     [HttpPost]
     [AllowAnonymous]
@@ -37,8 +39,24 @@ public sealed class BookingsController(IDispatcher dispatcher) : ControllerBase
     [ProducesResponseType<ProblemDetails>(422)]
     public async Task<IActionResult> Create([FromBody] CreateBookingCommand cmd, CancellationToken ct)
     {
-        var id = await dispatcher.DispatchAsync(cmd, ct);
-        return Created($"/api/v1/bookings/{id}", new { id });
+        var result = await dispatcher.DispatchAsync(cmd, ct);
+        // « id » reste exposé pour la compatibilité ; « payment » porte les instructions e-Transfer.
+        return Created($"/api/v1/bookings/{result.BookingId}", new { id = result.BookingId, payment = result.Payment });
+    }
+
+    /// <summary>
+    /// Réconcilier le paiement d'une réservation (Admin) : CONFIRME la réservation après réception du
+    /// virement Interac correspondant à sa référence.
+    /// </summary>
+    [HttpPost("{id:guid}/confirm-payment")]
+    [Authorize(Policy = "AdminOnly")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType<ProblemDetails>(404)]
+    [ProducesResponseType<ProblemDetails>(422)]
+    public async Task<IActionResult> ConfirmPayment(Guid id, CancellationToken ct)
+    {
+        await dispatcher.DispatchAsync(new ConfirmBookingPaymentCommand(id), ct);
+        return NoContent();
     }
 
     /// <summary>Mes réservations.</summary>

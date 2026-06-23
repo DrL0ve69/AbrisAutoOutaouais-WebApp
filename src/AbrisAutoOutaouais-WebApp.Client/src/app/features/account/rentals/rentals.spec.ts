@@ -51,6 +51,17 @@ describe('RentalsComponent', () => {
     ).toBeInTheDocument();
   });
 
+  it('affiche « En attente de paiement » et aucun bouton « Annuler » pour un contrat PendingPayment (EPIC 7.2)', async () => {
+    const pending: RentalSummaryDto = { ...activeRental, id: 'r9', status: 'PendingPayment' };
+    await setup([pending]);
+
+    expect(await screen.findByText(/en attente de paiement/i)).toBeInTheDocument();
+    // Seul un contrat « Active » est annulable côté client → pas de bouton ici.
+    expect(
+      screen.queryByRole('button', { name: /annuler la location/i }),
+    ).not.toBeInTheDocument();
+  });
+
   it('déplace le focus dans la boîte de dialogue à l’ouverture (WCAG 2.4.3)', async () => {
     const user = userEvent.setup();
     await setup();

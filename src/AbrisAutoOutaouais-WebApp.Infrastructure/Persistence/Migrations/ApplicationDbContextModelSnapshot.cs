@@ -606,6 +606,9 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("Brand")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -784,6 +787,29 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.OwnsOne("Domain.ValueObjects.PaymentInfo", "Payment", b1 =>
+                        {
+                            b1.Property<Guid>("OrderId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<DateTime?>("ConfirmedAt")
+                                .HasColumnType("datetime2")
+                                .HasColumnName("Payment_ConfirmedAt");
+
+                            b1.Property<string>("Reference")
+                                .IsRequired()
+                                .HasMaxLength(40)
+                                .HasColumnType("nvarchar(40)")
+                                .HasColumnName("Payment_Reference");
+
+                            b1.HasKey("OrderId");
+
+                            b1.ToTable("Orders");
+
+                            b1.WithOwner()
+                                .HasForeignKey("OrderId");
+                        });
+
                     b.OwnsOne("Domain.ValueObjects.Address", "ShippingAddress", b1 =>
                         {
                             b1.Property<Guid>("OrderId")
@@ -829,29 +855,6 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Migrations
                                 .HasMaxLength(200)
                                 .HasColumnType("nvarchar(200)")
                                 .HasColumnName("ShippingAddress_Street");
-
-                            b1.HasKey("OrderId");
-
-                            b1.ToTable("Orders");
-
-                            b1.WithOwner()
-                                .HasForeignKey("OrderId");
-                        });
-
-                    b.OwnsOne("Domain.ValueObjects.PaymentInfo", "Payment", b1 =>
-                        {
-                            b1.Property<Guid>("OrderId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<DateTime?>("ConfirmedAt")
-                                .HasColumnType("datetime2")
-                                .HasColumnName("Payment_ConfirmedAt");
-
-                            b1.Property<string>("Reference")
-                                .IsRequired()
-                                .HasMaxLength(40)
-                                .HasColumnType("nvarchar(40)")
-                                .HasColumnName("Payment_Reference");
 
                             b1.HasKey("OrderId");
 
@@ -979,8 +982,33 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Migrations
                                 .HasForeignKey("RentalContractId");
                         });
 
+                    b.OwnsOne("Domain.ValueObjects.PaymentInfo", "Payment", b1 =>
+                        {
+                            b1.Property<Guid>("RentalContractId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<DateTime?>("ConfirmedAt")
+                                .HasColumnType("datetime2")
+                                .HasColumnName("Payment_ConfirmedAt");
+
+                            b1.Property<string>("Reference")
+                                .IsRequired()
+                                .HasMaxLength(40)
+                                .HasColumnType("nvarchar(40)")
+                                .HasColumnName("Payment_Reference");
+
+                            b1.HasKey("RentalContractId");
+
+                            b1.ToTable("RentalContracts");
+
+                            b1.WithOwner()
+                                .HasForeignKey("RentalContractId");
+                        });
+
                     b.Navigation("Address")
                         .IsRequired();
+
+                    b.Navigation("Payment");
                 });
 
             modelBuilder.Entity("AbrisAutoOutaouais_WebApp.Domain.Entities.ShelterModel", b =>
@@ -1146,8 +1174,33 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Persistence.Migrations
                                 .HasForeignKey("BookingSlotId");
                         });
 
+                    b.OwnsOne("Domain.ValueObjects.PaymentInfo", "Payment", b1 =>
+                        {
+                            b1.Property<Guid>("BookingSlotId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<DateTime?>("ConfirmedAt")
+                                .HasColumnType("datetime2")
+                                .HasColumnName("Payment_ConfirmedAt");
+
+                            b1.Property<string>("Reference")
+                                .IsRequired()
+                                .HasMaxLength(40)
+                                .HasColumnType("nvarchar(40)")
+                                .HasColumnName("Payment_Reference");
+
+                            b1.HasKey("BookingSlotId");
+
+                            b1.ToTable("BookingSlots");
+
+                            b1.WithOwner()
+                                .HasForeignKey("BookingSlotId");
+                        });
+
                     b.Navigation("Address")
                         .IsRequired();
+
+                    b.Navigation("Payment");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>

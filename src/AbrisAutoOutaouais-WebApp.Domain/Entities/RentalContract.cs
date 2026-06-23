@@ -45,6 +45,43 @@ public sealed class RentalContract : ISoftDeletable, IAuditableEntity
     public RentalStatus Status { get; private set; }
     public Address Address { get; private set; } = null!;  // adresse d'installation
 
+    /// <summary>
+    /// Nombre de mois FACTURÉS du contrat — convention « tout mois entamé compte pour un mois plein »,
+    /// minimum 1. C'est le nombre de mois calendaires entiers entre <see cref="StartDate"/> et
+    /// <see cref="EndDate"/>, MAJORÉ d'un mois si la fin tombe après le jour du mois de début (mois
+    /// partiel arrondi au mois plein). <see cref="CreateForModel"/> garantit
+    /// <c>EndDate &gt; StartDate</c>, donc le résultat est toujours ≥ 1.
+    /// Exemples (tarif 100 $/mois) : 2026-07-01 → 2026-10-01 = 3 mois ; 2026-07-01 → 2026-09-15 = 3 mois
+    /// (mois partiel arrondi) ; 2026-07-01 → 2026-07-15 = 1 mois (durée &lt; 1 mois → min 1).
+    /// </summary>
+    private int MonthsBilled
+    {
+        get
+        {
+            var months = (EndDate.Year - StartDate.Year) * 12 + (EndDate.Month - StartDate.Month);
+            if (EndDate.Day > StartDate.Day) months++;     // mois entamé → mois plein
+            return Math.Max(1, months);
+        }
+    }
+
+    /// <summary>
+    /// Montant TOTAL (CAD) du contrat dû d'avance par le client : tarif mensuel SNAPSHOTé
+    /// (<see cref="MonthlyRate"/>) × nombre de mois facturés (<see cref="MonthsBilled"/>). Décision
+    /// propriétaire (EPIC 7.2) : pour activer une location par virement Interac, le client vire le
+    /// TOTAL du contrat d'avance, pas un seul mois. Dérivé sans colonne ni migration (les bornes de
+    /// date et le tarif sont déjà snapshotés). Symétrie avec <c>Order.Total</c> /
+    /// <c>BookingSlot.Amount</c> comme « montant à payer ».
+    /// </summary>
+    public decimal TotalAmount => MonthlyRate * MonthsBilled;
+
+    /// <summary>
+    /// Information de paiement (Owned VO <see cref="PaymentInfo"/>, colonnes <c>Payment_*</c>). NULLABLE :
+    /// les contrats antérieurs à la migration EPIC 7.2 n'en portent pas, et l'agrégat est créé sans
+    /// paiement (la référence est attachée juste après par <see cref="AttachPaymentReference"/>).
+    /// Calque <c>Order.Payment</c>.
+    /// </summary>
+    public PaymentInfo? Payment { get; private set; }
+
     public bool IsDeleted { get; set; }
     public DateTime? DeletedAt { get; set; }
     public DateTime CreatedAt { get; set; }
@@ -96,9 +133,55 @@ public sealed class RentalContract : ISoftDeletable, IAuditableEntity
             ConfiguredClearHeightCm = clearHeightCm,
             StartDate = startDate,
             EndDate = endDate,
-            Status = RentalStatus.Active,
+            // Statut INITIAL : en attente du paiement (virement Interac, EPIC 7.2). Le contrat
+            // n'est ACTIF qu'après réconciliation administrative du paiement (Activate). Mirroir de
+            // Order.Create → OrderStatus.Pending.
+            Status = RentalStatus.PendingPayment,
             Address = address,
         };
+    }
+
+    /// <summary>
+    /// Attache une référence de paiement (virement Interac) au contrat, en posant un
+    /// <see cref="PaymentInfo"/> EN ATTENTE. Garde : seulement tant que le contrat est en attente de
+    /// paiement (<see cref="RentalStatus.PendingPayment"/>) — on n'altère pas le paiement d'un contrat
+    /// déjà activé. Calque <c>Order.AttachPaymentReference</c>.
+    /// </summary>
+    public void AttachPaymentReference(string reference)
+    {
+        if (Status != RentalStatus.PendingPayment)
+            throw new BusinessRuleException(
+                "Une référence de paiement ne peut être attachée qu'à un contrat en attente de paiement.");
+        Payment = PaymentInfo.Pending(reference);
+    }
+
+    /// <summary>
+    /// Active le contrat après RÉCONCILIATION du paiement : confirme le paiement
+    /// (<see cref="PaymentInfo.Confirm"/>) PUIS passe le statut à <see cref="RentalStatus.Active"/>.
+    /// Gardes (L-046, défense en profondeur — calque <c>Order.MarkPaid</c>) :
+    ///  - aucune référence de paiement attachée → lève ;
+    ///  - paiement déjà confirmé → lève (un 2ᵉ appel donne un 422, idempotence) ;
+    ///  - statut non-<see cref="RentalStatus.PendingPayment"/> → lève.
+    /// Le paiement est confirmé AVANT le statut : si une garde lève, l'horodatage de paiement n'aura
+    /// pas été posé sur un contrat non activable.
+    /// </summary>
+    public void Activate(DateTime nowUtc)
+    {
+        if (Payment is null)
+            throw new BusinessRuleException(
+                "Aucune référence de paiement n'est attachée à ce contrat.");
+
+        // Invariant porté par le paiement lui-même (et pas seulement par le statut du contrat) :
+        // un paiement déjà confirmé ne se re-confirme pas — défense en profondeur (L-046).
+        if (Payment.ConfirmedAt is not null)
+            throw new BusinessRuleException("Le paiement de ce contrat est déjà confirmé.");
+
+        if (Status != RentalStatus.PendingPayment)
+            throw new BusinessRuleException("Seul un contrat en attente de paiement peut être activé.");
+
+        var confirmedPayment = Payment.Confirm(nowUtc);
+        Status = RentalStatus.Active;
+        Payment = confirmedPayment;
     }
 
     public void Cancel()
@@ -107,6 +190,7 @@ public sealed class RentalContract : ISoftDeletable, IAuditableEntity
             throw new BusinessRuleException("Impossible d'annuler un contrat expiré.");
         if (Status == RentalStatus.Cancelled)
             throw new BusinessRuleException("Ce contrat de location est déjà annulé.");
+        // Annulable aussi depuis PendingPayment (paiement jamais reçu → on libère le contrat).
         Status = RentalStatus.Cancelled;
     }
 }

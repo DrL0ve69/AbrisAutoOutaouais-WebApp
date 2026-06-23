@@ -157,14 +157,36 @@ public static class DependencyInjection
 
         // ── Paiement (virement Interac manuel par défaut) ─────────────────────
         // Même idiome que Places : le fournisseur est choisi par config (« Payments:Provider ») ;
-        // permuter manual → VoPay → Paysafe (7.4) se fera sans toucher au code. Le défaut « manual »
-        // est SANS clé et SANS appel réseau (voie gratuite — règle budget) : pas de HttpClient.
+        // permuter manual → VoPay → Paysafe se fait sans toucher au code. Le défaut « manual » est
+        // SANS clé et SANS appel réseau (voie gratuite — règle budget) : pas de HttpClient.
+        //
+        // VoPay / Paysafe (sous-tâche 7.4) sont des STUBS KEYLESS d'extensibilité (patron
+        // Strategy/OCP, miroir de Google/Radar pour Places) : jamais le défaut, et protégés par une
+        // GARDE FAIL-FAST AU DÉMARRAGE — sélectionner l'un d'eux sans clé fait échouer le démarrage
+        // (même idiome que « Jwt:Key » / « Client:BaseUrl » ci-dessus). C'est l'UNIQUE point
+        // d'enforcement de l'invariant budget « pas d'adaptateur payant activé par accident » (L-046) :
+        // l'activation réelle exige clé + contrat marchand payant + accord explicite du propriétaire.
         services.AddOptions<PaymentsOptions>().Bind(config.GetSection("Payments"));
         services.AddSingleton<IPaymentReferenceGenerator, Base32PaymentReferenceGenerator>();
         var paymentsOptions = config.GetSection("Payments").Get<PaymentsOptions>() ?? new PaymentsOptions();
         switch (paymentsOptions.Provider?.Trim().ToLowerInvariant())
         {
-            // VoPay / Paysafe : adaptateurs livrés en sous-tâche 7.4 — défaut manuel d'ici là.
+            case "vopay":
+                if (string.IsNullOrWhiteSpace(paymentsOptions.VoPay.ApiKey))
+                    throw new InvalidOperationException(
+                        "Adaptateur de paiement VoPay sélectionné mais non activé : il exige une clé " +
+                        "API (« Payments:VoPay:ApiKey »), un contrat marchand payant et l'accord " +
+                        "explicite du propriétaire (règle budget). Défaut = « manual ».");
+                services.AddScoped<IPaymentService, VoPayPaymentService>();
+                break;
+            case "paysafe":
+                if (string.IsNullOrWhiteSpace(paymentsOptions.Paysafe.ApiKey))
+                    throw new InvalidOperationException(
+                        "Adaptateur de paiement Paysafe sélectionné mais non activé : il exige une clé " +
+                        "API (« Payments:Paysafe:ApiKey »), un contrat marchand payant et l'accord " +
+                        "explicite du propriétaire (règle budget). Défaut = « manual ».");
+                services.AddScoped<IPaymentService, PaysafePaymentService>();
+                break;
             default: // « manual » par défaut (virement Interac sans clé, sans réseau)
                 services.AddScoped<IPaymentService, ManualInteracPaymentService>();
                 break;

@@ -305,7 +305,7 @@ si un SP devient disponible. Détail : `PROGRAM-STATUS.md` (Épic H) + `docs/dep
 | EPIC 10 | Suggestion d'abris intelligente (mesure/véhicule) | 4 | EPIC 9 | 8 | Should | Proposer **catégories qui rentrent** (≤ largeur, longueur ≤ mesure, max 40 pi) ; orientation véhicules |
 | EPIC 11 | Calendrier & planification terrain | 5 | — | 21 | Could | ✅ **MERGÉ (2026-06-22) — PR #53 (`53dee27`), CI verte** — US-11.1 `/planning` lecture seule (L-044) · US-11.2 overlay jour + saisie heures + ajout RDV admin (L-006/L-027/L-045) · US-11.3 optimisation tournée nearest-neighbour (L-046) + e2e mesurer flake L-012 corrigé |
 | EPIC 8 | Employés & paie (informative) | 2 | EPIC 11 | 8–13 | Could | ⚠️ Paie réelle = conformité fiscale hors portée ; viser informatif |
-| EPIC 7 | Paiements (Interac e-Transfer + cartes) | 1 | — | 21+ | Could | 🟡 **spike LIVRÉ 2026-06-22** (`docs/spikes/epic-7-payments-spike.md`) — reco **MVP e-Transfer manuel gratuit/keyless** (port `IPaymentService` calqué `IPlacesService`) ; APIs Interac (VoPay/Paysafe/Payment Source) **payantes → gelées** (budget). **Décisions §7 en attente du propriétaire** avant tout code |
+| EPIC 7 | Paiements (Interac e-Transfer + cartes) | 1 | — | 21+ | Could | ✅ **MERGÉ (2026-06-23, PR #59)** — 7.0→7.4 livrés (e-Transfer 3 flux + stubs keyless + doc webhook), revue de fin d'épic APPROVE WITH NITS. **EPIC 7 = dernière épopée Phase 2 → Phase 2 TERMINÉE.** |
 | EPIC 13 | Refonte parcours `/mesurer` (ordre + adresse optionnelle) | (1)·6 | 9·10·15 | 8 | Should | ✅ **livré (2026-06-21, branche `feat/epic-13-mesurer-rework`)** — stepper inversé Dimensionner→Conseil (« Trouver mon abri ») ; radiogroup APG 3 voies ; adresse via `map-voie` (carte uniquement) ; `results-step`→`conseil-step`. Revue indép. APPROVE WITH NITS ; L-042/L-043 |
 | EPIC 14 | Carte satellite plus précise (zoom) | (1)·5.1 | — | 5 | Should | ✅ **livré (2026-06-21, branche `feat/epic-14-carte-precise`)** — US-14.1 over-zoom Esri **gratuit** (`maxNativeZoom=19` + `maxZoom=21`, zoom localisé 21) ; US-14.2 mesure **par arête** (haversine, `measure-rect.util`) remplace `turf.bbox` aligné aux axes (L-034) — repli bbox pour polygone libre. Revue indép. **APPROVE** (0 Critical/Major). Source HD payante **écartée** (règle budget) |
 | EPIC 15 | Champ d'adresse unifié (spike→reco) | (1)·5.2 | — | 8 | Should | 🟡 **spike US-15.1 LIVRÉ 2026-06-18** (`docs/spikes/epic-15-address-field-spike.md`) — **décision : champ unique « n°+rue » + auto-rempli ÉDITABLE** (lecture seule écartée). Reste US-15.2/15.3 (refonte, ~6 pts) — touche tous les formulaires |
@@ -525,3 +525,46 @@ Branche `feat/epic-8-paie` — 2 commits (`e400288` implémentation + `f3f6ad8` 
 - `npm run build` ✅ · `npm test` **396/396** ✅ · `npm run e2e` admin-payroll **6/6** (axe dual-thème + clavier + barrière réseau, non-vacueux) ✅ · `npm run build:prod` bilingue ✅
 
 **Statut git** : **PR #55 ouverte → `master`**, CI en cours. Prochain (après merge) : **EPIC 7** (paiements).
+
+---
+
+## Mise à jour — EPIC 7 · 7.2 Locations e-Transfer livré (2026-06-23)
+
+Branche `feat/epic-7-paiement-etransfer`. Sous-tâche intermédiaire — commit local uniquement (PR après 7.4).
+
+| ID | Sous-tâche | Statut |
+|----|-----------|--------|
+| 7.2 | Tunnel e-Transfer Locations : `RentalStatus.PendingPayment → Active` (enum additif) + owned VO `PaymentInfo` sur `RentalContract` (`AttachPaymentReference`/`Activate` idempotent L-046) + commande `ConfirmRentalPaymentCommand` (AdminOnly) + `CreateRentalContractResult{id, payment}` + `AdminRentalDto` expose réf+confirmé-le (L-052) + migration `20260623170014_AddRentalContractPaymentInfo` (2 colonnes nullables) + frontend `/location` panneau e-Transfer (état terminal en premier L-053, focus inconditionnel L-006) + admin rentals colonne paiement + « Marquer payé » (L-024) + `account/rentals` statut `PendingPayment` + i18n fr/en symétrique (16 ids EN manuels L-042) + e2e `location-etransfer` + `admin-rentals-payment` (axe dual-thème, L-051 vérifié). **Revue indépendante reportée à la frontière d'épic (après 7.4).** | ✅ Livré (commit local 2026-06-23) |
+
+**Gates** :
+- `dotnet test` **458 unit + 147 IT / 0 échec** ✅
+- `npm run build` ✅ · `npm test` **423/0** ✅ · `npm run e2e` 5 (nouveaux) + 27 (régression) / 0 ✅
+- `npm run build:prod` bilingue ✅ · round-trip live LocalDB (PendingPayment→Active, 422 idempotence, 401 anon) ✅
+
+**Prochain** : sous-tâche **7.3** (Installations : même flux e-Transfer sur `Booking`).
+
+---
+
+## Mise à jour — EPIC 7 clôturé + Phase 2 TERMINÉE (2026-06-23)
+
+Branche `feat/epic-7-paiement-etransfer` → PR #59 → merge `master`.
+
+**Sous-tâche 7.3 — Installations e-Transfer :**
+Flux e-Transfer porté sur `BookingSlot` (Installations) : `BookingStatus.PendingPayment → Confirmed`. Montant snapshoté (`decimal Amount` sur `BookingSlot`) ; barème forfaitaire par `BookingType` (Installation 150 $ / Delivery 75 $ / Removal 100 $) via `BookingPricing.ForType`. Owned VO `PaymentInfo` + `AttachPaymentReference`/`Activate` idempotent (L-046). `ConfirmBookingPaymentCommand` (AdminOnly). Statut initial `Create()` = `PendingPayment` (L-054 — grep `Status ==` → `OptimizeRouteCommandHandler` corrigé invariant négatif). Panneau e-Transfer `/installation` (état terminal avant branche form L-053, focus `#instructionsHeading` inconditionnel L-006). Admin/reservations colonne paiement + « Marquer payé » (L-024). i18n fr/en (20+ ids EN manuels L-042). e2e `installation-etransfer` + `admin-bookings-payment` (axe dual-thème). **Leçon L-054** capturée.
+
+**Sous-tâche 7.4 — Stubs keyless + doc webhook :**
+Stubs `VoPayPaymentService`/`PaysafePaymentService` (adaptateurs `IPaymentService`, placeholder MANIFESTE « STUB … NON ACTIVÉ », aucun appel réseau) ; garde fail-fast démarrage (`InvalidOperationException` si clé vide) ; `Services/Payments/README.md` (webhook HMAC + idempotence **documenté non codé**). Tests stubs + `PaymentProviderRegistrationTests` (garde DI non-vacueuse L-005). **Coût : zéro** (stubs sans clé, jamais activés).
+
+**Revue de fin d'épic — `code-reviewer` indépendant + `solid-review` : APPROVE WITH NITS.** Diff complet 7.1→7.4 vs `master` (90 fichiers). 3 points traités :
+1. **Décision propriétaire** — montant viré pour activer une **location** = **TOTAL du contrat** (tarif mensuel × nb de mois, tout mois entamé = mois plein, min 1 ; `RentalContract.TotalAmount` dérivé des dates snapshotées, sans migration) — au lieu d'un seul mois.
+2. `<summary>` `BookingSlot.Confirm()` clarifié (legacy `Pending` uniquement).
+3. Champs morts `_vopay`/`_paysafe` retirés des stubs.
+
+**Corollaire L-054** capturé : déplacer le statut initial d'un agrégat → grepper aussi les **méthodes de transition** câblées dans un handler générique, pas que les filtres `Status ==`.
+
+**Gates finaux :**
+- `dotnet test` **487 unit + 152 IT / 0 échec** ✅
+- `npm run build` ✅ · `npm test` **423/0** ✅ · `npm run e2e` `location-etransfer` 2/2 dual-thème (total 267 $) ✅
+- `npm run build:prod` bilingue ✅ · round-trips live LocalDB ✅
+
+**Phase 2 TERMINÉE — toutes les épopées 7→16 livrées** (ordre `12→15→9→10→13→14→11→8→7` entièrement parcouru).

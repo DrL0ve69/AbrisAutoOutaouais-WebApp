@@ -39,10 +39,13 @@ internal sealed class OptimizeRouteCommandHandler(
         var toExclusiveUtc = command.Date.AddDays(1).ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
 
         // EN TRACKING (pas d'AsNoTracking) : on réécrit SlotStart via Reschedule. Seuls les RDV
-        // recalables (Pending/Confirmed) — fenêtre par début de créneau, sous-journalier (L-007).
+        // recalables — fenêtre par début de créneau, sous-journalier (L-007). Un RDV est recalable ssi
+        // BookingSlot.Reschedule l'accepte : tout sauf Completed/Cancelled, ce qui inclut PendingPayment
+        // (statut initial post-EPIC 7.3) — l'invariant « recalable » vit dans l'agrégat et le filtre
+        // d'ici doit y coller (L-046), sinon un RDV en attente de paiement serait silencieusement omis.
         var bookings = await db.BookingSlots
             .Where(b => b.SlotStart >= fromUtc && b.SlotStart < toExclusiveUtc
-                && (b.Status == BookingStatus.Pending || b.Status == BookingStatus.Confirmed))
+                && b.Status != BookingStatus.Completed && b.Status != BookingStatus.Cancelled)
             .OrderBy(b => b.SlotStart)
             .ToListAsync(ct);
 
