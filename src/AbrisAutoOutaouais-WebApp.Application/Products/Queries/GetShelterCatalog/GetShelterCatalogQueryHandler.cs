@@ -1,60 +1,56 @@
 using AbrisAutoOutaouais_WebApp.Application.Common.Interfaces;
 using AbrisAutoOutaouais_WebApp.Application.Common.Mediator;
+using AbrisAutoOutaouais_WebApp.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace AbrisAutoOutaouais_WebApp.Application.Products.Queries.GetShelterCatalog;
 
 /// <summary>
-/// Construit le catalogue marque → modèles. Le filtre (marque ET modèle non-null) et le tri
-/// alphabétique sont poussés en SQL via <c>.AsNoTracking()</c> ; le regroupement par marque et
-/// le dédoublonnage des modèles se font en mémoire après matérialisation — un <c>GroupBy</c>
-/// imbriqué projetant une sous-liste ne se traduit pas en SQL, et le volume du catalogue est
-/// petit. <c>HandleAsync</c> porte la logique ; <c>Handle</c> satisfait l'interface et délègue.
+/// Construit le catalogue marque → modèles à partir du RÉFÉRENTIEL des modèles d'abris PARAMÉTRIQUES
+/// (<see cref="ShelterModel"/>, EPIC 9) — et non plus des <c>Product</c> fixes, désormais retirés du
+/// catalogue. Tous les modèles sont de la marque unique « Abris Tempo ». Les dimensions exposées sont
+/// REPRÉSENTATIVES (largeur unique du modèle, longueur de base, hauteur dégagée minimale) : elles ne
+/// servent qu'à informer les listes déroulantes du formulaire d'installation. La forme de sortie
+/// (<see cref="BrandCatalogDto"/>/<see cref="ModelCatalogDto"/>) est INCHANGÉE — le frontend n'est
+/// pas touché. Les dimensions vivant dans une collection enfant RÉGULIÈRE, on charge
+/// <c>.Include(m =&gt; m.Dimensions)</c> explicitement (L-035). Tri par nom puis slug pour un ordre
+/// déterministe (L-030). <c>HandleAsync</c> porte la logique ; <c>Handle</c> satisfait l'interface.
 /// </summary>
 public sealed class GetShelterCatalogQueryHandler(IApplicationDbContext db)
     : IQueryHandler<GetShelterCatalogQuery, IReadOnlyList<BrandCatalogDto>>
 {
+    /// <summary>Marque unique sous laquelle tous les modèles paramétriques sont regroupés.</summary>
+    private const string BrandName = "Abris Tempo";
+
     public async Task<IReadOnlyList<BrandCatalogDto>> HandleAsync(
         GetShelterCatalogQuery query, CancellationToken ct)
     {
-        // Filtre + tri en SQL ; on ne ramène que les colonnes utiles (projection anonyme).
-        // Tri marque → modèle → slug : le tie-break sur Slug rend le dédoublonnage déterministe.
-        // Sans lui, deux produits de même marque+modèle mais slugs/dimensions différents
-        // laisseraient le `First()` ci-dessous choisir une ligne au hasard renvoyée par SQL ;
-        // avec lui, on retient TOUJOURS le slug alphabétiquement premier (cf. L-007 : l'invariant
-        // qui rend la requête correcte doit être épinglé au plus près de la requête).
-        var rows = await db.Products
+        // Modèles paramétriques actifs (filtre soft-delete par défaut), avec leurs dimensions
+        // chargées explicitement (entité enfant RÉGULIÈRE → .Include requis, sinon WidthOptionsCm/
+        // ClearHeightOptionsCm ressortiraient vides, L-035). Tri nom → slug : déterministe (L-030).
+        var models = await db.ShelterModels
             .AsNoTracking()
-            .Where(p => p.Brand != null && p.Model != null)
-            .OrderBy(p => p.Brand)
-            .ThenBy(p => p.Model)
-            .ThenBy(p => p.Slug)
-            .Select(p => new
-            {
-                Brand = p.Brand!,
-                Model = p.Model!,
-                p.Slug,
-                p.WidthCm,
-                p.LengthCm,
-                p.HeightCm,
-            })
+            .Include(m => m.Dimensions)
+            .OrderBy(m => m.Name)
+            .ThenBy(m => m.Slug)
             .ToListAsync(ct);
 
-        // Regroupement en mémoire : une entrée par marque, modèles distincts. Le `First()` est
-        // déterministe grâce au tie-break `.ThenBy(Slug)` du SQL (slug premier dans l'ordre).
-        return rows
-            .GroupBy(r => r.Brand, StringComparer.Ordinal)
-            .Select(g => new BrandCatalogDto(
-                g.Key,
-                g.GroupBy(r => r.Model, StringComparer.Ordinal)
-                    .Select(m =>
-                    {
-                        var first = m.First();
-                        return new ModelCatalogDto(
-                            m.Key, first.Slug, first.WidthCm, first.LengthCm, first.HeightCm);
-                    })
-                    .ToList()))
+        // Une entrée par modèle, sous la marque unique « Abris Tempo ». Dimensions REPRÉSENTATIVES :
+        // largeur unique (une largeur = un modèle post-EPIC 9), longueur de base (MinLengthCm),
+        // hauteur dégagée minimale — pour information dans le formulaire d'installation seulement.
+        var catalogModels = models
+            .Select(m => new ModelCatalogDto(
+                m.Name,
+                m.Slug,
+                m.WidthOptionsCm.Count > 0 ? m.WidthOptionsCm[0] : null,
+                m.MinLengthCm,
+                m.ClearHeightOptionsCm.Count > 0 ? m.ClearHeightOptionsCm[0] : null))
             .ToList();
+
+        // Aucun modèle → liste vide (pas une marque vide), comme l'ancien comportement « 0 produit ».
+        return catalogModels.Count == 0
+            ? []
+            : [new BrandCatalogDto(BrandName, catalogModels)];
     }
 
     public ValueTask<IReadOnlyList<BrandCatalogDto>> Handle(

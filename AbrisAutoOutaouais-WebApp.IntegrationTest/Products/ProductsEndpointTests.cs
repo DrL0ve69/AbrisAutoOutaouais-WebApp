@@ -309,31 +309,46 @@ public sealed class ProductsEndpointTests : IClassFixture<WebAppFactory>
     }
 
     // ── GET /api/v1/products/shelter-catalog ─────────────────────────────────
+    // Le catalogue marque → modèles est désormais alimenté par les MODÈLES PARAMÉTRIQUES
+    // (ShelterModel, EPIC 9) et non plus par des Product fixes : tous les modèles ressortent sous la
+    // marque unique « Abris Tempo », avec des dimensions REPRÉSENTATIVES (largeur du modèle, longueur
+    // de base = MinLengthCm, hauteur dégagée minimale).
 
-    /// <summary>Seed direct d'un produit avec marque + modèle + dimensions (G2).</summary>
-    private async Task SeedBrandedShelterAsync(
-        string name, string slug, string brand, string model,
-        int? widthCm = null, int? lengthCm = null, int? heightCm = null)
+    /// <summary>
+    /// Sème une catégorie + un modèle d'abri paramétrique (avec sa grille de prix) pour alimenter le
+    /// catalogue marque. Slug/catégorie uniques par appel (base InMemory partagée).
+    /// </summary>
+    private async Task SeedShelterModelAsync(
+        string slug, int widthCm, int minLengthCm, int minClearHeightCm)
     {
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
         var category = ProductCategory.Create($"Cat {slug}", $"cat-{slug}");
-        var product = Product.Create(
-            name, slug, 199.99m, 5, category.Id,
-            widthCm: widthCm, lengthCm: lengthCm, heightCm: heightCm,
-            brand: brand, model: model);
+        const int step = 122;
+        const int maxLength = 1830;
+        var entries = new List<ShelterModel.PriceEntryInput>();
+        for (var length = minLengthCm; length <= maxLength; length += step)
+            entries.Add(new ShelterModel.PriceEntryInput(length, minClearHeightCm, 34900));
+
+        var model = ShelterModel.Create(
+            slug, $"Modèle {slug}", category.Id,
+            lengthStepCm: step, minLengthCm: minLengthCm, maxLengthCm: maxLength,
+            widthsCm: [widthCm], clearHeightsCm: [minClearHeightCm, minClearHeightCm + 46],
+            priceEntries: entries);
+
         db.ProductCategories.Add(category);
-        db.Products.Add(product);
+        db.ShelterModels.Add(model);
         await db.SaveChangesAsync();
     }
 
     [Fact]
-    public async Task ShelterCatalog_Anonymous_Returns200WithBrandsAndModels()
+    public async Task ShelterCatalog_Anonymous_Returns200WithBrandAndModels()
     {
-        // Au moins une marque avec ses modèles + dimensions. Route littérale prime sur {slug}.
-        await SeedBrandedShelterAsync(
-            "Catalogue Abri A", "catalogue-abri-a", "Catalogue Tempo", "Modèle CA-100",
-            widthCm: 335, lengthCm: 488, heightCm: 244);
+        // Au moins un modèle paramétrique → marque unique « Abris Tempo » + dimensions représentatives.
+        // Route littérale « shelter-catalog » prime sur {slug}.
+        await SeedShelterModelAsync(
+            "catalogue-abri-a", widthCm: 335, minLengthCm: 488, minClearHeightCm: 198);
 
         var response = await _client.GetAsync("/api/v1/products/shelter-catalog");
 
@@ -342,28 +357,35 @@ public sealed class ProductsEndpointTests : IClassFixture<WebAppFactory>
         var body = await response.Content.ReadFromJsonAsync<List<BrandCatalogDto>>();
         body.Should().NotBeNull();
 
-        var brand = body!.FirstOrDefault(b => b.Brand == "Catalogue Tempo");
+        // Marque unique « Abris Tempo » regroupant tous les modèles paramétriques.
+        var brand = body!.FirstOrDefault(b => b.Brand == "Abris Tempo");
         brand.Should().NotBeNull();
         brand!.Models.Should().NotBeEmpty();
-        var model = brand.Models.FirstOrDefault(m => m.Model == "Modèle CA-100");
+
+        var model = brand.Models.FirstOrDefault(m => m.Slug == "catalogue-abri-a");
         model.Should().NotBeNull();
-        model!.Slug.Should().Be("catalogue-abri-a");
+        model!.Model.Should().Be("Modèle catalogue-abri-a");
+        // Dimensions REPRÉSENTATIVES : largeur unique, longueur de base, hauteur dégagée minimale.
         model.WidthCm.Should().Be(335);
-        model.LengthCm.Should().Be(488);
-        model.HeightCm.Should().Be(244);
+        model.LengthCm.Should().Be(488);   // MinLengthCm
+        model.HeightCm.Should().Be(198);   // min des hauteurs dégagées (198, 244) → 198
     }
 
     [Fact]
-    public async Task ShelterCatalog_ExcludesProductsWithoutBrandOrModel()
+    public async Task ShelterCatalog_ExcludesPlainProducts_OnlyShelterModelsListed()
     {
-        // Un produit sans marque/modèle (toile, accessoire) ne doit pas apparaître au catalogue.
-        await DbHelper.SeedProductAsync(_factory.Services, slug: "catalogue-sans-marque");
+        // Un Product fixe (toile, accessoire) n'alimente plus le catalogue marque : seul un
+        // ShelterModel paramétrique y apparaît.
+        await DbHelper.SeedProductAsync(_factory.Services, slug: "catalogue-produit-fixe");
+        await SeedShelterModelAsync(
+            "catalogue-modele-present", widthCm: 366, minLengthCm: 610, minClearHeightCm: 244);
 
         var response = await _client.GetAsync("/api/v1/products/shelter-catalog");
         var body = await response.Content.ReadFromJsonAsync<List<BrandCatalogDto>>();
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        body!.SelectMany(b => b.Models).Select(m => m.Slug)
-            .Should().NotContain("catalogue-sans-marque");
+        var allSlugs = body!.SelectMany(b => b.Models).Select(m => m.Slug).ToList();
+        allSlugs.Should().Contain("catalogue-modele-present");
+        allSlugs.Should().NotContain("catalogue-produit-fixe");
     }
 }
