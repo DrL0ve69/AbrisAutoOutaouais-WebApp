@@ -2,6 +2,18 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="fr" target-language="en" datatype="plaintext" original="ng2.template">
     <body>
+      <trans-unit id="address.line1.label" datatype="html">
+        <source>Adresse (n° et rue)</source>
+        <target>Address (number and street)</target>
+      </trans-unit>
+      <trans-unit id="address.line1.hint" datatype="html">
+        <source>Ex : 123 rue des Abris</source>
+        <target>E.g. 123 rue des Abris</target>
+      </trans-unit>
+      <trans-unit id="address.line1.invalid" datatype="html">
+        <source> Indiquez le numéro civique suivi de la rue (ex : 123 rue des Abris). </source>
+        <target>Enter the street number followed by the street (e.g. 123 rue des Abris).</target>
+      </trans-unit>
       <trans-unit id="address.postalAutofilled" datatype="html">
         <source>Code postal rempli automatiquement — vérifiez-le.</source>
         <target>Postal code filled in automatically — please verify it.</target>
@@ -1249,22 +1261,6 @@
         <source>Type d&apos;intervention</source>
         <target>Service type</target>
       </trans-unit>
-      <trans-unit id="installation.field.civic" datatype="html">
-        <source>Numéro civique</source>
-        <target>Street number</target>
-      </trans-unit>
-      <trans-unit id="installation.field.civicInvalid" datatype="html">
-        <source> Numéro civique invalide (ex&nbsp;: 123 ou 123A). </source>
-        <target> Invalid street number (e.g. 123 or 123A). </target>
-      </trans-unit>
-      <trans-unit id="installation.field.street" datatype="html">
-        <source>Rue</source>
-        <target>Street</target>
-      </trans-unit>
-      <trans-unit id="installation.field.streetRequired" datatype="html">
-        <source> L&apos;adresse est requise. </source>
-        <target> The address is required. </target>
-      </trans-unit>
       <trans-unit id="installation.field.apartment" datatype="html">
         <source>Appartement / unité (optionnel)</source>
         <target>Apartment / unit (optional)</target>
@@ -1628,22 +1624,6 @@
       <trans-unit id="location.field.endDateRequired" datatype="html">
         <source> La date de fin est requise. </source>
         <target> The end date is required. </target>
-      </trans-unit>
-      <trans-unit id="location.field.civic" datatype="html">
-        <source>Numéro civique</source>
-        <target>Street number</target>
-      </trans-unit>
-      <trans-unit id="location.field.civicInvalid" datatype="html">
-        <source> Numéro civique invalide (ex&nbsp;: 123 ou 123A). </source>
-        <target> Invalid street number (e.g. 123 or 123A). </target>
-      </trans-unit>
-      <trans-unit id="location.field.street" datatype="html">
-        <source>Rue</source>
-        <target>Street</target>
-      </trans-unit>
-      <trans-unit id="location.field.streetRequired" datatype="html">
-        <source> L&apos;adresse est requise. </source>
-        <target> The address is required. </target>
       </trans-unit>
       <trans-unit id="location.field.apartment" datatype="html">
         <source>Appartement / unité (optionnel)</source>
@@ -2014,18 +1994,6 @@
       <trans-unit id="checkout.address.legend" datatype="html">
         <source>Adresse de livraison</source>
         <target>Delivery address</target>
-      </trans-unit>
-      <trans-unit id="checkout.address.civic" datatype="html">
-        <source>Numéro civique</source>
-        <target>Street number</target>
-      </trans-unit>
-      <trans-unit id="checkout.address.civicInvalid" datatype="html">
-        <source>Numéro civique invalide (ex&nbsp;: 123 ou 123A).</source>
-        <target>Invalid street number (e.g. 123 or 123A).</target>
-      </trans-unit>
-      <trans-unit id="checkout.address.street" datatype="html">
-        <source>Rue</source>
-        <target>Street</target>
       </trans-unit>
       <trans-unit id="checkout.address.apartment" datatype="html">
         <source>Appartement / unité (optionnel)</source>
@@ -3294,22 +3262,6 @@
       <trans-unit id="mesurer.address.lead" datatype="html">
         <source> Indiquez l&apos;adresse du stationnement à couvrir. Choisissez une suggestion pour situer la carte satellite à l&apos;étape suivante. </source>
         <target> Enter the address of the driveway to cover. Choose a suggestion to locate the satellite map in the next step. </target>
-      </trans-unit>
-      <trans-unit id="mesurer.address.civic" datatype="html">
-        <source>Numéro civique</source>
-        <target>Street number</target>
-      </trans-unit>
-      <trans-unit id="mesurer.address.civicInvalid" datatype="html">
-        <source> Numéro civique invalide (ex : 123 ou 123A). </source>
-        <target> Invalid street number (e.g.: 123 or 123A). </target>
-      </trans-unit>
-      <trans-unit id="mesurer.address.street" datatype="html">
-        <source>Rue</source>
-        <target>Street</target>
-      </trans-unit>
-      <trans-unit id="mesurer.address.streetRequired" datatype="html">
-        <source> L&apos;adresse est requise. </source>
-        <target> The address is required. </target>
       </trans-unit>
       <trans-unit id="mesurer.address.city" datatype="html">
         <source>Ville</source>

@@ -9,7 +9,7 @@
       class="addr-ac__input"
       type="text"
       role="combobox"
-      autocomplete="off"
+      [attr.autocomplete]="autocompleteToken()"
       [id]="id()"
       [value]="value()"
       [attr.aria-expanded]="open()"

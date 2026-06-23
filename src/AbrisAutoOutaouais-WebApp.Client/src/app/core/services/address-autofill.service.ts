@@ -3,7 +3,11 @@ import { FormGroup } from '@angular/forms';
 import { Observable, of, catchError, map } from 'rxjs';
 import { PlacesService } from './places.service';
 import { PlaceSuggestionDto } from '../models/place.model';
-import { normalizePostal, parseCivicFromLabel } from '../validators/address.validators';
+import {
+  normalizePostal,
+  parseCivicFromLabel,
+  splitAddressLine,
+} from '../validators/address.validators';
 
 /**
  * Résultat de la résolution du code postal après le choix d'une suggestion :
@@ -21,11 +25,11 @@ export type PostalFillResult =
  * et le profil — extraite des 4 formulaires (Epic C, dé-duplication PR #16) pour qu'elle ne
  * vive qu'à un seul endroit.
  *
- * Sémantique préservée à l'identique :
- *  - Le choix d'une suggestion patche civic/rue/ville/province INCONDITIONNELLEMENT (action
- *    utilisateur explicite, donc HORS garde pristine de L-002 — distinct de
- *    `ProfileService.applyDefaultAddress` qui, lui, reste pristine).
- *  - On marque « rue » dirty, puis on résout le code postal et on le patche normalisé
+ * Sémantique préservée à l'identique (EPIC 15 — champ unifié `addressLine1`) :
+ *  - Le choix d'une suggestion patche addressLine1 (n° + rue recombinés) / ville / province
+ *    INCONDITIONNELLEMENT (action utilisateur explicite, donc HORS garde pristine de L-002 —
+ *    distinct de `ProfileService.applyDefaultAddress` qui, lui, reste pristine).
+ *  - On marque `addressLine1` dirty, puis on résout le code postal et on le patche normalisé
  *    (« A1A 1A1 », L-004) ; le champ code postal RESTE éditable. Si le proxy renvoie `null`
  *    ou échoue, on ne patche AUCUN code postal (erreur silencieuse : saisie manuelle possible).
  *  - Le formulaire est typé de façon lâche (`FormGroup`) : les 4 formulaires divergent
@@ -57,15 +61,23 @@ export class AddressAutofillService {
    * SANS whitelist côté client (la réintroduire régresserait Ontario → 400, L-004 §C1).
    */
   applySuggestion(form: FormGroup, s: PlaceSuggestionDto): Observable<PostalFillResult> {
+    // EPIC 15 (US-15.2) — champ unifié « n° et rue ». La suggestion reste découpée côté provider ;
+    // on RECOMBINE civique + rue dans le contrôle unique `addressLine1`. D1 — cascade civique : le
+    // numéro saisi n'est jamais perdu ; Photon renvoie souvent `civicNumber: null` mais inclut le
+    // numéro dans `label`. Ordre : valeur de la suggestion, numéro parsé du libellé, puis le civique
+    // déjà présent dans la ligne unifiée saisie.
+    const currentLine = form.get('addressLine1')?.value ?? '';
     const civic =
-      s.civicNumber?.trim() || parseCivicFromLabel(s.label) || (form.get('civicNumber')?.value ?? '');
+      s.civicNumber?.trim() ||
+      parseCivicFromLabel(s.label) ||
+      splitAddressLine(currentLine).civicNumber;
+    const addressLine1 = `${civic} ${s.street}`.trim();
     form.patchValue({
-      civicNumber: civic,
-      street: s.street,
+      addressLine1,
       city: s.city,
       province: s.province || 'QC',
     });
-    form.get('street')?.markAsDirty();
+    form.get('addressLine1')?.markAsDirty();
 
     // D2 — Photon fournit souvent `postcode` dans `suggest` mais pas dans le lookup limit=1 :
     // si la suggestion porte déjà un code postal, on le normalise sans appel réseau.
@@ -89,10 +101,13 @@ export class AddressAutofillService {
     );
   }
 
-  /** Frappe libre dans le combobox : synchronise le contrôle « rue » (setValue + dirty). */
-  syncStreet(form: FormGroup, value: string): void {
-    const street = form.get('street');
-    street?.setValue(value);
-    street?.markAsDirty();
+  /**
+   * Frappe libre dans le combobox : synchronise le contrôle unifié `addressLine1` (setValue +
+   * dirty). EPIC 15 — un seul champ « n° et rue », la rue séparée n'existe plus côté client.
+   */
+  syncAddressLine(form: FormGroup, value: string): void {
+    const line = form.get('addressLine1');
+    line?.setValue(value);
+    line?.markAsDirty();
   }
 }

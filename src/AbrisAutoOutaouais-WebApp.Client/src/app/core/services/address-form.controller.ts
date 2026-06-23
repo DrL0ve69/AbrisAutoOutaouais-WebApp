@@ -42,12 +42,12 @@ export interface AddressFormControllerOptions {
  *  - `onAddressMode` : bascule de la pastille. Vers « other », pré-remplit les champs encore
  *    INTACTS avec l'adresse de profil comme point de départ éditable (garde pristine L-002) ;
  *    le retour à « profile » est traité par l'`effect` (recopie force) ;
- *  - `onSuggestionSelected` : choix explicite d'une suggestion → patch civic/rue/ville/province
- *    INCONDITIONNEL (action utilisateur, hors garde pristine L-002), code postal résolu/normalisé
- *    (L-004) et resté éditable, via `AddressAutofillService`. Le `postalFill` repasse par 'idle'
- *    AVANT chaque résolution : sans ce reset, deux résolutions au même statut n'émettraient pas
- *    (signal idempotent) → pas de ré-annonce (L-027) ;
- *  - `onStreetInput` : frappe libre dans le combobox → synchronise le contrôle « rue ».
+ *  - `onSuggestionSelected` : choix explicite d'une suggestion → patch addressLine1 (n°+rue) /
+ *    ville / province INCONDITIONNEL (action utilisateur, hors garde pristine L-002), code postal
+ *    résolu/normalisé (L-004) et resté éditable, via `AddressAutofillService`. Le `postalFill`
+ *    repasse par 'idle' AVANT chaque résolution : sans ce reset, deux résolutions au même statut
+ *    n'émettraient pas (signal idempotent) → pas de ré-annonce (L-027) ;
+ *  - `onAddressLineInput` : frappe libre dans le combobox → synchronise le contrôle `addressLine1`.
  *
  * C'est une CLASSE simple instanciée PAR composant (état par-composant), pas un service singleton.
  */
@@ -115,9 +115,9 @@ export class AddressFormController {
       .pipe(takeUntilDestroyed(this.deps.destroyRef));
   }
 
-  /** Frappe libre dans le combobox : synchronise le contrôle « rue ». */
-  onStreetInput(value: string): void {
-    this.deps.addressAutofill.syncStreet(this.form, value);
+  /** Frappe libre dans le combobox : synchronise le contrôle unifié `addressLine1` (EPIC 15). */
+  onAddressLineInput(value: string): void {
+    this.deps.addressAutofill.syncAddressLine(this.form, value);
   }
 }
 

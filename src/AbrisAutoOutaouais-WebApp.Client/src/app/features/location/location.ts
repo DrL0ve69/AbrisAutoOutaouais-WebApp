@@ -26,7 +26,13 @@ import { AddressAutocompleteComponent } from '../../shared/components/a11y-compo
 import { AddressChoiceComponent } from '../../shared/components/a11y-components/address-choice/address-choice.component';
 import { GuestContactComponent } from '../../shared/components/a11y-components/guest-contact/guest-contact.component';
 import { LOCATION_FAQ } from '../../shared/content/faq.data';
-import { CIVIC_PATTERN, POSTAL_PATTERN, normalizePostal } from '../../core/validators/address.validators';
+import {
+  ADDRESS_LINE_PATTERN,
+  POSTAL_PATTERN,
+  PROVINCES,
+  normalizePostal,
+  splitAddressLine,
+} from '../../core/validators/address.validators';
 import {
   buildGuestContactGroup,
   toGuestContactRequest,
@@ -149,8 +155,9 @@ export class LocationComponent implements OnInit {
   protected readonly form = this.fb.nonNullable.group({
     startDate: ['', Validators.required],
     endDate: ['', Validators.required],
-    civicNumber: ['', [Validators.required, Validators.pattern(CIVIC_PATTERN)]],
-    street: ['', Validators.required],
+    // Champ unifié « n° et rue » (EPIC 15) : requis + numéro civique en tête (miroir serveur
+    // `CivicNumber.NotEmpty()`).
+    addressLine1: ['', [Validators.required, Validators.pattern(ADDRESS_LINE_PATTERN)]],
     apartment: ['', Validators.maxLength(20)],
     city: ['', Validators.required],
     province: ['QC', Validators.required],
@@ -170,6 +177,8 @@ export class LocationComponent implements OnInit {
   protected readonly guestForm = buildGuestContactGroup(this.fb);
 
   protected formatFeetInches = formatFeetInches;
+  /** Provinces/territoires pour le `<select>` (code 2 lettres canonique, L-011). */
+  protected readonly provinces = PROVINCES;
 
   protected get f() {
     return this.form.controls;
@@ -251,6 +260,8 @@ export class LocationComponent implements OnInit {
     }
 
     this.submitting.set(true);
+    // EPIC 15 (voie B1) — scinde la ligne unifiée en n° + rue à l'envoi (DTO serveur découpé).
+    const { civicNumber, street } = splitAddressLine(v.addressLine1);
     const request: CreateRentalContractRequest = {
       slug,
       lengthCm: length,
@@ -258,8 +269,8 @@ export class LocationComponent implements OnInit {
       startDate: v.startDate,
       endDate: v.endDate,
       address: {
-        civicNumber: v.civicNumber,
-        street: v.street,
+        civicNumber,
+        street,
         apartment: v.apartment.trim() || null,
         city: v.city,
         province: v.province || 'QC',

@@ -24,11 +24,11 @@ describe('ProfileComponent — code postal', () => {
   // de déclencher ngOnInit / un appel HTTP pour tester sa validation.
   type Control = { setValue(v: string): void; valid: boolean };
   type Internals = {
-    addressForm: { controls: { postalCode: Control; civicNumber: Control } };
+    addressForm: { controls: { postalCode: Control; addressLine1: Control } };
   };
 
   let postal: Control;
-  let civic: Control;
+  let line1: Control;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -37,7 +37,8 @@ describe('ProfileComponent — code postal', () => {
     const fixture = TestBed.createComponent(ProfileComponent);
     const controls = (fixture.componentInstance as unknown as Internals).addressForm.controls;
     postal = controls.postalCode;
-    civic = controls.civicNumber;
+    // EPIC 15 — champ unifié « n° et rue ».
+    line1 = controls.addressLine1;
   });
 
   it("accepte « J8X 1A1 » (format avec espace, exactement comme l'indice)", () => {
@@ -55,16 +56,21 @@ describe('ProfileComponent — code postal', () => {
     expect(postal.valid).toBe(false);
   });
 
-  it('accepte un numéro civique valide (« 123 » et « 123A »)', () => {
-    civic.setValue('123');
-    expect(civic.valid).toBe(true);
-    civic.setValue('123A');
-    expect(civic.valid).toBe(true);
+  it('accepte une ligne « n° et rue » valide (« 123 rue X » et « 123A boul Y »)', () => {
+    line1.setValue('123 rue X');
+    expect(line1.valid).toBe(true);
+    line1.setValue('123A boul Y');
+    expect(line1.valid).toBe(true);
   });
 
-  it('rejette un numéro civique non numérique', () => {
-    civic.setValue('abc');
-    expect(civic.valid).toBe(false);
+  it('rejette une ligne sans numéro civique en tête (« rue X »)', () => {
+    line1.setValue('rue X');
+    expect(line1.valid).toBe(false);
+  });
+
+  it('accepte une ligne vide (adresse de profil OPTIONNELLE)', () => {
+    line1.setValue('');
+    expect(line1.valid).toBe(true);
   });
 });
 

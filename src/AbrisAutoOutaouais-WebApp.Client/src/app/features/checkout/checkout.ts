@@ -27,7 +27,13 @@ import { formatFeetInches } from '../mesurer/util/feet-inches.util';
 import { AddressAutocompleteComponent } from '../../shared/components/a11y-components/autocomplete/address-autocomplete.component';
 import { AddressChoiceComponent } from '../../shared/components/a11y-components/address-choice/address-choice.component';
 import { GuestContactComponent } from '../../shared/components/a11y-components/guest-contact/guest-contact.component';
-import { CIVIC_PATTERN, POSTAL_PATTERN, normalizePostal } from '../../core/validators/address.validators';
+import {
+  ADDRESS_LINE_PATTERN,
+  POSTAL_PATTERN,
+  PROVINCES,
+  normalizePostal,
+  splitAddressLine,
+} from '../../core/validators/address.validators';
 import {
   buildGuestContactGroup,
   toGuestContactRequest,
@@ -36,7 +42,8 @@ import {
 /** Adresse requise uniquement si le mode de réception est « Livraison ». */
 function addressRequiredIfDelivery(g: AbstractControl): ValidationErrors | null {
   if (g.get('deliveryType')?.value !== 'Delivery') return null;
-  const missing = ['civicNumber', 'street', 'city', 'postalCode'].some(
+  // EPIC 15 — champ unifié `addressLine1` (n° + rue) ; plus de `civicNumber` séparé.
+  const missing = ['addressLine1', 'city', 'postalCode'].some(
     k => !(g.get(k)?.value ?? '').trim(),
   );
   return missing ? { addressRequired: true } : null;
@@ -109,6 +116,8 @@ export class CheckoutComponent {
   }
 
   protected formatFeetInches = formatFeetInches;
+  /** Provinces/territoires pour le `<select>` (code 2 lettres canonique, L-011). */
+  protected readonly provinces = PROVINCES;
 
   /** Visiteur non connecté : on affiche et exige le bloc « coordonnées invité » (Épic F). */
   protected readonly isGuest = computed(() => !this.auth.isAuthenticated());
@@ -119,8 +128,10 @@ export class CheckoutComponent {
   protected readonly form = this.fb.nonNullable.group(
     {
       deliveryType: ['Pickup' as DeliveryType, Validators.required],
-      civicNumber: ['', Validators.pattern(CIVIC_PATTERN)],
-      street: [''],
+      // Champ unifié « n° et rue » (EPIC 15). Le motif exige un numéro en tête quand la ligne est
+      // remplie (miroir serveur `CivicNumber.NotEmpty()`) ; vide = toléré par le motif et géré par
+      // le validateur de groupe `addressRequiredIfDelivery`.
+      addressLine1: ['', Validators.pattern(ADDRESS_LINE_PATTERN)],
       apartment: [''],
       city: [''],
       province: ['QC'],
@@ -170,11 +181,14 @@ export class CheckoutComponent {
       clearHeightCm: s.clearHeightCm,
       quantity: s.quantity,
     }));
+    // EPIC 15 (voie B1) — le `AddressDto` serveur reste découpé : on scinde la ligne unifiée en
+    // n° + rue à l'envoi, sans toucher le domaine (aucune migration EF).
+    const { civicNumber, street } = splitAddressLine(v.addressLine1);
     const shippingAddress =
       v.deliveryType === 'Delivery'
         ? {
-            civicNumber: v.civicNumber,
-            street: v.street,
+            civicNumber,
+            street,
             apartment: v.apartment.trim() || null,
             city: v.city,
             province: v.province || 'QC',

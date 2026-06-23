@@ -81,30 +81,25 @@
           (modeChange)="addr.onAddressMode($event)">
         <fieldset class="checkout__group">
           <legend id="co-address-legend" i18n="@@checkout.address.legend">Adresse de livraison</legend>
-          <div class="field-row">
-            <div class="field">
-              <label class="field__label" for="co-civic" i18n="@@checkout.address.civic">Numéro civique</label>
-              <input id="co-civic" class="field__input" type="text" formControlName="civicNumber"
-                     autocomplete="off" inputmode="text" placeholder="123"
-                     [attr.aria-invalid]="f.civicNumber.invalid && f.civicNumber.touched"
-                     aria-describedby="co-civic-err" />
-              @if (f.civicNumber.invalid && f.civicNumber.touched) {
-              <p id="co-civic-err" class="field__error" role="alert" i18n="@@checkout.address.civicInvalid">
-                Numéro civique invalide (ex&nbsp;: 123 ou 123A).
-              </p>
-              }
-            </div>
-            <div class="field">
-              <app-address-autocomplete
-                id="co-street"
-                label="Rue"
-                i18n-label="@@checkout.address.street"
-                [value]="f.street.value"
-                [cityHint]="f.city.value"
-                [provinceHint]="f.province.value"
-                (valueChange)="addr.onStreetInput($event)"
-                (suggestionSelected)="addr.onSuggestionSelected($event)" />
-            </div>
+          <!-- Champ unifié « n° et rue » (EPIC 15) — alimenté par l'autocomplétion, autocomplete="address-line1". -->
+          <div class="field">
+            <app-address-autocomplete
+              id="co-address-line1"
+              label="Adresse (n° et rue)"
+              i18n-label="@@address.line1.label"
+              [value]="f.addressLine1.value"
+              [cityHint]="f.city.value"
+              [provinceHint]="f.province.value"
+              [invalid]="f.addressLine1.invalid && f.addressLine1.touched"
+              describedBy="co-address-line1-hint co-address-line1-err"
+              (valueChange)="addr.onAddressLineInput($event)"
+              (suggestionSelected)="addr.onSuggestionSelected($event)" />
+            <span id="co-address-line1-hint" class="field__hint" i18n="@@address.line1.hint">Ex&nbsp;: 123 rue des Abris</span>
+            @if (f.addressLine1.invalid && f.addressLine1.touched) {
+            <p id="co-address-line1-err" class="field__error" role="alert" i18n="@@address.line1.invalid">
+              Indiquez le numéro civique suivi de la rue (ex&nbsp;: 123 rue des Abris).
+            </p>
+            }
           </div>
           <div class="field">
             <label class="field__label" for="co-apartment" i18n="@@checkout.address.apartment">Appartement / unité (optionnel)</label>
@@ -119,8 +114,12 @@
           <div class="field-row">
             <div class="field">
               <label class="field__label" for="co-province" i18n="@@checkout.address.province">Province</label>
-              <input id="co-province" class="field__input" type="text" formControlName="province"
-                     autocomplete="address-level1" />
+              <select id="co-province" class="field__input field__select" formControlName="province"
+                      autocomplete="address-level1">
+                @for (p of provinces; track p.code) {
+                <option [value]="p.code">{{ p.label }}</option>
+                }
+              </select>
             </div>
             <div class="field">
               <label class="field__label" for="co-postal" i18n="@@checkout.address.postal">Code postal</label>

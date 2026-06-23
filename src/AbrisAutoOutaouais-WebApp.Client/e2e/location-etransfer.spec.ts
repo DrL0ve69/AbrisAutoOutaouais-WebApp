@@ -100,14 +100,13 @@ async function fillRentalForm(page: Page): Promise<void> {
   // 2) Longueur 335 cm (« 11 pi ») — hauteur 198 cm par défaut → couple offert.
   await lengthSelect.selectOption({ label: '11 pi' });
 
-  // 3) Période + adresse. fill via le locator (SSR+hydratation — L-012).
-  await page.locator('#startDate').fill('2026-07-01');
-  await page.locator('#endDate').fill('2026-10-01');
-  await page.locator('#civicNumber').fill('123');
-  await page.locator('#street').fill('rue des Érables');
-  await page.locator('#city').fill('Gatineau');
-  await page.locator('#province').fill('QC');
-  await page.locator('#postalCode').fill('J8X 1A1');
+  // 3) Période + adresse. EPIC 15 — champ unifié « n° et rue ». fill via le locator (L-012).
+  await page.locator('#loc-startDate').fill('2026-07-01');
+  await page.locator('#loc-endDate').fill('2026-10-01');
+  await page.locator('#loc-address-line1').fill('123 rue des Érables');
+  await page.locator('#loc-city').fill('Gatineau');
+  await page.locator('#loc-province').selectOption('QC');
+  await page.locator('#loc-postalCode').fill('J8X 1A1');
 }
 
 for (const theme of themes) {

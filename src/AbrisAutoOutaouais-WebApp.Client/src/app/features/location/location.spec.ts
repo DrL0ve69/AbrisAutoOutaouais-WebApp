@@ -142,8 +142,7 @@ describe('LocationComponent — location sur modèles', () => {
     cmp.form.patchValue({
       startDate: '2026-07-01',
       endDate: '2026-09-01',
-      civicNumber: '123',
-      street: 'Rue Principale',
+      addressLine1: '123 Rue Principale',
       city: 'Gatineau',
       province: 'QC',
       postalCode: 'J8X 1A1',
@@ -172,8 +171,7 @@ describe('LocationComponent — location sur modèles', () => {
     cmp.form.patchValue({
       startDate: '2026-07-01',
       endDate: '2026-09-01',
-      civicNumber: '123',
-      street: 'Rue Principale',
+      addressLine1: '123 Rue Principale',
       city: 'Gatineau',
       province: 'QC',
       postalCode: 'J8X 1A1',
@@ -213,8 +211,7 @@ describe('LocationComponent — location sur modèles', () => {
     cmp.form.patchValue({
       startDate: '2026-07-01',
       endDate: '2026-09-01',
-      civicNumber: '123',
-      street: 'Rue Principale',
+      addressLine1: '123 Rue Principale',
       city: 'Gatineau',
       province: 'QC',
       postalCode: 'J8X 1A1',

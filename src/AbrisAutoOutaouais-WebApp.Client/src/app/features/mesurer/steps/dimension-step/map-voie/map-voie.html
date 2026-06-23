@@ -12,43 +12,25 @@
       [profileAddress]="addr.profileAddress()"
       headingId="mesurer-map-heading"
       (modeChange)="addr.onAddressMode($event)">
-      <div class="form-row form-row--two">
-        <div class="form-field">
-          <label for="mesurer-civic" i18n="@@mesurer.address.civic">Numéro civique</label>
-          <input
-            id="mesurer-civic"
-            type="text"
-            formControlName="civicNumber"
-            autocomplete="off"
-            inputmode="text"
-            placeholder="123"
-            [attr.aria-invalid]="f.civicNumber.touched && f.civicNumber.invalid"
-            aria-describedby="mesurer-civic-err" />
-          @if (f.civicNumber.touched && f.civicNumber.invalid) {
-          <p id="mesurer-civic-err" class="form-field__error" role="alert" i18n="@@mesurer.address.civicInvalid">
-            Numéro civique invalide (ex&nbsp;: 123 ou 123A).
-          </p>
-          }
-        </div>
-
-        <div class="form-field">
-          <app-address-autocomplete
-            id="mesurer-rue"
-            label="Rue"
-            i18n-label="@@mesurer.address.street"
-            [value]="f.street.value"
-            [cityHint]="f.city.value"
-            [provinceHint]="f.province.value"
-            [invalid]="f.street.touched && f.street.invalid"
-            describedBy="mesurer-street-err"
-            (valueChange)="addr.onStreetInput($event)"
-            (suggestionSelected)="onSuggestionSelected($event)" />
-          @if (f.street.touched && f.street.invalid) {
-          <p id="mesurer-street-err" class="form-field__error" role="alert" i18n="@@mesurer.address.streetRequired">
-            L'adresse est requise.
-          </p>
-          }
-        </div>
+      <!-- Champ unifié « n° et rue » (EPIC 15) — autocomplete="address-line1". -->
+      <div class="form-field">
+        <app-address-autocomplete
+          id="mesurer-address-line1"
+          label="Adresse (n° et rue)"
+          i18n-label="@@address.line1.label"
+          [value]="f.addressLine1.value"
+          [cityHint]="f.city.value"
+          [provinceHint]="f.province.value"
+          [invalid]="f.addressLine1.touched && f.addressLine1.invalid"
+          describedBy="mesurer-address-line1-hint mesurer-address-line1-err"
+          (valueChange)="addr.onAddressLineInput($event)"
+          (suggestionSelected)="onSuggestionSelected($event)" />
+        <span id="mesurer-address-line1-hint" class="form-field__hint" i18n="@@address.line1.hint">Ex&nbsp;: 123 rue des Abris</span>
+        @if (f.addressLine1.touched && f.addressLine1.invalid) {
+        <p id="mesurer-address-line1-err" class="form-field__error" role="alert" i18n="@@address.line1.invalid">
+          Indiquez le numéro civique suivi de la rue (ex&nbsp;: 123 rue des Abris).
+        </p>
+        }
       </div>
 
       <div class="form-row">
@@ -64,7 +46,11 @@
 
         <div class="form-field">
           <label for="mesurer-province" i18n="@@mesurer.address.province">Province</label>
-          <input id="mesurer-province" type="text" formControlName="province" autocomplete="address-level1" />
+          <select id="mesurer-province" formControlName="province" autocomplete="address-level1">
+            @for (p of provinces; track p.code) {
+            <option [value]="p.code">{{ p.label }}</option>
+            }
+          </select>
         </div>
       </div>
     </app-address-choice>

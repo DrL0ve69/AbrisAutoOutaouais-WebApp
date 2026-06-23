@@ -47,8 +47,14 @@ export class AddressAutocompleteComponent {
   private readonly hostEl = inject<ElementRef<HTMLElement>>(ElementRef);
 
   // ── Entrées publiques (signaux) ─────────────────────────────────────────────
-  /** Identifiant de l'input — reste « street » pour les locators et `<label for>`. */
+  /** Identifiant de l'input — pilote `<label for>` et les ids d'options/listbox. */
   readonly id = input.required<string>();
+  /**
+   * Jeton `autocomplete` HTML (WCAG 1.3.5 — finalité programmatiquement déterminable). Défaut
+   * `address-line1` : le champ unifié « n° et rue » mappe proprement sur la 1re ligne d'adresse
+   * (EPIC 15, US-15.2). L'input portait `off` en dur auparavant.
+   */
+  readonly autocompleteToken = input<string>('address-line1');
   /** Libellé visible du champ (peut être fourni en externe via un `<label for>` parent). */
   readonly label = input<string>('');
   /** Texte courant de la rue (le parent garde l'autorité sur la valeur). */
