@@ -90,19 +90,32 @@ export class ProductDetailComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // 1) Tente le modèle paramétrique ; `catchError` → `null` (404/erreur) sans casser le flux.
+    // Résolution PAR TYPE (rework EPIC 9) : un seul appel `/catalog/{slug}/type` décide quel endpoint
+    // charger, ce qui ÉLIMINE le 404 spéculatif de l'ancien « tente shelter puis produit ». Un 404 du
+    // résolveur (slug inconnu) ou toute erreur réseau aboutit à `notFound`.
     this.shelterService
-      .getModel(this.slug())
+      .resolveType(this.slug())
       .pipe(catchError(() => of(null)))
-      .subscribe(model => {
-        if (model) {
-          this.shelterModel.set(model);
-          this.mode.set('shelter');
-        } else {
-          // 2) Repli produit fixe.
+      .subscribe(resolved => {
+        if (resolved?.type === 'shelter') {
+          this.loadShelterModel();
+        } else if (resolved?.type === 'product') {
           this.loadProduct();
+        } else {
+          this.mode.set('notFound');
         }
       });
+  }
+
+  /** Charge le détail d'un MODÈLE paramétrique (configurateur inline). */
+  private loadShelterModel(): void {
+    this.shelterService.getModel(this.slug()).subscribe({
+      next: model => {
+        this.shelterModel.set(model);
+        this.mode.set('shelter');
+      },
+      error: () => this.mode.set('notFound'),
+    });
   }
 
   private loadProduct(): void {

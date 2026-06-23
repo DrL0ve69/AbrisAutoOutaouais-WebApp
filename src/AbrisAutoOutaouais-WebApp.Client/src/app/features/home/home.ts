@@ -1,9 +1,14 @@
 import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CurrencyPipe } from '@angular/common';
-import { ProductService } from '../../core/services/product.service';
-import { ProductDto, resolveProductImage } from '../../core/models/product.model';
+import { ShelterService } from '../../core/services/shelter.service';
+import { ToastService } from '../../core/services/toast.service';
+import { ShelterModelSummary } from '../../core/models/shelter.model';
 import { HeroStoryComponent } from './hero-story/hero-story';
+import {
+  ShelterModelCardComponent,
+  ShelterConfigureRequest,
+} from '../shop/shelter-model-card/shelter-model-card';
+import { ShelterConfiguratorOverlayComponent } from '../shop/shelter-configurator-overlay/shelter-configurator-overlay';
 
 interface ServiceCard {
   icon: string;
@@ -24,14 +29,26 @@ interface WhyUsItem {
   templateUrl: './home.html',
   styleUrl: './home.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, CurrencyPipe, HeroStoryComponent],
+  imports: [
+    RouterLink,
+    HeroStoryComponent,
+    ShelterModelCardComponent,
+    ShelterConfiguratorOverlayComponent,
+  ],
 })
 export class HomeComponent implements OnInit {
-  private readonly productService = inject(ProductService);
+  private readonly shelterService = inject(ShelterService);
+  private readonly toastService = inject(ToastService);
 
-  // ── Produits vedettes ───────────────────────────────────────
-  protected readonly featuredProducts = signal<ProductDto[]>([]);
-  protected readonly loadingProducts = signal(true);
+  // ── Modèles d'abris en vedette (rework EPIC 9 : configure-only) ──────────────
+  /** Trois modèles d'abris représentatifs ; l'ajout au panier passe par l'overlay (dimensions requises). */
+  protected readonly featuredModels = signal<ShelterModelSummary[]>([]);
+  protected readonly loadingModels = signal(true);
+
+  /** Overlay de configuration ouvert (slug + nom du modèle), ou null s'il est fermé. */
+  protected readonly overlay = signal<{ slug: string; modelName: string } | null>(null);
+  /** Bouton à re-focaliser à la fermeture de l'overlay (retour de focus — WCAG 2.4.3, L-006). */
+  private overlayTrigger: HTMLElement | null = null;
 
   protected readonly services: ServiceCard[] = [
     {
@@ -88,24 +105,41 @@ export class HomeComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    // Produits vedettes (3 premiers) — le catalogue complet vit sur /boutique.
-    this.productService.getProducts({ page: 1, pageSize: 3 }).subscribe({
-      next: (res) => {
-        this.featuredProducts.set([...res.items]);
-        this.loadingProducts.set(false);
+    // Modèles en vedette : les 3 premiers du référentiel (ordre serveur déterministe — tri Name/Slug).
+    // L'achat passe TOUJOURS par l'overlay de configuration (dimensions obligatoires — rework EPIC 9),
+    // jamais par la fiche produit (ce qui supprime aussi le chemin 404 spéculatif signalé).
+    this.shelterService.getModels().subscribe({
+      next: (models) => {
+        this.featuredModels.set(models.slice(0, 3));
+        this.loadingModels.set(false);
       },
-      error: () => this.loadingProducts.set(false),
+      error: () => this.loadingModels.set(false),
     });
   }
 
-  // URL de l'image (SVG par slug) pour les cartes de la page d'accueil.
-  protected imageFor(product: ProductDto): string {
-    return resolveProductImage(product);
+  // ── Overlay de configuration (calque catalog.ts) ─────────────────────────────
+  /** Ouvre l'overlay pour le modèle demandé et mémorise le bouton déclencheur (retour de focus). */
+  protected openConfigurator(request: ShelterConfigureRequest): void {
+    this.overlayTrigger = request.trigger;
+    this.overlay.set({ slug: request.slug, modelName: request.modelName });
   }
 
-  // En cas d'erreur de chargement, on masque l'image pour révéler le
-  // placeholder en dégradé positionné dessous.
-  protected onImageError(event: Event): void {
-    (event.target as HTMLImageElement).style.display = 'none';
+  /** Ferme l'overlay et rend le focus au bouton qui l'a ouvert (WCAG 2.4.3 — L-006). */
+  protected closeConfigurator(): void {
+    this.overlay.set(null);
+    this.overlayTrigger?.focus();
+    this.overlayTrigger = null;
+  }
+
+  /**
+   * Abri ajouté depuis l'overlay : confirme au niveau page (toast) PUIS ferme l'overlay (qui rend
+   * le focus au déclencheur — L-006 : le déclencheur existe toujours, focus synchrone OK).
+   */
+  protected onShelterAdded(modelName: string): void {
+    this.toastService.show(
+      $localize`:@@home.featured.shelterAddedToast:${modelName}:name: a été ajouté au panier.`,
+      'success',
+    );
+    this.closeConfigurator();
   }
 }

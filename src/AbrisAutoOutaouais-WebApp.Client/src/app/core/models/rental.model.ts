@@ -3,9 +3,16 @@ import { GuestContactRequest } from './guest-contact.model';
 
 export type RentalStatus = 'Active' | 'Expired' | 'Cancelled';
 
-/** Charge utile pour POST /rentals — correspond au CreateRentalContractCommand C#. */
+/**
+ * Charge utile pour POST /rentals — correspond au `CreateRentalContractCommand` C# (rework EPIC 9 :
+ * location sur un MODÈLE paramétrique + taille configurée, plus sur un produit fixe). `slug` identifie
+ * le modèle ; `lengthCm`/`clearHeightCm` la taille choisie (validée serveur contre la grille, 422 si
+ * hors grille). Le tarif mensuel est forfaitaire et résolu côté serveur.
+ */
 export interface CreateRentalContractRequest {
-  readonly productId: string;
+  readonly slug: string;
+  readonly lengthCm: number;
+  readonly clearHeightCm: number;
   readonly startDate: string; // ISO date (yyyy-MM-dd)
   readonly endDate: string;
   readonly address: AddressDto;

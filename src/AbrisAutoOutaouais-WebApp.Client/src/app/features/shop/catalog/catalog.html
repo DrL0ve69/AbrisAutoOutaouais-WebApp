@@ -128,9 +128,9 @@
           <p class="catalog__empty" i18n="@@shop.catalog.modelsError">
             Les modèles configurables sont momentanément indisponibles. Réessayez plus tard.
           </p>
-        } @else if (shelterModels().length > 0) {
+        } @else if (visibleModels().length > 0) {
           <ul class="catalog__grid" role="list">
-            @for (model of shelterModels(); track model.id) {
+            @for (model of visibleModels(); track model.id) {
               <li>
                 <app-shelter-model-card
                   [model]="model"
@@ -139,12 +139,56 @@
               </li>
             }
           </ul>
+        } @else if (searchTerm().trim()) {
+          <p class="catalog__empty" i18n="@@shop.catalog.emptySearch">
+            Aucun produit ne correspond à votre recherche.
+          </p>
         } @else {
           <p class="catalog__empty" i18n="@@shop.catalog.modelsEmpty">
             Aucun modèle configurable dans cette catégorie pour le moment.
           </p>
         }
+      } @else if (isAllMode()) {
+        <!-- Vue « Tous » : MIXTE — modèles d'abris (cartes → overlay, dimensions obligatoires) PLUS
+             les produits non-abris restants (toiles, pièces/accessoires : ajout direct). -->
+        @if (visibleModels().length > 0 || visibleProducts().length > 0) {
+          <!-- Au moins une liste a des résultats : on l'affiche (panne PARTIELLE non masquée). -->
+          <ul class="catalog__grid" role="list">
+            @for (model of visibleModels(); track model.id) {
+              <li>
+                <app-shelter-model-card
+                  [model]="model"
+                  (configure)="openConfigurator($event)"
+                />
+              </li>
+            }
+            @for (product of visibleProducts(); track product.id) {
+              <li>
+                <app-product-card
+                  [product]="product"
+                  [showRent]="true"
+                  (addToCart)="onAddToCart($event)"
+                />
+              </li>
+            }
+          </ul>
+        } @else if (shelterModelsError() || productsError()) {
+          <!-- Les deux listes sont vides ET au moins un chargement a échoué : on signale la PANNE
+               plutôt qu'un faux état vide qui masquerait une indisponibilité backend. -->
+          <p class="catalog__empty" i18n="@@shop.catalog.loadError">
+            Le catalogue est momentanément indisponible. Réessayez plus tard.
+          </p>
+        } @else if (searchTerm().trim()) {
+          <p class="catalog__empty" i18n="@@shop.catalog.emptySearch">
+            Aucun produit ne correspond à votre recherche.
+          </p>
+        } @else {
+          <p class="catalog__empty" i18n="@@shop.catalog.empty">
+            Aucun produit dans cette catégorie pour le moment.
+          </p>
+        }
       } @else if (visibleProducts().length > 0) {
+        <!-- Catégorie NON-abris (toiles, pièces/accessoires) : produits fixes uniquement. -->
         <ul class="catalog__grid" role="list">
           @for (product of visibleProducts(); track product.id) {
             <li>

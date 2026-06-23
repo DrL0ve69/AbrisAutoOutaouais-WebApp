@@ -14,44 +14,106 @@
     </output>
     } @else {
     <form class="rental__form" [formGroup]="form" (ngSubmit)="confirm()" novalidate>
-      <!-- ÉTAPE 1 : abri -->
+      <!-- ÉTAPE 1 : modèle d'abri -->
       <fieldset class="rental__fieldset">
-        <legend class="rental__legend" i18n="@@location.products.legend">
+        <legend class="rental__legend" i18n="@@location.models.legend">
           1. Choisissez un abri
         </legend>
 
-        @if (hasProducts()) {
+        @if (hasModels()) {
         <div class="rental__products" role="group" aria-labelledby="location-heading">
-          @for (product of rentable(); track product.id) {
+          @for (model of rentableModels(); track model.slug) {
           <label
             class="rental__product"
-            [class.rental__product--selected]="selectedId() === product.id">
+            [class.rental__product--selected]="selectedSlug() === model.slug">
             <input
               type="radio"
-              name="rentalProduct"
+              name="rentalModel"
               class="sr-only"
-              [value]="product.id"
-              [checked]="selectedId() === product.id"
-              (change)="selectProduct(product.id)" />
-            <span class="rental__product-name">{{ product.name }}</span>
+              [value]="model.slug"
+              [checked]="selectedSlug() === model.slug"
+              (change)="selectModel(model.slug)" />
+            <span class="rental__product-name">{{ model.name }}</span>
             <span class="rental__product-rate">
-              {{ product.rentalPrice | currency:'CAD':'symbol-narrow':'1.2-2':'fr-CA' }}
+              {{ model.monthlyRentalPrice | currency:'CAD':'symbol-narrow':'1.2-2':'fr-CA' }}
               <span i18n="@@location.perMonth">/ mois</span>
             </span>
           </label>
           }
         </div>
         } @else {
-        <output class="rental__empty" i18n="@@location.products.empty">
+        <output class="rental__empty" i18n="@@location.models.empty">
           Aucun abri n'est disponible à la location pour le moment.
         </output>
         }
       </fieldset>
 
+      <!-- ÉTAPE 1b : taille (longueur + hauteur dégagée), visible une fois un modèle choisi -->
+      @if (selectedModel(); as model) {
+      <fieldset class="rental__fieldset">
+        <legend class="rental__legend" i18n="@@location.size.legend">
+          2. Choisissez la taille
+        </legend>
+        <p class="rental__size-hint" i18n="@@location.size.hint">
+          Le tarif mensuel est le même quelle que soit la taille.
+        </p>
+
+        <!-- Longueur : <select> natif (choix discret aligné sur le pas) -->
+        <div class="form-field">
+          <label for="rental-length" i18n="@@location.size.lengthLabel">Longueur</label>
+          <select
+            id="rental-length"
+            class="rental__select"
+            [formControl]="lengthControl"
+            [attr.aria-invalid]="lengthControl.touched && lengthControl.invalid">
+            <option [ngValue]="null" disabled i18n="@@location.size.lengthPlaceholder">
+              Choisir une longueur…
+            </option>
+            @for (option of lengthOptionsCm(); track option) {
+            <option [ngValue]="option">{{ formatFeetInches(option) }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Hauteur dégagée : radiogroup APG (roving tabindex + flèches) -->
+        <div class="rental__height">
+          <span id="rental-height-label" class="rental__height-label" i18n="@@location.size.heightLabel">
+            Hauteur dégagée
+          </span>
+          <div
+            class="rental__radios"
+            role="radiogroup"
+            aria-labelledby="rental-height-label">
+            @for (option of model.clearHeightOptionsCm; track option; let i = $index) {
+            <button
+              #heightRadio
+              type="button"
+              class="rental__radio"
+              [class.rental__radio--active]="heightIndex() === i"
+              role="radio"
+              [attr.aria-checked]="heightIndex() === i"
+              [attr.tabindex]="heightIndex() === i ? 0 : -1"
+              (click)="selectHeight(i)"
+              (keydown)="onHeightKeydown($event)">
+              {{ formatFeetInches(option) }}
+            </button>
+            }
+          </div>
+        </div>
+
+        <!-- Combinaison non offerte (garde-fou dense) -->
+        @if (lengthControl.value !== null && !combinationOffered()) {
+        <p class="form-field__error" role="alert" i18n="@@location.size.unavailable">
+          Cette combinaison longueur/hauteur n'est pas offerte pour cet abri.
+        </p>
+        }
+      </fieldset>
+      }
+
       <!-- ÉTAPE 2 : période + adresse -->
       <fieldset class="rental__fieldset">
         <legend id="loc-details-legend" class="rental__legend" i18n="@@location.details.legend">
-          2. Période et adresse
+          3. Période et adresse
         </legend>
 
         <div class="form-row">

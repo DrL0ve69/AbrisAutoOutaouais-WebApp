@@ -1108,36 +1108,20 @@
         <target> Discover our products </target>
       </trans-unit>
       <trans-unit id="home.featured.eyebrow" datatype="html">
-        <source>Nos produits populaires</source>
-        <target>Our popular products</target>
+        <source>Nos modèles populaires</source>
+        <target>Our popular models</target>
       </trans-unit>
       <trans-unit id="home.featured.title" datatype="html">
         <source>Abris les plus populaires</source>
         <target>Most popular shelters</target>
       </trans-unit>
       <trans-unit id="home.featured.loading" datatype="html">
-        <source>Chargement des produits…</source>
-        <target>Loading products…</target>
-      </trans-unit>
-      <trans-unit id="home.featured.soldOut" datatype="html">
-        <source>Épuisé</source>
-        <target>Sold out</target>
-      </trans-unit>
-      <trans-unit id="home.featured.rentLabel" datatype="html">
-        <source>Location</source>
-        <target>Rental</target>
-      </trans-unit>
-      <trans-unit id="home.featured.month" datatype="html">
-        <source>mois</source>
-        <target>month</target>
-      </trans-unit>
-      <trans-unit id="home.featured.viewProduct" datatype="html">
-        <source> Voir le produit </source>
-        <target> View product </target>
+        <source>Chargement des modèles…</source>
+        <target>Loading models…</target>
       </trans-unit>
       <trans-unit id="home.featured.viewAll" datatype="html">
-        <source> Voir tous nos produits </source>
-        <target> View all our products </target>
+        <source> Voir tous nos abris </source>
+        <target> View all our shelters </target>
       </trans-unit>
       <trans-unit id="home.cta.title" datatype="html">
         <source>Prêt à protéger votre véhicule ?</source>
@@ -1617,21 +1601,13 @@
         <source> Chargement des abris disponibles… </source>
         <target> Loading available shelters… </target>
       </trans-unit>
-      <trans-unit id="location.products.legend" datatype="html">
-        <source> 1. Choisissez un abri </source>
-        <target> 1. Choose a shelter </target>
-      </trans-unit>
       <trans-unit id="location.perMonth" datatype="html">
         <source>/ mois</source>
         <target>/ month</target>
       </trans-unit>
-      <trans-unit id="location.products.empty" datatype="html">
-        <source> Aucun abri n&apos;est disponible à la location pour le moment. </source>
-        <target> No shelters are available for rent at the moment. </target>
-      </trans-unit>
       <trans-unit id="location.details.legend" datatype="html">
-        <source> 2. Période et adresse </source>
-        <target> 2. Period and address </target>
+        <source> 3. Période et adresse </source>
+        <target> 3. Period and address </target>
       </trans-unit>
       <trans-unit id="location.field.startDate" datatype="html">
         <source>Date de début</source>
@@ -1701,10 +1677,6 @@
         <source> Confirmer la location </source>
         <target> Confirm rental </target>
       </trans-unit>
-      <trans-unit id="location.noProduct" datatype="html">
-        <source>Veuillez choisir un abri à louer.</source>
-        <target>Please choose a shelter to rent.</target>
-      </trans-unit>
       <trans-unit id="location.badDates" datatype="html">
         <source>La date de fin doit être après la date de début.</source>
         <target>The end date must be after the start date.</target>
@@ -1770,6 +1742,10 @@
       <trans-unit id="shop.catalog.modelsError" datatype="html">
         <source> Les modèles configurables sont momentanément indisponibles. Réessayez plus tard. </source>
         <target> Configurable models are temporarily unavailable. Please try again later. </target>
+      </trans-unit>
+      <trans-unit id="shop.catalog.loadError" datatype="html">
+        <source> Le catalogue est momentanément indisponible. Réessayez plus tard. </source>
+        <target> The catalog is temporarily unavailable. Please try again later. </target>
       </trans-unit>
       <trans-unit id="shop.catalog.modelsEmpty" datatype="html">
         <source> Aucun modèle configurable dans cette catégorie pour le moment. </source>
@@ -3670,6 +3646,50 @@
       <trans-unit id="admin.shelterModels.toast.deleteError" datatype="html">
         <source>La suppression a échoué.</source>
         <target>Deletion failed.</target>
+      </trans-unit>
+      <trans-unit id="home.featured.shelterAddedToast" datatype="html">
+        <source><x id="name" equiv-text="modelName"/> a été ajouté au panier.</source>
+        <target><x id="name" equiv-text="modelName"/> has been added to your cart.</target>
+      </trans-unit>
+      <trans-unit id="location.models.legend" datatype="html">
+        <source> 1. Choisissez un abri </source>
+        <target> 1. Choose a shelter </target>
+      </trans-unit>
+      <trans-unit id="location.models.empty" datatype="html">
+        <source> Aucun abri n&apos;est disponible à la location pour le moment. </source>
+        <target> No shelters are available for rent at the moment. </target>
+      </trans-unit>
+      <trans-unit id="location.noModel" datatype="html">
+        <source>Veuillez choisir un abri à louer.</source>
+        <target>Please choose a shelter to rent.</target>
+      </trans-unit>
+      <trans-unit id="location.noSize" datatype="html">
+        <source>Veuillez choisir une taille offerte pour cet abri.</source>
+        <target>Please choose a size offered for this shelter.</target>
+      </trans-unit>
+      <trans-unit id="location.size.legend" datatype="html">
+        <source> 2. Choisissez la taille </source>
+        <target> 2. Choose the size </target>
+      </trans-unit>
+      <trans-unit id="location.size.hint" datatype="html">
+        <source> Le tarif mensuel est le même quelle que soit la taille. </source>
+        <target> The monthly rate is the same regardless of size. </target>
+      </trans-unit>
+      <trans-unit id="location.size.lengthLabel" datatype="html">
+        <source>Longueur</source>
+        <target>Length</target>
+      </trans-unit>
+      <trans-unit id="location.size.lengthPlaceholder" datatype="html">
+        <source> Choisir une longueur… </source>
+        <target> Choose a length… </target>
+      </trans-unit>
+      <trans-unit id="location.size.heightLabel" datatype="html">
+        <source> Hauteur dégagée </source>
+        <target> Clearance height </target>
+      </trans-unit>
+      <trans-unit id="location.size.unavailable" datatype="html">
+        <source> Cette combinaison longueur/hauteur n&apos;est pas offerte pour cet abri. </source>
+        <target> This length/height combination is not offered for this shelter. </target>
       </trans-unit>
     </body>
   </file>

@@ -32,6 +32,13 @@ export interface ShelterConfigureRequest {
 export class ShelterModelCardComponent {
   readonly model = input.required<ShelterModelSummary>();
 
+  /**
+   * Niveau de titre du nom du modèle, pour respecter la hiérarchie de la PAGE hôte (WCAG 1.3.1) :
+   * `h2` sous le `<h1>` du catalogue (défaut), `h3` sous le `<h2>` de section de l'accueil. Le nom
+   * n'est PAS un attribut DOM global (≠ `id`/`class`) → pas de collision (L-013).
+   */
+  readonly headingLevel = input<'h2' | 'h3'>('h2');
+
   /** Demande l'ouverture de l'overlay pour ce modèle (avec le déclencheur pour le retour de focus). */
   readonly configure = output<ShelterConfigureRequest>();
 

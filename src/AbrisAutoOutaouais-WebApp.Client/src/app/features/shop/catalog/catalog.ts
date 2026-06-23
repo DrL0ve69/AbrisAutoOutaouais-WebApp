@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { catchError, forkJoin, of } from 'rxjs';
 import { ProductService } from '../../../core/services/product.service';
 import { ShelterService } from '../../../core/services/shelter.service';
 import { CartService } from '../../../core/services/cart.service';
@@ -53,6 +54,13 @@ export class CatalogComponent implements OnInit {
   protected readonly shelterModels = signal<ShelterModelSummary[]>([]);
   /** Vrai si `getModels` a échoué → on affiche un message d'erreur plutôt qu'un écran blanc. */
   protected readonly shelterModelsError = signal(false);
+  /**
+   * Vrai si le chargement des PRODUITS de la vue « Tous » a échoué. Distinct de
+   * `shelterModelsError` : en vue mixte les deux listes ont chacune leur propre état d'échec, et un
+   * échec NE DOIT PAS être masqué en faux état vide (sinon une panne backend ressemble à un catalogue
+   * vide). Une panne PARTIELLE (une liste OK) n'affiche PAS l'erreur — l'autre liste reste visible.
+   */
+  protected readonly productsError = signal(false);
 
   /** Overlay de configuration ouvert (slug + nom + longueur initiale opt.), ou null s'il est fermé. */
   protected readonly overlay = signal<{
@@ -81,6 +89,13 @@ export class CatalogComponent implements OnInit {
     return slug !== null && PARAMETRIC_CATEGORY_SLUGS.includes(slug);
   });
 
+  /**
+   * Vue « Tous » (aucune catégorie sélectionnée) : vue MIXTE — TOUS les modèles d'abris paramétriques
+   * (cartes → overlay, dimensions obligatoires) PLUS les produits NON-abris restants (toiles,
+   * pièces/accessoires : ajout direct). On combine donc une liste de modèles et une liste de produits.
+   */
+  protected readonly isAllMode = computed(() => this.selectedSlug() === null);
+
   /** Produits filtrés par la recherche puis triés selon le critère choisi. */
   protected readonly visibleProducts = computed(() => {
     const term = this.searchTerm().trim().toLowerCase();
@@ -102,17 +117,28 @@ export class CatalogComponent implements OnInit {
     }
   });
 
+  /**
+   * Modèles d'abris filtrés par la recherche (vue « Tous » et catégorie paramétrique). Le tri
+   * « Tous » privilégie la pertinence : on garde l'ordre serveur (Name puis Slug — déterministe).
+   */
+  protected readonly visibleModels = computed(() => {
+    const term = this.searchTerm().trim().toLowerCase();
+    const list = this.shelterModels();
+    return term ? list.filter((m) => m.name.toLowerCase().includes(term)) : list;
+  });
+
   /** Annonce de résultats pour les lecteurs d'écran (role="status"). */
   protected readonly resultsLabel = computed(() => {
     if (this.isParametricMode()) {
-      const n = this.shelterModels().length;
+      const n = this.visibleModels().length;
       return n === 0
         ? $localize`:@@shop.catalog.modelsNone:Aucun modèle configurable.`
         : n === 1
           ? $localize`:@@shop.catalog.modelsOne:1 modèle configurable.`
           : $localize`:@@shop.catalog.modelsMany:${n}:count: modèles configurables.`;
     }
-    const n = this.visibleProducts().length;
+    // « Tous » et catégories non-abris : on compte les éléments réellement affichés (modèles + produits).
+    const n = this.visibleModels().length + this.visibleProducts().length;
     return n === 0
       ? $localize`:@@shop.catalog.resultsNone:Aucun produit ne correspond.`
       : n === 1
@@ -225,29 +251,33 @@ export class CatalogComponent implements OnInit {
     this.closeConfigurator();
   }
 
-  /** Charge soit les modèles paramétriques (catégorie configurable), soit les produits fixes. */
+  /**
+   * Charge la vue selon la catégorie active :
+   *  - catégorie d'abris paramétrique → cartes de MODÈLES (achat via overlay) ;
+   *  - « Tous » (slug null) → vue MIXTE : TOUS les modèles d'abris + les produits NON-abris restants ;
+   *  - catégorie NON-abris (toiles, pièces/accessoires) → produits fixes uniquement.
+   */
   private load(slug: string | null): void {
     if (slug !== null && PARAMETRIC_CATEGORY_SLUGS.includes(slug)) {
       this.loadShelterModels(slug);
+    } else if (slug === null) {
+      this.loadAll();
     } else {
       this.loadProducts(slug);
     }
   }
 
+  /** Charge les modèles d'une catégorie paramétrique (les produits fixes ne sont pas affichés). */
   private loadShelterModels(slug: string): void {
     this.loading.set(true);
     this.shelterModelsError.set(false);
+    this.productsError.set(false);
     this.products.set([]);
     this.shelterService.getModels(slug).subscribe({
       next: (models) => {
         this.shelterModels.set([...models]);
         this.loading.set(false);
-        // Deep-link en attente : ouvre l'overlay maintenant que les modèles (donc le nom) sont chargés.
-        if (this.pendingDeepLink) {
-          const { slug: modelSlug, lengthCm } = this.pendingDeepLink;
-          this.pendingDeepLink = null;
-          this.openConfiguratorFromDeepLink(modelSlug, lengthCm);
-        }
+        this.processPendingDeepLink();
       },
       // Dégradation gracieuse : pas d'écran blanc / spinner infini — état d'erreur explicite.
       error: () => {
@@ -258,18 +288,62 @@ export class CatalogComponent implements OnInit {
     });
   }
 
-  private loadProducts(slug: string | null): void {
+  /**
+   * Vue « Tous » : combine TOUS les modèles d'abris (cartes → overlay) et les produits NON-abris
+   * restants (le backend ne renvoie plus que ceux-là). Les deux requêtes sont indépendantes ;
+   * l'échec des modèles n'efface pas les produits (et inversement). On retire le spinner dès que
+   * les DEUX ont répondu pour éviter un état partiel clignotant.
+   */
+  private loadAll(): void {
+    this.loading.set(true);
+    this.shelterModelsError.set(false);
+    this.productsError.set(false);
+    forkJoin({
+      models: this.shelterService.getModels().pipe(
+        catchError(() => {
+          this.shelterModelsError.set(true);
+          return of<ShelterModelSummary[]>([]);
+        }),
+      ),
+      products: this.productService.getProducts({ page: 1, pageSize: 50 }).pipe(
+        catchError(() => {
+          this.productsError.set(true);
+          return of({ items: [] as ProductDto[] });
+        }),
+      ),
+    }).subscribe(({ models, products }) => {
+      this.shelterModels.set([...models]);
+      this.products.set([...(products.items ?? [])]);
+      this.loading.set(false);
+      this.processPendingDeepLink();
+    });
+  }
+
+  private loadProducts(slug: string): void {
     this.loading.set(true);
     this.shelterModels.set([]);
     this.shelterModelsError.set(false);
+    this.productsError.set(false);
     this.productService
-      .getProducts({ page: 1, pageSize: 50, category: slug ?? undefined })
+      .getProducts({ page: 1, pageSize: 50, category: slug })
       .subscribe({
         next: (res) => {
           this.products.set([...res.items]);
           this.loading.set(false);
         },
-        error: () => this.loading.set(false),
+        error: () => {
+          this.productsError.set(true);
+          this.loading.set(false);
+        },
       });
+  }
+
+  /** Ouvre l'overlay du deep-link en attente une fois les modèles chargés (nom résolu). */
+  private processPendingDeepLink(): void {
+    if (this.pendingDeepLink) {
+      const { slug: modelSlug, lengthCm } = this.pendingDeepLink;
+      this.pendingDeepLink = null;
+      this.openConfiguratorFromDeepLink(modelSlug, lengthCm);
+    }
   }
 }

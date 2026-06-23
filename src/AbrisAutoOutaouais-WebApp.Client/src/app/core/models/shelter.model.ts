@@ -94,6 +94,34 @@ export interface CreateShelterModelRequest {
 export type UpdateShelterModelRequest = Omit<CreateShelterModelRequest, 'slug'>;
 
 /**
+ * Vue d'un modèle d'abri LOUABLE pour le formulaire de location (rework EPIC 9 — `GET /shelters/rentable`).
+ * Miroir EXACT de `RentableShelterModelDto` côté serveur. Le tarif mensuel (`monthlyRentalPrice`, en
+ * DOLLARS) est FORFAITAIRE (indépendant de la taille) ; les champs dimensionnels servent au sélecteur
+ * de taille (longueur par pas + hauteur dégagée), validé côté serveur contre la grille (422 si hors grille).
+ * Une LARGEUR par modèle (`widthCm`). `priceGrid` est en CENTS (cohérent avec `ShelterPriceGridEntry`).
+ */
+export interface RentableShelterModel {
+  readonly slug: string;
+  readonly name: string;
+  readonly categoryName: string;
+  /** Tarif mensuel forfaitaire en DOLLARS (toujours non nul : la query ne retourne que les louables). */
+  readonly monthlyRentalPrice: number;
+  readonly minLengthCm: number;
+  readonly maxLengthCm: number;
+  readonly lengthStepCm: number;
+  /** Largeur unique du modèle (cm). */
+  readonly widthCm: number;
+  readonly clearHeightOptionsCm: readonly number[];
+  /** Grille de prix exacte (CENTS) — sert au garde-fou dense côté client (combinaison offerte ?). */
+  readonly priceGrid: readonly ShelterPriceGridEntry[];
+}
+
+/** Type résolu d'un slug de catalogue (`GET /catalog/{slug}/type`) — voir `CatalogSlugTypeDto` serveur. */
+export interface CatalogSlugType {
+  readonly type: 'shelter' | 'product';
+}
+
+/**
  * Résultat d'un calcul de prix serveur pour un couple (longueur, hauteur dégagée) configuré.
  * Le couple doit exister dans la grille du modèle, sinon le serveur répond 422 (combinaison non
  * offerte). `totalPrice` en DOLLARS. À garder synchro avec `ShelterPriceDto`.
