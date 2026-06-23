@@ -305,7 +305,7 @@ si un SP devient disponible. Détail : `PROGRAM-STATUS.md` (Épic H) + `docs/dep
 | EPIC 10 | Suggestion d'abris intelligente (mesure/véhicule) | 4 | EPIC 9 | 8 | Should | Proposer **catégories qui rentrent** (≤ largeur, longueur ≤ mesure, max 40 pi) ; orientation véhicules |
 | EPIC 11 | Calendrier & planification terrain | 5 | — | 21 | Could | ✅ **MERGÉ (2026-06-22) — PR #53 (`53dee27`), CI verte** — US-11.1 `/planning` lecture seule (L-044) · US-11.2 overlay jour + saisie heures + ajout RDV admin (L-006/L-027/L-045) · US-11.3 optimisation tournée nearest-neighbour (L-046) + e2e mesurer flake L-012 corrigé |
 | EPIC 8 | Employés & paie (informative) | 2 | EPIC 11 | 8–13 | Could | ⚠️ Paie réelle = conformité fiscale hors portée ; viser informatif |
-| EPIC 7 | Paiements (Interac e-Transfer + cartes) | 1 | — | 21+ | Could | ⚠️ .NET (pas l'Express du `.docx`) ; spike d'abord ; MVP e-Transfer manuel gratuit |
+| EPIC 7 | Paiements (Interac e-Transfer + cartes) | 1 | — | 21+ | Could | 🟡 **spike LIVRÉ 2026-06-22** (`docs/spikes/epic-7-payments-spike.md`) — reco **MVP e-Transfer manuel gratuit/keyless** (port `IPaymentService` calqué `IPlacesService`) ; APIs Interac (VoPay/Paysafe/Payment Source) **payantes → gelées** (budget). **Décisions §7 en attente du propriétaire** avant tout code |
 | EPIC 13 | Refonte parcours `/mesurer` (ordre + adresse optionnelle) | (1)·6 | 9·10·15 | 8 | Should | ✅ **livré (2026-06-21, branche `feat/epic-13-mesurer-rework`)** — stepper inversé Dimensionner→Conseil (« Trouver mon abri ») ; radiogroup APG 3 voies ; adresse via `map-voie` (carte uniquement) ; `results-step`→`conseil-step`. Revue indép. APPROVE WITH NITS ; L-042/L-043 |
 | EPIC 14 | Carte satellite plus précise (zoom) | (1)·5.1 | — | 5 | Should | ✅ **livré (2026-06-21, branche `feat/epic-14-carte-precise`)** — US-14.1 over-zoom Esri **gratuit** (`maxNativeZoom=19` + `maxZoom=21`, zoom localisé 21) ; US-14.2 mesure **par arête** (haversine, `measure-rect.util`) remplace `turf.bbox` aligné aux axes (L-034) — repli bbox pour polygone libre. Revue indép. **APPROVE** (0 Critical/Major). Source HD payante **écartée** (règle budget) |
 | EPIC 15 | Champ d'adresse unifié (spike→reco) | (1)·5.2 | — | 8 | Should | 🟡 **spike US-15.1 LIVRÉ 2026-06-18** (`docs/spikes/epic-15-address-field-spike.md`) — **décision : champ unique « n°+rue » + auto-rempli ÉDITABLE** (lecture seule écartée). Reste US-15.2/15.3 (refonte, ~6 pts) — touche tous les formulaires |
@@ -394,6 +394,32 @@ annonce code postal manquante sur installation, tokens WCAG 1.3.5.
 > **Suite** : commit docs `docs/epic-15-address-spike` → PR → CI verte → merge `master`. Curseur
 > Phase 2 → **EPIC 9** (catalogue par dimensions) ou US-15.2/15.3 si l'utilisateur veut la refonte.
 > Reste Phase 2 (EPIC 12 partie 2 + 13–16) à dérouler via `/feature-cycle`.
+
+---
+
+## Mise à jour — EPIC 7 spike paiements livré (2026-06-22)
+
+Branche `docs/epic-7-payments-spike`. **Dernière épopée Phase 2** (toutes les autres mergées). Décision
+utilisateur au lancement : **spike de recherche d'abord** (les US-7.x sont « Could »). Livré →
+`docs/spikes/epic-7-payments-spike.md` (gabarit du spike EPIC 15). Recherche **2026** confirmée et
+ancrée dans le code réel (`IPlacesService` + adaptateurs, `Order.Confirm()`, DI `switch` provider).
+
+**Conclusion :**
+- **Contrainte cardinale** — règle budget « zéro frais / sans clé » + Interac = réseau **fermé**
+  (intermédiaire réglementé **payant** obligatoire pour toute intégration directe).
+- **Seule voie gratuite ET sans clé = e-Transfer MANUEL à dépôt auto** (réf. de commande → virement
+  du client → réconciliation admin ; aucune donnée bancaire stockée). → **adaptateur par défaut**,
+  analogue exact de `PhotonPlacesService`.
+- **VoPay / Paysafe / Payment Source = contrats PAYANTS → REJETÉS** par défaut (compte de facturation).
+  Laissés en **stubs keyless** documentés (façon `Google`/`Radar`PlacesService) pour l'extensibilité.
+- **Reco** : MVP US-7.1 manuel (~8 pts) ; statut de paiement **porté par les agrégats existants**
+  (`Order.Confirm()` : `Pending → Confirmed`) — **pas** d'entité `Payment` lourde ; webhooks signés/
+  idempotents = **patron documenté, non codé**. US-7.2 (Interac Debit/AccèsD) + cartes = **gelés** (payant).
+
+> **Suite** : commit docs `docs/epic-7-payments-spike` → PR → CI verte → merge `master`. **Décisions
+> §7 du spike en attente du propriétaire** avant tout code (MVP seul vs +stubs ; quels flux ; entité
+> `Payment` vs statut sur agrégat ; périmètre démo assumé). Si feu vert → implémenter le MVP via
+> `/feature-cycle` ; sinon EPIC 7 reste « À planifier » et **le programme Phase 2 est clos**.
 
 ---
 

@@ -4,8 +4,14 @@
 > simplement **« continue la prochaine tâche »** ou lance **`/next-task`** : l'assistant lit ce
 > fichier + le plan actif, vérifie l'état git, puis enchaîne.
 >
-> **🟢 Programme ACTIF — Phase 2 (`docs/agile/ROADMAP-PHASE-2.md`), curseur sur EPIC 7** (paiements) — **EPIC 8 MERGÉ — PR #55, SHA merge `7716216`, 2026-06-22**.
-> **Ordre Phase 2 restant : ~~9~~ ~~10~~ ~~13~~ ~~14~~ ~~11~~ ~~8~~ → 7.**
+> **🟢 Programme ACTIF — Phase 2 (`docs/agile/ROADMAP-PHASE-2.md`), curseur sur EPIC 7** (paiements, **dernière épopée**) — **EPIC 8 MERGÉ — PR #55, SHA merge `7716216`, 2026-06-22**.
+> **Ordre Phase 2 restant : ~~9~~ ~~10~~ ~~13~~ ~~14~~ ~~11~~ ~~8~~ → 7 (spike livré, décisions en attente).**
+>
+> **EPIC 7 · US-7.0 — SPIKE PAIEMENTS LIVRÉ (2026-06-22), branche `docs/epic-7-payments-spike`.** Décision utilisateur au lancement : **spike d'abord** (US-7.x = « Could »). Doc : `docs/spikes/epic-7-payments-spike.md` (gabarit spike EPIC 15, recherche 2026 + ancrages code réels vérifiés).
+> **Conclusion** : seule voie **gratuite ET sans clé** = **e-Transfer MANUEL à dépôt auto** (réf. commande → virement client → réconciliation admin, zéro donnée bancaire stockée) → **adaptateur par défaut** `ManualInteracPaymentService`, calqué sur `PhotonPlacesService`. **VoPay/Paysafe/Payment Source = contrats PAYANTS → REJETÉS** par `budget-free-tier.md` (laissés en **stubs keyless** documentés). Interac = réseau fermé → tout rail direct exige un intermédiaire réglementé payant.
+> **Reco** : MVP US-7.1 manuel (~8 pts), **statut de paiement porté par les agrégats existants** (`Order.Confirm()` : `Pending→Confirmed`, garde déjà présente) — **PAS** d'entité `Payment` lourde ; webhooks signés/idempotents = **patron documenté, non codé** ; US-7.2 (Interac Debit/AccèsD) + cartes = **gelés** (payant, accord budget requis).
+> **AUCUN code produit** (livrable 100% documentaire → pas de gates `dotnet test`/`npm`). **⏳ Décisions §7 du spike en attente du propriétaire** : (a) MVP manuel seul vs +stubs API ; (b) quels flux reçoivent le paiement (commandes/locations/installations) ; (c) `Payment` dédiée vs statut sur agrégat ; (d) périmètre démo assumé.
+> **PROCHAIN** : si feu vert propriétaire → implémenter le MVP via `/feature-cycle`. **Sinon EPIC 7 reste « À planifier » et le programme Phase 2 est CLOS.** Plomberie git : commit branche `docs/epic-7-payments-spike` → PR → CI → merge `master`.
 > **EPIC 8 · US-8.1 — Module de paie informatif — MERGÉ (2026-06-22), branche `feat/epic-8-paie` · PR #55, SHA merge `7716216`.**
 > Module **informatif** admin de paie : taux horaire `HourlyRate` (decimal nullable CAD) sur `AppUser`, statut `PayStatus` (`À payer`/`Payée`) sur `WorkHoursEntry`, query CQRS `GetPayrollSummary` (heures totales × taux, total masse salariale par fenêtre de dates), commandes `SetEmployeeHourlyRate` + `MarkEntriesAsPaid` (AdminOnly), `PayrollController` (`/api/v1/payroll`), vue admin `/admin/paie` accessible (tableau sémantique, sélecteur de période, édition taux inline, action « marquer payé » — focus retourné après action L-006).
 > **Hors périmètre** : aucun calcul fiscal/déduction, aucun virement. US-8.2 « versement réel » reste **Won't now** (dépend EPIC 7).

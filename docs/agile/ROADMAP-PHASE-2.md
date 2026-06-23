@@ -57,6 +57,11 @@ catalogue/fit/parcours mesurer, valeur métier directe) → **EPIC 14** (précis
 
 ## EPIC 7 — Paiements en ligne (Interac e-Transfer + cartes)
 
+> 🟡 **SPIKE LIVRÉ (2026-06-22)** → **`docs/spikes/epic-7-payments-spike.md`** (recherche 2026 + ancrages
+> code réels). Confirme cette section : seule voie **gratuite/keyless** = **e-Transfer manuel** (défaut) ;
+> VoPay/Paysafe/Payment Source **payants → gelés** ; reco MVP US-7.1 manuel, statut porté par
+> `Order.Confirm()`. **Décisions §7 du spike en attente du propriétaire avant tout code.**
+
 > **Source : point 1.** L'utilisateur cherche une alternative **gratuite / open-source** à Stripe,
 > orientée clientèle **Québec + Ottawa** (Desjardins et autres banques), avec **Interac** — de
 > préférence l'**e-Transfer par courriel/téléphone/ID** (« demande d'argent »), avec possibilité de
