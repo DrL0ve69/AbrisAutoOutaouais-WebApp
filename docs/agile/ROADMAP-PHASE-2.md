@@ -1,6 +1,6 @@
 # Roadmap — Phase 2 (fonctionnalités métier avancées)
 
-> **Statut : PLANIFICATION (en grande partie).** Ce document capture les demandes utilisateur
+> **Statut : TERMINÉ — Phase 2 complète (2026-06-23). Toutes les épopées 7→16 livrées.** Ce document capture les demandes utilisateur
 > (sources : `probleme abris-auto-outaouais.docx`, 2026-06-16 ; **`probleme abris-auto-outaouais (1).docx`,
 > 2026-06-17** — second jet, affine/ajoute) comme **épopées à compléter plus tard**. Il décrit le
 > *quoi* et le *comment envisagé*. Chaque épopée passe par la boucle habituelle (`/feature-cycle` :
@@ -33,7 +33,7 @@
 
 | ID | Épopée | Point `.docx` | Dépend de | Estim. | MoSCoW | Risque |
 |----|--------|:-------------:|-----------|:------:|:------:|--------|
-| **EPIC 7** | Paiements en ligne (Interac e-Transfer + cartes) | 1 | — | 21+ | Could | 🔴 Élevé (réglementaire, frais, sécurité) |
+| **EPIC 7** | Paiements en ligne (Interac e-Transfer + cartes) | 1 | — | 21+ | Could | ✅ **TERMINÉ (2026-06-23)** — PR #__ · e-Transfer 3 flux + stubs keyless + doc webhook |
 | **EPIC 8** | Gestion des employés & paie (informative) | 2 | EPIC 11 | 8–13 | Could | 🟠 Moyen (conformité fiscale si paie réelle) |
 | **EPIC 9** | Catalogue par dimensions configurables | 3 | — | 13 | Should | ✅ **TERMINÉ (2026-06-19)** — PR #45 |
 | **EPIC 10** | Suggestion d'abris intelligente (mesure & véhicule) | 4 | EPIC 9 | 8 | Should | ✅ **TERMINÉ (2026-06-21)** — PR #50 |
@@ -46,12 +46,10 @@
 
 > Notation source : `(1)·N` = point N du 2ᵉ `.docx` (`… (1).docx`, 2026-06-17).
 
-**Ordre conseillé d'attaque** : **EPIC 12** (reste — autres formulaires, rapide) → **EPIC 15**
-(spike adresse — débloque la refonte mesurer) → **EPIC 9 → EPIC 10 → EPIC 13** (la chaîne
-catalogue/fit/parcours mesurer, valeur métier directe) → **EPIC 14** (précision carte) →
-~~**EPIC 11**~~ (calendrier — **TERMINÉ 2026-06-22**) → **EPIC 8** (paie informative, s'appuie sur 11) →
-**EPIC 7** (paiements, le plus risqué — *spike de recherche* d'abord, bac-à-sable pour un portfolio).
-**EPIC 16** est en partie déjà livré (diagramme) ; il reste à dérouler le backlog des briques.
+**Ordre suivi** : ~~EPIC 12~~ → ~~EPIC 15~~ → ~~EPIC 9~~ → ~~EPIC 10~~ → ~~EPIC 13~~ → ~~EPIC 14~~ → ~~EPIC 11~~ → ~~EPIC 8~~ → ~~EPIC 7~~ — **TOUT FAIT (2026-06-23). Phase 2 TERMINÉE.**
+**EPIC 16** diagramme livré ; backlog briques manquantes reste ouvert.
+
+> Aucune épopée Phase 2 en attente. Reprendre avec une nouvelle demande du propriétaire (US-7.2 Interac Debit/cartes — gelé, payant ; refonte adresse US-15.2/15.3 — différée).
 
 ---
 
