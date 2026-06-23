@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
-import { ShelterModelSummary } from '../../../core/models/shelter.model';
+import { ShelterModelSummary, resolveShelterCategoryImage } from '../../../core/models/shelter.model';
 import { formatFeetInches } from '../../mesurer/util/feet-inches.util';
 
 /**
@@ -43,6 +43,14 @@ export class ShelterModelCardComponent {
   readonly configure = output<ShelterConfigureRequest>();
 
   protected formatFeetInches = formatFeetInches;
+
+  /**
+   * Image illustrative de la CATÉGORIE du modèle (le référentiel serveur n'expose pas d'image par
+   * modèle). Visuel local déterministe, gratuit et sans clé — voir `resolveShelterCategoryImage`.
+   * Décorative (`alt=""`) : le nom du modèle est déjà annoncé par le titre h2/h3 (pas de doublon
+   * pour les lecteurs d'écran). La carte n'est donc jamais vide.
+   */
+  protected readonly imageUrl = computed(() => resolveShelterCategoryImage(this.model().categoryName));
 
   /**
    * Libellé accessible du bouton. Le binding est DYNAMIQUE (`[attr.aria-label]`) : `i18n-aria-label`

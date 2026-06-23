@@ -70,14 +70,47 @@ const productList = {
   hasPrev: false,
 };
 
+// Modèles paramétriques en vedette (accueil) via `GET /shelters` (rework EPIC 9) — forme
+// `ShelterModelSummary`. Sans ce mock, l'accueil émet ECONNREFUSED et la section vedette ne rend pas.
+const shelterSummaries = [
+  {
+    id: 'm1',
+    slug: 'simple-11pi',
+    name: 'Abri simple 11 pi — Abris Tempo',
+    categoryName: 'Abris simples',
+    basePrice: 1099,
+    minLengthCm: 488,
+    maxLengthCm: 1830,
+    lengthStepCm: 122,
+  },
+  {
+    id: 'm2',
+    slug: 'double-16pi',
+    name: 'Abri double 16 pi — Abris Tempo',
+    categoryName: 'Abris doubles',
+    basePrice: 1899,
+    minLengthCm: 488,
+    maxLengthCm: 1830,
+    lengthStepCm: 122,
+  },
+];
+
 async function mockApi(page: Page): Promise<void> {
   await page.route('**/api/v1/categories', (route) => route.fulfill({ json: categories }));
   await page.route('**/api/v1/shelters/suggest*', (route) =>
     route.fulfill({ json: [] }),
   );
+  // Résolveur de TYPE (rework EPIC 9) : la fiche détail appelle `/catalog/{slug}/type` AVANT le
+  // chargement. `abri-simple` est un PRODUIT fixe À DIMENSIONS → `product` (bloc « Voir en 3D »).
+  await page.route('**/api/v1/catalog/*/type', (route) =>
+    route.fulfill({ json: { type: 'product' } }),
+  );
   // Produit unique par slug AVANT le pattern de liste (priorité).
   await page.route('**/api/v1/products/*', (route) => route.fulfill({ json: product }));
   await page.route('**/api/v1/products*', (route) => route.fulfill({ json: productList }));
+  // Liste des modèles paramétriques (accueil vedette + boutique).
+  await page.route('**/api/v1/shelters?*', (route) => route.fulfill({ json: shelterSummaries }));
+  await page.route('**/api/v1/shelters', (route) => route.fulfill({ json: shelterSummaries }));
 }
 
 function forceTheme(page: Page, theme: 'light' | 'dark'): Promise<void> {

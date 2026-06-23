@@ -31,6 +31,36 @@ export const PARAMETRIC_CATEGORY_SLUGS: readonly string[] = [
   'abris-industriels',
 ];
 
+/**
+ * Table NOM de catégorie → slug de catégorie (miroir de `ProductSeeder.cs`). Le résumé d'un modèle
+ * (`ShelterModelSummary`) n'expose que `categoryName` (pas le slug) ; on le rapproche ici du slug
+ * pour résoudre une image de CATÉGORIE déterministe. Clés normalisées (minuscules) pour tolérer la
+ * casse/les accents serveur.
+ */
+const CATEGORY_NAME_TO_SLUG: ReadonlyMap<string, string> = new Map([
+  ['abris simples', 'abris-simples'],
+  ['abris monopente', 'abris-monopente'],
+  ['abris doubles', 'abris-doubles'],
+  ['abris de rangement', 'abris-rangement'],
+  ["abris d'entrée et de passage", 'abris-entree-passage'],
+  ['abris industriels et commerciaux', 'abris-industriels'],
+]);
+
+/** Slug de catégorie de repli quand le nom n'est pas reconnu (visuel jamais vide — L-040). */
+const FALLBACK_CATEGORY_SLUG = 'abris-simples';
+
+/**
+ * Résout l'URL d'une image de CATÉGORIE pour illustrer la carte d'un modèle paramétrique. Le
+ * référentiel serveur n'expose pas d'image par modèle ; on illustre donc par la catégorie via un
+ * SVG local déterministe (`public/images/categories/<slug>.svg`, généré par
+ * `scripts/gen-category-svgs.mjs`) — gratuit et sans clé. Un nom inconnu retombe sur un visuel par
+ * défaut, garantissant que la carte n'est JAMAIS vide.
+ */
+export function resolveShelterCategoryImage(categoryName: string | null | undefined): string {
+  const slug = (categoryName && CATEGORY_NAME_TO_SLUG.get(categoryName.trim().toLowerCase())) || FALLBACK_CATEGORY_SLUG;
+  return `/images/categories/${slug}.svg`;
+}
+
 /** Vue résumée d'un modèle paramétrique (listes du catalogue). */
 export interface ShelterModelSummary {
   readonly id: string;

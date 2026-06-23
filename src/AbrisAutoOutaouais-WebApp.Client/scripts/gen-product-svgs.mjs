@@ -12,15 +12,15 @@ mkdirSync(outDir, { recursive: true });
 // slug → { name, accent, icon }
 // icon : 'shelter' (abri en pic), 'pente' (toit simple), 'rond' (toit arrondi),
 //        'tarp' (toile), 'part' (pièce/accessoire), 'entry' (entrée).
+//
+// Depuis le rework « configure-only » (rework EPIC 9 / Phase 6), les abris fixes ont été retirés du
+// catalogue : tous les abris sont désormais des MODÈLES paramétriques configurés via l'overlay. Les
+// 8 slugs d'abris fixes (abri-simple-une-voiture, abri-pente-unique, abri-double-pic, abri-double-rond,
+// abri-rangement-atelier, abri-industriel-commercial, abri-entree, abri-passage-cloture) ont donc été
+// supprimés d'ici. Ne restent que les 4 produits NON-abris encore vendus directement (toiles, pièces).
+// L'imagerie des cartes de MODÈLES paramétriques est gérée par catégorie : voir
+// `scripts/gen-category-svgs.mjs` + `resolveShelterCategoryImage` (shelter.model.ts).
 const products = [
-  { slug: 'abri-simple-une-voiture', name: 'Abri simple une voiture', accent: '#b91c1c', icon: 'shelter' },
-  { slug: 'abri-pente-unique', name: 'Abri à pente unique', accent: '#b91c1c', icon: 'pente' },
-  { slug: 'abri-double-pic', name: 'Abri double à pic', accent: '#9a1212', icon: 'shelter' },
-  { slug: 'abri-double-rond', name: 'Abri double rond', accent: '#9a1212', icon: 'rond' },
-  { slug: 'abri-rangement-atelier', name: 'Abri de rangement / atelier', accent: '#1e40af', icon: 'shelter' },
-  { slug: 'abri-entree', name: "Abri d'entrée", accent: '#1e40af', icon: 'entry' },
-  { slug: 'abri-passage-cloture', name: 'Abri de passage et clôture', accent: '#1e40af', icon: 'rond' },
-  { slug: 'abri-industriel-commercial', name: 'Abri industriel et commercial', accent: '#0f766e', icon: 'shelter' },
   { slug: 'toile-remplacement-simple', name: 'Toile de remplacement — abri simple', accent: '#92400e', icon: 'tarp' },
   { slug: 'toile-remplacement-double', name: 'Toile de remplacement — abri double', accent: '#92400e', icon: 'tarp' },
   { slug: 'kit-ancrage-sol', name: "Kit d'ancrage au sol", accent: '#475569', icon: 'part' },
