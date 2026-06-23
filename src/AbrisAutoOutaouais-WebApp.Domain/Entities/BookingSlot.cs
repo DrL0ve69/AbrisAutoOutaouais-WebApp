@@ -116,6 +116,13 @@ public sealed class BookingSlot : ISoftDeletable, IAuditableEntity
         Lng = lng;
     }
 
+    /// <summary>
+    /// Confirme une réservation HÉRITÉE <see cref="BookingStatus.Pending"/> (action admin « confirm »,
+    /// avant EPIC 7). Ne s'applique QU'aux réservations historiques nées <c>Pending</c> : depuis EPIC 7.3,
+    /// les nouvelles réservations naissent <see cref="BookingStatus.PendingPayment"/> (virement Interac)
+    /// et sont confirmées par la RÉCONCILIATION de paiement (<see cref="Activate"/>), jamais par cette
+    /// méthode. Conservée pour le parc historique <c>Pending</c> (cf. L-054).
+    /// </summary>
     public void Confirm()
     {
         if (Status != BookingStatus.Pending)

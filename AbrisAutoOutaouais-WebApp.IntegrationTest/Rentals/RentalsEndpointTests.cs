@@ -198,7 +198,9 @@ public sealed class RentalsEndpointTests : IClassFixture<WebAppFactory>
         var payment = body.GetProperty("payment");
         payment.GetProperty("reference").GetString().Should().NotBeNullOrWhiteSpace();
         payment.GetProperty("recipientEmail").GetString().Should().NotBeNullOrWhiteSpace();
-        payment.GetProperty("amount").GetDecimal().Should().Be(49.00m);
+        // Montant viré = TOTAL du contrat (49 $/mois × 3 mois, 2026-07-01 → 2026-10-01) — décision
+        // propriétaire EPIC 7.2 ; le tarif mensuel snapshoté (MonthlyRate) reste 49 $ ci-dessous.
+        payment.GetProperty("amount").GetDecimal().Should().Be(147.00m);
 
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();

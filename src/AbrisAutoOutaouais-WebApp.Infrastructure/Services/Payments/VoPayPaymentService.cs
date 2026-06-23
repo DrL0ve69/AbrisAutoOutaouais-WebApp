@@ -1,6 +1,5 @@
 using AbrisAutoOutaouais_WebApp.Application.Common.Interfaces;
 using AbrisAutoOutaouais_WebApp.Application.Payments.Common;
-using Microsoft.Extensions.Options;
 
 namespace AbrisAutoOutaouais_WebApp.Infrastructure.Services.Payments;
 
@@ -24,10 +23,10 @@ namespace AbrisAutoOutaouais_WebApp.Infrastructure.Services.Payments;
 /// <see cref="PaymentStatus.Pending"/>.
 /// </para>
 /// </summary>
-internal sealed class VoPayPaymentService(IOptions<PaymentsOptions> options) : IPaymentService
+internal sealed class VoPayPaymentService : IPaymentService
 {
-    // La clé n'est lue que pour matérialiser le point d'extension ; le stub n'effectue aucun appel.
-    private readonly VoPayPaymentOptions _vopay = options.Value.VoPay;
+    // Stub keyless : aucune option n'est nécessaire. La garde fail-fast au DÉMARRAGE
+    // (DependencyInjection) lit la clé directement depuis la config, pas via ce service.
 
     public Task<PaymentInstructionsResult> InitiateAsync(
         string paymentReference, decimal amount, string customerEmail, CancellationToken ct = default)

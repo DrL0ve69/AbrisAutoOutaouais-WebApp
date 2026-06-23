@@ -44,8 +44,10 @@ const RENTABLE = {
 
 const PAYMENT = {
   reference: 'LOC-ETR-7777',
+  // Montant viré = TOTAL du contrat (tarif 89 $/mois × 3 mois, 2026-07-01 → 2026-10-01) — décision
+  // propriétaire EPIC 7.2 : le client vire le total du contrat d'avance, pas un seul mois.
   recipientEmail: 'paiements@abristempo.ca',
-  amount: 89,
+  amount: 267,
   instructions:
     'Ouvrez votre application bancaire, choisissez « Virement Interac » et inscrivez la référence dans le message.',
 };
@@ -133,8 +135,8 @@ for (const theme of themes) {
     await expect(heading).toBeFocused();
     await expect(page.getByText(PAYMENT.reference)).toBeVisible();
     await expect(page.getByText(PAYMENT.recipientEmail)).toBeVisible();
-    // Montant (89,00 $ en fr-CA) présent.
-    await expect(page.getByText(/89[.,]00/)).toBeVisible();
+    // Montant TOTAL du contrat (267,00 $ en fr-CA = 89 $/mois × 3 mois) présent.
+    await expect(page.getByText(/267[.,]00/)).toBeVisible();
     // Le formulaire de location a disparu (état terminal).
     await expect(page.getByRole('button', { name: /confirmer la location/i })).toHaveCount(0);
 

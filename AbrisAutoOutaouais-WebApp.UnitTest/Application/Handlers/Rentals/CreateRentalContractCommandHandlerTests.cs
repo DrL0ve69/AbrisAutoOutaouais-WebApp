@@ -150,7 +150,9 @@ public sealed class CreateRentalContractCommandHandlerTests : IDisposable
         // La réponse porte les instructions de paiement au format canonique (référence non vide).
         result.Payment.Reference.Should().NotBeNullOrWhiteSpace();
         result.Payment.RecipientEmail.Should().Be("paiements@abristempo-local.example");
-        result.Payment.Amount.Should().Be(49.00m);   // tarif mensuel du modèle louable
+        // Montant viré = TOTAL du contrat (49 $/mois × 3 mois, 2026-07-01 → 2026-10-01), pas un seul
+        // mois — décision propriétaire EPIC 7.2.
+        result.Payment.Amount.Should().Be(147.00m);
 
         // La référence est attachée à l'agrégat ET le contrat reste en attente de paiement.
         var contract = await _db.RentalContracts.FindAsync(
@@ -160,9 +162,9 @@ public sealed class CreateRentalContractCommandHandlerTests : IDisposable
         contract.Payment!.Reference.Should().Be(result.Payment.Reference);
         contract.Payment.ConfirmedAt.Should().BeNull();
 
-        // Le port de paiement a bien été initié avec la référence générée et le tarif mensuel.
+        // Le port de paiement a bien été initié avec la référence générée et le TOTAL du contrat.
         await _payment.Received(1).InitiateAsync(
-            contract.Payment.Reference, 49.00m, "client@test.com", Arg.Any<CancellationToken>());
+            contract.Payment.Reference, 147.00m, "client@test.com", Arg.Any<CancellationToken>());
     }
 
     public void Dispose() => _db.Dispose();

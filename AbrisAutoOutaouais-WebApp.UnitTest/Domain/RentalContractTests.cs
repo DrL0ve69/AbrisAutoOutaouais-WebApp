@@ -62,6 +62,52 @@ public sealed class RentalContractTests
         contract.ProductName.Should().Contain("122 cm").And.Contain("198 cm");
     }
 
+    // ── TotalAmount (montant total dû d'avance) — EPIC 7.2 ──────────────────────
+
+    /// <summary>
+    /// Crée un contrat sur le modèle louable par défaut (tarif 49 $/mois sauf override) entre deux
+    /// dates, pour exercer le calcul du montant total.
+    /// </summary>
+    private static RentalContract MakeContract(DateOnly start, DateOnly end, int? monthlyRentalCents = 4900)
+        => RentalContract.CreateForModel(
+            Guid.NewGuid(), MakeRentableModel(monthlyRentalCents), 122, 198, start, end, MakeAddress());
+
+    [Fact]
+    public void TotalAmount_WholeMonths_MultipliesRateByMonthCount()
+    {
+        // 2026-07-01 → 2026-10-01 = 3 mois pleins ; tarif 100 $/mois → 300 $.
+        var contract = MakeContract(new DateOnly(2026, 7, 1), new DateOnly(2026, 10, 1), monthlyRentalCents: 10000);
+
+        contract.TotalAmount.Should().Be(300.00m);
+    }
+
+    [Fact]
+    public void TotalAmount_PartialMonth_RoundsUpToFullMonth()
+    {
+        // 2026-07-01 → 2026-09-15 : 2 mois pleins + un mois entamé → 3 mois ; 100 $/mois → 300 $.
+        var contract = MakeContract(new DateOnly(2026, 7, 1), new DateOnly(2026, 9, 15), monthlyRentalCents: 10000);
+
+        contract.TotalAmount.Should().Be(300.00m);
+    }
+
+    [Fact]
+    public void TotalAmount_LessThanOneMonth_FloorsAtOneMonth()
+    {
+        // 2026-07-01 → 2026-07-15 : moins d'un mois → minimum 1 mois ; 100 $/mois → 100 $.
+        var contract = MakeContract(new DateOnly(2026, 7, 1), new DateOnly(2026, 7, 15), monthlyRentalCents: 10000);
+
+        contract.TotalAmount.Should().Be(100.00m);
+    }
+
+    [Fact]
+    public void TotalAmount_DefaultRate_MatchesRateTimesMonths()
+    {
+        // Tarif par défaut 49 $/mois ; 2026-07-01 → 2026-10-01 = 3 mois → 147 $.
+        var contract = MakeContract(new DateOnly(2026, 7, 1), new DateOnly(2026, 10, 1));
+
+        contract.TotalAmount.Should().Be(147.00m);
+    }
+
     // ── Paiement (virement Interac) — EPIC 7.2 ──────────────────────────────────
 
     [Fact]

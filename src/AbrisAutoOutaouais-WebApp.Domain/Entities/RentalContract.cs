@@ -46,6 +46,35 @@ public sealed class RentalContract : ISoftDeletable, IAuditableEntity
     public Address Address { get; private set; } = null!;  // adresse d'installation
 
     /// <summary>
+    /// Nombre de mois FACTURÉS du contrat — convention « tout mois entamé compte pour un mois plein »,
+    /// minimum 1. C'est le nombre de mois calendaires entiers entre <see cref="StartDate"/> et
+    /// <see cref="EndDate"/>, MAJORÉ d'un mois si la fin tombe après le jour du mois de début (mois
+    /// partiel arrondi au mois plein). <see cref="CreateForModel"/> garantit
+    /// <c>EndDate &gt; StartDate</c>, donc le résultat est toujours ≥ 1.
+    /// Exemples (tarif 100 $/mois) : 2026-07-01 → 2026-10-01 = 3 mois ; 2026-07-01 → 2026-09-15 = 3 mois
+    /// (mois partiel arrondi) ; 2026-07-01 → 2026-07-15 = 1 mois (durée &lt; 1 mois → min 1).
+    /// </summary>
+    private int MonthsBilled
+    {
+        get
+        {
+            var months = (EndDate.Year - StartDate.Year) * 12 + (EndDate.Month - StartDate.Month);
+            if (EndDate.Day > StartDate.Day) months++;     // mois entamé → mois plein
+            return Math.Max(1, months);
+        }
+    }
+
+    /// <summary>
+    /// Montant TOTAL (CAD) du contrat dû d'avance par le client : tarif mensuel SNAPSHOTé
+    /// (<see cref="MonthlyRate"/>) × nombre de mois facturés (<see cref="MonthsBilled"/>). Décision
+    /// propriétaire (EPIC 7.2) : pour activer une location par virement Interac, le client vire le
+    /// TOTAL du contrat d'avance, pas un seul mois. Dérivé sans colonne ni migration (les bornes de
+    /// date et le tarif sont déjà snapshotés). Symétrie avec <c>Order.Total</c> /
+    /// <c>BookingSlot.Amount</c> comme « montant à payer ».
+    /// </summary>
+    public decimal TotalAmount => MonthlyRate * MonthsBilled;
+
+    /// <summary>
     /// Information de paiement (Owned VO <see cref="PaymentInfo"/>, colonnes <c>Payment_*</c>). NULLABLE :
     /// les contrats antérieurs à la migration EPIC 7.2 n'en portent pas, et l'agrégat est créé sans
     /// paiement (la référence est attachée juste après par <see cref="AttachPaymentReference"/>).

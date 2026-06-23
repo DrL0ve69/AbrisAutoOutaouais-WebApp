@@ -1,6 +1,5 @@
 using AbrisAutoOutaouais_WebApp.Application.Payments.Common;
 using AbrisAutoOutaouais_WebApp.Infrastructure.Services.Payments;
-using Microsoft.Extensions.Options;
 
 namespace AbrisAutoOutaouais_WebApp.UnitTest.Infrastructure.Services;
 
@@ -11,15 +10,8 @@ namespace AbrisAutoOutaouais_WebApp.UnitTest.Infrastructure.Services;
 /// </summary>
 public sealed class VoPayPaymentServiceTests
 {
-    private static VoPayPaymentService CreateSut(string apiKey = "")
-    {
-        var options = Options.Create(new PaymentsOptions
-        {
-            Provider = "vopay",
-            VoPay = new VoPayPaymentOptions { ApiKey = apiKey },
-        });
-        return new VoPayPaymentService(options);
-    }
+    // Stub keyless : aucune option n'est nécessaire (la garde de clé vit dans DependencyInjection).
+    private static VoPayPaymentService CreateSut() => new();
 
     [Fact]
     public async Task InitiateAsync_NeverThrows_AndReturnsStubInstructions()

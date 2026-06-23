@@ -62,7 +62,9 @@ internal sealed class CreateRentalContractCommandHandler(
         contract.AttachPaymentReference(reference);
 
         // Port résilient (jamais d'exception réseau, comme IPlacesService) : pas de try/catch ici.
-        var instructions = await payment.InitiateAsync(reference, contract.MonthlyRate, customerEmail, ct);
+        // Montant viré = TOTAL du contrat (tarif mensuel × durée), payé d'avance — décision propriétaire
+        // (EPIC 7.2). Le total circule ensuite vers le panneau e-Transfer via PaymentInstructionsResult.Amount.
+        var instructions = await payment.InitiateAsync(reference, contract.TotalAmount, customerEmail, ct);
 
         db.RentalContracts.Add(contract);
         await db.SaveChangesAsync(ct);
