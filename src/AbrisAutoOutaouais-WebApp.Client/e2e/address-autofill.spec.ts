@@ -85,21 +85,22 @@ async function signInWithSavedAddress(page: Page): Promise<void> {
   await page.route('**/api/v1/products*', (route) => route.fulfill({ json: RENTABLE_PRODUCTS }));
 }
 
-async function expectAddressPrefilled(page: Page): Promise<void> {
+async function expectAddressPrefilled(page: Page, prefix: string): Promise<void> {
   // D6 — l'utilisateur connecté voit d'abord la PASTILLE « Adresse de mon profil » ; le formulaire
   // n'apparaît qu'après « Utiliser une autre adresse ». On bascule donc avant d'asserter les champs.
   // Une fois révélé, le formulaire est pré-rempli depuis le profil (point de départ éditable),
-  // toHaveValue ré-essayant jusqu'au timeout (autofill asynchrone). Le numéro civique et la rue
-  // sont des champs distincts (C1 — split de l'adresse).
+  // toHaveValue ré-essayant jusqu'au timeout (autofill asynchrone). EPIC 15 — n° et rue sont
+  // désormais recombinés dans le champ UNIFIÉ `addressLine1` (« 111 rue Wellington »).
   await expect(page.getByText('Adresse de mon profil')).toBeVisible();
   await page.getByRole('button', { name: /utiliser une autre adresse/i }).click();
 
-  await expect(page.locator('#civicNumber')).toHaveValue(SAVED_ADDRESS.civicNumber);
-  await expect(page.locator('#street')).toHaveValue(SAVED_ADDRESS.street);
-  await expect(page.locator('#apartment')).toHaveValue(SAVED_ADDRESS.apartment);
-  await expect(page.locator('#city')).toHaveValue(SAVED_ADDRESS.city);
-  await expect(page.locator('#province')).toHaveValue(SAVED_ADDRESS.province);
-  await expect(page.locator('#postalCode')).toHaveValue(SAVED_ADDRESS.postalCode);
+  await expect(page.locator(`#${prefix}-address-line1`)).toHaveValue(
+    `${SAVED_ADDRESS.civicNumber} ${SAVED_ADDRESS.street}`,
+  );
+  await expect(page.locator(`#${prefix}-apartment`)).toHaveValue(SAVED_ADDRESS.apartment);
+  await expect(page.locator(`#${prefix}-city`)).toHaveValue(SAVED_ADDRESS.city);
+  await expect(page.locator(`#${prefix}-province`)).toHaveValue(SAVED_ADDRESS.province);
+  await expect(page.locator(`#${prefix}-postalCode`)).toHaveValue(SAVED_ADDRESS.postalCode);
 }
 
 test.beforeEach(async ({ page }) => {
@@ -110,12 +111,12 @@ test('Location (/location) — pré-remplit automatiquement l’adresse enregist
   page,
 }) => {
   await page.goto('/location');
-  await expectAddressPrefilled(page);
+  await expectAddressPrefilled(page, 'loc');
 });
 
 test('Installation (/installation) — pré-remplit automatiquement l’adresse enregistrée', async ({
   page,
 }) => {
   await page.goto('/installation');
-  await expectAddressPrefilled(page);
+  await expectAddressPrefilled(page, 'inst');
 });

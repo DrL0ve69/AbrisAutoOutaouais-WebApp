@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { normalizePostal, parseCivicFromLabel } from './address.validators';
+import { normalizePostal, parseCivicFromLabel, splitAddressLine } from './address.validators';
 
 describe('normalizePostal', () => {
   it('normalise un code compact en majuscules « A1A 1A1 »', () => {
@@ -40,5 +40,37 @@ describe('parseCivicFromLabel', () => {
     // « 12AB » n'est pas un civique canonique ; \b coupe après « 12A », mais « 12A » suivi de
     // « B » sans frontière n'est PAS un mot-frontière → aucun match en tête → null.
     expect(parseCivicFromLabel('12AB rue Test')).toBeNull();
+  });
+});
+
+describe('splitAddressLine', () => {
+  it('scinde « 45 rue X » en { civicNumber: 45, street: rue X }', () => {
+    expect(splitAddressLine('45 rue X')).toEqual({ civicNumber: '45', street: 'rue X' });
+  });
+
+  it('conserve la lettre finale du civique (« 123A boul Y »)', () => {
+    expect(splitAddressLine('123A boul Y')).toEqual({ civicNumber: '123A', street: 'boul Y' });
+  });
+
+  it('sans numéro en tête : civique vide, toute la ligne devient la rue (frappe libre)', () => {
+    expect(splitAddressLine('rue Z')).toEqual({ civicNumber: '', street: 'rue Z' });
+  });
+
+  it('ligne vide → civique et rue vides', () => {
+    expect(splitAddressLine('')).toEqual({ civicNumber: '', street: '' });
+  });
+
+  it('tolère les espaces superflus autour de la ligne', () => {
+    expect(splitAddressLine('  77  rue Principale  ')).toEqual({
+      civicNumber: '77',
+      street: 'rue Principale',
+    });
+  });
+
+  it('ne capture QUE le civique de tête quand le nom de rue contient un chiffre (« 45 rue 8e Avenue »)', () => {
+    expect(splitAddressLine('45 rue 8e Avenue')).toEqual({
+      civicNumber: '45',
+      street: 'rue 8e Avenue',
+    });
   });
 });

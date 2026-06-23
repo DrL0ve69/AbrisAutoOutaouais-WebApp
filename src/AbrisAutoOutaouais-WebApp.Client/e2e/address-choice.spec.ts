@@ -133,17 +133,19 @@ test.describe('connecté avec adresse de profil', () => {
     // Pastille visible avec l'adresse formatée ; le formulaire est masqué.
     await expect(page.getByText('Adresse de mon profil')).toBeVisible();
     await expect(page.getByText(FORMATTED)).toBeVisible();
-    await expect(page.locator('#street')).toHaveCount(0);
+    await expect(page.locator('#loc-address-line1')).toHaveCount(0);
 
     // Bascule vers « autre adresse ».
     await page.getByRole('button', { name: /utiliser une autre adresse/i }).click();
 
     // Le formulaire est désormais visible et pré-rempli depuis le profil (point de départ éditable).
-    await expect(page.locator('#street')).toBeVisible();
-    await expect(page.locator('#civicNumber')).toHaveValue(SAVED_ADDRESS.civicNumber);
-    await expect(page.locator('#street')).toHaveValue(SAVED_ADDRESS.street);
-    await expect(page.locator('#city')).toHaveValue(SAVED_ADDRESS.city);
-    await expect(page.locator('#province')).toHaveValue(SAVED_ADDRESS.province);
+    // EPIC 15 — n° et rue recombinés dans le champ unifié « 111 rue Wellington ».
+    await expect(page.locator('#loc-address-line1')).toBeVisible();
+    await expect(page.locator('#loc-address-line1')).toHaveValue(
+      `${SAVED_ADDRESS.civicNumber} ${SAVED_ADDRESS.street}`,
+    );
+    await expect(page.locator('#loc-city')).toHaveValue(SAVED_ADDRESS.city);
+    await expect(page.locator('#loc-province')).toHaveValue(SAVED_ADDRESS.province);
 
     // Le bouton retour reçoit le focus après le rendu (L-006).
     await expect(
@@ -158,12 +160,12 @@ test.describe('connecté avec adresse de profil', () => {
 
     await expect(page.getByText('Adresse de mon profil')).toBeVisible();
     await expect(page.getByText(FORMATTED)).toBeVisible();
-    await expect(page.locator('#street')).toHaveCount(0);
+    await expect(page.locator('#inst-address-line1')).toHaveCount(0);
 
     await page.getByRole('button', { name: /utiliser une autre adresse/i }).click();
 
-    await expect(page.locator('#street')).toBeVisible();
-    await expect(page.locator('#province')).toHaveValue(SAVED_ADDRESS.province);
+    await expect(page.locator('#inst-address-line1')).toBeVisible();
+    await expect(page.locator('#inst-province')).toHaveValue(SAVED_ADDRESS.province);
   });
 
   test('Mesurer (/mesurer) — pastille par défaut puis bascule vers formulaire pré-rempli', async ({
@@ -178,10 +180,10 @@ test.describe('connecté avec adresse de profil', () => {
 
     await expect(page.getByText('Adresse de mon profil')).toBeVisible();
     await expect(page.getByText(FORMATTED)).toBeVisible();
-    await expect(page.locator('#mesurer-rue')).toHaveCount(0);
+    await expect(page.locator('#mesurer-address-line1')).toHaveCount(0);
 
     await page.getByRole('button', { name: /utiliser une autre adresse/i }).click();
-    await expect(page.locator('#mesurer-rue')).toBeVisible();
+    await expect(page.locator('#mesurer-address-line1')).toBeVisible();
     await expect(page.locator('#mesurer-province')).toHaveValue(SAVED_ADDRESS.province);
   });
 
@@ -199,7 +201,7 @@ test.describe('connecté avec adresse de profil', () => {
     await page.getByRole('radio', { name: /livraison/i }).check();
     await expect(page.getByText('Adresse de mon profil')).toBeVisible();
     await expect(page.getByText(FORMATTED)).toBeVisible();
-    await expect(page.locator('#co-street')).toHaveCount(0);
+    await expect(page.locator('#co-address-line1')).toHaveCount(0);
 
     // Bascule → formulaire éditable pré-rempli.
     await page.getByRole('button', { name: /utiliser une autre adresse/i }).click();
@@ -219,7 +221,7 @@ test.describe('anonyme (aucune adresse de profil)', () => {
   test('Location (/location) — formulaire direct, AUCUNE pastille', async ({ page }) => {
     await page.goto('/location');
     // Positif : le formulaire est rendu d'emblée.
-    await expect(page.locator('#street')).toBeVisible();
+    await expect(page.locator('#loc-address-line1')).toBeVisible();
     // Négatif : aucune pastille ni bouton de bascule.
     await expect(page.getByText('Adresse de mon profil')).toHaveCount(0);
     await expect(page.getByRole('button', { name: /utiliser une autre adresse/i })).toHaveCount(0);
@@ -227,7 +229,7 @@ test.describe('anonyme (aucune adresse de profil)', () => {
 
   test('Installation (/installation) — formulaire direct, AUCUNE pastille', async ({ page }) => {
     await page.goto('/installation');
-    await expect(page.locator('#street')).toBeVisible();
+    await expect(page.locator('#inst-address-line1')).toBeVisible();
     await expect(page.getByText('Adresse de mon profil')).toHaveCount(0);
   });
 
@@ -235,7 +237,7 @@ test.describe('anonyme (aucune adresse de profil)', () => {
     await page.goto('/mesurer');
     // EPIC 13 : l'adresse vit dans la voie « Mesurer sur la carte » → on la sélectionne d'abord.
     await page.getByRole('radio', { name: /mesurer sur la carte/i }).click();
-    await expect(page.locator('#mesurer-rue')).toBeVisible();
+    await expect(page.locator('#mesurer-address-line1')).toBeVisible();
     await expect(page.getByText('Adresse de mon profil')).toHaveCount(0);
   });
 
@@ -267,7 +269,7 @@ test('Mesurer — mode profil (voie carte) : l’adresse profil est AUTO-géocod
       json: [
         {
           label: '111 rue Wellington, Ottawa, ON',
-          civicNumber: '111',
+          civicNumber: null, // forme Photon : numéro dans le libellé, province déjà normalisée (L-011)
           street: 'rue Wellington',
           city: 'Ottawa',
           province: 'ON',
@@ -345,7 +347,7 @@ for (const theme of ['light', 'dark'] as const) {
 
     // Après bascule (mode « autre adresse » : bouton retour + formulaire éditable).
     await page.getByRole('button', { name: /utiliser une autre adresse/i }).click();
-    await expect(page.locator('#street')).toBeVisible();
+    await expect(page.locator('#loc-address-line1')).toBeVisible();
     const onForm = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
     expect(onForm.violations).toEqual([]);
   });

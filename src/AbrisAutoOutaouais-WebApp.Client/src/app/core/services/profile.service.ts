@@ -80,9 +80,12 @@ export class ProfileService {
     force = false,
   ): void {
     if (!address) return;
+    // EPIC 15 — les formulaires consommateurs (caisse, location, installation, mesurer) portent un
+    // contrôle unifié `addressLine1` (n° + rue). On recombine ici l'adresse de profil (toujours
+    // découpée côté serveur) en une seule ligne. Les contrôles absents d'un formulaire donné
+    // (`addressLine1` n'a pas de `country`, etc.) sont simplement ignorés par la boucle ci-dessous.
     const values: Record<string, string> = {
-      civicNumber: address.civicNumber,
-      street: address.street,
+      addressLine1: `${address.civicNumber} ${address.street}`.trim(),
       apartment: address.apartment ?? '',
       city: address.city,
       province: address.province,

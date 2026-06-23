@@ -90,12 +90,11 @@ async function fillBookingForm(page: Page): Promise<void> {
   await page.locator('label.booking__slot').first().click();
   await expect(page.getByRole('radio').first()).toBeChecked();
 
-  // 2) Adresse. fill via le locator (SSR+hydratation — L-012).
-  await page.locator('#civicNumber').fill('123');
-  await page.locator('#street').fill('rue des Érables');
-  await page.locator('#city').fill('Gatineau');
-  await page.locator('#province').fill('QC');
-  await page.locator('#postalCode').fill('J8X 1A1');
+  // 2) Adresse. EPIC 15 — champ unifié « n° et rue ». fill via le locator (SSR+hydratation — L-012).
+  await page.locator('#inst-address-line1').fill('123 rue des Érables');
+  await page.locator('#inst-city').fill('Gatineau');
+  await page.locator('#inst-province').selectOption('QC');
+  await page.locator('#inst-postalCode').fill('J8X 1A1');
 }
 
 for (const theme of themes) {

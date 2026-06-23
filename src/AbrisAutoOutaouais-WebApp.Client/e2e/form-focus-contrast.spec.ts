@@ -32,15 +32,16 @@ for (const theme of themes) {
     await page.goto('/location');
     await expect(page.locator('html')).toHaveAttribute('data-theme', theme.id);
 
-    // 1er champ texte du formulaire d'adresse (« Numéro civique » — scopé par son label, pas un
-    // getByRole nu — L-010). On focalise puis on tape, et on attend que la valeur tienne réellement
-    // dans le modèle de form (SSR + hydratation : un fill one-shot peut être écrasé — L-012).
-    const champ = page.getByLabel(/numéro civique/i);
+    // 1er champ texte du formulaire d'adresse (champ unifié « Adresse (n° et rue) » — EPIC 15,
+    // scopé par son label, pas un getByRole nu — L-010). On focalise puis on tape, et on attend que
+    // la valeur tienne réellement dans le modèle de form (SSR + hydratation : un fill one-shot peut
+    // être écrasé — L-012).
+    const champ = page.getByLabel(/adresse \(n° et rue\)/i);
     await expect(champ).toBeVisible();
     await champ.click();
     await expect(async () => {
-      await champ.fill('123');
-      await expect(champ).toHaveValue('123');
+      await champ.fill('123 rue Test');
+      await expect(champ).toHaveValue('123 rue Test');
     }).toPass();
     await expect(champ).toBeFocused();
 

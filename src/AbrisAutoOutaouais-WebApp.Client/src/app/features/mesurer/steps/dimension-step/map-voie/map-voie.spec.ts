@@ -39,9 +39,9 @@ function profileStub(address: WritableSignal<AddressDto | null>) {
     defaultDeliveryAddress: address as ProfileService['defaultDeliveryAddress'],
     applyDefaultAddress: vi.fn((form: FormGroup, addr: AddressDto | null = address(), force = false) => {
       if (!addr) return;
+      // EPIC 15 — recombine n° + rue dans le champ unifié `addressLine1` (comme le vrai service).
       const values: Record<string, string> = {
-        civicNumber: addr.civicNumber,
-        street: addr.street,
+        addressLine1: `${addr.civicNumber} ${addr.street}`.trim(),
         city: addr.city,
         province: addr.province,
       };
@@ -74,14 +74,13 @@ async function setup(opts: {
   return { ...rendered, q, emitted, places, profile, addressSignal };
 }
 
-/** Remplit les 3 champs requis (civique/rue/ville) sans choisir de suggestion. */
+/** Remplit les 2 champs requis (adresse unifiée + ville) sans choisir de suggestion (EPIC 15). */
 async function fillManual(
   user: ReturnType<typeof userEvent.setup>,
   q: ReturnType<typeof within>,
   city = 'Gatineau',
 ): Promise<void> {
-  await user.type(q.getByLabelText(/numéro civique/i), '123');
-  await user.type(q.getByRole('combobox', { name: /rue/i }), '123 rue Principale');
+  await user.type(q.getByRole('combobox', { name: /adresse/i }), '123 rue Principale');
   await user.type(q.getByLabelText(/ville/i), city);
 }
 
@@ -97,10 +96,10 @@ const ONTARIO_PROFILE: AddressDto = {
 };
 
 describe('MapVoieComponent — voie « Mesurer sur la carte » (adresse + carte sur la même page)', () => {
-  it('expose le combobox d’adresse au-dessus de la carte (id unique mesurer-rue)', async () => {
+  it('expose le combobox d’adresse unifié au-dessus de la carte (id unique mesurer-address-line1)', async () => {
     const { q } = await setup();
-    const combo = q.getByRole('combobox', { name: /rue/i });
-    expect(combo).toHaveAttribute('id', 'mesurer-rue');
+    const combo = q.getByRole('combobox', { name: /adresse/i });
+    expect(combo).toHaveAttribute('id', 'mesurer-address-line1');
   });
 
   it('connecté : pré-remplit l’adresse de profil (province ON ≠ défaut QC) en pristine-only (L-002)', async () => {
@@ -167,7 +166,11 @@ describe('MapVoieComponent — voie « Mesurer sur la carte » (adresse + carte 
     const combo = q.getByRole('combobox', { name: /rue/i });
     await user.click(combo);
     await user.keyboard('rue Well');
-    await q.findAllByRole('option');
+    // EPIC 15 — la province est désormais un `<select>` (13 `option`) : on SCOPE la recherche d'option
+    // à la listbox du combobox (`#mesurer-address-line1-listbox`) pour ne pas heurter les options du
+    // select, et on attend l'arrivée de la suggestion (suggest debouncé) avant de naviguer (L-012).
+    const listbox = within(rendered.container.querySelector('#mesurer-address-line1-listbox') as HTMLElement);
+    await listbox.findAllByRole('option');
     await user.keyboard('{ArrowDown}{Enter}');
 
     // lat/lng portés par la suggestion → centrage immédiat, AUCUN géocodage à la sélection.

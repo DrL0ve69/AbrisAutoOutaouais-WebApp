@@ -25,7 +25,13 @@ import { environment } from '../../../../environments/environment';
 import { UserProfileDto, UpdateProfileRequest } from '../../../core/models/profile.model';
 import { PlaceSuggestionDto } from '../../../core/models/place.model';
 import { AddressAutocompleteComponent } from '../../../shared/components/a11y-components/autocomplete/address-autocomplete.component';
-import { CIVIC_PATTERN, POSTAL_PATTERN, normalizePostal } from '../../../core/validators/address.validators';
+import {
+  ADDRESS_LINE_PATTERN,
+  POSTAL_PATTERN,
+  PROVINCES,
+  normalizePostal,
+  splitAddressLine,
+} from '../../../core/validators/address.validators';
 
 type ActiveTab = 'info' | 'address' | 'security';
 
@@ -71,6 +77,9 @@ export class ProfileComponent implements OnInit {
   protected readonly avatarUploading = signal(false);
   protected readonly avatarError = signal<string | null>(null);
 
+  /** Provinces/territoires pour le `<select>` (code 2 lettres canonique, L-011). */
+  protected readonly provinces = PROVINCES;
+
   // Ordre des onglets pour la navigation clavier (ARIA APG : flèches + Home/End).
   protected readonly tabOrder: readonly ActiveTab[] = ['info', 'address', 'security'];
   private readonly tabButtons = viewChildren<ElementRef<HTMLButtonElement>>('tabBtn');
@@ -111,8 +120,10 @@ export class ProfileComponent implements OnInit {
 
   // ── Formulaire adresse ───────────────────────────────────────
   protected readonly addressForm = this.fb.nonNullable.group({
-    civicNumber: ['', [Validators.maxLength(10), Validators.pattern(CIVIC_PATTERN)]],
-    street: ['', Validators.maxLength(200)],
+    // Champ unifié « n° et rue » (EPIC 15). Adresse de profil OPTIONNELLE : le motif n'exige un
+    // numéro en tête que si la ligne est remplie (vide = toléré). Recombiné depuis le serveur au
+    // chargement (`patchForms`), re-scindé à l'enregistrement (`saveAddress`).
+    addressLine1: ['', [Validators.maxLength(210), Validators.pattern(ADDRESS_LINE_PATTERN)]],
     apartment: ['', Validators.maxLength(20)],
     city: ['', Validators.maxLength(100)],
     province: ['QC'],
@@ -155,8 +166,8 @@ export class ProfileComponent implements OnInit {
     return this.infoForm.controls.preferredLanguage;
   }
 
-  protected get aCivic() {
-    return this.addressForm.controls.civicNumber;
+  protected get aLine1() {
+    return this.addressForm.controls.addressLine1;
   }
   protected get aPostal() {
     return this.addressForm.controls.postalCode;
@@ -302,9 +313,9 @@ export class ProfileComponent implements OnInit {
       .subscribe(result => this.postalFill.set(result.status));
   }
 
-  /** Frappe libre dans le combobox : synchronise le contrôle « rue ». */
-  protected onStreetInput(value: string): void {
-    this.addressAutofill.syncStreet(this.addressForm, value);
+  /** Frappe libre dans le combobox : synchronise le contrôle unifié `addressLine1` (EPIC 15). */
+  protected onAddressLineInput(value: string): void {
+    this.addressAutofill.syncAddressLine(this.addressForm, value);
   }
 
   // ── Sauvegarde adresse ───────────────────────────────────────
@@ -315,10 +326,16 @@ export class ProfileComponent implements OnInit {
     }
 
     const raw = this.addressForm.getRawValue();
+    // EPIC 15 (voie B1) — re-scinde la ligne unifiée en n° + rue pour le DTO serveur découpé.
+    const { civicNumber, street } = splitAddressLine(raw.addressLine1);
     const addr = {
-      ...raw,
+      civicNumber,
+      street,
       apartment: raw.apartment.trim() || null,
+      city: raw.city,
+      province: raw.province,
       postalCode: normalizePostal(raw.postalCode),
+      country: raw.country,
     };
     // Le serveur exige n° civique + rue + ville + code postal pour considérer une
     // adresse « présente » : on n'envoie un objet que si ces champs sont remplis.
@@ -475,8 +492,8 @@ export class ProfileComponent implements OnInit {
     const a = p.defaultDeliveryAddress;
     if (a) {
       this.addressForm.patchValue({
-        civicNumber: a.civicNumber,
-        street: a.street,
+        // EPIC 15 — recombine n° + rue de l'adresse serveur (découpée) dans le champ unifié.
+        addressLine1: `${a.civicNumber} ${a.street}`.trim(),
         apartment: a.apartment ?? '',
         city: a.city,
         province: a.province,

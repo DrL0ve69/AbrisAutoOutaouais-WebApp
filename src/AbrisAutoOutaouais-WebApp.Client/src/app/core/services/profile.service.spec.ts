@@ -76,9 +76,9 @@ describe('ProfileService', () => {
 
   it("applyDefaultAddress remplit les champs intacts (pristine) sans écraser une saisie", () => {
     const fb = TestBed.inject(FormBuilder);
+    // EPIC 15 — champ unifié `addressLine1` (n° + rue recombinés depuis l'adresse de profil).
     const form = fb.nonNullable.group({
-      civicNumber: [''],
-      street: [''],
+      addressLine1: [''],
       apartment: [''],
       city: ['Hull'], // l'utilisateur a saisi « Hull » (marqué dirty ci-dessous)
       province: ['QC'], // valeur PAR DÉFAUT, pristine → doit être remplacée par l'adresse
@@ -97,8 +97,8 @@ describe('ProfileService', () => {
       country: 'Canada',
     });
 
-    expect(form.controls.civicNumber.value).toBe('1'); // vide + pristine → rempli
-    expect(form.controls.street.value).toBe('rue des Abris'); // vide + pristine → rempli
+    // Le n° et la rue de l'adresse de profil sont recombinés dans le champ unifié.
+    expect(form.controls.addressLine1.value).toBe('1 rue des Abris'); // vide + pristine → rempli
     expect(form.controls.apartment.value).toBe('4B'); // vide + pristine → rempli
     expect(form.controls.postalCode.value).toBe('K1A 0A6'); // vide + pristine → rempli
     expect(form.controls.province.value).toBe('ON'); // défaut pristine → remplacé

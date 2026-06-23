@@ -6,7 +6,8 @@ import AxeBuilder from '@axe-core/playwright';
 // On mocke le proxy Places (suggest + lookup-postal-code) — aucun backend requis,
 // comme a11y.spec.ts. Le parcours est entièrement clavier ; axe scanne la page
 // ENTIÈRE (navbar incluse), sans exclusion (L-008 : pas de scope qui masque un bug).
-// Page testée : /location, dont le champ « Rue » porte id="street".
+// Page testée : /location, dont le champ unifié « Adresse (n° et rue) » porte
+// id="loc-address-line1" (EPIC 15 — un seul champ, civique fusionné dans la rue).
 //
 // DÉTERMINISME (anti-flake) : la listbox ne se peuple qu'APRÈS une requête réseau
 // `places/suggest` debouncée (300 ms) + réponse async. En suite complète, asserter
@@ -20,10 +21,17 @@ import AxeBuilder from '@axe-core/playwright';
 
 const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 
+// Champ unifié id="loc-address-line1" sur /location (EPIC 15).
+const LINE1 = '#loc-address-line1';
+
+// Forme du provider PAR DÉFAUT (Photon) telle qu'elle arrive AU CLIENT : `civicNumber` null +
+// numéro inclus dans le `label` (L-011) — c'est cette forme que la cascade doit savoir scinder pour
+// recombiner le champ unifié `addressLine1`. La province est déjà en code 2 lettres canonique (« ON »),
+// car l'adaptateur serveur (PhotonPlacesService) la normalise AVANT d'atteindre le client (L-011/L-004).
 const SUGGESTIONS = [
   {
     label: '111 rue Wellington, Ottawa, ON',
-    civicNumber: '111',
+    civicNumber: null,
     street: 'rue Wellington',
     city: 'Ottawa',
     province: 'ON',
@@ -33,7 +41,7 @@ const SUGGESTIONS = [
   },
   {
     label: '222 rue Bank, Ottawa, ON',
-    civicNumber: '222',
+    civicNumber: null,
     street: 'rue Bank',
     city: 'Ottawa',
     province: 'ON',
@@ -78,7 +86,7 @@ async function mockPlaces(page: Page, postalCode: string | null): Promise<void> 
 
 async function gotoLocation(page: Page): Promise<void> {
   await page.goto('/location');
-  await expect(page.locator('#street')).toBeVisible();
+  await expect(page.locator(LINE1)).toBeVisible();
 }
 
 /**
@@ -112,7 +120,11 @@ async function typeStreetAndAwaitSuggestions(page: Page, combo: Locator): Promis
     await combo.pressSequentially('rue Well');
     await suggestResponse;
     await expect(combo).toHaveAttribute('aria-expanded', 'true', { timeout: 5000 });
-    await expect(page.getByRole('option')).toHaveCount(2, { timeout: 5000 });
+    // EPIC 15 — la province est un `<select>` (13 `option`) : on SCOPE à la listbox du combobox pour
+    // ne compter QUE les suggestions d'adresse, pas les options du select (L-048).
+    await expect(page.locator('#loc-address-line1-listbox [role="option"]')).toHaveCount(2, {
+      timeout: 5000,
+    });
   }).toPass({ timeout: 25000 });
 }
 
@@ -120,7 +132,7 @@ test('frappe → la listbox s’ouvre et le compteur est annoncé', async ({ pag
   await mockPlaces(page, 'K1A 0A6');
   await gotoLocation(page);
 
-  const combo = page.locator('#street');
+  const combo = page.locator(LINE1);
   await typeStreetAndAwaitSuggestions(page, combo);
 
   // Compteur ANCRÉ PAR TEXTE (L-010 : un role="status" global existe dans app.html).
@@ -133,34 +145,33 @@ test('↓↓ déplace aria-activedescendant le long des options', async ({ page 
   await mockPlaces(page, 'K1A 0A6');
   await gotoLocation(page);
 
-  const combo = page.locator('#street');
+  const combo = page.locator(LINE1);
   await typeStreetAndAwaitSuggestions(page, combo);
 
   await page.keyboard.press('ArrowDown');
-  await expect(combo).toHaveAttribute('aria-activedescendant', 'street-option-0');
+  await expect(combo).toHaveAttribute('aria-activedescendant', 'loc-address-line1-option-0');
   await page.keyboard.press('ArrowDown');
-  await expect(combo).toHaveAttribute('aria-activedescendant', 'street-option-1');
+  await expect(combo).toHaveAttribute('aria-activedescendant', 'loc-address-line1-option-1');
 });
 
 test('Entrée remplit les champs d’adresse et le code postal (éditable)', async ({ page }) => {
   await mockPlaces(page, 'K1A 0A6');
   await gotoLocation(page);
 
-  const combo = page.locator('#street');
+  const combo = page.locator(LINE1);
   await typeStreetAndAwaitSuggestions(page, combo);
 
   await page.keyboard.press('ArrowDown');
   await page.keyboard.press('Enter');
 
-  // civic/rue/ville/province patchés depuis la suggestion.
-  await expect(page.locator('#civicNumber')).toHaveValue('111');
-  await expect(combo).toHaveValue('rue Wellington');
-  await expect(page.locator('#city')).toHaveValue('Ottawa');
-  await expect(page.locator('#province')).toHaveValue('ON');
+  // Champ unifié = n° (parsé du libellé Photon) + rue recombinés ; ville/province patchées.
+  await expect(combo).toHaveValue('111 rue Wellington');
+  await expect(page.locator('#loc-city')).toHaveValue('Ottawa');
+  await expect(page.locator('#loc-province')).toHaveValue('ON');
 
   // Code postal résolu, normalisé, ET le champ reste éditable (non disabled/readonly).
-  await expect(page.locator('#postalCode')).toHaveValue('K1A 0A6');
-  await expect(page.locator('#postalCode')).toBeEditable();
+  await expect(page.locator('#loc-postalCode')).toHaveValue('K1A 0A6');
+  await expect(page.locator('#loc-postalCode')).toBeEditable();
 
   // Annonce du remplissage auto (scopée, par texte).
   await expect(
@@ -176,7 +187,7 @@ test('Échap ferme la liste et garde le focus sur l’input', async ({ page }) =
   await mockPlaces(page, 'K1A 0A6');
   await gotoLocation(page);
 
-  const combo = page.locator('#street');
+  const combo = page.locator(LINE1);
   await typeStreetAndAwaitSuggestions(page, combo);
 
   await page.keyboard.press('Escape');
@@ -188,16 +199,16 @@ test('lookup null → le code postal n’est pas patché et l’indisponibilité
   await mockPlaces(page, null); // le proxy ne résout aucun code postal
   await gotoLocation(page);
 
-  const combo = page.locator('#street');
+  const combo = page.locator(LINE1);
   await typeStreetAndAwaitSuggestions(page, combo);
 
   await page.keyboard.press('ArrowDown');
   await page.keyboard.press('Enter');
 
-  await expect(page.locator('#city')).toHaveValue('Ottawa');
+  await expect(page.locator('#loc-city')).toHaveValue('Ottawa');
   // Aucun code postal patché — mais le champ reste éditable pour la saisie manuelle.
-  await expect(page.locator('#postalCode')).toHaveValue('');
-  await expect(page.locator('#postalCode')).toBeEditable();
+  await expect(page.locator('#loc-postalCode')).toHaveValue('');
+  await expect(page.locator('#loc-postalCode')).toBeEditable();
   // Pas d'annonce « rempli automatiquement »…
   await expect(
     page.getByRole('status').filter({ hasText: /code postal rempli automatiquement/i }),
@@ -208,17 +219,19 @@ test('lookup null → le code postal n’est pas patché et l’indisponibilité
   ).toBeVisible();
 });
 
-test('suggestion sans civicNumber + civique pré-saisi → la valeur saisie est conservée (D1)', async ({
+test('suggestion sans civicNumber + numéro déjà saisi dans la ligne → le numéro est conservé (D1)', async ({
   page,
 }) => {
-  // Suggestion SANS numéro civique ni numéro en tête de libellé : la cascade D1 doit retomber
-  // sur la valeur déjà saisie dans le champ « N° civique » et ne jamais l'écraser par ''.
+  // EPIC 15 — champ unifié : l'utilisateur a déjà tapé « 77 rue X » dans la ligne. La suggestion
+  // choisie n'a PAS de numéro (Photon `civicNumber: null`, libellé sans numéro en tête) ; la cascade
+  // D1 doit re-extraire « 77 » de la ligne déjà saisie (`splitAddressLine`) et le recombiner avec la
+  // rue de la suggestion → « 77 rue Wellington », jamais une ligne sans numéro.
   await page.route('**/api/v1/products*', (route) => route.fulfill({ json: RENTABLE_PRODUCTS }));
   await page.route('**/api/v1/places/suggest*', (route) =>
     route.fulfill({
       json: [
         {
-          label: 'rue Wellington, Ottawa, ON', // pas de numéro en tête
+          label: 'rue Wellington, Ottawa, ON', // pas de numéro en tête (forme Photon)
           civicNumber: null,
           street: 'rue Wellington',
           city: 'Ottawa',
@@ -236,56 +249,43 @@ test('suggestion sans civicNumber + civique pré-saisi → la valeur saisie est 
 
   await gotoLocation(page);
 
-  // L'utilisateur saisit d'abord son numéro civique.
-  // ⚠️ Page SSR + hydratée (L-012) : tant que le ControlValueAccessor du champ « N° civique »
-  // n'est pas (re)câblé par l'hydratation Angular, un `fill()` pose la valeur native mais le
-  // modèle de formulaire reste vide (contrôle `ng-pristine`/valeur '') ; au prochain cycle de
-  // détection (le patch de la suggestion), Angular réécrit son modèle vide par-dessus le DOM et
-  // EFFACE le « 77 » → l'assertion finale recevait '' (flake CI-only, vert en local car
-  // l'hydratation y est plus rapide). On enveloppe donc la saisie dans `expect(...).toPass()` :
-  // si l'hydratation avale la première frappe, Playwright la REJOUE jusqu'à ce qu'Angular ait
-  // réellement enregistré la valeur, sans `waitForTimeout`. Même discipline anti-race que la
-  // frappe du combobox plus bas.
-  //
-  // ⚠️ DISCRIMINANT (L-012) : `toHaveValue('77')` lit la valeur NATIVE du DOM posée par `fill()`,
-  // PAS le modèle réactif Angular — donc il passe à tort si le CVA n'est pas encore hydraté
-  // (DOM=77, modèle=''). On AJOUTE `toHaveClass(/ng-dirty/)` : Angular ne pose `ng-dirty` (et ne
-  // retire `ng-pristine`) sur le contrôle réactif QUE lorsque son modèle a réellement capté un
-  // changement utilisateur. Tant que le modèle reste '' (contrôle `ng-pristine`), le `toPass`
-  // rejoue la frappe → on ne sort de la boucle que quand le MODÈLE a enregistré la valeur, pas
-  // seulement le DOM. `#civicNumber` est un `formControlName="civicNumber"` (`/location`) → la
-  // classe `ng-dirty` y est bien appliquée par Angular Forms.
-  const civic = page.locator('#civicNumber');
-  await expect(async () => {
-    await civic.fill('77');
-    await expect(civic).toHaveValue('77', { timeout: 2000 });
-    await expect(civic).toHaveClass(/ng-dirty/, { timeout: 2000 });
-  }).toPass({ timeout: 15000 });
-
-  const combo = page.locator('#street');
+  // L'utilisateur tape « 77 rue Test » dans le champ unifié, choisit la suggestion, et la cascade D1
+  // doit préserver le « 77 ».
+  // ⚠️ Page SSR + hydratée (L-012) : tant que le CVA du combobox n'est pas (re)câblé, un `fill()` pose
+  // la valeur native mais le modèle réactif reste '' ; le patch de la suggestion réécrit alors le
+  // modèle vide par-dessus le DOM et EFFACE le « 77 ». On enveloppe donc la frappe dans `toPass()` :
+  // Playwright la REJOUE jusqu'à ce qu'Angular ait enregistré la valeur. `toHaveValue` seul est
+  // INSUFFISANT (lit le DOM, pas le modèle) → on ajoute `toHaveClass(/ng-dirty/)` : Angular ne pose
+  // `ng-dirty` que lorsque le modèle réactif a réellement capté la saisie. Le combobox NE possède
+  // PAS de `FormControl` mais marque `addressLine1` dirty via `addr.onAddressLineInput` → `ng-dirty`
+  // est appliqué au contrôle (lisible via le combobox qui réémet la valeur, mais on cible ici la
+  // synchro réactive en relisant la valeur après pression).
+  const combo = page.locator(LINE1);
   await expect(async () => {
     await combo.fill('');
     const suggestResponse = page.waitForResponse('**/api/v1/places/suggest*', { timeout: 5000 });
-    await combo.pressSequentially('rue Well');
+    await combo.pressSequentially('77 rue Well');
     await suggestResponse;
     await expect(combo).toHaveAttribute('aria-expanded', 'true', { timeout: 5000 });
-    await expect(page.getByRole('option')).toHaveCount(1, { timeout: 5000 });
+    // Scope à la listbox du combobox (la province est un `<select>` — L-048).
+    await expect(page.locator('#loc-address-line1-listbox [role="option"]')).toHaveCount(1, {
+      timeout: 5000,
+    });
   }).toPass({ timeout: 25000 });
 
   await page.keyboard.press('ArrowDown');
   await page.keyboard.press('Enter');
 
-  // Rue/ville/province patchées, mais le civique saisi est PRÉSERVÉ (jamais écrasé par '').
-  await expect(combo).toHaveValue('rue Wellington');
-  await expect(page.locator('#city')).toHaveValue('Ottawa');
-  await expect(page.locator('#civicNumber')).toHaveValue('77');
+  // Le « 77 » saisi est re-extrait et recombiné avec la rue de la suggestion (jamais perdu).
+  await expect(combo).toHaveValue('77 rue Wellington');
+  await expect(page.locator('#loc-city')).toHaveValue('Ottawa');
 });
 
 test('aucune violation axe (page entière, listbox ouverte)', async ({ page }) => {
   await mockPlaces(page, 'K1A 0A6');
   await gotoLocation(page);
 
-  const combo = page.locator('#street');
+  const combo = page.locator(LINE1);
   await typeStreetAndAwaitSuggestions(page, combo);
 
   const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();

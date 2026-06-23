@@ -7,6 +7,14 @@
 /** Numéro civique : chiffres, lettre finale optionnelle (« 123 », « 123A »). */
 export const CIVIC_PATTERN = /^\d+[A-Za-z]?$/;
 
+/**
+ * Motif d'une ligne d'adresse unifiée « n° et rue » exigeant un numéro civique en tête
+ * (« 45 rue de l'Atmosphère », « 123A boul. Saint-Joseph »). Miroir client du serveur
+ * `CivicNumber.NotEmpty()` (L-004) : posé sur le contrôle `addressLine1` quand l'adresse est
+ * requise, pour que l'utilisateur inclue bien le numéro dans le champ unique (EPIC 15, US-15.2).
+ */
+export const ADDRESS_LINE_PATTERN = /^\s*\d+[A-Za-z]?\s+\S/;
+
 /** Code postal canadien, avec ou sans espace, majuscules ou minuscules (« J8X 1A1 »). */
 export const POSTAL_PATTERN = /^[A-Za-z]\d[A-Za-z] ?\d[A-Za-z]\d$/;
 
@@ -47,4 +55,25 @@ export function parseCivicFromLabel(label: string): string | null {
   const civic = match[1];
   // Garde l'invariant partagé : ne renvoyer qu'un civique au format canonique (L-004).
   return CIVIC_PATTERN.test(civic) ? civic : null;
+}
+
+/**
+ * Scinde une ligne d'adresse unifiée « n° et rue » en `{ civicNumber, street }` — voie serveur B1
+ * (EPIC 15, US-15.2) : le client n'a qu'un seul champ `addressLine1`, mais le `AddressDto` serveur
+ * reste découpé. On scinde au moment d'envoyer, sans toucher le domaine (aucune migration EF).
+ *
+ * Tolérante à la frappe libre (saisie sans suggestion, risque §5 du spike) : si la ligne ne commence
+ * pas par un numéro, `civicNumber` est vide et toute la ligne devient `street` (best-effort). Pure et
+ * testable.
+ *
+ *  - « 45 rue X »        → { civicNumber: '45',   street: 'rue X' }
+ *  - « 123A boul Y »     → { civicNumber: '123A', street: 'boul Y' }
+ *  - « rue Z »           → { civicNumber: '',     street: 'rue Z' }
+ *  - «  »                → { civicNumber: '',     street: '' }
+ */
+export function splitAddressLine(line: string): { civicNumber: string; street: string } {
+  const trimmed = (line ?? '').trim();
+  const civic = parseCivicFromLabel(trimmed) ?? '';
+  const street = civic ? trimmed.slice(trimmed.indexOf(civic) + civic.length).trim() : trimmed;
+  return { civicNumber: civic, street };
 }

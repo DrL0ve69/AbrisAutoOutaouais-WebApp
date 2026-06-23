@@ -83,6 +83,11 @@ describe('AddressAutocompleteComponent — combobox APG', () => {
     expect(input).toHaveAttribute('aria-autocomplete', 'list');
   });
 
+  it('porte le jeton WCAG 1.3.5 autocomplete="address-line1" par défaut (EPIC 15)', async () => {
+    const { input } = await setup();
+    expect(input).toHaveAttribute('autocomplete', 'address-line1');
+  });
+
   it('la frappe ouvre la listbox et annonce le nombre de résultats', async () => {
     const user = userEvent.setup();
     const { input, q } = await setup();

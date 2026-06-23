@@ -14,7 +14,11 @@ import { PlacesService } from '../../../../../core/services/places.service';
 import { PlaceSuggestionDto } from '../../../../../core/models/place.model';
 import { AddressAutocompleteComponent } from '../../../../../shared/components/a11y-components/autocomplete/address-autocomplete.component';
 import { AddressChoiceComponent } from '../../../../../shared/components/a11y-components/address-choice/address-choice.component';
-import { CIVIC_PATTERN } from '../../../../../core/validators/address.validators';
+import {
+  ADDRESS_LINE_PATTERN,
+  PROVINCES,
+  splitAddressLine,
+} from '../../../../../core/validators/address.validators';
 import { isWithinServiceArea } from '../../../util/service-area.util';
 import { Footprint } from '../../../util/footprint.util';
 import { MapMeasureComponent } from '../map-measure/map-measure';
@@ -77,8 +81,9 @@ export class MapVoieComponent {
   protected readonly geocoding = signal<'idle' | 'busy'>('idle');
 
   protected readonly form = this.fb.nonNullable.group({
-    civicNumber: ['', [Validators.required, Validators.pattern(CIVIC_PATTERN)]],
-    street: ['', Validators.required],
+    // Champ unifié « n° et rue » (EPIC 15) : requis + numéro civique en tête. Pas de code postal
+    // ici (mesurer un stationnement n'en a pas besoin).
+    addressLine1: ['', [Validators.required, Validators.pattern(ADDRESS_LINE_PATTERN)]],
     city: ['', Validators.required],
     province: ['QC', Validators.required],
   });
@@ -108,6 +113,9 @@ export class MapVoieComponent {
     });
   }
 
+  /** Provinces/territoires pour le `<select>` (code 2 lettres canonique, L-011). */
+  protected readonly provinces = PROVINCES;
+
   protected get f() {
     return this.form.controls;
   }
@@ -127,7 +135,9 @@ export class MapVoieComponent {
       return;
     }
     const v = this.form.getRawValue();
-    this.geocodeAndCenter(v.civicNumber, v.street, v.city, v.province || 'QC');
+    // EPIC 15 — scinde la ligne unifiée en n° + rue pour le géocodage (qui prend civic/rue séparés).
+    const { civicNumber, street } = splitAddressLine(v.addressLine1);
+    this.geocodeAndCenter(civicNumber, street, v.city, v.province || 'QC');
   }
 
   /** Géocode l'adresse puis centre la carte ; `null` = adresse non localisée (repli Gatineau, non bloquant). */

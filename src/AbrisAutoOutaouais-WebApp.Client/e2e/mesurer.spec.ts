@@ -62,7 +62,7 @@ async function mockApi(page: Page, suggestJson: unknown[] = []): Promise<void> {
 function suggestion(lat: number, lng: number, city: string): unknown {
   return {
     label: `123 rue Principale, ${city}, QC`,
-    civicNumber: '123',
+    civicNumber: null, // forme Photon : numéro dans le libellé (L-011)
     street: 'rue Principale',
     city,
     province: 'QC',
@@ -136,8 +136,8 @@ async function calculerVehiculeBerline(
  * coordonnées (mock D4/D5) ou une liste vide.
  */
 async function fillMapAddress(page: Page, city = 'Gatineau'): Promise<void> {
-  const civic = page.getByLabel(/numéro civique/i);
-  const rue = page.locator('#mesurer-rue');
+  // EPIC 15 — champ UNIFIÉ « n° et rue » : on saisit « 123 rue Principale » dans un seul combobox.
+  const adresse = page.locator('#mesurer-address-line1');
   const ville = page.getByLabel(/ville/i);
 
   // SSR + hydratation (L-012, corollaire civic) : un `fill`/`pressSequentially` lancé avant que le
@@ -146,12 +146,10 @@ async function fillMapAddress(page: Page, city = 'Gatineau'): Promise<void> {
   // valeur — sans cela, le géocodage part avec une adresse vide et le centrage/avertissement aval
   // ne se produit pas (flake observé sous charge sur la voie carte).
   await expect(async () => {
-    await civic.fill('123');
-    await rue.fill(''); // vide d'abord pour que la frappe re-déclenche le combobox
-    await rue.pressSequentially('123 rue Principale');
+    await adresse.fill(''); // vide d'abord pour que la frappe re-déclenche le combobox
+    await adresse.pressSequentially('123 rue Principale');
     await ville.fill(city);
-    await expect(civic).toHaveValue('123');
-    await expect(rue).toHaveValue('123 rue Principale');
+    await expect(adresse).toHaveValue('123 rue Principale');
     await expect(ville).toHaveValue(city);
   }).toPass({ timeout: 15000 });
 

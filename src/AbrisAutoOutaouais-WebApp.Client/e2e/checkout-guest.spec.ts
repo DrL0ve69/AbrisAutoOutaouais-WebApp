@@ -117,11 +117,11 @@ async function runGuestCheckout(page: Page, addr: AddressCase): Promise<void> {
   await fillBySelector(page, '#co-guest-email', GUEST.email);
   await fillBySelector(page, '#co-guest-phone', GUEST.phone);
 
-  // Adresse de livraison (champs directs de la caisse).
-  await page.locator('#co-civic').fill(addr.civicNumber);
-  await page.locator('#co-street').fill(addr.street); // input de l'autocomplete
+  // Adresse de livraison. EPIC 15 — champ UNIFIÉ « n° et rue » : on saisit « 111 rue Wellington »
+  // dans `#co-address-line1` ; le split à l'envoi reproduira { civicNumber, street } côté serveur.
+  await page.locator('#co-address-line1').fill(`${addr.civicNumber} ${addr.street}`);
   await page.locator('#co-city').fill(addr.city);
-  await page.locator('#co-province').fill(addr.province);
+  await page.locator('#co-province').selectOption(addr.province); // province = <select> (codes 2 lettres)
   await page.locator('#co-postal').fill(addr.postalCode);
 
   // EPIC 7 : paiement par virement Interac — aucune carte. Capter le POST /orders (barrière) et le

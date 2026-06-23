@@ -431,37 +431,26 @@
                 novalidate
                 class="profile-form"
               >
-                <div class="field-row">
-                  <div class="field field--civic">
-                    <label class="field__label" for="addr-civic">Numéro civique</label>
-                    <input
-                      id="addr-civic"
-                      type="text"
-                      class="field__input"
-                      formControlName="civicNumber"
-                      autocomplete="off"
-                      inputmode="text"
-                      placeholder="123"
-                      [attr.aria-invalid]="aCivic.invalid && aCivic.touched"
-                      aria-describedby="addr-civic-err"
-                    />
-                    @if (aCivic.invalid && aCivic.touched) {
-                      <span id="addr-civic-err" class="field__error" role="alert">
-                        Numéro civique invalide (ex&nbsp;: 123 ou 123A).
-                      </span>
-                    }
-                  </div>
-                  <div class="field">
-                    <app-address-autocomplete
-                      id="addr-street"
-                      label="Rue"
-                      [value]="addressForm.controls.street.value"
-                      [cityHint]="addressForm.controls.city.value"
-                      [provinceHint]="addressForm.controls.province.value"
-                      (valueChange)="onStreetInput($event)"
-                      (suggestionSelected)="onSuggestionSelected($event)"
-                    />
-                  </div>
+                <!-- Champ unifié « n° et rue » (EPIC 15) — autocomplete="address-line1". -->
+                <div class="field">
+                  <app-address-autocomplete
+                    id="addr-address-line1"
+                    label="Adresse (n° et rue)"
+                    i18n-label="@@address.line1.label"
+                    [value]="addressForm.controls.addressLine1.value"
+                    [cityHint]="addressForm.controls.city.value"
+                    [provinceHint]="addressForm.controls.province.value"
+                    [invalid]="aLine1.invalid && aLine1.touched"
+                    describedBy="addr-address-line1-hint addr-address-line1-err"
+                    (valueChange)="onAddressLineInput($event)"
+                    (suggestionSelected)="onSuggestionSelected($event)"
+                  />
+                  <span id="addr-address-line1-hint" class="field__hint" i18n="@@address.line1.hint">Ex&nbsp;: 123 rue des Abris</span>
+                  @if (aLine1.invalid && aLine1.touched) {
+                    <span id="addr-address-line1-err" class="field__error" role="alert" i18n="@@address.line1.invalid">
+                      Indiquez le numéro civique suivi de la rue (ex&nbsp;: 123 rue des Abris).
+                    </span>
+                  }
                 </div>
 
                 <div class="field">
@@ -494,17 +483,11 @@
                       id="addr-province"
                       class="field__input field__select"
                       formControlName="province"
+                      autocomplete="address-level1"
                     >
-                      <option value="QC">Québec (QC)</option>
-                      <option value="ON">Ontario (ON)</option>
-                      <option value="BC">Colombie-Britannique (BC)</option>
-                      <option value="AB">Alberta (AB)</option>
-                      <option value="MB">Manitoba (MB)</option>
-                      <option value="SK">Saskatchewan (SK)</option>
-                      <option value="NS">Nouvelle-Écosse (NS)</option>
-                      <option value="NB">Nouveau-Brunswick (NB)</option>
-                      <option value="NL">Terre-Neuve-et-Labrador (NL)</option>
-                      <option value="PE">Île-du-Prince-Édouard (PE)</option>
+                      @for (p of provinces; track p.code) {
+                      <option [value]="p.code">{{ p.label }}</option>
+                      }
                     </select>
                   </div>
                 </div>
