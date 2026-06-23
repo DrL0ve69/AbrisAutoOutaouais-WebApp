@@ -33,7 +33,7 @@
 
 | ID | Épopée | Point `.docx` | Dépend de | Estim. | MoSCoW | Risque |
 |----|--------|:-------------:|-----------|:------:|:------:|--------|
-| **EPIC 7** | Paiements en ligne (Interac e-Transfer + cartes) | 1 | — | 21+ | Could | ✅ **TERMINÉ (2026-06-23)** — PR #59 · e-Transfer 3 flux + stubs keyless + doc webhook |
+| **EPIC 7** | Paiements en ligne (Interac e-Transfer + cartes) | 1 | — | 21+ | Could | ✅ **TERMINÉ (2026-06-23)** — PR #59, SHA `45b8157` · e-Transfer 3 flux + stubs keyless + doc webhook |
 | **EPIC 8** | Gestion des employés & paie (informative) | 2 | EPIC 11 | 8–13 | Could | 🟠 Moyen (conformité fiscale si paie réelle) |
 | **EPIC 9** | Catalogue par dimensions configurables | 3 | — | 13 | Should | ✅ **TERMINÉ (2026-06-19)** — PR #45 |
 | **EPIC 10** | Suggestion d'abris intelligente (mesure & véhicule) | 4 | EPIC 9 | 8 | Should | ✅ **TERMINÉ (2026-06-21)** — PR #50 |
