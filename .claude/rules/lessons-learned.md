@@ -1057,10 +1057,12 @@
   qualify it — « (vitest — color-contrast NON couvert; contraste validé en e2e/live) » — so the gate
   isn't over-credited (same honesty as [[L-005]]: a guard that can't fire guards nothing). Best: every
   new tinted-background component ships its own dual-theme axe e2e (the E5 « axe both themes » gate).
+  **Corollary — an axe scan must run on a STABILISED DOM; a transient `:disabled`/opacity state can produce a false contrast violation (PR #58, `feat/shelters-configure-only`).** `mesurer.spec.ts:500` (D5) ran an axe `color-contrast` scan immediately after a `role="status"` appeared, without waiting for a `.btn--outline` trigger button to exit its transitional `:disabled` state. While disabled, the button's CSS applied `opacity: 0.5` — axe reads the composited color at that opacity and computed #c54444 on #f3d7d7 = 3.62:1 (< 4.5 AA), flagging a violation that does not exist in the stable post-action state. Fix: add `await expect(button).toBeEnabled()` (and `not.toHaveAttribute('aria-busy', 'true')` if relevant) **before** the axe scan. This is the same vacuity axis as L-016 itself (axe sees the DOM as it is at scan time, not as it will be) — except here the DOM is not permanently wrong, only transiently so. A scan fired before a transition has settled is a false positive that causes flake, not a missed real violation. Guard: after any action that triggers a loading/disabled state on an interactive element, gate the axe scan on `toBeEnabled()` + absence of `aria-busy`.
 - **Refs.** `src/testing/axe-helper.ts:14` (`color-contrast` disabled),
   `src/app/shared/layout/navbar/navbar.scss` (`.navbar--scrolled`), Épic-E commits `cdd82a4` / `1e38a4d`;
   `e2e/address-choice.spec.ts` (per-theme `for (const theme of ['light','dark'])` axe scan of the
-  pastille on `--color-bg-muted`, Épic D).
+  pastille on `--color-bg-muted`, Épic D);
+  `e2e/mesurer.spec.ts:500` (`toBeEnabled()` barrier before axe scan, PR #58 `feat/shelters-configure-only`).
 
 ## L-015 · `role="radio"`/`radiogroup` without roving `tabindex` + arrow keys is keyboard-broken — and AXE passes anyway
 
@@ -1159,9 +1161,11 @@
   the spec is byte-identical to master and none of the `/location` cascade changed). Fix: wrap the
   `fill` in `await expect(async () => { await ctrl.fill('77'); await expect(ctrl).toHaveValue('77'); }).toPass()`
   so Playwright replays it until Angular actually registers the value.
+  **Corollary — `toHaveValue` inside a `toPass` proves the DOM value, NOT the reactive model (PR #58, `feat/shelters-configure-only`).** The D1 civic `toPass` was already in place (`fill('77')` → `toHaveValue('77')`), yet the spec still flaked in CI. Root cause: `toHaveValue` reads the **native DOM input value** set by `fill()` — it returns `'77'` even when the `ControlValueAccessor` is not yet hydrated and the Angular `FormControl` still holds `''`. The `toPass` therefore exits as soon as the DOM shows `77` (immediately after `fill`), before Angular's reactive model has registered the change. The next change-detection cycle (a suggestion patch, an autofill effect) then writes the model's `''` back into the DOM, erasing the typed value. Fix: add `await expect(civic).toHaveClass(/ng-dirty/)` **inside the same `toPass`**, after `toHaveValue`. Angular only sets `ng-dirty` (and removes `ng-pristine`) when its reactive model has actually recorded a user-driven change — so the `toPass` loop does not exit until both the DOM **and** the model hold the value. Rule of thumb: in an SSR+hydration test, **`toHaveValue` is a DOM assertion, not a reactive-model assertion** — it is vacuous as a hydration gate ([[L-009]]: an assertion that passes on the broken path proves nothing). Pair it with `toHaveClass(/ng-dirty/)` (or an equivalent model-state signal) whenever a subsequent CD cycle could overwrite the DOM from a stale model value.
 - **Refs.** `e2e/address-autocomplete.spec.ts` (`pressSequentially` + `waitForResponse` barrier;
-  civic `fill` wrapped in `expect(...).toPass()`), commits `6e23b48` (combobox), `feat/epic-g-catalog`
-  (civic); `e2e/mesurer.spec.ts` (helper `calculerVehiculeBerline` = fill→toHaveValue→click→heading
+  civic `fill` wrapped in `expect(...).toPass()` with `toHaveClass(/ng-dirty/)`), commits `6e23b48`
+  (combobox), `feat/epic-g-catalog` (civic), PR #58 `feat/shelters-configure-only` (ng-dirty corollary);
+  `e2e/mesurer.spec.ts` (helper `calculerVehiculeBerline` = fill→toHaveValue→click→heading
   dans `toPass`; `fillMapAddress` durci), branch `feat/epic-11-calendrier`.
 
 ## L-011 · Interchangeable port implementations must each emit the CANONICAL format — and the test mock must mimic the DEFAULT provider, not a conformant one
