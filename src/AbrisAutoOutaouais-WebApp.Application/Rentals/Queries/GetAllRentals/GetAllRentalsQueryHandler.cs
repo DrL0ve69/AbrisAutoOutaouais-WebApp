@@ -27,6 +27,8 @@ internal sealed class GetAllRentalsQueryHandler(
                 r.Address.Street,
                 r.Address.City,
                 r.CreatedAt,
+                PaymentReference = r.Payment != null ? r.Payment.Reference : null,
+                PaymentConfirmedAt = r.Payment != null ? r.Payment.ConfirmedAt : null,
             })
             .ToListAsync(ct);
 
@@ -51,7 +53,9 @@ internal sealed class GetAllRentalsQueryHandler(
                 r.EndDate,
                 r.Status.ToString(),
                 $"{r.CivicNumber} {r.Street}, {r.City}",
-                r.CreatedAt))
+                r.CreatedAt,
+                r.PaymentReference,
+                r.PaymentConfirmedAt))
             .ToList();
     }
 

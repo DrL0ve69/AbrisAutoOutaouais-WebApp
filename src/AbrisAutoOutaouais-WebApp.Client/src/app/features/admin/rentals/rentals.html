@@ -31,7 +31,7 @@
         <div class="admint__tablewrap" role="region" tabindex="0" aria-labelledby="adminr-list-heading">
           <table class="admint__table">
             <caption class="sr-only" i18n="@@admin.rentals.table.caption">
-              Liste des contrats de location avec client, abri, période, tarif mensuel, statut et actions.
+              Liste des contrats de location avec client, abri, période, tarif mensuel, statut, état du paiement et actions.
             </caption>
             <thead>
               <tr>
@@ -40,6 +40,7 @@
                 <th scope="col" i18n="@@admin.rentals.table.period">Période</th>
                 <th scope="col" i18n="@@admin.rentals.table.rate">Tarif mensuel</th>
                 <th scope="col" i18n="@@admin.rentals.table.status">Statut</th>
+                <th scope="col" i18n="@@admin.rentals.table.payment">Paiement</th>
                 <th scope="col" i18n="@@admin.rentals.table.actions">Actions</th>
               </tr>
             </thead>
@@ -62,7 +63,32 @@
                       {{ statusLabel(r.status) }}
                     </span>
                   </td>
+                  <td class="admint__payment">
+                    @if (r.paymentReference) {
+                      <span class="admint__payref">{{ r.paymentReference }}</span>
+                      @if (r.paymentConfirmedAt) {
+                        <span class="admint__badge admint__badge--paid" i18n="@@admin.rentals.payment.confirmed">Payé</span>
+                        <span class="admint__paydate">{{ r.paymentConfirmedAt | date: 'short' : '' : 'fr-CA' }}</span>
+                      } @else {
+                        <span class="admint__badge admint__badge--pending" i18n="@@admin.rentals.payment.awaiting">En attente</span>
+                      }
+                    } @else {
+                      <span class="admint__noaction" aria-hidden="true">—</span>
+                    }
+                  </td>
                   <td class="admint__rowactions">
+                    @if (canMarkPaid(r)) {
+                      <button
+                        type="button"
+                        class="btn btn--small"
+                        [disabled]="pendingPaymentId() === r.id"
+                        [attr.aria-label]="markPaidLabel(r.paymentReference ?? '')"
+                        (click)="confirmPayment(r)"
+                        i18n="@@admin.rentals.action.markPaid"
+                      >
+                        Marquer payé
+                      </button>
+                    }
                     @if (isCancellable(r.status)) {
                       <button
                         type="button"
@@ -73,7 +99,8 @@
                       >
                         Annuler
                       </button>
-                    } @else {
+                    }
+                    @if (!canMarkPaid(r) && !isCancellable(r.status)) {
                       <span class="admint__noaction" aria-hidden="true">—</span>
                     }
                   </td>

@@ -25,6 +25,8 @@ const activeRental: AdminRentalDto = {
   status: 'Active',
   addressSummary: '123 rue des Érables, Gatineau',
   createdAt: '2026-06-01T15:00:00Z',
+  paymentReference: 'ABR-ACTIVE-01',
+  paymentConfirmedAt: '2026-06-02T10:00:00Z',
 };
 
 const expiredRental: AdminRentalDto = {
@@ -35,11 +37,24 @@ const expiredRental: AdminRentalDto = {
   status: 'Expired',
 };
 
+/** Contrat EN ATTENTE DE PAIEMENT : virement attaché mais non confirmé → bouton « Marquer payé ». */
+const pendingRental: AdminRentalDto = {
+  ...activeRental,
+  id: 'r3',
+  customerName: 'Diane Paiement',
+  customerEmail: 'diane@test.com',
+  status: 'PendingPayment',
+  paymentReference: 'ABR-PEND-03',
+  paymentConfirmedAt: null,
+};
+
 async function setup(rentals: AdminRentalDto[] = [activeRental, expiredRental]) {
   const cancel = vi.fn().mockReturnValue(of(undefined));
+  const confirmPayment = vi.fn().mockReturnValue(of(undefined));
   const adminStub: Partial<AdminRentalService> = {
     getAllRentals: () => of(rentals),
     cancel,
+    confirmPayment,
   };
   const toastStub: Partial<ToastService> = { show: vi.fn() };
 
@@ -50,7 +65,7 @@ async function setup(rentals: AdminRentalDto[] = [activeRental, expiredRental]) 
       { provide: ToastService, useValue: toastStub },
     ],
   });
-  return { ...rendered, cancel };
+  return { ...rendered, cancel, confirmPayment };
 }
 
 describe('AdminRentalsComponent', () => {
@@ -119,6 +134,36 @@ describe('AdminRentalsComponent', () => {
     expect(cancel).not.toHaveBeenCalled();
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     await waitFor(() => expect(trigger).toHaveFocus());
+  });
+
+  it('affiche « Marquer payé » uniquement pour un contrat PendingPayment et réconcilie le paiement (EPIC 7.2)', async () => {
+    const user = userEvent.setup();
+    // r3 (PendingPayment) → bouton présent ; r1 (Active, déjà payé) → pas de bouton.
+    const { confirmPayment } = await setup([pendingRental, activeRental]);
+
+    expect(await screen.findByText('Diane Paiement')).toBeInTheDocument();
+    // L'aria-label porte la référence (L-024).
+    const markPaid = screen.getByRole('button', { name: /marquer payé — abr-pend-03/i });
+    expect(markPaid).toBeInTheDocument();
+    // Active déjà payé → pas de bouton « Marquer payé » pour Camille.
+    expect(
+      screen.queryByRole('button', { name: /marquer payé — abr-active-01/i }),
+    ).not.toBeInTheDocument();
+
+    await user.click(markPaid);
+    expect(confirmPayment).toHaveBeenCalledWith('r3');
+  });
+
+  it('affiche l’état du paiement : « Payé » + date pour un contrat confirmé, « En attente » sinon', async () => {
+    await setup([pendingRental, activeRental]);
+
+    await screen.findByText('Diane Paiement');
+    // Référence du virement affichée pour les deux.
+    expect(screen.getByText('ABR-PEND-03')).toBeInTheDocument();
+    expect(screen.getByText('ABR-ACTIVE-01')).toBeInTheDocument();
+    // Badge « Payé » pour le contrat confirmé, « En attente » pour le PendingPayment.
+    expect(screen.getByText(/^payé$/i)).toBeInTheDocument();
+    expect(screen.getByText(/^en attente$/i)).toBeInTheDocument();
   });
 
   it('ne présente aucune violation WCAG (table + dialogue ouvert)', async () => {

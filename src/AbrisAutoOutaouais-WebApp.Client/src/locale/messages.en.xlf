@@ -150,6 +150,10 @@
         <source>L&apos;annulation a échoué. Veuillez réessayer.</source>
         <target>Cancellation failed. Please try again.</target>
       </trans-unit>
+      <trans-unit id="account.rentals.status.pendingPayment" datatype="html">
+        <source>En attente de paiement</source>
+        <target>Awaiting payment</target>
+      </trans-unit>
       <trans-unit id="account.rentals.status.active" datatype="html">
         <source>Active</source>
         <target>Active</target>
@@ -1682,8 +1686,32 @@
         <target>The end date must be after the start date.</target>
       </trans-unit>
       <trans-unit id="location.success" datatype="html">
-        <source>Location confirmée !</source>
-        <target>Rental confirmed!</target>
+        <source>Location enregistrée — suivez les instructions de virement Interac pour la régler.</source>
+        <target>Rental saved — follow the Interac e-Transfer instructions to pay for it.</target>
+      </trans-unit>
+      <trans-unit id="location.etransfer.heading" datatype="html">
+        <source> Réglez votre location par virement Interac </source>
+        <target> Pay for your rental by Interac e-Transfer </target>
+      </trans-unit>
+      <trans-unit id="location.etransfer.intro" datatype="html">
+        <source> Votre location est enregistrée. Envoyez un virement Interac avec les informations ci-dessous pour la régler. Conservez la référence : elle permet de rapprocher votre paiement. </source>
+        <target> Your rental has been saved. Send an Interac e-Transfer with the details below to pay for it. Keep the reference: it lets us match your payment. </target>
+      </trans-unit>
+      <trans-unit id="location.etransfer.recipient" datatype="html">
+        <source>Courriel destinataire</source>
+        <target>Recipient email</target>
+      </trans-unit>
+      <trans-unit id="location.etransfer.amount" datatype="html">
+        <source>Montant à virer</source>
+        <target>Amount to transfer</target>
+      </trans-unit>
+      <trans-unit id="location.etransfer.reference" datatype="html">
+        <source>Référence à inscrire dans le message</source>
+        <target>Reference to include in the message</target>
+      </trans-unit>
+      <trans-unit id="location.etransfer.done" datatype="html">
+        <source> Terminé — retour à l'accueil </source>
+        <target> Done — back to home </target>
       </trans-unit>
       <trans-unit id="location.error" datatype="html">
         <source>La location a échoué. Veuillez réessayer.</source>
@@ -2616,6 +2644,38 @@
       <trans-unit id="admin.rentals.table.actions" datatype="html">
         <source>Actions</source>
         <target>Actions</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.table.payment" datatype="html">
+        <source>Paiement</source>
+        <target>Payment</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.payment.confirmed" datatype="html">
+        <source>Payé</source>
+        <target>Paid</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.payment.awaiting" datatype="html">
+        <source>En attente</source>
+        <target>Awaiting</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.action.markPaid" datatype="html">
+        <source> Marquer payé </source>
+        <target> Mark as paid </target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.action.markPaidLabel" datatype="html">
+        <source>Marquer payé — <x id="ref" equiv-text="reference"/></source>
+        <target>Mark as paid — <x id="ref" equiv-text="reference"/></target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.toast.paid" datatype="html">
+        <source>Paiement réconcilié — location activée.</source>
+        <target>Payment reconciled — rental activated.</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.toast.paidError" datatype="html">
+        <source>La réconciliation du paiement a échoué.</source>
+        <target>Payment reconciliation failed.</target>
+      </trans-unit>
+      <trans-unit id="admin.rentals.status.pendingPayment" datatype="html">
+        <source>En attente de paiement</source>
+        <target>Awaiting payment</target>
       </trans-unit>
       <trans-unit id="admin.rentals.status.active" datatype="html">
         <source>Active</source>

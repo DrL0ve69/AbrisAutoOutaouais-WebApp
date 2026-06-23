@@ -4,13 +4,15 @@ import {
   ElementRef,
   OnInit,
   computed,
+  effect,
   inject,
   signal,
+  viewChild,
   viewChildren,
 } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { ShelterService } from '../../core/services/shelter.service';
 import { RentalService } from '../../core/services/rental.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -18,6 +20,7 @@ import { ToastService } from '../../core/services/toast.service';
 import { createAddressFormController } from '../../core/services/address-form.controller';
 import { RentableShelterModel } from '../../core/models/shelter.model';
 import { CreateRentalContractRequest } from '../../core/models/rental.model';
+import { PaymentInstructions } from '../../core/models/order.model';
 import { FaqComponent } from '../../shared/components/faq/faq.component';
 import { AddressAutocompleteComponent } from '../../shared/components/a11y-components/autocomplete/address-autocomplete.component';
 import { AddressChoiceComponent } from '../../shared/components/a11y-components/address-choice/address-choice.component';
@@ -50,6 +53,7 @@ import { formatFeetInches } from '../mesurer/util/feet-inches.util';
   imports: [
     ReactiveFormsModule,
     CurrencyPipe,
+    RouterLink,
     FaqComponent,
     AddressAutocompleteComponent,
     AddressChoiceComponent,
@@ -67,10 +71,37 @@ export class LocationComponent implements OnInit {
   private readonly rentals = inject(RentalService);
   private readonly auth = inject(AuthService);
   private readonly toast = inject(ToastService);
-  private readonly router = inject(Router);
 
   protected readonly loading = signal(true);
   protected readonly submitting = signal(false);
+
+  /**
+   * Étape du tunnel : saisie du formulaire, puis instructions de virement Interac (EPIC 7.2),
+   * comme la caisse. Aucune redirection automatique : le client lit et exécute le virement ;
+   * la réconciliation (activation du contrat) est faite plus tard par l'administration.
+   */
+  protected readonly step = signal<'form' | 'instructions'>('form');
+  /** Instructions de virement Interac renvoyées par le serveur à la création du contrat. */
+  protected readonly paymentInstructions = signal<PaymentInstructions | null>(null);
+
+  /**
+   * Titre du panneau d'instructions — cible de focus à l'arrivée sur l'étape (WCAG 2.4.3). Rendu
+   * INCONDITIONNELLEMENT dès `step === 'instructions'`, hors du `@if (paymentInstructions())` interne
+   * (L-006). Focusé APRÈS rendu via l'effet ci-dessous, jamais dans le tick du `set()`.
+   */
+  private readonly instructionsHeading =
+    viewChild<ElementRef<HTMLElement>>('instructionsHeading');
+
+  constructor() {
+    // Focus du titre du panneau d'instructions une fois rendu (L-006) : le `viewChild` ne se résout
+    // qu'au rendu suivant le passage `step='instructions'`.
+    effect(() => {
+      const heading = this.instructionsHeading();
+      if (this.step() === 'instructions' && heading) {
+        heading.nativeElement.focus();
+      }
+    });
+  }
 
   // ── Modèles louables + sélection ─────────────────────────────────────────────
   protected readonly rentableModels = signal<readonly RentableShelterModel[]>([]);
@@ -239,14 +270,16 @@ export class LocationComponent implements OnInit {
     };
 
     this.rentals.createRental(request).subscribe({
-      next: () => {
+      next: response => {
         this.submitting.set(false);
+        // Contrat enregistré (PendingPayment) : on présente les instructions de virement Interac.
+        // AUCUNE redirection automatique — le client doit lire et exécuter le virement (EPIC 7.2).
+        this.paymentInstructions.set(response.payment);
+        this.step.set('instructions');
         this.toast.show(
-          $localize`:@@location.success:Location confirmée !`,
+          $localize`:@@location.success:Location enregistrée — suivez les instructions de virement Interac pour la régler.`,
           'success',
         );
-        // Invité : « mes locations » est protégé par le garde d'auth → on le renvoie à l'accueil.
-        this.router.navigateByUrl(this.isGuest() ? '/' : '/mon-compte/locations');
       },
       error: () => {
         this.submitting.set(false);

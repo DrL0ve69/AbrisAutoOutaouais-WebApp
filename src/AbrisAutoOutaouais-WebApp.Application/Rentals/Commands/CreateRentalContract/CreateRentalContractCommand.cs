@@ -1,6 +1,7 @@
 using AbrisAutoOutaouais_WebApp.Application.Auth.DTOs;
 using AbrisAutoOutaouais_WebApp.Application.Common.Mediator;
 using AbrisAutoOutaouais_WebApp.Application.Common.Models;
+using AbrisAutoOutaouais_WebApp.Application.Payments.Common;
 
 namespace AbrisAutoOutaouais_WebApp.Application.Rentals.Commands.CreateRentalContract;
 
@@ -17,4 +18,12 @@ public sealed record CreateRentalContractCommand(
     DateOnly StartDate,
     DateOnly EndDate,
     AddressDto Address,
-    GuestContact? GuestContact = null) : ICommand<Guid>;
+    GuestContact? GuestContact = null) : ICommand<CreateRentalContractResult>;
+
+/// <summary>
+/// Résultat de la création d'un contrat de location : l'identifiant du contrat créé et les
+/// instructions de paiement (virement Interac) à présenter au client. Le contrat reste
+/// <c>PendingPayment</c> jusqu'à la réconciliation du paiement par l'administration. Calque
+/// <c>PlaceOrderResult</c>.
+/// </summary>
+public sealed record CreateRentalContractResult(Guid RentalId, PaymentInstructionsResult Payment);

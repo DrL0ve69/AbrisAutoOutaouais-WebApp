@@ -132,6 +132,25 @@
   color: var(--color-text-muted);
 }
 
+// ── Colonne paiement (référence Interac + état) — EPIC 7.2 ────
+.admint__payment {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.admint__payref {
+  font-family: var(--font-mono, monospace);
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.03em;
+  color: var(--color-text);
+}
+
+.admint__paydate {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
 // ── Badges de statut (spans décoratifs, contraste AA) ─────────
 // Couleurs explicites (clair sur foncé) : identiques dans les deux thèmes.
 .admint__badge {
@@ -142,7 +161,8 @@
   white-space: nowrap;
   border-radius: var(--radius-full);
 
-  &--pending {
+  &--pending,
+  &--pendingpayment {
     color: #92400e;
     background: #fef3c7;
   }
@@ -151,6 +171,12 @@
   &--active {
     color: #1e40af;
     background: #dbeafe;
+  }
+
+  // État du paiement réconcilié (virement Interac reçu) — vert, contraste AA (miroir admin commandes).
+  &--paid {
+    color: #166534;
+    background: #dcfce7;
   }
 
   &--completed {

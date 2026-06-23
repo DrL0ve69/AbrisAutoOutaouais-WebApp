@@ -156,6 +156,8 @@ export class RentalsComponent implements OnInit {
 
   protected statusLabel(status: string): string {
     switch (status) {
+      case 'PendingPayment':
+        return $localize`:@@account.rentals.status.pendingPayment:En attente de paiement`;
       case 'Active':
         return $localize`:@@account.rentals.status.active:Active`;
       case 'Cancelled':

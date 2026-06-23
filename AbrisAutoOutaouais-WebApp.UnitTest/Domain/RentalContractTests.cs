@@ -30,25 +30,108 @@ public sealed class RentalContractTests
     private static Address MakeAddress()
         => Address.Create("123", "rue des Érables", null, "Gatineau", "QC", "J8X1A1");
 
-    private static RentalContract MakeActiveContract()
+    private static RentalContract MakePendingContract()
         => RentalContract.CreateForModel(
             Guid.NewGuid(), MakeRentableModel(), 122, 198,
             new DateOnly(2026, 7, 1), new DateOnly(2026, 10, 1), MakeAddress());
 
+    /// <summary>Contrat ACTIVÉ : créé (PendingPayment) → réf attachée → Activate.</summary>
+    private static RentalContract MakeActiveContract()
+    {
+        var contract = MakePendingContract();
+        contract.AttachPaymentReference("REF-LOC-001");
+        contract.Activate(new DateTime(2026, 6, 20, 12, 0, 0, DateTimeKind.Utc));
+        return contract;
+    }
+
     // ── CreateForModel ──────────────────────────────────────────────────────────
 
     [Fact]
-    public void CreateForModel_RentableModel_StartsActive_AndSnapshotsRateAndSize()
+    public void CreateForModel_RentableModel_StartsPendingPayment_AndSnapshotsRateAndSize()
     {
-        var contract = MakeActiveContract();
+        var contract = MakePendingContract();
 
-        contract.Status.Should().Be(RentalStatus.Active);
+        // EPIC 7.2 : le contrat naît EN ATTENTE DE PAIEMENT (virement Interac), pas Active.
+        contract.Status.Should().Be(RentalStatus.PendingPayment);
+        contract.Payment.Should().BeNull();                 // aucune réf tant qu'on ne l'attache pas
         contract.MonthlyRate.Should().Be(49.00m);           // 4900 ¢ → 49 $
         contract.ShelterModelSlug.Should().Be("abri-loc");
         contract.ConfiguredLengthCm.Should().Be(122);
         contract.ConfiguredClearHeightCm.Should().Be(198);
         contract.ProductId.Should().BeNull();               // plus de produit sous-jacent
         contract.ProductName.Should().Contain("122 cm").And.Contain("198 cm");
+    }
+
+    // ── Paiement (virement Interac) — EPIC 7.2 ──────────────────────────────────
+
+    [Fact]
+    public void AttachPaymentReference_OnPending_SetsPendingPaymentInfo()
+    {
+        var contract = MakePendingContract();
+
+        contract.AttachPaymentReference("REF-LOC-001");
+
+        contract.Payment.Should().NotBeNull();
+        contract.Payment!.Reference.Should().Be("REF-LOC-001");
+        contract.Payment.ConfirmedAt.Should().BeNull();
+        contract.Status.Should().Be(RentalStatus.PendingPayment);   // toujours en attente
+    }
+
+    [Fact]
+    public void Activate_ConfirmsPaymentAndActivates()
+    {
+        var contract = MakePendingContract();
+        contract.AttachPaymentReference("REF-LOC-001");
+        var now = new DateTime(2026, 6, 20, 12, 0, 0, DateTimeKind.Utc);
+
+        contract.Activate(now);
+
+        contract.Status.Should().Be(RentalStatus.Active);
+        contract.Payment!.ConfirmedAt.Should().Be(now);
+        contract.Payment.Reference.Should().Be("REF-LOC-001");      // référence conservée
+    }
+
+    [Fact]
+    public void Activate_WhenNoPaymentAttached_Throws()
+    {
+        var contract = MakePendingContract();   // aucune référence attachée
+
+        var act = () => contract.Activate(DateTime.UtcNow);
+
+        act.Should().Throw<BusinessRuleException>().WithMessage("*référence de paiement*");
+    }
+
+    [Fact]
+    public void Activate_WhenAlreadyConfirmed_Throws()
+    {
+        var contract = MakePendingContract();
+        contract.AttachPaymentReference("REF-LOC-001");
+        contract.Activate(new DateTime(2026, 6, 20, 12, 0, 0, DateTimeKind.Utc));
+
+        // 2ᵉ appel sur un paiement déjà confirmé → 422 (idempotence, L-046).
+        var act = () => contract.Activate(DateTime.UtcNow);
+
+        act.Should().Throw<BusinessRuleException>().WithMessage("*déjà confirmé*");
+    }
+
+    [Fact]
+    public void AttachPaymentReference_WhenNotPending_Throws()
+    {
+        var contract = MakeActiveContract();   // déjà Active
+
+        var act = () => contract.AttachPaymentReference("REF-LOC-002");
+
+        act.Should().Throw<BusinessRuleException>().WithMessage("*en attente de paiement*");
+    }
+
+    [Fact]
+    public void Cancel_FromPendingPayment_SetsStatusCancelled()
+    {
+        var contract = MakePendingContract();   // jamais payé
+
+        contract.Cancel();
+
+        contract.Status.Should().Be(RentalStatus.Cancelled);
     }
 
     [Fact]
