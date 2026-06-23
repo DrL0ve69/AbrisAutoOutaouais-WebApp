@@ -1,5 +1,6 @@
 using AbrisAutoOutaouais_WebApp.Application.Common.Mediator;
 using AbrisAutoOutaouais_WebApp.Application.Orders.Commands.CancelOrder;
+using AbrisAutoOutaouais_WebApp.Application.Orders.Commands.ConfirmPayment;
 using AbrisAutoOutaouais_WebApp.Application.Orders.Commands.PlaceOrder;
 using AbrisAutoOutaouais_WebApp.Application.Orders.Commands.UpdateOrderStatus;
 using AbrisAutoOutaouais_WebApp.Application.Orders.Queries.GetAllOrders;
@@ -18,7 +19,8 @@ public sealed class OrdersController(IDispatcher dispatcher) : ControllerBase
 {
     /// <summary>
     /// Passer une commande (persistée). Accessible aux visiteurs non connectés : ils fournissent
-    /// un <c>GuestContact</c> qui crée/réutilise un compte express (parcours invité, Épic F).
+    /// un <c>GuestContact</c> qui crée/réutilise un compte express (parcours invité, Épic F). La réponse
+    /// porte l'identifiant de la commande ET les instructions de paiement (virement Interac).
     /// </summary>
     [HttpPost]
     [AllowAnonymous]
@@ -26,8 +28,24 @@ public sealed class OrdersController(IDispatcher dispatcher) : ControllerBase
     [ProducesResponseType<ProblemDetails>(422)]
     public async Task<IActionResult> PlaceOrder([FromBody] PlaceOrderCommand cmd, CancellationToken ct)
     {
-        var id = await dispatcher.DispatchAsync(cmd, ct);
-        return Created($"/api/v1/orders/{id}", new { id });
+        var result = await dispatcher.DispatchAsync(cmd, ct);
+        // « id » reste exposé pour la compatibilité ; « payment » porte les instructions e-Transfer.
+        return Created($"/api/v1/orders/{result.OrderId}", new { id = result.OrderId, payment = result.Payment });
+    }
+
+    /// <summary>
+    /// Réconcilier le paiement d'une commande (Admin) : marque la commande comme PAYÉE après réception
+    /// du virement Interac correspondant à sa référence.
+    /// </summary>
+    [HttpPost("{id:guid}/confirm-payment")]
+    [Authorize(Policy = "AdminOnly")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType<ProblemDetails>(404)]
+    [ProducesResponseType<ProblemDetails>(422)]
+    public async Task<IActionResult> ConfirmPayment(Guid id, CancellationToken ct)
+    {
+        await dispatcher.DispatchAsync(new ConfirmOrderPaymentCommand(id), ct);
+        return NoContent();
     }
 
     /// <summary>Mes commandes.</summary>

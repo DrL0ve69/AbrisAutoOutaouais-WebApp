@@ -1,6 +1,7 @@
 using AbrisAutoOutaouais_WebApp.Application.Auth.DTOs;
 using AbrisAutoOutaouais_WebApp.Application.Common.Models;
 using AbrisAutoOutaouais_WebApp.Application.Orders.Commands.PlaceOrder;
+using AbrisAutoOutaouais_WebApp.Application.Payments.Common;
 using AbrisAutoOutaouais_WebApp.Domain.Services;
 using AbrisAutoOutaouais_WebApp.Infrastructure.Persistence;
 using AbrisAutoOutaouais_WebApp.UnitTest.Application.Helpers;
@@ -20,9 +21,24 @@ public sealed class PlaceOrderCommandHandlerTests : IDisposable
     private readonly ICurrentUserService _currentUser = Substitute.For<ICurrentUserService>();
     private readonly IExpressAccountService _express = Substitute.For<IExpressAccountService>();
     private readonly IEmailService _email = Substitute.For<IEmailService>();
+    private readonly IPaymentService _payment = Substitute.For<IPaymentService>();
+    private readonly IPaymentReferenceGenerator _paymentRefs = Substitute.For<IPaymentReferenceGenerator>();
+
+    public PlaceOrderCommandHandlerTests()
+    {
+        // Le double imite le fournisseur PAR DÉFAUT (virement Interac manuel) : une référence
+        // non vide + des instructions e-Transfer au format canonique (L-011).
+        _paymentRefs.Generate().Returns(_ => $"ABR-{Guid.NewGuid():N}"[..16]);
+        _payment.InitiateAsync(Arg.Any<string>(), Arg.Any<decimal>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(call => new PaymentInstructionsResult(
+                Reference: call.ArgAt<string>(0),
+                RecipientEmail: "paiements@abristempo-local.example",
+                Amount: call.ArgAt<decimal>(1),
+                Instructions: "Faites un virement Interac."));
+    }
 
     private PlaceOrderCommandHandler CreateHandler()
-        => new(_db, _currentUser, _express, _email);
+        => new(_db, _currentUser, _express, _email, _payment, _paymentRefs);
 
     private async Task<Guid> SeedProductAsync()
     {
@@ -79,8 +95,8 @@ public sealed class PlaceOrderCommandHandlerTests : IDisposable
         _currentUser.UserId.Returns(userId);
         _currentUser.Email.Returns("client@test.com");
 
-        var id = await CreateHandler().HandleAsync(
-            Pickup(productId), TestContext.Current.CancellationToken);
+        var id = (await CreateHandler().HandleAsync(
+            Pickup(productId), TestContext.Current.CancellationToken)).OrderId;
 
         var order = await _db.Orders.FindAsync([id], TestContext.Current.CancellationToken);
         order!.CustomerId.Should().Be(userId);
@@ -98,8 +114,8 @@ public sealed class PlaceOrderCommandHandlerTests : IDisposable
         var contact = new GuestContact("Jean", "Tremblay", "jean@test.com", null);
         _express.FindOrCreateByEmailAsync(contact, Arg.Any<CancellationToken>()).Returns(expressId);
 
-        var id = await CreateHandler().HandleAsync(
-            Pickup(productId, contact), TestContext.Current.CancellationToken);
+        var id = (await CreateHandler().HandleAsync(
+            Pickup(productId, contact), TestContext.Current.CancellationToken)).OrderId;
 
         var order = await _db.Orders.FindAsync([id], TestContext.Current.CancellationToken);
         order!.CustomerId.Should().Be(expressId);
@@ -133,8 +149,8 @@ public sealed class PlaceOrderCommandHandlerTests : IDisposable
         const int lengthCm = 488;
         var expected = ShelterPriceCalculator.CalculatePrice(model, lengthCm, 198);
 
-        var id = await CreateHandler().HandleAsync(
-            ShelterOrder(model.Slug, lengthCm), TestContext.Current.CancellationToken);
+        var id = (await CreateHandler().HandleAsync(
+            ShelterOrder(model.Slug, lengthCm), TestContext.Current.CancellationToken)).OrderId;
 
         var line = await ReadSingleLineAsync(id);
         line.ProductId.Should().BeNull();
@@ -153,8 +169,8 @@ public sealed class PlaceOrderCommandHandlerTests : IDisposable
         var model = await SeedShelterModelAsync();
         _currentUser.UserId.Returns(Guid.NewGuid());
 
-        var id = await CreateHandler().HandleAsync(
-            ShelterOrder(model.Slug, 122), TestContext.Current.CancellationToken);
+        var id = (await CreateHandler().HandleAsync(
+            ShelterOrder(model.Slug, 122), TestContext.Current.CancellationToken)).OrderId;
 
         var order = await _db.Orders.FindAsync([id], TestContext.Current.CancellationToken);
         order!.Lines.Should().HaveCount(1);
@@ -167,9 +183,9 @@ public sealed class PlaceOrderCommandHandlerTests : IDisposable
         var model = await SeedShelterModelAsync();   // hauteur offerte : 198
         _currentUser.UserId.Returns(Guid.NewGuid());
 
-        var id = await CreateHandler().HandleAsync(
+        var id = (await CreateHandler().HandleAsync(
             ShelterOrder(model.Slug, 122, clearHeightCm: 198),
-            TestContext.Current.CancellationToken);
+            TestContext.Current.CancellationToken)).OrderId;
 
         var line = await ReadSingleLineAsync(id);
         line.ConfiguredClearHeightCm.Should().Be(198);   // la hauteur choisie est bien enregistrée
@@ -244,11 +260,40 @@ public sealed class PlaceOrderCommandHandlerTests : IDisposable
             ShippingAddress: null,
             ShelterLines: [new ShelterLineRequest(model.Slug, lengthCm, 198, 1)]);
 
-        var id = await CreateHandler().HandleAsync(cmd, TestContext.Current.CancellationToken);
+        var id = (await CreateHandler().HandleAsync(cmd, TestContext.Current.CancellationToken)).OrderId;
 
         var order = await _db.Orders.FindAsync([id], TestContext.Current.CancellationToken);
         order!.Lines.Should().HaveCount(2);
         order.TotalAmount.Should().Be(398m + shelterPrice);   // 398 + 349 = 747
+    }
+
+    // ── Paiement (virement Interac) — EPIC 7, 7.0 ──────────────────────────────
+
+    [Fact]
+    public async Task Handle_AttachesPaymentReference_InitiatesPayment_AndKeepsOrderPending()
+    {
+        var productId = await SeedProductAsync();
+        _currentUser.UserId.Returns(Guid.NewGuid());
+        _currentUser.Email.Returns("client@test.com");
+
+        var result = await CreateHandler().HandleAsync(
+            Pickup(productId), TestContext.Current.CancellationToken);
+
+        // La réponse porte les instructions de paiement au format canonique (référence non vide).
+        result.Payment.Reference.Should().NotBeNullOrWhiteSpace();
+        result.Payment.RecipientEmail.Should().Be("paiements@abristempo-local.example");
+        result.Payment.Amount.Should().Be(199m);
+
+        // La référence est attachée à l'agrégat ET la commande reste en attente (Pending).
+        var order = await _db.Orders.FindAsync([result.OrderId], TestContext.Current.CancellationToken);
+        order!.Status.Should().Be(OrderStatus.Pending);
+        order.Payment.Should().NotBeNull();
+        order.Payment!.Reference.Should().Be(result.Payment.Reference);
+        order.Payment.ConfirmedAt.Should().BeNull();
+
+        // Le port de paiement a bien été initié avec la référence générée et le montant de la commande.
+        await _payment.Received(1).InitiateAsync(
+            order.Payment.Reference, 199m, "client@test.com", Arg.Any<CancellationToken>());
     }
 
     public void Dispose() => _db.Dispose();

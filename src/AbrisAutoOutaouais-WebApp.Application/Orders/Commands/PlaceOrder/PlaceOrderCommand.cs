@@ -1,6 +1,7 @@
 ﻿using AbrisAutoOutaouais_WebApp.Application.Auth.DTOs;
 using AbrisAutoOutaouais_WebApp.Application.Common.Mediator;
 using AbrisAutoOutaouais_WebApp.Application.Common.Models;
+using AbrisAutoOutaouais_WebApp.Application.Payments.Common;
 using AbrisAutoOutaouais_WebApp.Domain.Enums;
 using System;
 using System.Collections.Generic;
@@ -31,4 +32,11 @@ public sealed record PlaceOrderCommand(
     DeliveryType DeliveryType,
     AddressDto? ShippingAddress,
     GuestContact? GuestContact = null,
-    IReadOnlyList<ShelterLineRequest>? ShelterLines = null) : ICommand<Guid>;
+    IReadOnlyList<ShelterLineRequest>? ShelterLines = null) : ICommand<PlaceOrderResult>;
+
+/// <summary>
+/// Résultat de la passation d'une commande : l'identifiant de la commande créée et les instructions
+/// de paiement (virement Interac) à présenter au client. La commande reste <c>Pending</c> jusqu'à la
+/// réception et la réconciliation du paiement par l'administration.
+/// </summary>
+public sealed record PlaceOrderResult(Guid OrderId, PaymentInstructionsResult Payment);

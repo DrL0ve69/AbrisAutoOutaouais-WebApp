@@ -17,9 +17,11 @@ internal sealed class PlaceOrderCommandHandler(
     IApplicationDbContext db,
     ICurrentUserService currentUser,
     IExpressAccountService express,
-    IEmailService email) : ICommandHandler<PlaceOrderCommand, Guid>
+    IEmailService email,
+    IPaymentService payment,
+    IPaymentReferenceGenerator paymentReferences) : ICommandHandler<PlaceOrderCommand, PlaceOrderResult>
 {
-    public async Task<Guid> HandleAsync(PlaceOrderCommand cmd, CancellationToken ct)
+    public async Task<PlaceOrderResult> HandleAsync(PlaceOrderCommand cmd, CancellationToken ct)
     {
         var productLines = cmd.Lines ?? [];
         var shelterRequests = cmd.ShelterLines ?? [];
@@ -66,16 +68,27 @@ internal sealed class PlaceOrderCommandHandler(
         foreach (var (product, qty) in items)
             product.AdjustStock(-qty);
 
+        // ── Paiement (virement Interac) ────────────────────────────────────────
+        // Réf NON DEVINABLE attachée à l'agrégat (statut porté par Order.Payment, pas d'entité Payment).
+        // La commande reste Pending : la confirmation passe par la réconciliation admin (confirm-payment).
+        // Courriel du CLIENT : celui du connecté, sinon celui du contact invité. Sert au courriel de
+        // confirmation ET sera transmis aux fournisseurs automatisés (VoPay/Paysafe, 7.4) ; l'adaptateur
+        // manuel l'ignore (il n'utilise que le courriel MARCHAND issu de la config).
+        var customerEmail = currentUser.Email ?? cmd.GuestContact!.Email;
+        var reference = paymentReferences.Generate();
+        order.AttachPaymentReference(reference);
+
+        // Port résilient (jamais d'exception réseau, comme IPlacesService) : pas de try/catch ici.
+        var instructions = await payment.InitiateAsync(reference, order.TotalAmount, customerEmail, ct);
+
         db.Orders.Add(order);
         await db.SaveChangesAsync(ct);
 
         // L'échec d'envoi du courriel ne doit pas annuler une commande déjà persistée.
-        // Destinataire : courriel du connecté, sinon celui du contact invité.
-        var recipient = currentUser.Email ?? cmd.GuestContact!.Email;
-        try { await email.SendOrderConfirmationAsync(order.Id, recipient, ct); }
+        try { await email.SendOrderConfirmationAsync(order.Id, customerEmail, ct); }
         catch { /* journalisé ailleurs ; commande conservée */ }
 
-        return order.Id;
+        return new PlaceOrderResult(order.Id, instructions);
     }
 
     /// <summary>
@@ -145,6 +158,6 @@ internal sealed class PlaceOrderCommandHandler(
         return lines;
     }
 
-    public ValueTask<Guid> Handle(PlaceOrderCommand cmd, CancellationToken ct)
+    public ValueTask<PlaceOrderResult> Handle(PlaceOrderCommand cmd, CancellationToken ct)
         => new(HandleAsync(cmd, ct));
 }
