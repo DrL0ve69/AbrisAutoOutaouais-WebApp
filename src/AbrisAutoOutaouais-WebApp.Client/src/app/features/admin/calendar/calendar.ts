@@ -869,6 +869,8 @@ export class AdminCalendarComponent {
   // ── Libellés ───────────────────────────────────────────────────────────────
   protected statusLabel(status: BookingStatus): string {
     switch (status) {
+      case 'PendingPayment':
+        return $localize`:@@admin.calendar.status.pendingPayment:En attente de paiement`;
       case 'Pending':
         return $localize`:@@admin.calendar.status.pending:En attente`;
       case 'Confirmed':

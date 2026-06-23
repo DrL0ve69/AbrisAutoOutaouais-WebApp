@@ -114,9 +114,27 @@ public sealed class CreateBookingEndpointTests : IClassFixture<WebAppFactory>
         var created = await response.Content.ReadFromJsonAsync<JsonElement>();
         var id = created.GetProperty("id").GetGuid();
 
+        // La réponse porte aussi les instructions de paiement (virement Interac, EPIC 7.3).
+        var payment = created.GetProperty("payment");
+        payment.GetProperty("reference").GetString().Should().NotBeNullOrWhiteSpace();
+        payment.GetProperty("recipientEmail").GetString().Should().NotBeNullOrWhiteSpace();
+        payment.GetProperty("amount").GetDecimal().Should().Be(150.00m); // Installation = 150 $
+
         var (brand, model) = await ReadBookingAsync(id);
         brand.Should().Be("Abri Plus");
         model.Should().Be("Garage 12x20");
+
+        // La réservation naît EN ATTENTE DE PAIEMENT avec la référence attachée mais non confirmée.
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var booking = await db.BookingSlots.AsNoTracking().FirstAsync(b => b.Id == id);
+            booking.Status.Should().Be(BookingStatus.PendingPayment);
+            booking.Amount.Should().Be(150.00m);
+            booking.Payment.Should().NotBeNull();
+            booking.Payment!.Reference.Should().Be(payment.GetProperty("reference").GetString());
+            booking.Payment.ConfirmedAt.Should().BeNull();
+        }
 
         _client.DefaultRequestHeaders.Authorization = null;
     }

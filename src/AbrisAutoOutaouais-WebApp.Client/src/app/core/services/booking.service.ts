@@ -6,6 +6,7 @@ import {
   AvailableSlotDto,
   BookingSummaryDto,
   CreateBookingRequest,
+  CreateBookingResponse,
   RescheduleBookingRequest,
 } from '../models/booking.model';
 
@@ -24,8 +25,12 @@ export class BookingService {
     );
   }
 
-  createBooking(request: CreateBookingRequest): Observable<{ id: string }> {
-    return this.http.post<{ id: string }>(`${this.baseUrl}/bookings`, request);
+  /**
+   * Crée une réservation et renvoie l'identifiant + les instructions de paiement (virement Interac,
+   * EPIC 7.3). La réservation reste `PendingPayment` jusqu'à la réconciliation admin.
+   */
+  createBooking(request: CreateBookingRequest): Observable<CreateBookingResponse> {
+    return this.http.post<CreateBookingResponse>(`${this.baseUrl}/bookings`, request);
   }
 
   getMyBookings(): Observable<BookingSummaryDto[]> {

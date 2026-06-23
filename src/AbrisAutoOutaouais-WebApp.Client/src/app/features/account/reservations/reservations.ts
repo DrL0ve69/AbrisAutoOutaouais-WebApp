@@ -67,7 +67,7 @@ import { AvailableSlotDto, BookingSummaryDto } from '../../../core/models/bookin
                 {{ booking.slotStart | date:'medium':'':'fr-CA' }}
               </p>
             </div>
-            <span class="account-list__status">{{ booking.status }}</span>
+            <span class="account-list__status">{{ statusLabel(booking.status) }}</span>
             @if (isReschedulable(booking.status)) {
             <button type="button" class="btn btn--ghost account-list__action"
                     (click)="askReschedule(booking.id, $event)"
@@ -182,7 +182,26 @@ export class ReservationsComponent implements OnInit {
   }
 
   protected isReschedulable(status: string): boolean {
-    return status === 'Pending' || status === 'Confirmed';
+    // Une réservation à venir est reportable : en attente de paiement (EPIC 7.3), en attente, ou confirmée.
+    return status === 'PendingPayment' || status === 'Pending' || status === 'Confirmed';
+  }
+
+  /** Libellé français du statut affiché au client. */
+  protected statusLabel(status: string): string {
+    switch (status) {
+      case 'PendingPayment':
+        return $localize`:@@account.reservations.status.pendingPayment:En attente de paiement`;
+      case 'Pending':
+        return $localize`:@@account.reservations.status.pending:En attente`;
+      case 'Confirmed':
+        return $localize`:@@account.reservations.status.confirmed:Confirmée`;
+      case 'Completed':
+        return $localize`:@@account.reservations.status.completed:Complétée`;
+      case 'Cancelled':
+        return $localize`:@@account.reservations.status.cancelled:Annulée`;
+      default:
+        return status;
+    }
   }
 
   protected rescheduleAria(booking: BookingSummaryDto): string {

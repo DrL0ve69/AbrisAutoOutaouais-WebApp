@@ -31,7 +31,7 @@
         <div class="admint__tablewrap" role="region" tabindex="0" aria-labelledby="adminb-list-heading">
           <table class="admint__table">
             <caption class="sr-only" i18n="@@admin.bookings.table.caption">
-              Liste des réservations avec client, créneau, type, adresse, statut et actions.
+              Liste des réservations avec client, créneau, type, adresse, statut, état du paiement et actions.
             </caption>
             <thead>
               <tr>
@@ -40,6 +40,7 @@
                 <th scope="col" i18n="@@admin.bookings.table.type">Type</th>
                 <th scope="col" i18n="@@admin.bookings.table.address">Adresse</th>
                 <th scope="col" i18n="@@admin.bookings.table.status">Statut</th>
+                <th scope="col" i18n="@@admin.bookings.table.payment">Paiement</th>
                 <th scope="col" i18n="@@admin.bookings.table.actions">Actions</th>
               </tr>
             </thead>
@@ -62,7 +63,32 @@
                       {{ statusLabel(b.status) }}
                     </span>
                   </td>
+                  <td class="admint__payment">
+                    @if (b.paymentReference) {
+                      <span class="admint__payref">{{ b.paymentReference }}</span>
+                      @if (b.paymentConfirmedAt) {
+                        <span class="admint__badge admint__badge--paid" i18n="@@admin.bookings.payment.confirmed">Payé</span>
+                        <span class="admint__paydate">{{ b.paymentConfirmedAt | date: 'short' : '' : 'fr-CA' }}</span>
+                      } @else {
+                        <span class="admint__badge admint__badge--pending" i18n="@@admin.bookings.payment.awaiting">En attente</span>
+                      }
+                    } @else {
+                      <span class="admint__noaction" aria-hidden="true">—</span>
+                    }
+                  </td>
                   <td class="admint__rowactions">
+                    @if (canMarkPaid(b)) {
+                      <button
+                        type="button"
+                        class="btn btn--small"
+                        [disabled]="pendingPaymentId() === b.id"
+                        [attr.aria-label]="markPaidLabel(b.paymentReference ?? '')"
+                        (click)="confirmPayment(b)"
+                        i18n="@@admin.bookings.action.markPaid"
+                      >
+                        Marquer payé
+                      </button>
+                    }
                     @for (act of actionsFor(b.status); track act.action) {
                       <button
                         type="button"
@@ -73,7 +99,8 @@
                       >
                         {{ act.label }}
                       </button>
-                    } @empty {
+                    }
+                    @if (!canMarkPaid(b) && actionsFor(b.status).length === 0) {
                       <span class="admint__noaction" aria-hidden="true">—</span>
                     }
                   </td>

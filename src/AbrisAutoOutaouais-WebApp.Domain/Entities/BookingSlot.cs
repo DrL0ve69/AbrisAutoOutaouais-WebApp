@@ -38,6 +38,21 @@ public sealed class BookingSlot : ISoftDeletable, IAuditableEntity
     /// <summary>Longitude du lieu du RDV (degrés décimaux). Voir <see cref="Lat"/>.</summary>
     public double? Lng { get; private set; }
 
+    /// <summary>
+    /// Montant FORFAITAIRE (CAD) facturé pour cette intervention, SNAPSHOTé à la création depuis le
+    /// barème par type (<see cref="Domain.Services.BookingPricing"/>). Symétrie avec <c>Order.Total</c>
+    /// et <c>RentalContract.MonthlyRate</c> ; mappé <c>decimal(18,2)</c> (EPIC 7.3).
+    /// </summary>
+    public decimal Amount { get; private set; }
+
+    /// <summary>
+    /// Information de paiement (Owned VO <see cref="PaymentInfo"/>, colonnes <c>Payment_*</c>). NULLABLE :
+    /// les réservations antérieures à la migration EPIC 7.3 n'en portent pas, et l'agrégat est créé sans
+    /// paiement (la référence est attachée juste après par <see cref="AttachPaymentReference"/>).
+    /// Calque <c>RentalContract.Payment</c>.
+    /// </summary>
+    public PaymentInfo? Payment { get; private set; }
+
     public bool IsDeleted { get; set; }
     public DateTime? DeletedAt { get; set; }
     public DateTime CreatedAt { get; set; }
@@ -52,7 +67,8 @@ public sealed class BookingSlot : ISoftDeletable, IAuditableEntity
         BookingType type, Address address,
         Guid? orderId = null, string? notes = null,
         string? brand = null, string? model = null,
-        double? lat = null, double? lng = null)
+        double? lat = null, double? lng = null,
+        decimal amount = 0m)
     {
         if (slotStart <= DateTime.UtcNow)
             throw new BusinessRuleException("Le créneau doit être dans le futur.");
@@ -74,7 +90,10 @@ public sealed class BookingSlot : ISoftDeletable, IAuditableEntity
             SlotStart = slotStart,
             DurationMin = durationMin,
             Type = type,
-            Status = BookingStatus.Pending,
+            // Statut INITIAL : en attente du paiement (virement Interac, EPIC 7.3). La réservation n'est
+            // CONFIRMÉE qu'après réconciliation administrative du paiement (Activate). Miroir de
+            // RentalContract.CreateForModel → RentalStatus.PendingPayment.
+            Status = BookingStatus.PendingPayment,
             Address = address,
             Notes = notes?.Trim(),
             Brand = trimmedBrand,
@@ -82,6 +101,8 @@ public sealed class BookingSlot : ISoftDeletable, IAuditableEntity
             // Coordonnées géocodées à la création (US-11.3) — null si le géocodage a échoué.
             Lat = lat,
             Lng = lng,
+            // Montant forfaitaire snapshoté (barème par type) — facturé via le virement Interac.
+            Amount = amount,
         };
     }
 
@@ -100,6 +121,50 @@ public sealed class BookingSlot : ISoftDeletable, IAuditableEntity
         if (Status != BookingStatus.Pending)
             throw new BusinessRuleException("Seul un créneau en attente peut être confirmé.");
         Status = BookingStatus.Confirmed;
+    }
+
+    /// <summary>
+    /// Attache une référence de paiement (virement Interac) à la réservation, en posant un
+    /// <see cref="PaymentInfo"/> EN ATTENTE. Garde : seulement tant que la réservation est en attente de
+    /// paiement (<see cref="BookingStatus.PendingPayment"/>) — on n'altère pas le paiement d'une
+    /// réservation déjà confirmée. Calque <c>RentalContract.AttachPaymentReference</c> (EPIC 7.3).
+    /// </summary>
+    public void AttachPaymentReference(string reference)
+    {
+        if (Status != BookingStatus.PendingPayment)
+            throw new BusinessRuleException(
+                "Une référence de paiement ne peut être attachée qu'à une réservation en attente de paiement.");
+        Payment = PaymentInfo.Pending(reference);
+    }
+
+    /// <summary>
+    /// Active la réservation après RÉCONCILIATION du paiement : confirme le paiement
+    /// (<see cref="PaymentInfo.Confirm"/>) PUIS passe le statut à <see cref="BookingStatus.Confirmed"/>.
+    /// Gardes (L-046, défense en profondeur — calque <c>RentalContract.Activate</c>) :
+    ///  - aucune référence de paiement attachée → lève ;
+    ///  - paiement déjà confirmé → lève (un 2ᵉ appel donne un 422, idempotence) ;
+    ///  - statut non-<see cref="BookingStatus.PendingPayment"/> → lève.
+    /// Le paiement est confirmé AVANT le statut : si une garde lève, l'horodatage de paiement n'aura pas
+    /// été posé sur une réservation non activable.
+    /// </summary>
+    public void Activate(DateTime nowUtc)
+    {
+        if (Payment is null)
+            throw new BusinessRuleException(
+                "Aucune référence de paiement n'est attachée à cette réservation.");
+
+        // Invariant porté par le paiement lui-même (et pas seulement par le statut) : un paiement déjà
+        // confirmé ne se re-confirme pas — défense en profondeur (L-046).
+        if (Payment.ConfirmedAt is not null)
+            throw new BusinessRuleException("Le paiement de cette réservation est déjà confirmé.");
+
+        if (Status != BookingStatus.PendingPayment)
+            throw new BusinessRuleException(
+                "Seule une réservation en attente de paiement peut être activée.");
+
+        var confirmedPayment = Payment.Confirm(nowUtc);
+        Status = BookingStatus.Confirmed;
+        Payment = confirmedPayment;
     }
 
     public void Cancel()

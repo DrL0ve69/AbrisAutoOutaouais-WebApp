@@ -11,6 +11,19 @@
 
 ---
 
+## L-054 · Changer le statut initial qu'une factory de domaine produit invalide silencieusement tous les filtres `Status ==` qui supposaient l'ancien statut — grep-les et remplace les listes blanches figées par l'invariant négatif partagé
+
+- **Symptom.** En portant le flux e-Transfer sur `BookingSlot` (EPIC 7 · US-7.3), `BookingSlot.Create(...)` a été modifiée pour produire `BookingStatus.PendingPayment` au lieu de `BookingStatus.Pending`. `OptimizeRouteCommandHandler` (EPIC 11) filtrait les RDV recalables avec `Status == Pending || Status == Confirmed` — une liste blanche figée qui supposait implicitement que les nouveaux RDV étaient `Pending`. Avec le nouveau statut initial, les RDV fraîchement créés ne satisfaisaient plus le filtre : ils disparaissaient **silencieusement** de l'optimisation de tournée. Aucune erreur, aucun avertissement — juste une omission. Détecté uniquement par `dotnet test` (5 tests Planning rouges) ; la revue de code n'avait pas repéré la dépendance implicite entre la factory d'un agrégat et les filtres d'un handler distant.
+- **Rule.** Après toute modification du **statut initial** qu'une factory/méthode de domaine produit (ou après l'ajout d'un nouveau statut « tôt » dans le cycle de vie d'un agrégat), grep **tous** les filtres `Status ==` / `Status !=` sur cet agrégat dans les handlers, requêtes et gardes, et vérifie que chacun reflète toujours l'invariant métier voulu — et non une énumération figée qui supposait l'ancien statut initial. Deux gardes concrets : (1) Utiliser l'**invariant négatif centralisé** (« tout sauf les états terminaux ») plutôt qu'une liste blanche dupliquée — ici, `!= Completed && != Cancelled` exprime exactement « recalable » sans jamais devoir être mis à jour quand un nouveau statut intermédiaire est ajouté. Si cet invariant est déjà formalisé quelque part (ex. `BookingSlot.Reschedule` énumère les pré-conditions), extraire la règle dans une méthode statique partagée (`SlotRules.IsReschedulable`) plutôt que de la dupliquer — cousin de [[L-046]] (un invariant dans un chemin d'écriture doit se retrouver dans tous les chemins qui en dépendent). (2) Lors de toute PR qui introduit un nouveau statut ou modifie le statut initial d'un agrégat, traiter ce changement comme une **rupture de contrat implicite** : ajouter systématiquement à la checklist PR « grep `Status ==` sur cet enum, vérifier chaque filtre, préférer la forme négative ». Ce bug est un cousin de [[L-007]] (une hypothèse qui rend une requête correcte vit loin de la requête qui en dépend) sur l'axe **statut initial déplacé** : l'hypothèse ici n'est pas une fenêtre temporelle mais un statut de départ encodé dans une liste blanche distante.
+- **Refs.**
+  `src/AbrisAutoOutaouais-WebApp.Domain/Entities/BookingSlot.cs` (`Create` → `PendingPayment` ;
+  `Reschedule` définit l'invariant « tout sauf Completed/Cancelled »),
+  `src/AbrisAutoOutaouais-WebApp.Application/Planning/Commands/OptimizeRoute/OptimizeRouteCommandHandler.cs`
+  (filtre corrigé `!= Completed && != Cancelled`),
+  `src/AbrisAutoOutaouais-WebApp.Domain/Enums/BookingStatus.cs`,
+  branche `feat/epic-7-paiement-etransfer`. Cousins : [[L-046]] (invariant partagé entre chemins d'écriture),
+  [[L-007]] (hypothèse distante qui rend une requête correcte).
+
 ## L-053 · Un état terminal post-soumission doit être testé AVANT toute branche dérivée des données que la soumission mute — sinon il ne s'affiche jamais
 
 - **Symptom.** Dans `features/checkout/checkout.html`, l'ordre des branches était

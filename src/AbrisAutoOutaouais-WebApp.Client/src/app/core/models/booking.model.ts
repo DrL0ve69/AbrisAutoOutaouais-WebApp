@@ -1,7 +1,17 @@
 import { GuestContactRequest } from './guest-contact.model';
+import { PaymentInstructions } from './order.model';
 
 export type BookingType = 'Installation' | 'Delivery' | 'Removal';
-export type BookingStatus = 'Pending' | 'Confirmed' | 'Completed' | 'Cancelled';
+/**
+ * `PendingPayment` (EPIC 7.3) : statut INITIAL d'une réservation tant que le virement Interac n'est
+ * pas réconcilié par l'administration. La réservation passe `Confirmed` après confirmation du paiement.
+ */
+export type BookingStatus =
+  | 'PendingPayment'
+  | 'Pending'
+  | 'Confirmed'
+  | 'Completed'
+  | 'Cancelled';
 
 export interface AddressDto {
   readonly civicNumber: string;
@@ -37,6 +47,17 @@ export interface CreateBookingRequest {
   readonly targetCustomerId?: string | null;
 }
 
+/**
+ * Réponse de POST /bookings (EPIC 7.3) : identifiant de la réservation créée + instructions de
+ * paiement (virement Interac). Miroir du C# `CreateBookingResult(Guid BookingId, PaymentInstructionsResult Payment)`
+ * — le contrôleur sérialise `{ id, payment }`. `PaymentInstructions` est RÉUTILISÉ depuis
+ * `order.model.ts` (format canonique unique, pas de duplication — L-004).
+ */
+export interface CreateBookingResponse {
+  readonly id: string;
+  readonly payment: PaymentInstructions;
+}
+
 /** Charge utile pour POST /bookings/{id}/reschedule — correspond au RescheduleBookingRequest C#. */
 export interface RescheduleBookingRequest {
   readonly newSlotStart: string; // ISO 8601 (UTC) — la valeur `start` d'un AvailableSlotDto
@@ -66,4 +87,16 @@ export interface AdminBookingDto {
   readonly status: BookingStatus;
   readonly addressSummary: string;
   readonly createdAt: string;
+  /**
+   * Référence du virement Interac à réconcilier (EPIC 7.3). `null` pour les réservations antérieures
+   * à e-Transfer. Miroir EXACT du C# `string? PaymentReference` (L-052).
+   */
+  readonly paymentReference: string | null;
+  /**
+   * Horodatage de confirmation du paiement (ISO). `null` tant que l'administration n'a pas réconcilié
+   * le virement. Miroir du C# `DateTime? PaymentConfirmedAt` (L-052).
+   */
+  readonly paymentConfirmedAt: string | null;
+  /** Montant forfaitaire facturé (CAD). Miroir du C# `decimal Amount` (L-052). */
+  readonly amount: number;
 }

@@ -57,6 +57,8 @@ export class AdminBookingsComponent {
   /** Action en attente de confirmation (null = aucune boîte de dialogue ouverte). */
   protected readonly pending = signal<PendingAction | null>(null);
   protected readonly busy = signal(false);
+  /** Id de la réservation dont la réconciliation de paiement est en cours (désactive son bouton). */
+  protected readonly pendingPaymentId = signal<string | null>(null);
 
   private readonly dialog = viewChild<ElementRef<HTMLElement>>('confirmDialog');
   private readonly heading = viewChild<ElementRef<HTMLElement>>('heading');
@@ -98,6 +100,8 @@ export class AdminBookingsComponent {
   /** Libellé français du statut, affiché dans le badge. */
   protected statusLabel(status: BookingStatus): string {
     switch (status) {
+      case 'PendingPayment':
+        return $localize`:@@admin.bookings.status.pendingPayment:En attente de paiement`;
       case 'Pending':
         return $localize`:@@admin.bookings.status.pending:En attente`;
       case 'Confirmed':
@@ -129,6 +133,16 @@ export class AdminBookingsComponent {
   /** Actions contextuelles disponibles pour le statut courant (machine à états). */
   protected actionsFor(status: BookingStatus): readonly StatusActionView[] {
     switch (status) {
+      case 'PendingPayment':
+        // L'action « Confirmer » est remplacée par « Marquer payé » (réconciliation du virement,
+        // EPIC 7.3 — rendue séparément) ; seul « Annuler » reste dans la machine à états ici.
+        return [
+          {
+            action: 'cancel',
+            label: $localize`:@@admin.bookings.action.cancel:Annuler`,
+            danger: true,
+          },
+        ];
       case 'Pending':
         return [
           {
@@ -176,6 +190,52 @@ export class AdminBookingsComponent {
   /** Étiquette accessible d'un bouton d'action de ligne (désambiguïse les lignes). */
   protected actionAria(label: string, booking: AdminBookingDto): string {
     return `${label} — ${booking.customerName}`;
+  }
+
+  /**
+   * Une réservation est réconciliable (« Marquer payé ») si un virement est attaché
+   * (`paymentReference` non nul), qu'il n'est pas déjà confirmé (`paymentConfirmedAt` nul) et qu'elle
+   * est encore « En attente de paiement » : seule une réservation PendingPayment peut être activée
+   * côté serveur (`BookingSlot.Activate` exige PendingPayment, sinon 422). On n'affiche le bouton que
+   * dans ce cas, pour ne jamais proposer une action qui échouerait (miroir de l'admin locations).
+   */
+  protected canMarkPaid(booking: AdminBookingDto): boolean {
+    return (
+      booking.paymentReference !== null &&
+      booking.paymentConfirmedAt === null &&
+      booking.status === 'PendingPayment'
+    );
+  }
+
+  /** Libellé accessible du bouton « Marquer payé » — liaison dynamique → `$localize` (L-024). */
+  protected markPaidLabel(reference: string): string {
+    return $localize`:@@admin.bookings.action.markPaidLabel:Marquer payé — ${reference}:ref:`;
+  }
+
+  /** Réconcilie le paiement (virement Interac reçu) → CONFIRME la réservation, puis recharge (EPIC 7.3). */
+  protected confirmPayment(booking: AdminBookingDto): void {
+    if (this.pendingPaymentId()) return;
+    this.pendingPaymentId.set(booking.id);
+    this.admin.confirmPayment(booking.id).subscribe({
+      next: () => {
+        this.pendingPaymentId.set(null);
+        this.toast.show(
+          $localize`:@@admin.bookings.toast.paid:Paiement réconcilié — réservation confirmée.`,
+          'success',
+        );
+        // Le bouton « Marquer payé » disparaît après rechargement : on rend le focus au titre de la
+        // page (cible stable), pas au bouton supprimé (L-006).
+        this.loadBookings();
+        this.focusHeadingAfterRender();
+      },
+      error: () => {
+        this.pendingPaymentId.set(null);
+        this.toast.show(
+          $localize`:@@admin.bookings.toast.paidError:La réconciliation du paiement a échoué.`,
+          'error',
+        );
+      },
+    });
   }
 
   protected askAction(booking: AdminBookingDto, action: BookingStatusAction, event: MouseEvent): void {

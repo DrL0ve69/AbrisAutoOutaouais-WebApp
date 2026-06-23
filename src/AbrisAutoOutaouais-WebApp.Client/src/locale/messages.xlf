@@ -92,7 +92,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">225,227</context>
+          <context context-type="linenumber">265,267</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.html</context>
@@ -111,7 +111,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">228,230</context>
+          <context context-type="linenumber">268,270</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/location/location.html</context>
@@ -287,7 +287,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">68,69</context>
+          <context context-type="linenumber">108,109</context>
         </context-group>
       </trans-unit>
       <trans-unit id="booking.type.delivery" datatype="html">
@@ -298,7 +298,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">69,70</context>
+          <context context-type="linenumber">109,110</context>
         </context-group>
       </trans-unit>
       <trans-unit id="booking.type.removal" datatype="html">
@@ -309,7 +309,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">70,71</context>
+          <context context-type="linenumber">110,111</context>
         </context-group>
       </trans-unit>
       <trans-unit id="account.reservations.reschedule" datatype="html">
@@ -382,25 +382,60 @@
           <context context-type="linenumber">137,140</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="account.reservations.status.pendingPayment" datatype="html">
+        <source>En attente de paiement</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/account/reservations/reservations.ts</context>
+          <context context-type="linenumber">193</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="account.reservations.status.pending" datatype="html">
+        <source>En attente</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/account/reservations/reservations.ts</context>
+          <context context-type="linenumber">195</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="account.reservations.status.confirmed" datatype="html">
+        <source>Confirmée</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/account/reservations/reservations.ts</context>
+          <context context-type="linenumber">197</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="account.reservations.status.completed" datatype="html">
+        <source>Complétée</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/account/reservations/reservations.ts</context>
+          <context context-type="linenumber">199</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="account.reservations.status.cancelled" datatype="html">
+        <source>Annulée</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/account/reservations/reservations.ts</context>
+          <context context-type="linenumber">201</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="account.reservations.reschedule.aria" datatype="html">
         <source>Reporter la réservation</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/account/reservations/reservations.ts</context>
-          <context context-type="linenumber">189</context>
+          <context context-type="linenumber">208</context>
         </context-group>
       </trans-unit>
       <trans-unit id="account.reservations.reschedule.success" datatype="html">
         <source>Réservation reportée.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/account/reservations/reservations.ts</context>
-          <context context-type="linenumber">222</context>
+          <context context-type="linenumber">241</context>
         </context-group>
       </trans-unit>
       <trans-unit id="account.reservations.reschedule.error" datatype="html">
         <source>Le report a échoué. Veuillez réessayer.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/account/reservations/reservations.ts</context>
-          <context context-type="linenumber">230</context>
+          <context context-type="linenumber">249</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.bookings.eyebrow" datatype="html">
@@ -460,7 +495,7 @@
         </context-group>
       </trans-unit>
       <trans-unit id="admin.bookings.table.caption" datatype="html">
-        <source> Liste des réservations avec client, créneau, type, adresse, statut et actions. </source>
+        <source> Liste des réservations avec client, créneau, type, adresse, statut, état du paiement et actions. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/bookings/bookings.html</context>
           <context context-type="linenumber">34,36</context>
@@ -501,148 +536,208 @@
           <context context-type="linenumber">42,43</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="admin.bookings.table.payment" datatype="html">
+        <source>Paiement</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.html</context>
+          <context context-type="linenumber">43,44</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="admin.bookings.table.actions" datatype="html">
         <source>Actions</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/bookings/bookings.html</context>
-          <context context-type="linenumber">43,45</context>
+          <context context-type="linenumber">44,46</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.payment.confirmed" datatype="html">
+        <source>Payé</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.html</context>
+          <context context-type="linenumber">70,71</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.payment.awaiting" datatype="html">
+        <source>En attente</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.html</context>
+          <context context-type="linenumber">73,75</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.action.markPaid" datatype="html">
+        <source> Marquer payé </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.html</context>
+          <context context-type="linenumber">89,90</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.bookings.dialog.desc" datatype="html">
         <source>Réservation de</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/bookings/bookings.html</context>
-          <context context-type="linenumber">105,106</context>
+          <context context-type="linenumber">132,133</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.bookings.dialog.confirm" datatype="html">
         <source> Confirmer l&apos;action </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/bookings/bookings.html</context>
-          <context context-type="linenumber">119,121</context>
+          <context context-type="linenumber">146,148</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.bookings.dialog.dismiss" datatype="html">
         <source> Retour à la liste </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/bookings/bookings.html</context>
-          <context context-type="linenumber">127,129</context>
+          <context context-type="linenumber">154,156</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.bookings.toast.loadError" datatype="html">
         <source>Échec du chargement des réservations.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
-          <context context-type="linenumber">91</context>
+          <context context-type="linenumber">93</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.status.pendingPayment" datatype="html">
+        <source>En attente de paiement</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
+          <context context-type="linenumber">104</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.bookings.status.pending" datatype="html">
         <source>En attente</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
-          <context context-type="linenumber">102</context>
+          <context context-type="linenumber">106</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.bookings.status.confirmed" datatype="html">
         <source>Confirmée</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
-          <context context-type="linenumber">104</context>
+          <context context-type="linenumber">108</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.bookings.status.completed" datatype="html">
         <source>Complétée</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
-          <context context-type="linenumber">106</context>
+          <context context-type="linenumber">110</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.bookings.status.cancelled" datatype="html">
         <source>Annulée</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
-          <context context-type="linenumber">108</context>
+          <context context-type="linenumber">112</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.bookings.type.installation" datatype="html">
         <source>Installation</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
-          <context context-type="linenumber">116</context>
+          <context context-type="linenumber">120</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.bookings.type.delivery" datatype="html">
         <source>Livraison</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
-          <context context-type="linenumber">118</context>
+          <context context-type="linenumber">122</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.bookings.type.removal" datatype="html">
         <source>Démontage</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
-          <context context-type="linenumber">120</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="admin.bookings.action.confirm" datatype="html">
-        <source>Confirmer</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
-          <context context-type="linenumber">136</context>
+          <context context-type="linenumber">124</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.bookings.action.cancel" datatype="html">
         <source>Annuler</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
-          <context context-type="linenumber">141</context>
+          <context context-type="linenumber">142</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
-          <context context-type="linenumber">154</context>
+          <context context-type="linenumber">155</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
+          <context context-type="linenumber">168</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.action.confirm" datatype="html">
+        <source>Confirmer</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
+          <context context-type="linenumber">150</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.bookings.action.complete" datatype="html">
         <source>Marquer complétée</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
-          <context context-type="linenumber">149</context>
+          <context context-type="linenumber">163</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.bookings.dialog.confirmTitle" datatype="html">
         <source>Confirmer cette réservation ?</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
-          <context context-type="linenumber">168</context>
+          <context context-type="linenumber">182</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.bookings.dialog.completeTitle" datatype="html">
         <source>Marquer cette réservation comme complétée ?</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
-          <context context-type="linenumber">170</context>
+          <context context-type="linenumber">184</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.bookings.dialog.cancelTitle" datatype="html">
         <source>Annuler cette réservation ?</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
-          <context context-type="linenumber">172</context>
+          <context context-type="linenumber">186</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.action.markPaidLabel" datatype="html">
+        <source>Marquer payé — <x id="ref" equiv-text="reference"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
+          <context context-type="linenumber">212</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.toast.paid" datatype="html">
+        <source>Paiement réconcilié — réservation confirmée.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
+          <context context-type="linenumber">223</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="admin.bookings.toast.paidError" datatype="html">
+        <source>La réconciliation du paiement a échoué.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
+          <context context-type="linenumber">234</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.bookings.toast.updated" datatype="html">
         <source>Statut de la réservation mis à jour.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
-          <context context-type="linenumber">210</context>
+          <context context-type="linenumber">270</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.bookings.toast.updateError" datatype="html">
         <source>La mise à jour du statut a échoué.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/bookings/bookings.ts</context>
-          <context context-type="linenumber">220</context>
+          <context context-type="linenumber">280</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.eyebrow" datatype="html">
@@ -1266,67 +1361,74 @@
           <context context-type="linenumber">858</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="admin.calendar.status.pendingPayment" datatype="html">
+        <source>En attente de paiement</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
+          <context context-type="linenumber">873</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="admin.calendar.status.pending" datatype="html">
         <source>En attente</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">873</context>
+          <context context-type="linenumber">875</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.status.confirmed" datatype="html">
         <source>Confirmée</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">875</context>
+          <context context-type="linenumber">877</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.status.completed" datatype="html">
         <source>Complétée</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">877</context>
+          <context context-type="linenumber">879</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.status.cancelled" datatype="html">
         <source>Annulée</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">879</context>
+          <context context-type="linenumber">881</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.type.installation" datatype="html">
         <source>Installation</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">886</context>
+          <context context-type="linenumber">888</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.type.delivery" datatype="html">
         <source>Livraison</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">888</context>
+          <context context-type="linenumber">890</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.type.removal" datatype="html">
         <source>Démontage</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">890</context>
+          <context context-type="linenumber">892</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.cellAriaEmpty" datatype="html">
         <source><x id="date" equiv-text="date"/>, aucun rendez-vous</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">907</context>
+          <context context-type="linenumber">909</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.calendar.cellAriaCount" datatype="html">
         <source><x id="date" equiv-text="date"/>, <x id="count" equiv-text="count"/> rendez-vous</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/admin/calendar/calendar.ts</context>
-          <context context-type="linenumber">909</context>
+          <context context-type="linenumber">911</context>
         </context-group>
       </trans-unit>
       <trans-unit id="admin.eyebrow" datatype="html">
@@ -4149,226 +4251,268 @@
           <context context-type="linenumber">9,11</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="installation.etransfer.heading" datatype="html">
+        <source> Réglez votre réservation par virement Interac </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/installation/installation.html</context>
+          <context context-type="linenumber">22,24</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="installation.etransfer.intro" datatype="html">
+        <source> Votre réservation est enregistrée. Envoyez un virement Interac avec les informations ci-dessous pour la régler. Conservez la référence : elle permet de rapprocher votre paiement. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/installation/installation.html</context>
+          <context context-type="linenumber">25,29</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="installation.etransfer.recipient" datatype="html">
+        <source>Courriel destinataire</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/installation/installation.html</context>
+          <context context-type="linenumber">32,33</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="installation.etransfer.amount" datatype="html">
+        <source>Montant à virer</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/installation/installation.html</context>
+          <context context-type="linenumber">36,37</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="installation.etransfer.reference" datatype="html">
+        <source>Référence à inscrire dans le message</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/installation/installation.html</context>
+          <context context-type="linenumber">40,41</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="installation.etransfer.done" datatype="html">
+        <source> Terminé — retour à l&apos;accueil </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/installation/installation.html</context>
+          <context context-type="linenumber">49,53</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="installation.loading" datatype="html">
         <source> Chargement des créneaux disponibles… </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">15,17</context>
+          <context context-type="linenumber">55,57</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.slots.legend" datatype="html">
         <source> 1. Choisissez un créneau </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">22,25</context>
+          <context context-type="linenumber">62,65</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.slots.empty" datatype="html">
         <source> Aucun créneau disponible pour le moment. Réessayez plus tard ou appelez-nous. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">51,53</context>
+          <context context-type="linenumber">91,93</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.details.legend" datatype="html">
         <source> 2. Détails de l&apos;intervention </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">59,62</context>
+          <context context-type="linenumber">99,102</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.field.type" datatype="html">
         <source>Type d&apos;intervention</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">63,64</context>
+          <context context-type="linenumber">103,104</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.field.brand" datatype="html">
         <source>Marque de l&apos;abri (optionnel)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">82,83</context>
+          <context context-type="linenumber">122,123</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">108,109</context>
+          <context context-type="linenumber">148,149</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.field.brandHint" datatype="html">
         <source> On installe d&apos;autres marques, sauf ShelterLogic. <x id="START_LINK" ctype="x-a" equiv-text="&lt;a href=&quot;#installation-faq-title&quot;&gt;"/>Voir la FAQ « marques ».<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/></source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">88,89</context>
+          <context context-type="linenumber">128,129</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">118,119</context>
+          <context context-type="linenumber">158,159</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.field.brandExcluded" datatype="html">
         <source> Nous n&apos;installons pas la marque ShelterLogic. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">92,94</context>
+          <context context-type="linenumber">132,134</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.field.model" datatype="html">
         <source>Modèle (optionnel)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">98,99</context>
+          <context context-type="linenumber">138,139</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">123,124</context>
+          <context context-type="linenumber">163,164</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.field.brandPlaceholder" datatype="html">
         <source>— Choisir une marque —</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">112,113</context>
+          <context context-type="linenumber">152,153</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.field.modelPlaceholder" datatype="html">
         <source>— Choisir un modèle —</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">127,128</context>
+          <context context-type="linenumber">167,168</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.field.modelDims" datatype="html">
         <source>Dimensions :</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">136,137</context>
+          <context context-type="linenumber">176,177</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.field.modelDimsUnit" datatype="html">
         <source>pi</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">139,141</context>
+          <context context-type="linenumber">179,181</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.field.modelDimsUnknown" datatype="html">
         <source>Dimensions non publiées pour ce modèle.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">141,143</context>
+          <context context-type="linenumber">181,183</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.field.civic" datatype="html">
         <source>Numéro civique</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">155,156</context>
+          <context context-type="linenumber">195,196</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.field.civicInvalid" datatype="html">
         <source> Numéro civique invalide (ex : 123 ou 123A). </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">162,164</context>
+          <context context-type="linenumber">202,204</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.field.street" datatype="html">
         <source>Rue</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">171</context>
+          <context context-type="linenumber">211</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.field.streetRequired" datatype="html">
         <source> L&apos;adresse est requise. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">181,183</context>
+          <context context-type="linenumber">221,223</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.field.apartment" datatype="html">
         <source>Appartement / unité (optionnel)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">188,189</context>
+          <context context-type="linenumber">228,229</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.field.city" datatype="html">
         <source>Ville</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">195,196</context>
+          <context context-type="linenumber">235,236</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.field.cityRequired" datatype="html">
         <source> La ville est requise. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">199,201</context>
+          <context context-type="linenumber">239,241</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.field.province" datatype="html">
         <source>Province</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">205,206</context>
+          <context context-type="linenumber">245,246</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.field.postalCode" datatype="html">
         <source>Code postal</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">210,211</context>
+          <context context-type="linenumber">250,251</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.field.postalHint" datatype="html">
         <source>Format : A1A 1A1</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">215,216</context>
+          <context context-type="linenumber">255,256</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.field.postalCodeInvalid" datatype="html">
         <source> Code postal invalide (ex : J8X 1A1). </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">218,220</context>
+          <context context-type="linenumber">258,260</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.field.notes" datatype="html">
         <source>Notes (optionnel)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">237,238</context>
+          <context context-type="linenumber">277,278</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.submit" datatype="html">
         <source> Confirmer la réservation </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.html</context>
-          <context context-type="linenumber">252,254</context>
+          <context context-type="linenumber">292,294</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.noSlot" datatype="html">
         <source>Veuillez choisir un créneau.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.ts</context>
-          <context context-type="linenumber">205</context>
+          <context context-type="linenumber">238</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.success" datatype="html">
-        <source>Réservation confirmée !</source>
+        <source>Réservation enregistrée — suivez les instructions de virement Interac pour la régler.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.ts</context>
-          <context context-type="linenumber">245</context>
+          <context context-type="linenumber">282</context>
         </context-group>
       </trans-unit>
       <trans-unit id="installation.error" datatype="html">
         <source>La réservation a échoué. Veuillez réessayer.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/installation/installation.ts</context>
-          <context context-type="linenumber">254</context>
+          <context context-type="linenumber">289</context>
         </context-group>
       </trans-unit>
       <trans-unit id="legal.eyebrow" datatype="html">

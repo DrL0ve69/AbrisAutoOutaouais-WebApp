@@ -24,6 +24,22 @@ internal sealed class BookingSlotConfiguration : IEntityTypeConfiguration<Bookin
         builder.Property(b => b.Lat);
         builder.Property(b => b.Lng);
 
+        // Montant forfaitaire facturé (snapshot) — decimal(18,2), symétrie Order.Total / MonthlyRate (EPIC 7.3).
+        builder.Property(b => b.Amount).HasColumnType("decimal(18,2)");
+
+        // Owned VO — information de paiement (virement Interac) portée par l'agrégat (PAS d'entité
+        // Payment). OwnsOne (et non OwnsMany) → round-trip sûr sur InMemory comme sur SQL Server (L-035).
+        // Colonnes : Payment_Reference, Payment_ConfirmedAt. PAS d'index unique sur la référence pour le
+        // MVP ; si on en ajoute un un jour sur cet agrégat ISoftDeletable → HasFilter (L-045).
+        // Calque RentalContractConfiguration.
+        builder.OwnsOne(b => b.Payment, pay =>
+        {
+            pay.Property(p => p.Reference)
+                .HasColumnName("Payment_Reference").HasMaxLength(40);
+            pay.Property(p => p.ConfirmedAt)
+                .HasColumnName("Payment_ConfirmedAt");
+        });
+
         builder.OwnsOne(b => b.Address, addr =>
         {
             addr.Property(a => a.CivicNumber).HasColumnName("Address_CivicNumber").HasMaxLength(10);

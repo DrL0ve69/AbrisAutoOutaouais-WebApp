@@ -1346,8 +1346,8 @@
         <target>Please choose a time slot.</target>
       </trans-unit>
       <trans-unit id="installation.success" datatype="html">
-        <source>Réservation confirmée !</source>
-        <target>Booking confirmed!</target>
+        <source>Réservation enregistrée — suivez les instructions de virement Interac pour la régler.</source>
+        <target>Booking saved — follow the Interac e-Transfer instructions to pay for it.</target>
       </trans-unit>
       <trans-unit id="installation.error" datatype="html">
         <source>La réservation a échoué. Veuillez réessayer.</source>
@@ -3778,6 +3778,86 @@
       <trans-unit id="location.size.unavailable" datatype="html">
         <source> Cette combinaison longueur/hauteur n&apos;est pas offerte pour cet abri. </source>
         <target> This length/height combination is not offered for this shelter. </target>
+      </trans-unit>
+      <trans-unit id="installation.etransfer.heading" datatype="html">
+        <source> Réglez votre réservation par virement Interac </source>
+        <target> Pay for your booking by Interac e-Transfer </target>
+      </trans-unit>
+      <trans-unit id="installation.etransfer.intro" datatype="html">
+        <source> Votre réservation est enregistrée. Envoyez un virement Interac avec les informations ci-dessous pour la régler. Conservez la référence : elle permet de rapprocher votre paiement. </source>
+        <target> Your booking has been saved. Send an Interac e-Transfer with the details below to pay for it. Keep the reference: it lets us match your payment. </target>
+      </trans-unit>
+      <trans-unit id="installation.etransfer.recipient" datatype="html">
+        <source>Courriel destinataire</source>
+        <target>Recipient email</target>
+      </trans-unit>
+      <trans-unit id="installation.etransfer.amount" datatype="html">
+        <source>Montant à virer</source>
+        <target>Amount to transfer</target>
+      </trans-unit>
+      <trans-unit id="installation.etransfer.reference" datatype="html">
+        <source>Référence à inscrire dans le message</source>
+        <target>Reference to include in the message</target>
+      </trans-unit>
+      <trans-unit id="installation.etransfer.done" datatype="html">
+        <source> Terminé — retour à l&apos;accueil </source>
+        <target> Done — back to home </target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.table.payment" datatype="html">
+        <source>Paiement</source>
+        <target>Payment</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.status.pendingPayment" datatype="html">
+        <source>En attente de paiement</source>
+        <target>Awaiting payment</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.payment.confirmed" datatype="html">
+        <source>Payé</source>
+        <target>Paid</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.payment.awaiting" datatype="html">
+        <source>En attente</source>
+        <target>Awaiting</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.action.markPaid" datatype="html">
+        <source> Marquer payé </source>
+        <target> Mark as paid </target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.action.markPaidLabel" datatype="html">
+        <source>Marquer payé — <x id="ref" equiv-text="reference"/></source>
+        <target>Mark as paid — <x id="ref" equiv-text="reference"/></target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.toast.paid" datatype="html">
+        <source>Paiement réconcilié — réservation confirmée.</source>
+        <target>Payment reconciled — booking confirmed.</target>
+      </trans-unit>
+      <trans-unit id="admin.bookings.toast.paidError" datatype="html">
+        <source>La réconciliation du paiement a échoué.</source>
+        <target>Payment reconciliation failed.</target>
+      </trans-unit>
+      <trans-unit id="admin.calendar.status.pendingPayment" datatype="html">
+        <source>En attente de paiement</source>
+        <target>Awaiting payment</target>
+      </trans-unit>
+      <trans-unit id="account.reservations.status.pendingPayment" datatype="html">
+        <source>En attente de paiement</source>
+        <target>Awaiting payment</target>
+      </trans-unit>
+      <trans-unit id="account.reservations.status.pending" datatype="html">
+        <source>En attente</source>
+        <target>Pending</target>
+      </trans-unit>
+      <trans-unit id="account.reservations.status.confirmed" datatype="html">
+        <source>Confirmée</source>
+        <target>Confirmed</target>
+      </trans-unit>
+      <trans-unit id="account.reservations.status.completed" datatype="html">
+        <source>Complétée</source>
+        <target>Completed</target>
+      </trans-unit>
+      <trans-unit id="account.reservations.status.cancelled" datatype="html">
+        <source>Annulée</source>
+        <target>Cancelled</target>
       </trans-unit>
     </body>
   </file>

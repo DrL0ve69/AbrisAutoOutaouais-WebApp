@@ -10,7 +10,47 @@
       </p>
     </header>
 
-    @if (loading()) {
+    <!-- L'étape « instructions » prime (L-053) : une fois la réservation enregistrée, on ne doit pas
+         retomber sur le chargement/formulaire mais rester sur les instructions de virement (EPIC 7.3). -->
+    @if (step() === 'instructions') {
+
+    <!-- Étape virement Interac (e-Transfer) — moyen de paiement RÉEL (EPIC 7.3). -->
+    <section class="etransfer" aria-labelledby="etransfer-heading">
+      <!-- Cible de focus INCONDITIONNELLE dès `step==='instructions'` (hors du @if interne) : l'effet
+           de focus (L-006) trouve toujours le titre, même si `paymentInstructions` devenait nullable. -->
+      <h2 id="etransfer-heading" tabindex="-1" #instructionsHeading i18n="@@installation.etransfer.heading">
+        Réglez votre réservation par virement Interac
+      </h2>
+      <p class="etransfer__intro" i18n="@@installation.etransfer.intro">
+        Votre réservation est enregistrée. Envoyez un virement Interac avec les informations
+        ci-dessous pour la régler. Conservez la référence : elle permet de rapprocher votre paiement.
+      </p>
+
+      @if (paymentInstructions(); as pay) {
+      <dl class="etransfer__details">
+        <div class="etransfer__row">
+          <dt i18n="@@installation.etransfer.recipient">Courriel destinataire</dt>
+          <dd class="etransfer__value etransfer__value--select">{{ pay.recipientEmail }}</dd>
+        </div>
+        <div class="etransfer__row">
+          <dt i18n="@@installation.etransfer.amount">Montant à virer</dt>
+          <dd class="etransfer__value">{{ pay.amount | currency:'CAD':'symbol-narrow':'1.2-2':'fr-CA' }}</dd>
+        </div>
+        <div class="etransfer__row">
+          <dt i18n="@@installation.etransfer.reference">Référence à inscrire dans le message</dt>
+          <dd class="etransfer__value etransfer__value--select etransfer__value--ref">{{ pay.reference }}</dd>
+        </div>
+      </dl>
+
+      <p class="etransfer__instructions">{{ pay.instructions }}</p>
+      }
+
+      <a routerLink="/" class="btn btn--primary btn--lg" i18n="@@installation.etransfer.done">
+        Terminé — retour à l'accueil
+      </a>
+    </section>
+
+    } @else if (loading()) {
     <output class="booking__loading" aria-busy="true" i18n="@@installation.loading">
       Chargement des créneaux disponibles…
     </output>

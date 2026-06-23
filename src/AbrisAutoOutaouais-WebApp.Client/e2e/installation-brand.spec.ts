@@ -80,9 +80,22 @@ async function gotoInstallation(page: Page, catalog: unknown): Promise<void> {
 
 test('Catalogue — choix marque puis modèle, dimensions affichées, POST avec chaînes exactes', async ({ page }) => {
   let postedBody: unknown = null;
+  // POST /bookings renvoie désormais { id, payment } (EPIC 7.3) ; après soumission la page bascule
+  // sur le panneau e-Transfer (plus de redirection) — L-051 : on aligne le mock sur le nouveau contrat.
   await page.route('**/api/v1/bookings', (route) => {
     if (route.request().method() === 'POST') postedBody = route.request().postDataJSON();
-    return route.fulfill({ status: 201, json: { id: 'b1' } });
+    return route.fulfill({
+      status: 201,
+      json: {
+        id: 'b1',
+        payment: {
+          reference: 'INST-ETR-0001',
+          recipientEmail: 'paiements@abristempo.ca',
+          amount: 150,
+          instructions: 'Faites un virement Interac avec la référence dans le message.',
+        },
+      },
+    });
   });
 
   await gotoInstallation(page, CATALOG);
