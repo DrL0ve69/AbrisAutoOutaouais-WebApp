@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **AbrisTempo Local** (`AbrisAutoOutaouais-WebApp`) — e-commerce + booking web app for a regional rep of the [Abris Tempo](https://www.abristempo.com/en) brand. Three business domains: **product sales** (with delivery), **shelter rentals**, and **installation booking**. .NET 10 / C# 14 backend, Angular 21 frontend.
 
-> The `.ai/` folder (`CLAUDE.md`, `QUICKSTART.md`, `LAYER_*.md`, etc.) documents the *intended design*. It has **drifted from the actual code** — trust the source, not those docs. The biggest divergences are called out below (single DbContext, project paths, handler registration). When `.ai/` and reality conflict, the code wins.
+> Deep engineering reference lives in **`docs/engineering/`** — [`identity.md`](docs/engineering/identity.md) (auth/authz), [`adding-a-feature.md`](docs/engineering/adding-a-feature.md) (CQRS walkthrough), [`project-layout.md`](docs/engineering/project-layout.md) (file tree). This `CLAUDE.md` + `.claude/` are the canonical quick guide. When docs and reality conflict, the code wins.
 
 ## Build & Run
 
@@ -40,7 +40,7 @@ npm run i18n:extract   # extract i18n strings → src/locale (xlf)
 
 ### EF Core migrations — single context
 
-There is **one** `ApplicationDbContext` that holds **both** ASP.NET Core Identity *and* the domain entities (NOT two contexts — ignore the `AppIdentityDbContext` / two-connection-string instructions in `.ai/`). Connection string key is `DefaultConnection` (SQL Server LocalDB, database `AbrisTempoDb`). Migrations live in `Infrastructure/Persistence/Migrations`.
+There is **one** `ApplicationDbContext` that holds **both** ASP.NET Core Identity *and* the domain entities (NOT two contexts — there is no `AppIdentityDbContext` and no second connection string). Connection string key is `DefaultConnection` (SQL Server LocalDB, database `AbrisTempoDb`). Migrations live in `Infrastructure/Persistence/Migrations`. Full detail: [`docs/engineering/identity.md`](docs/engineering/identity.md).
 
 ```powershell
 dotnet ef migrations add <Name> `
