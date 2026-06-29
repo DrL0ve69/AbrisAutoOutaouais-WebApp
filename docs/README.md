@@ -28,6 +28,9 @@ le critère correspondant.
 
 | Document | Contenu |
 |----------|---------|
+| [`engineering/identity.md`](engineering/identity.md) | **Authentification & autorisation** ancrées au code : `AppUser`/`AppRole` (Infrastructure), `IdentityService`/`TokenService`/`CurrentUserService`, `IdentitySeeder`, comptes express (invités), config JWT, rôles `Customer`/`Staff`/`Admin` + policies `StaffOrAbove`/`AdminOnly`, et l'unique `ApplicationDbContext` (Identity + métier). |
+| [`engineering/adding-a-feature.md`](engineering/adding-a-feature.md) | **Pas-à-pas pour ajouter un cas d'usage backend** (CQRS + Mediator maison) : `sealed record … : ICommand<T>`, handler `HandleAsync`, validateur FluentValidation, auto-enregistrement Scrutor, controller mince `DispatchAsync`. |
+| [`engineering/project-layout.md`](engineering/project-layout.md) | **Carte de l'arborescence réelle** : Domain / Application / Infrastructure / API + client Angular, avec le rôle de chaque dossier. |
 | [`design-patterns.md`](design-patterns.md) | Les **23 patrons de conception (GoF)** ancrés au code réel du dépôt : intention, fichier(s) où chaque patron vit, et étude de cas **« MediatR → Dispatcher maison »**. Pose la règle *coder le patron soi-même vs. ajouter une dépendance*. |
 | [`architecture-microservices.md`](architecture-microservices.md) | **Microservices** : définition, quand (ne pas) les utiliser, coût réel, et **meilleure option par cas** — pourquoi ce projet est un **monolithe modulaire** (et le reste par choix). |
 | [`infra-terraform.md`](infra-terraform.md) | **Terraform & IaC** : déclaratif vs impératif, le cycle `plan`/`apply`, mapping **1:1 de nos commandes `az` → Terraform**, et le multi-fournisseurs. |
